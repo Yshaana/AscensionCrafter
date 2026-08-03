@@ -1,10 +1,17 @@
-# Project Ascension — Paladin Build Handoff (v7)
+# Project Ascension — Paladin Build Handoff (v8)
 
 **Location:** `builds/my-builds/build_paladin-hammerdin.md` (renamed from `Ascension_Paladin_Handoff.md` in the v12 restructure).
 
 **Purpose:** Continue work on my Ascension (WoW private server) Paladin character. **Classless server, Season 10, Wildcard mode.** Pair this with `primer/Ascension_Context_Primer.md` (v12) and `index/ascension_index.db` (queryable spell/card index — see primer §2a).
 
 **Realm:** Darkmoon (classless seasonal wildcard).
+
+**v8 changelog (2026-08-03):** Daily patch-note check (new standing practice, primer §5) against `https://ascension.gg/en/changelog/1`, Darkmoon-filtered. Two entries relevant to this build, both going live 2026-08-03:
+
+- **Enhanced Weapon Mastery / Answered Prayers / Unending Fury / Blessed Weapons exclusivity is now a codified server rule**, not just a live-tooltip clause. No verdict change — §7 already has EWM correctly flagged as bucket-blocked and rerolled away — but this raises the fact's confidence tier from "live-tooltip-confirmed" to "patch-note-confirmed." No action needed.
+- **⚠ New open item: proc-trigger fix for off-GCD / On-Next-Hit replacement abilities** ("certain proc effects could be triggered by abilities that are not on the global cooldown, including... Cleave, Raptor Strike, Maul and Heroic Strike... restores intended proc behaviour"). **Lightbound Cleave is exactly this ability shape** — Cleave-tagged, off-GCD, next-swing-queued (§0, §11). If LC's proc interactions were affected by the bug this patch fixes, its behavior may have shifted today. **Added to §9 test queue** — needs a fresh dummy check on what LC does and doesn't feed post-patch, since §2's confirmed "Lightbound Cleave = 0 Hammerdin procs" verdict predates this fix and should be re-verified rather than assumed to still hold unchanged.
+
+Also noted, not directly actionable: a 2026-07-28 Darkmoon-wide fix corrected Path of Duality not granting Ranged Attack Power — a different clause than the SP-amp/cross-crit-conversion question in §4/§9 item 1, doesn't resolve it.
 
 **v7 changelog (2026-08-02, late night):** Decoded another player's ("Sling") full 6-spec loadout via `decode_inspect_export.py` and compared his Paladin/Hammerdin spec against this build (§8). **Two external data points added to the chase list**: he's running both Divine Storm and Execution Sentence, both currently on our own chase list — evidence they're live and playable, not a substitute for our own parse. **Retraction**: §8's *"Avenging Wrath / Guardian of Ancient Kings — substitutes, take the first"* was wrong — they're independent cooldowns on separate systems (flat all-damage buff vs. Holy-specific cooldown-reset-and-buff), not redundant picks; both belong on the chase list. Also observed: Sling runs Enhanced Weapon Mastery live (undisputed, since he carries none of its exclusivity-bucket mates) — a clean real-world illustration that the same card's dead/alive status depends entirely on the rest of the board, not the card itself.
 
@@ -24,6 +31,7 @@
   2. **Fix the rotation** — Judgement and Holy Shock are being cast ~3 times per 5-minute fight (§11). Largest free gain available.
   3. **Run the Miss/Dodge breakdown on Hammer from the Heavens** (§10) — settles whether hit and expertise are worth anything at all
   4. **Gear for crit** — it is the best stat by a distance and nothing else is close
+  5. **(v8, new)** Re-check Lightbound Cleave's proc interactions post-2026-08-03-patch — see v8 changelog above and §9 item 10
 
 ---
 
@@ -50,7 +58,7 @@
 | Judgement / Holy Shock | — (native) | Paladin | **Yes — underused, see §11** |
 | Dawn Strike | Sinister Strike | Rogue | No |
 | Holy Finish | Eviscerate | Rogue | No |
-| Lightbound Cleave | Cleave | Warrior | **No — confirmed** |
+| Lightbound Cleave | Cleave | Warrior | **No — confirmed pre-2026-08-03 patch; re-verify, see §9 item 10** |
 | Whirling Light | Whirlwind | Warrior | No |
 | **Blades of Light** | **Bladestorm** | **Warrior** | **No — and it blocks everything else** |
 
@@ -79,7 +87,7 @@ Two independent signals, both from the live sheet:
 
 **Consequence:** Int no longer widens the melee-over-spell crit lead. It narrows it (spell-side only). The v4 claim that "no gear allocation can push spell crit above melee crit" was directionally backwards — though the practical conclusion is moot now that spell crit is the priority anyway.
 
-**Action:** confirm the active Path in-game. Path switching is free and instant, so this may simply be the wrong path selected. If Duality *is* active and neither clause fires, it's a bug worth reporting.
+**Action:** confirm the active Path in-game. Path switching is free and instant, so this may simply be the wrong path selected. If Duality *is* active and neither clause fires, it's a bug worth reporting. *(Note: a 2026-07-28 Darkmoon patch fixed Duality not granting Ranged Attack Power — a different clause, doesn't resolve this.)*
 
 ### ✅ Holystrike crits on the SPELL table — §9 #5 RESOLVED
 
@@ -113,7 +121,7 @@ Cannot crit   15.3%   (Righteous Vengeance, Holy Vengeance DoT, Hour of Judgemen
 - Measured contribution **6.4–9.0%** of total damage
 - **Raises the marginal value of a crit by 40%**: a crit is now worth 2.6× a normal hit instead of 2.0×
 
-This is why spell crit dominates the weights — every crit seeds a DoT on top.
+This is why spell crit dominates the weights — every crit seeds a DoT on top. *(Also relevant for comparison: `builds/shared/synergy_winds-of-winter.md` runs the same talent and reports 87.7–89.5% uptime feeding off a near-100% crit rate — consistent with the pooling mechanic here.)*
 
 ### ✅ Confirmed magnitudes (live tooltips)
 
@@ -123,7 +131,7 @@ This is why spell crit dominates the weights — every crit seeds a DoT on top.
 | Vengeance (Paladin r3) | **3% per stack, 3 stacks, 30s** → 9% Physical + Holy |
 | Blood Gorged | **+10% damage above 75% health, +10% armour ignore** |
 | Deadliness r5 | **+10% attack power** |
-| Enhanced Weapon Mastery | +4% all damage — **⚠ does not stack with Answered Prayers, Unending Fury or Blessed Weapons; highest only** |
+| Enhanced Weapon Mastery | +4% all damage — **⚠ does not stack with Answered Prayers, Unending Fury or Blessed Weapons; highest only. As of 2026-08-03, this is a codified Darkmoon server rule, not just a tooltip clause (v8).** |
 | Righteous Vengeance | 30% of crit damage as an 8s Holy DoT |
 | Crit rating conversion | **exactly 14.0 rating per 1%**, identical on both schools |
 
@@ -178,7 +186,7 @@ Spell:  Bonus Damage 400 · Bonus Healing 379 · hit 57/96 · haste 29 · crit 1
 
 **⚠ Neither weapon itemises SP or Int.** With the SP amp currently absent this is moot, but if Duality comes back online, look for an SP/Int 2H sword before committing.
 
-**⚠ Titan's Grip is closer than "premise card" implies.** It costs −10% physical *and* +19% white miss. Its wins are Whirling Light (only ability using both weapons) and roughly 1.6× the CHW proc rate. Dropping it would free an ability guarantee slot and re-enable Sword Spec's +40% single-2H rider. Worth an actual A/B parse.
+**⚠ Titan's Grip is closer than "premise card" implies.** It costs −10% physical *and* +19% white miss. Its wins are Whirling Light (only ability using both weapons) and roughly 1.6× the CHW proc rate. Dropping it would free an ability guarantee slot and re-enable Sword Spec's +40% single-2H rider. Worth an actual A/B parse. *(Comparison note: `builds/shared/synergy_winds-of-winter.md` also runs Titan's Grip, but on a build where the core nuke doesn't scale off weapon damage at all — its −10% physical tax matters even less there than it does for us, since JotTH and Consecrated Weapon both pay it here.)*
 
 ---
 
@@ -266,6 +274,7 @@ Confirmed present in the v6 live export but **not core rotation** — player-con
 7. **Dark Justicar consume-vs-hold** once acquired: Judgement eats 10 SoV stacks for burst but drops Inevitable Vengeance's debuff to zero.
 8. **Mental Quickness exclusivity** — does it pool with Holy Focus's capstone or Answered Prayers?
 9. **Reroll mechanic** — does the partial-rank upgrade bonus apply to any slot or only the holding slot?
+10. **🆕 (v8) Re-verify Lightbound Cleave's proc behavior post-2026-08-03 patch.** The patch note "fixed an issue where certain proc effects could be triggered by abilities that are not on the global cooldown, including... Cleave... restores intended proc behaviour" directly targets LC's ability shape (off-GCD, Cleave-tagged, next-swing-queued). §2's "0 Hammerdin procs" verdict was measured before this fix — confirm it still holds, and check whether LC's interaction with any other proc engine (JotTH, PBL) changed too.
 
 ---
 
@@ -365,6 +374,7 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 - ✅ Blades of Light locks out other abilities and starves Hammerdin
 - ✅ **(v6) Lunar Guidance independently confirmed slotted** — matches the v5 hypothesis that it alone (unamped) explains the 5.5% Bonus Damage/Healing gap in §4
 - ✅ **(v6) Shadow Strikes, Enhanced Weapon Mastery, Seals of the Pure confirmed rerolled away** since v5, replaced by Accuracy + Glyph of Seal of Command + Glyph of Blood Strike
+- ✅ **(v8) Enhanced Weapon Mastery's exclusivity bucket is now a codified Darkmoon server rule** (2026-08-03 patch), upgrading its confidence from tooltip-only to patch-note-confirmed. No verdict change.
 
 **Retracted:**
 - ❌ "Int → melee crit ≈ 38/1% CONFIRMED" — contaminated single-item reading
@@ -377,6 +387,8 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 **Cross-character observation (v7, not a measurement — treat as evidence, not confirmation):**
 - Enhanced Weapon Mastery is **live** on another player's comparable Paladin/Hammerdin spec, since his board carries none of the all-damage% exclusivity bucket's other members (no Answered Prayers, Unending Fury, Blessed Weapons, Blood Gorged, or Improved Blood Presence). Same card, opposite verdict from ours purely because of board composition — a clean illustration that "is this card dead" has no fixed answer independent of the rest of the board (primer §2, exclusivity buckets).
 
+**Related external reference (v12, not part of this build):** `builds/shared/synergy_winds-of-winter.md` documents a different player's Titan's Grip Int/AP dual-scaling build encountered 2026-08-03. Two overlapping pieces worth noting for comparison: it runs the same Righteous Vengeance talent (87.7–89.5% uptime, consistent with our own pooling measurement above) and the same Hammerdin talent this build's name comes from. Its core finisher's quadratic-combo-point scaling is the same shape as our own Holy Finish — see primer §1/v12 for the cross-reference. Not a suggested pivot; different stat posture (dual AP+SP vs. our SP-lane separation).
+
 **Still open:**
 1. **Is Path of Duality actually active?** *(highest priority)*
 2. Hammer from the Heavens' coefficients (hidden sub-spell 282987) — 22.1% of damage
@@ -386,6 +398,7 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 6. Mental Quickness exclusivity bucket
 7. Dark Justicar consume-vs-hold once acquired
 8. **(v6) Accuracy's exact rank** — not yet read from a live tooltip
+9. **(v8, new) Lightbound Cleave proc behavior post-2026-08-03 patch** — see §9 item 10
 
 ---
 
@@ -396,3 +409,4 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 - Gear targets rebuilt around **spell hit → expertise → spell crit**
 - Continued chase-list rolling as scrolls accumulate (Combat Expertise, Blood Gorged, Conviction, Dark Justicar, Inevitable Vengeance)
 - Dungeon-AoE loadout variant, where Blades of Light and Light's Hammer become correct
+- **(v8) Lightbound Cleave dummy re-check** — first item, cheap and directly patch-motivated
