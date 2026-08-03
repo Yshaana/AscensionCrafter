@@ -1,6 +1,13 @@
-# Ascension Spell/Card Index — Guide (v4)
+# Ascension Spell/Card Index — Guide (v5)
 
-**v4 changelog (2026-08-03):** Added outlier-build scouting tooling — `index/scout_ascensionlogs.js` (browser console, pulls from `darkmoon.ascensionlogs.gg`'s REST API) + `index/ingest_scouted_build.py` (loads the JSON into five new `scouted_*` tables). Purely additive, doesn't touch `spells`/`spell_scaling`/`owned_cards`/anything from v1-v3. Two open items carried over from the tooling's own README, not resolved here:
+**v5 changelog (2026-08-03):** Amendment to v4 — split scouted-build data back out of `ascension_index.db` into its own `index/scouted_builds.db`, a separate/optional/rebuildable database (same "derived cache, not source of truth" rule as `ascension_index.db` itself — see the scouting section below). Reason: `scouted_*` data grows every time a new outlier gets scouted over the season, and mixing external reference data into the core spell/card index bloated it and polluted unrelated queries. Also replaced the browser-console-only scout workflow with a pure-Python primary path:
+- **`index/ingest_scouted_build.py` deleted**, replaced by **`index/build_scouted_builds_db.py`** — scans `index/scouted/*.json` automatically (no file args needed) and targets `scouted_builds.db`, not `ascension_index.db`.
+- **`index/scout_ascensionlogs_cli.py` added** — pure-Python (`requests`), no browser needed, writes straight to `index/scouted/`. Now the **primary** scouting path; `scout_ascensionlogs.js` (browser console) is the fallback for when Claude is driving a live browser tab mid-conversation and wants to scout something ad hoc without shelling out to a separate script.
+- **`ascension_index.db` no longer defines any `scouted_*` table** — the five tables from v4 (`scouted_characters`, `scouted_gear`, `scouted_build_entries`, `scouted_rankings`, `scouted_capture_history`) now live only in `scouted_builds.db`, unchanged in shape/columns.
+- Two write-ups added to `builds/shared/` (`scouted_David_2026-08-03.md`, `scouted_Mcflurry_2026-08-03.md`) plus `scouted_build_TEMPLATE.md` for future ones — see the repo-layout table below.
+- The v4 open items (entry_id↔`spells.id` correspondence, fight-level damage-breakdown endpoint) are **unresolved, carried over unchanged** — this amendment is a storage/workflow split only, not new investigation.
+
+**v4 changelog (2026-08-03):** Added outlier-build scouting tooling — `index/scout_ascensionlogs.js` (browser console, pulls from `darkmoon.ascensionlogs.gg`'s REST API) + `index/ingest_scouted_build.py` (loads the JSON into five new `scouted_*` tables). Purely additive, doesn't touch `spells`/`spell_scaling`/`owned_cards`/anything from v1-v3. Two open items carried over from the tooling's own README, not resolved here (see v5 above — both still open):
 - **`scouted_build_entries.entry_id` vs. our `spells.id` — NOT confirmed to be the same ID space.** Do not join the two tables until checked live (pick a known entry_id, e.g. Shadow Bolt = 40050 in the sample capture, confirm it resolves to the same ability in `spell-export.json`). No query below performs this join.
 - **Fight-level per-ability damage breakdown endpoint not found.** `GET /api/reports/{id}` returns metadata only; `/summary`, `/fights`, `/table`, `/damage-done` all 404'd this session. Needs a network-trace capture of an actual report page click, not further endpoint guessing.
 
@@ -21,7 +28,7 @@ python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_con
 ```
 if the source exports change. Add `python3 build_dbc_index.py` (needs local client access + a built StormLib) if you also need `spell_dbc_raw`/`dbc_*`/`index/dbc-extract.json` refreshed, and the hidden-formula resolver re-run against the current `has_hidden_formula=1` list — **not part of the routine per-session rebuild above**, since it depends on the local WoW client rather than plain-text project files that mount cleanly every time. Run it last if included — it reads `spells`/`hidden_refs` state produced by the steps above.
 
-Similarly, `python3 ingest_scouted_build.py index/scouted/scouted_*.json` (v4) is **not part of the routine per-session rebuild chain** either — same treatment as `build_dbc_index.py` above, because it depends on an external/manual data source (a browser-console capture from `darkmoon.ascensionlogs.gg`, see the scouting section below) rather than the plain-text project mounts the routine chain reads. It only runs when new scout JSON files exist in `index/scouted/`.
+Similarly, `python3 build_scouted_builds_db.py` (v5) targets a **separate database, `index/scouted_builds.db`, not `ascension_index.db`** — it is not part of either db's rebuild chain, and depends on scout JSON existing in `index/scouted/` first (see the scouting section below for how that JSON gets there).
 
 ## Repo layout / naming convention (v12)
 
@@ -30,6 +37,7 @@ Similarly, `python3 ingest_scouted_build.py index/scouted/scouted_*.json` (v4) i
 | `build_*` | `builds/my-builds/` | Locked, authoritative, iterable — your own build docs |
 | `wip_*` | `builds/wip/` | Theorycraft in progress, not yet a committed board |
 | `synergy_*` | `builds/shared/` | External engine/scaling reference extracts only — **not** full gear/talent dumps |
+| `scouted_*` | `builds/shared/` | Full write-up of a scouted external character's build/gear/performance (v5) — same tier as `synergy_*`, format defined by `scouted_build_TEMPLATE.md` |
 
 Filenames carry the prefix (not just the folder) because flat project-knowledge mounts lose folder context. `primer/` holds this guide and the systems primer; `index/` holds every index-building script plus the raw exports and generated artifacts.
 
@@ -114,52 +122,9 @@ Seeded with the 4 known buckets from the primer (Enhanced Weapon Mastery/Unendin
 
 Hand-seeded with the 3 primer §5 cases, then bulk-scanned across all `type='talent'` tooltips for amplifier language (`increases ... by $sN%` patterns). The bulk pass is intentionally conservative — anything that doesn't cleanly resolve to either a known ability/hybrid-school name or a bare pure-school name gets `match_type='school_generic'` with a `'needs manual review'` note rather than a forced classification (~70% of bulk hits landed here, since the pattern also catches non-damage amplifiers like crit/dodge/block chance).
 
-**scouted_characters** (v4, `ingest_scouted_build.py`) — one row per (character, scouted_at) snapshot, latest wins on re-scout.
-| Column | Meaning |
-|---|---|
-| character_id, name, class, spec, race, guild_name | identity fields from the site's armory record |
-| primary_stat_token | the character's active path/primary-stat token at capture time |
-| scouted_at | ISO timestamp of the capture — the snapshot key, paired with character_id |
-| captured_for_boss | which boss encounter the underlying capture was taken for, if any |
-
-**scouted_gear** (v4) — one row per (character, scouted_at, slot); full item resolution including stats and gems, not just item names.
-| Column | Meaning |
-|---|---|
-| character_id, scouted_at, slot | composite key |
-| item_id, item_name, quality | catalog identity |
-| enchant_id, enchant_name | resolved enchant, if any |
-| gem1-gem4 | socketed gem IDs |
-| stats_json, damage_json | raw resolved stat/damage blocks, JSON-encoded (shape varies by item type) |
-| drop_source, source_category, tier | where it drops from and its category/mythic tier |
-
-**scouted_build_entries** (v4) — one row per (character, scouted_at, tree, entry_id); every ability + talent on the scouted build.
-| Column | Meaning |
-|---|---|
-| character_id, scouted_at, tree, entry_id | composite key. `tree` is `abilities` or `talents` |
-| name, icon | display fields |
-| rank, max_ranks | current rank vs. cap |
-| tooltip | tooltip text **at the current rank only** (`per_rank_tooltip_json[rank-1]`) |
-| per_rank_tooltip_json | full per-rank tooltip array — richer than our own `spells.tooltip`, which only stores text at one (owned) rank |
-
-⚠ **Do not join `entry_id` to `spells.id`** — see the v4 changelog open item above, unconfirmed to be the same ID space.
-
-**scouted_rankings** (v4) — one row per (character, scouted_at, phase, zone, boss); only rows with `kills > 0` are kept (the source API returns every zone/boss including zero-kill filler, dropped at capture time).
-| Column | Meaning |
-|---|---|
-| character_id, scouted_at, phase, zone, boss_name | composite key |
-| spec | spec active for this ranking row |
-| best_dps, best_rank_dps, best_rank_dps_total, best_rank_dps_percentile | this character's best logged parse for this boss |
-| fastest_duration_ms, kills | supporting context for the DPS figure |
-
-**scouted_capture_history** (v4) — one row per past capture, keyed by the site's own `capture_id`. Exists mainly as linkage for future fight-level digging (see below) — `report_id` is the handle a future damage-breakdown fetcher would need.
-| Column | Meaning |
-|---|---|
-| character_id, capture_id | composite key |
-| captured_at, boss_name, report_id, location, success | capture metadata |
-
-Since `scouted_gear`/`scouted_build_entries` are keyed by `(character_id, scouted_at, ...)`, re-scouting the same character periodically builds a timeline of gear/build changes across a season rather than just a single snapshot.
-
 **Also see primer §5 for the daily patch-note check practice** (not duplicated here — kept in one place to avoid drift between docs).
+
+The `scouted_*` tables (characters, gear, build entries, rankings, capture history) **no longer live in `ascension_index.db`** as of v5 — they moved to a separate `scouted_builds.db`, documented in its own subsection under "External tool: scouting ascensionlogs.gg builds" below.
 
 ## Confidence tiers for class_origin (read before trusting one)
 
@@ -227,20 +192,23 @@ SELECT s.name, ss.term_type, ss.coefficient
 FROM spell_scaling ss JOIN spells s ON s.id = ss.spell_id
 WHERE ss.cp_scaling_type = 'quadratic';
 
--- Show me a scouted character's full build (v4)
+-- Show me a scouted character's full build (v4/v5)
+-- run against scouted_builds.db, NOT ascension_index.db
 SELECT sc.name, sc.class, sc.spec, sbe.tree, sbe.name AS ability, sbe.rank, sbe.max_ranks, sbe.tooltip
 FROM scouted_characters sc JOIN scouted_build_entries sbe
   ON sc.character_id = sbe.character_id AND sc.scouted_at = sbe.scouted_at
 WHERE sc.name = 'David'
 ORDER BY sbe.tree, sbe.name;
 
--- Which scouted characters are running a given talent by name (v4)
+-- Which scouted characters are running a given talent by name (v4/v5)
+-- run against scouted_builds.db, NOT ascension_index.db
 SELECT sc.name, sc.class, sc.spec, sbe.rank, sbe.max_ranks
 FROM scouted_build_entries sbe JOIN scouted_characters sc
   ON sc.character_id = sbe.character_id AND sc.scouted_at = sbe.scouted_at
 WHERE sbe.name = 'Winds of Winter';
 
--- A scouted character's best logged parses, best boss first (v4)
+-- A scouted character's best logged parses, best boss first (v4/v5)
+-- run against scouted_builds.db, NOT ascension_index.db
 SELECT sr.boss_name, sr.zone, sr.best_dps, sr.best_rank_dps, sr.best_rank_dps_percentile
 FROM scouted_rankings sr JOIN scouted_characters sc
   ON sc.character_id = sr.character_id AND sc.scouted_at = sr.scouted_at
@@ -292,13 +260,17 @@ Two separate encodings in one payload: spec data is **base-36 spell IDs**, gear 
 
 ## External tool: scouting ascensionlogs.gg builds
 
-`darkmoon.ascensionlogs.gg` is a **live REST API, not scraped HTML** — confirmed via network trace: every gear/talent/ability tooltip comes back fully resolved server-side, including **per-rank tooltip text** for multi-rank talents (richer than our own static `spell-export.json`, which only stores one tooltip per card at its current/owned rank). Same "live data source, separate from the offline index" category as `inspects.nie.one` above, but pulled into `ascension_index.db` as the `scouted_*` tables (v4) rather than left as one-off decoded output.
+`darkmoon.ascensionlogs.gg` is a **live REST API, not scraped HTML** — confirmed via network trace: every gear/talent/ability tooltip comes back fully resolved server-side, including **per-rank tooltip text** for multi-rank talents (richer than our own static `spell-export.json`, which only stores one tooltip per card at its current/owned rank). Same "live data source, separate from the offline index" category as `inspects.nie.one` above, pulled into **`index/scouted_builds.db`** — a **separate, optional, rebuildable database** from `ascension_index.db` (v5; see the v5 changelog above for why it split out). Same framing as `ascension_index.db` itself: derived cache, not source of truth, rebuild anytime from the committed plain-text/JSON in `index/scouted/`.
 
-**Workflow:**
-1. **Discover outliers** (optional — skip if you already have names): open DevTools console on any `darkmoon.ascensionlogs.gg` page, paste `index/scout_ascensionlogs.js`, then run `findTopCharacters(zone, phase, limit)` — see below.
-2. **Scout a build**: `const data = await scoutCharacter('David')`, then `downloadJSON(data, 'David')` to save it to Downloads (or `scoutMany([...names])` for several at once).
-3. **Manual upload step**: bring the downloaded JSON file into the chat/project mount yourself. **This step is a hard constraint, not a preference** — relaying large JSON back through Claude's chat tool channel truncates around ~1KB, so console-return alone doesn't scale past a couple KB. Don't try to "fix" it by chunking the payload back through chat.
-4. **Ingest**: `python3 ingest_scouted_build.py index/scouted/scouted_David_*.json` (run from `index/`, alongside `ascension_index.db`) — additive, safe to re-run, idempotent (`CREATE TABLE IF NOT EXISTS`, `INSERT OR REPLACE`).
+**Workflow — `scout_ascensionlogs_cli.py` (primary) vs. `scout_ascensionlogs.js` (fallback):**
+- **Primary — pure Python, no browser (v5):** `cd index && python3 scout_ascensionlogs_cli.py David Mcflurry` (or `--top "Zul'Gurub" --phase 1 --limit 10` to auto-discover outliers). Requires `pip install requests`. Writes straight to `index/scouted/scouted_<name>_<date>.json` — no console paste, no download, no manual chat upload. Use this for routine/bulk scouting.
+- **Fallback — browser console (`scout_ascensionlogs.js`):** for when Claude is driving a live browser tab mid-conversation and wants to scout something ad hoc without shelling out to a separate script.
+  1. **Discover outliers** (optional — skip if you already have names): open DevTools console on any `darkmoon.ascensionlogs.gg` page, paste `index/scout_ascensionlogs.js`, then run `findTopCharacters(zone, phase, limit)` — see below.
+  2. **Scout a build**: `const data = await scoutCharacter('David')`, then `downloadJSON(data, 'David')` to save it to Downloads (or `scoutMany([...names])` for several at once).
+  3. **Manual upload step**: bring the downloaded JSON file into the chat/project mount yourself. **This step is a hard constraint, not a preference** — relaying large JSON back through Claude's chat tool channel truncates around ~1KB, so console-return alone doesn't scale past a couple KB. Don't try to "fix" it by chunking the payload back through chat. (This is exactly the manual step the CLI path above exists to skip.)
+- **Build the db (either path, v5):** `python3 build_scouted_builds_db.py` (run from `index/`) — scans `index/scouted/*.json` automatically, no file args needed, rebuilds `scouted_builds.db` from scratch each run.
+
+**Write-up convention:** after reviewing a scouted build in chat, add a `builds/shared/scouted_<name>_<date>.md` write-up by hand using `scouted_build_TEMPLATE.md` as the format — same tier as `synergy_*.md`. See `scouted_David_2026-08-03.md` / `scouted_Mcflurry_2026-08-03.md` for filled examples.
 
 **`findTopCharacters(zone, phase, limit)`** — leaderboard-discovery helper, hits `GET /api/encounters/rankings/overall`. **Ranked by total All-Star points across the whole zone, NOT single-boss DPS** — this matters for what "outlier" means: a single-boss burst-DPS standout won't necessarily rank #1 on this leaderboard. If hunting per-boss single-target outliers specifically, prefer `boss-rows` per character over the zone-wide leaderboard.
 
@@ -314,12 +286,61 @@ Two separate encodings in one payload: spec data is **base-36 spell IDs**, gear 
 | `GET /api/armory/character/{id}/captures?limit=` | capture history (report_id per past kill) |
 | `GET /api/encounters/rankings/overall?location=&difficulty=&phase=&metric=&page=&limit=&role=&cohort=` | zone-wide leaderboard (`findTopCharacters`) |
 
-**Known gaps (v4), not attempted further this batch — see v4 changelog above:**
+**Known gaps (v4, carried over unresolved through v5), not attempted further this batch:**
 - Fight-level per-ability damage breakdown endpoint not found (`/api/reports/{id}` is metadata-only; `/summary`, `/fights`, `/table`, `/damage-done` all 404). Would unlock per-ability damage-share comparisons against your own rotation if found — the single most valuable addition, but requires capturing the network call from an actual report-page click, not further guessing.
 - `scouted_build_entries.entry_id` correspondence to `spells.id` unconfirmed.
 
-**Rate limiting:** no explicit limit hit so far, but `scoutMany()` runs sequentially on purpose — don't parallelize a large batch against someone else's public API without reason to think it's fine.
+**Rate limiting:** no explicit limit hit so far, but both scouting paths run sequentially on purpose (`scoutMany()` in the browser version, the per-character loop with a `--delay` pause in `scout_ascensionlogs_cli.py`) — don't parallelize a large batch against someone else's public API without reason to think it's fine.
 
-**Raw JSON naming convention** (`index/scouted/`, committed — unlike `ascension_index.db` this is source data that can't be regenerated without re-hitting the live site):
-- `scouted_<charactername>_<YYYY-MM-DD>.json` — single character (`scoutCharacter()`)
-- `scouted_batch_<label>_<YYYY-MM-DD>.json` — batch (`scoutMany()`)
+**Raw JSON naming convention** (`index/scouted/`, committed — unlike `scouted_builds.db` this is source data that can't be regenerated without re-hitting the live site):
+- `scouted_<charactername>_<YYYY-MM-DD>.json` — single character (`scoutCharacter()` / `scout_ascensionlogs_cli.py`)
+- `scouted_batch_<label>_<YYYY-MM-DD>.json` — batch (`scoutMany()`, browser path only)
+
+### `scouted_builds.db` schema (v4 tables, v5 location)
+
+The tables below are unchanged in shape from v4 — only their database moved, from `ascension_index.db` to this separate `scouted_builds.db` (v5, see changelog above for why).
+
+**scouted_characters** — one row per (character, scouted_at) snapshot, latest wins on re-scout.
+| Column | Meaning |
+|---|---|
+| character_id, name, class, spec, race, guild_name | identity fields from the site's armory record |
+| primary_stat_token | the character's active path/primary-stat token at capture time |
+| scouted_at | ISO timestamp of the capture — the snapshot key, paired with character_id |
+| captured_for_boss | which boss encounter the underlying capture was taken for, if any |
+
+**scouted_gear** — one row per (character, scouted_at, slot); full item resolution including stats and gems, not just item names.
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, slot | composite key |
+| item_id, item_name, quality | catalog identity |
+| enchant_id, enchant_name | resolved enchant, if any |
+| gem1-gem4 | socketed gem IDs |
+| stats_json, damage_json | raw resolved stat/damage blocks, JSON-encoded (shape varies by item type) |
+| drop_source, source_category, tier | where it drops from and its category/mythic tier |
+
+**scouted_build_entries** — one row per (character, scouted_at, tree, entry_id); every ability + talent on the scouted build.
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, tree, entry_id | composite key. `tree` is `abilities` or `talents` |
+| name, icon | display fields |
+| rank, max_ranks | current rank vs. cap |
+| tooltip | tooltip text **at the current rank only** (`per_rank_tooltip_json[rank-1]`) |
+| per_rank_tooltip_json | full per-rank tooltip array — richer than our own `spells.tooltip`, which only stores text at one (owned) rank |
+
+⚠ **Do not join `entry_id` to `spells.id`** — unconfirmed to be the same ID space (open item above). Note this join would also now cross databases (`scouted_builds.db` ↔ `ascension_index.db`), not just tables — attach both if you ever confirm it's safe to try.
+
+**scouted_rankings** — one row per (character, scouted_at, phase, zone, boss); only rows with `kills > 0` are kept (the source API returns every zone/boss including zero-kill filler, dropped at capture time).
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, phase, zone, boss_name | composite key |
+| spec | spec active for this ranking row |
+| best_dps, best_rank_dps, best_rank_dps_total, best_rank_dps_percentile | this character's best logged parse for this boss |
+| fastest_duration_ms, kills | supporting context for the DPS figure |
+
+**scouted_capture_history** — one row per past capture, keyed by the site's own `capture_id`. Exists mainly as linkage for future fight-level digging (see known gaps above) — `report_id` is the handle a future damage-breakdown fetcher would need.
+| Column | Meaning |
+|---|---|
+| character_id, capture_id | composite key |
+| captured_at, boss_name, report_id, location, success | capture metadata |
+
+Since `scouted_gear`/`scouted_build_entries` are keyed by `(character_id, scouted_at, ...)`, re-scouting the same character periodically builds a timeline of gear/build changes across a season rather than just a single snapshot.

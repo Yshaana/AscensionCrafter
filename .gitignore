@@ -6,3 +6,7 @@ __pycache__/
 # ascension_index.db is a rebuilt-each-session derived cache (primer v10 / v12),
 # never a source of truth - rebuild via index/build_index.py etc, don't commit it.
 index/ascension_index.db
+
+# scouted_builds.db is the same "derived cache, not source of truth" rule -
+# rebuild via index/build_scouted_builds_db.py from index/scouted/*.json (committed).
+index/scouted_builds.db

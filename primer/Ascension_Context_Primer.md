@@ -1,6 +1,8 @@
-# Project Ascension — Systems Primer v15 (Context for Claude)
+# Project Ascension — Systems Primer v16 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
+
+**v16 changelog (2026-08-03):** Amendment to v15's scouting tooling — scouted-build data split out of `ascension_index.db` into its own `index/scouted_builds.db` (separate, optional, rebuildable), and the primary scouting path is now the browser-free `index/scout_ascensionlogs_cli.py` rather than the browser-console script (which stays as a fallback). Detail in `INDEX_GUIDE.md` v5, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as v15.
 
 **v15 changelog (2026-08-03):** New outlier-build scouting tooling added to `index/` (`scout_ascensionlogs.js` + `ingest_scouted_build.py`), pulling opponent/top-player builds from `darkmoon.ascensionlogs.gg`'s live REST API into five new `scouted_*` tables (characters, gear, build entries, rankings, capture history) — purely additive, no existing table touched. Full endpoint map, workflow, and open items (entry_id↔`spells.id` correspondence unconfirmed; fight-level damage-breakdown endpoint not yet found) live in `INDEX_GUIDE.md` v4, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as every prior index change.
 

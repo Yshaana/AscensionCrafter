@@ -1,39 +1,33 @@
 """
-ingest_scouted_build.py
-------------------------
-Loads one or more JSON files produced by scout_ascensionlogs.js
-(scoutCharacter() / scoutMany() output) into ascension_index.db as new
-tables. Additive — does not touch spells/spell_scaling/owned_cards/etc.
+build_scouted_builds_db.py
+----------------------------
+Builds index/scouted_builds.db from every JSON file in index/scouted/.
 
-Usage:
-    python3 ingest_scouted_build.py scout_David_*.json [more.json ...]
+DELIBERATELY SEPARATE from ascension_index.db. Scouted external builds are
+reference data that grows every time you scout a new outlier — mixing that
+into your own core spell/card index would bloat it and pollute queries
+that have nothing to do with scouting. Keep them apart:
 
-Schema created (idempotent — CREATE TABLE IF NOT EXISTS):
+    ascension_index.db     <- your own build's spells/cards/talents/facts
+    scouted_builds.db      <- other players' captured builds, rebuilt from
+                               index/scouted/*.json, same "derived cache,
+                               not source of truth" rule as the main index
 
-    scouted_characters      one row per character, latest snapshot wins
-    scouted_gear             one row per (character, slot, scouted_at)
-    scouted_build_entries    one row per (character, tree, entry_id, scouted_at)
-                              tree is 'abilities' or 'talents'
-    scouted_rankings         one row per (character, phase, zone, boss)
-    scouted_capture_history  one row per past capture (report_id linkage
-                              for future fight-level digging)
+Like ascension_index.db itself, this is a rebuildable artifact — the real
+source of truth is the committed JSON in index/scouted/. Safe to delete
+scouted_builds.db and regenerate anytime:
 
-⚠ entry_id vs spells.id: NOT YET CONFIRMED to be the same ID space as our
-own ascension_index.db `spells` table. Do not treat a join between
-scouted_build_entries.entry_id and spells.id as validated until checked —
-e.g. pick a known entry_id (Shadow Bolt = 40050 in the sample capture) and
-confirm it resolves to the same ability in spell-export.json. If they
-diverge, this script still works standalone (all tooltip text is captured
-independently, per_rank_text included in scouted_build_entries.tooltip),
-just the cross-reference queries in INDEX_GUIDE.md won't apply as-is.
+    python3 build_scouted_builds_db.py
+
+No file arguments needed — it scans index/scouted/*.json automatically
+(unlike the old per-file ingest_scouted_build.py, which this replaces).
 """
-
 import json
 import sqlite3
-import sys
 from pathlib import Path
 
-DB_PATH = "ascension_index.db"
+SCOUTED_DIR = Path(__file__).parent / "scouted"
+DB_PATH = Path(__file__).parent / "scouted_builds.db"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS scouted_characters (
@@ -46,6 +40,7 @@ CREATE TABLE IF NOT EXISTS scouted_characters (
     primary_stat_token TEXT,
     scouted_at TEXT,
     captured_for_boss TEXT,
+    source_file TEXT,
     PRIMARY KEY (character_id, scouted_at)
 );
 
@@ -70,14 +65,14 @@ CREATE TABLE IF NOT EXISTS scouted_gear (
 CREATE TABLE IF NOT EXISTS scouted_build_entries (
     character_id INTEGER,
     scouted_at TEXT,
-    tree TEXT,              -- 'abilities' or 'talents'
+    tree TEXT,
     entry_id INTEGER,
     name TEXT,
     icon TEXT,
     rank INTEGER,
     max_ranks INTEGER,
-    tooltip TEXT,            -- tooltip text AT CURRENT RANK (per_rank_text[rank-1])
-    per_rank_tooltip_json TEXT,  -- full array, all ranks, for multi-rank cards
+    tooltip TEXT,
+    per_rank_tooltip_json TEXT,
     PRIMARY KEY (character_id, scouted_at, tree, entry_id)
 );
 
@@ -112,25 +107,26 @@ CREATE TABLE IF NOT EXISTS scouted_capture_history (
 
 def ingest_one(conn, data, source_file):
     if data.get("error"):
-        print(f"  [skip] {data.get('name')}: {data['error']} ({source_file})")
+        print(f"  [skip] {data.get('name')}: {data['error']} ({source_file.name})")
         return
 
     char = data.get("character", {})
     character_id = char.get("id")
     scouted_at = data.get("scouted_at")
     if character_id is None or scouted_at is None:
-        print(f"  [skip] malformed record in {source_file}")
+        print(f"  [skip] malformed record in {source_file.name}")
         return
 
     conn.execute(
         """INSERT OR REPLACE INTO scouted_characters
-           (character_id, name, class, spec, race, guild_name, primary_stat_token, scouted_at, captured_for_boss)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
+           (character_id, name, class, spec, race, guild_name, primary_stat_token,
+            scouted_at, captured_for_boss, source_file)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
         (
             character_id, char.get("name"), char.get("class"), char.get("spec"),
             char.get("race"), char.get("guild_name"),
             (data.get("primary_stat") or {}).get("token"),
-            scouted_at, data.get("captured_for_boss"),
+            scouted_at, data.get("captured_for_boss"), source_file.name,
         ),
     )
 
@@ -200,30 +196,27 @@ def ingest_one(conn, data, source_file):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print(__doc__)
-        sys.exit(1)
+    if DB_PATH.exists():
+        DB_PATH.unlink()
+        print(f"Removed stale {DB_PATH.name} — rebuilding fresh from source JSON.")
 
     conn = sqlite3.connect(DB_PATH)
     conn.executescript(SCHEMA)
 
-    for path_str in sys.argv[1:]:
-        path = Path(path_str)
-        if not path.exists():
-            print(f"  [missing] {path}")
-            continue
+    json_files = sorted(SCOUTED_DIR.glob("scouted_*.json"))
+    if not json_files:
+        print(f"No scout JSON found in {SCOUTED_DIR}/ — nothing to build.")
+        return
+
+    for path in json_files:
         payload = json.loads(path.read_text())
-        # scoutMany() output is {name: record, ...}; scoutCharacter() output is a single record
-        if "scouted_at" in payload:
-            records = [payload]
-        else:
-            records = list(payload.values())
+        records = [payload] if "scouted_at" in payload else list(payload.values())
         for rec in records:
-            ingest_one(conn, rec, path_str)
+            ingest_one(conn, rec, path)
 
     conn.commit()
     conn.close()
-    print("Done.")
+    print(f"\nBuilt {DB_PATH} from {len(json_files)} source file(s).")
 
 
 if __name__ == "__main__":
