@@ -1,4 +1,8 @@
-# Ascension Spell/Card Index — Guide (v3)
+# Ascension Spell/Card Index — Guide (v4)
+
+**v4 changelog (2026-08-03):** Added outlier-build scouting tooling — `index/scout_ascensionlogs.js` (browser console, pulls from `darkmoon.ascensionlogs.gg`'s REST API) + `index/ingest_scouted_build.py` (loads the JSON into five new `scouted_*` tables). Purely additive, doesn't touch `spells`/`spell_scaling`/`owned_cards`/anything from v1-v3. Two open items carried over from the tooling's own README, not resolved here:
+- **`scouted_build_entries.entry_id` vs. our `spells.id` — NOT confirmed to be the same ID space.** Do not join the two tables until checked live (pick a known entry_id, e.g. Shadow Bolt = 40050 in the sample capture, confirm it resolves to the same ability in `spell-export.json`). No query below performs this join.
+- **Fight-level per-ability damage breakdown endpoint not found.** `GET /api/reports/{id}` returns metadata only; `/summary`, `/fights`, `/table`, `/damage-done` all 404'd this session. Needs a network-trace capture of an actual report page click, not further endpoint guessing.
 
 **v3 changelog (2026-08-03):** Improvement batch v1 — three new tables (`exclusivity_buckets`, `modifier_links`, `talent_amplifiers`), four new `spells` columns (`crit_table`, `rolls_hit_check`, `hit_table`, `proc_icd_seconds`), one new `spell_scaling` column (`cp_scaling_type`), and a full batch pass of `build_dbc_index.py`'s hidden-formula resolver. All additive — every v2 table/column/query still works unchanged. Five things worth flagging from this batch:
 - **`sharesModifiersWith` does not exist in `spell-export.json`.** Verified by inspecting the union of keys across all 3061 entries — every spell has exactly `{id, type, name, rank, tooltip}`. `modifier_links.link_type='talent_amp'` (the field this was meant to populate) is therefore **not populated** — only `link_type='class_tag'` (migrated from the existing `borrows_from` data) has rows. Re-check if a future `spell-export.json` pull ever adds the field.
@@ -16,6 +20,8 @@ Rebuild anytime with, from `index/`:
 python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_confirmed.py && python3 seed_synergies.py && python3 seed_exclusivity.py && python3 seed_modifier_links.py && python3 seed_talent_amplifiers.py && python3 seed_spell_flags.py && python3 seed_cp_scaling.py
 ```
 if the source exports change. Add `python3 build_dbc_index.py` (needs local client access + a built StormLib) if you also need `spell_dbc_raw`/`dbc_*`/`index/dbc-extract.json` refreshed, and the hidden-formula resolver re-run against the current `has_hidden_formula=1` list — **not part of the routine per-session rebuild above**, since it depends on the local WoW client rather than plain-text project files that mount cleanly every time. Run it last if included — it reads `spells`/`hidden_refs` state produced by the steps above.
+
+Similarly, `python3 ingest_scouted_build.py index/scouted/scouted_*.json` (v4) is **not part of the routine per-session rebuild chain** either — same treatment as `build_dbc_index.py` above, because it depends on an external/manual data source (a browser-console capture from `darkmoon.ascensionlogs.gg`, see the scouting section below) rather than the plain-text project mounts the routine chain reads. It only runs when new scout JSON files exist in `index/scouted/`.
 
 ## Repo layout / naming convention (v12)
 
@@ -108,6 +114,51 @@ Seeded with the 4 known buckets from the primer (Enhanced Weapon Mastery/Unendin
 
 Hand-seeded with the 3 primer §5 cases, then bulk-scanned across all `type='talent'` tooltips for amplifier language (`increases ... by $sN%` patterns). The bulk pass is intentionally conservative — anything that doesn't cleanly resolve to either a known ability/hybrid-school name or a bare pure-school name gets `match_type='school_generic'` with a `'needs manual review'` note rather than a forced classification (~70% of bulk hits landed here, since the pattern also catches non-damage amplifiers like crit/dodge/block chance).
 
+**scouted_characters** (v4, `ingest_scouted_build.py`) — one row per (character, scouted_at) snapshot, latest wins on re-scout.
+| Column | Meaning |
+|---|---|
+| character_id, name, class, spec, race, guild_name | identity fields from the site's armory record |
+| primary_stat_token | the character's active path/primary-stat token at capture time |
+| scouted_at | ISO timestamp of the capture — the snapshot key, paired with character_id |
+| captured_for_boss | which boss encounter the underlying capture was taken for, if any |
+
+**scouted_gear** (v4) — one row per (character, scouted_at, slot); full item resolution including stats and gems, not just item names.
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, slot | composite key |
+| item_id, item_name, quality | catalog identity |
+| enchant_id, enchant_name | resolved enchant, if any |
+| gem1-gem4 | socketed gem IDs |
+| stats_json, damage_json | raw resolved stat/damage blocks, JSON-encoded (shape varies by item type) |
+| drop_source, source_category, tier | where it drops from and its category/mythic tier |
+
+**scouted_build_entries** (v4) — one row per (character, scouted_at, tree, entry_id); every ability + talent on the scouted build.
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, tree, entry_id | composite key. `tree` is `abilities` or `talents` |
+| name, icon | display fields |
+| rank, max_ranks | current rank vs. cap |
+| tooltip | tooltip text **at the current rank only** (`per_rank_tooltip_json[rank-1]`) |
+| per_rank_tooltip_json | full per-rank tooltip array — richer than our own `spells.tooltip`, which only stores text at one (owned) rank |
+
+⚠ **Do not join `entry_id` to `spells.id`** — see the v4 changelog open item above, unconfirmed to be the same ID space.
+
+**scouted_rankings** (v4) — one row per (character, scouted_at, phase, zone, boss); only rows with `kills > 0` are kept (the source API returns every zone/boss including zero-kill filler, dropped at capture time).
+| Column | Meaning |
+|---|---|
+| character_id, scouted_at, phase, zone, boss_name | composite key |
+| spec | spec active for this ranking row |
+| best_dps, best_rank_dps, best_rank_dps_total, best_rank_dps_percentile | this character's best logged parse for this boss |
+| fastest_duration_ms, kills | supporting context for the DPS figure |
+
+**scouted_capture_history** (v4) — one row per past capture, keyed by the site's own `capture_id`. Exists mainly as linkage for future fight-level digging (see below) — `report_id` is the handle a future damage-breakdown fetcher would need.
+| Column | Meaning |
+|---|---|
+| character_id, capture_id | composite key |
+| captured_at, boss_name, report_id, location, success | capture metadata |
+
+Since `scouted_gear`/`scouted_build_entries` are keyed by `(character_id, scouted_at, ...)`, re-scouting the same character periodically builds a timeline of gear/build changes across a season rather than just a single snapshot.
+
 **Also see primer §5 for the daily patch-note check practice** (not duplicated here — kept in one place to avoid drift between docs).
 
 ## Confidence tiers for class_origin (read before trusting one)
@@ -175,6 +226,25 @@ WHERE ta.target_effect LIKE '%Shadowflame%' AND ta.match_type = 'verbatim';
 SELECT s.name, ss.term_type, ss.coefficient
 FROM spell_scaling ss JOIN spells s ON s.id = ss.spell_id
 WHERE ss.cp_scaling_type = 'quadratic';
+
+-- Show me a scouted character's full build (v4)
+SELECT sc.name, sc.class, sc.spec, sbe.tree, sbe.name AS ability, sbe.rank, sbe.max_ranks, sbe.tooltip
+FROM scouted_characters sc JOIN scouted_build_entries sbe
+  ON sc.character_id = sbe.character_id AND sc.scouted_at = sbe.scouted_at
+WHERE sc.name = 'David'
+ORDER BY sbe.tree, sbe.name;
+
+-- Which scouted characters are running a given talent by name (v4)
+SELECT sc.name, sc.class, sc.spec, sbe.rank, sbe.max_ranks
+FROM scouted_build_entries sbe JOIN scouted_characters sc
+  ON sc.character_id = sbe.character_id AND sc.scouted_at = sbe.scouted_at
+WHERE sbe.name = 'Winds of Winter';
+
+-- A scouted character's best logged parses, best boss first (v4)
+SELECT sr.boss_name, sr.zone, sr.best_dps, sr.best_rank_dps, sr.best_rank_dps_percentile
+FROM scouted_rankings sr JOIN scouted_characters sc
+  ON sc.character_id = sr.character_id AND sc.scouted_at = sr.scouted_at
+WHERE sc.name = 'David' ORDER BY sr.best_dps DESC;
 ```
 
 ## What this does NOT do
@@ -217,3 +287,39 @@ Two separate encodings in one payload: spec data is **base-36 spell IDs**, gear 
 **Known gap:** ~11% of decoded spec IDs won't resolve against `spell-export.json` (rank-specific IDs our catalog doesn't carry a row for — same phenomenon as the rank-decoding practice in the primer §5, not a parsing bug). The live site itself always has the name; only our offline lookup is incomplete.
 
 **Use case:** faster and more complete than manual ability-bar screenshots for capturing a live loadout — including other players' builds for comparison, and re-syncing this project's own docs against your characters' actual current state (see `builds/my-builds/build_paladin-hammerdin.md` v6 for the case study that led to writing this tool).
+
+---
+
+## External tool: scouting ascensionlogs.gg builds
+
+`darkmoon.ascensionlogs.gg` is a **live REST API, not scraped HTML** — confirmed via network trace: every gear/talent/ability tooltip comes back fully resolved server-side, including **per-rank tooltip text** for multi-rank talents (richer than our own static `spell-export.json`, which only stores one tooltip per card at its current/owned rank). Same "live data source, separate from the offline index" category as `inspects.nie.one` above, but pulled into `ascension_index.db` as the `scouted_*` tables (v4) rather than left as one-off decoded output.
+
+**Workflow:**
+1. **Discover outliers** (optional — skip if you already have names): open DevTools console on any `darkmoon.ascensionlogs.gg` page, paste `index/scout_ascensionlogs.js`, then run `findTopCharacters(zone, phase, limit)` — see below.
+2. **Scout a build**: `const data = await scoutCharacter('David')`, then `downloadJSON(data, 'David')` to save it to Downloads (or `scoutMany([...names])` for several at once).
+3. **Manual upload step**: bring the downloaded JSON file into the chat/project mount yourself. **This step is a hard constraint, not a preference** — relaying large JSON back through Claude's chat tool channel truncates around ~1KB, so console-return alone doesn't scale past a couple KB. Don't try to "fix" it by chunking the payload back through chat.
+4. **Ingest**: `python3 ingest_scouted_build.py index/scouted/scouted_David_*.json` (run from `index/`, alongside `ascension_index.db`) — additive, safe to re-run, idempotent (`CREATE TABLE IF NOT EXISTS`, `INSERT OR REPLACE`).
+
+**`findTopCharacters(zone, phase, limit)`** — leaderboard-discovery helper, hits `GET /api/encounters/rankings/overall`. **Ranked by total All-Star points across the whole zone, NOT single-boss DPS** — this matters for what "outlier" means: a single-boss burst-DPS standout won't necessarily rank #1 on this leaderboard. If hunting per-boss single-target outliers specifically, prefer `boss-rows` per character over the zone-wide leaderboard.
+
+**Endpoint map** (all same-origin, no auth needed for public profiles):
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/armory/by-name/{name}` | resolve a character name → id + armory flag |
+| `GET /api/armory/character/{id}` | full resolved capture: gear + build + stats (`ci_resolved`) |
+| `GET /api/characters/{name}/primary-stat` | path/primary-stat history |
+| `GET /api/phases` | list of phases, for walking rankings |
+| `GET /api/characters/{name}/zone-summaries?phase=&difficulty=&bracket=&metric=` | per-zone summary tiles for a phase |
+| `GET /api/characters/{name}/boss-rows?phase=&difficulty=&bracket=&metric=&location=` | per-boss ranking rows for a zone |
+| `GET /api/armory/character/{id}/captures?limit=` | capture history (report_id per past kill) |
+| `GET /api/encounters/rankings/overall?location=&difficulty=&phase=&metric=&page=&limit=&role=&cohort=` | zone-wide leaderboard (`findTopCharacters`) |
+
+**Known gaps (v4), not attempted further this batch — see v4 changelog above:**
+- Fight-level per-ability damage breakdown endpoint not found (`/api/reports/{id}` is metadata-only; `/summary`, `/fights`, `/table`, `/damage-done` all 404). Would unlock per-ability damage-share comparisons against your own rotation if found — the single most valuable addition, but requires capturing the network call from an actual report-page click, not further guessing.
+- `scouted_build_entries.entry_id` correspondence to `spells.id` unconfirmed.
+
+**Rate limiting:** no explicit limit hit so far, but `scoutMany()` runs sequentially on purpose — don't parallelize a large batch against someone else's public API without reason to think it's fine.
+
+**Raw JSON naming convention** (`index/scouted/`, committed — unlike `ascension_index.db` this is source data that can't be regenerated without re-hitting the live site):
+- `scouted_<charactername>_<YYYY-MM-DD>.json` — single character (`scoutCharacter()`)
+- `scouted_batch_<label>_<YYYY-MM-DD>.json` — batch (`scoutMany()`)
