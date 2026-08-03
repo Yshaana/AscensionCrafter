@@ -345,6 +345,37 @@ An earlier v5 draft told the player to cap spell hit and expertise first. **That
 - **Hammer from the Heavens is 22.1% of damage with unknown coefficients** (hidden sub-spell). Its composition is assumed 30% SP / 30% AP / 40% flat. If it's mostly flat, SP and AP weights drop and spell crit's dominance grows further.
 - **SP ≈ AP at 1.01 vs 1.00 only because the ×1.75 amp isn't applying.** Restore it and SP becomes the clear best non-crit stat.
 
+### 10a. Extrapolated ceiling from the remaining chase list (v10, 2026-08-03 snapshot)
+
+Speculative, not measured — a projection from current stats + confirmed talent/ability magnitudes, not a fresh parse. Re-derive if AP/gear shifts meaningfully; the **method** is the reusable part, not the specific numbers.
+
+**Inputs used:** self-buffed character sheet, 2026-08-03 — AP 584, Bonus Damage (SP) 533, melee crit 32.46%, spell crit 28.86%. Lightbound Cleave baseline from the same day's Uldaman log: 150 hits, non-crit avg 703 (n=94), crit avg 1,407 (n=56), 10.8% of total damage (144,922 / 1,336,753).
+
+**Talent stack (multiplicative, not additive — corrects the older "~40%" additive estimate in §7):**
+
+| Card | Multiplier |
+|---|---|
+| Combat Expertise 3/3 | ×1.063 |
+| Blood Gorged 5/5 (⚠ only above 75% HP) | ×1.10 |
+| Conviction 5/5 | ×1.053 |
+| Dark Justicar 0/1 | ×1.084 |
+| **Improved Cleave 3/3** — bonus term `9+AP×1.0` goes 593→1,305 at AP 584; propagated through LC's own crit ratio (2.00×) and hit/crit split from the log | ×1.110 |
+
+**Combined: ×1.48 → roughly +48% DPS**, projecting the reported **3,600 → ~5,330 DPS** baseline, *if* everything lands at max rank and the Blood Gorged health condition holds. Two things keep this a ceiling: **Dark Justicar and Inevitable Vengeance partially conflict** (Dark Justicar's Judgement burst consumes all 10 SoV stacks, zeroing Inevitable Vengeance's stacking debuff — can't fully bank both on the same GCD), and **The Art of War 3/3 isn't included at all** (still no pinned magnitude), so the real ceiling is higher than 48%, just unquantified past that point.
+
+**Buff/ability layer on top (lower confidence — durations are DBC-confirmed, cooldowns are NOT, so these assume typical WotLK-family cooldown lengths rather than measuring them):**
+
+| Ability | Confirmed magnitude | Rough DPS estimate |
+|---|---|---|
+| Divine Storm | 110% weapon dmg AoE + heal (sanity-checked against Elric's own Dawn Strike avg, 812/hit — same order of magnitude) | ~4-6%, based on Dawn Strike's own 5.1% share |
+| Avenging Wrath | +20% all dmg/heal, 20s duration (confirmed) | ~2% (assumes ~3min CD, unconfirmed) |
+| Guardian of Ancient Kings | +15% Holy dmg, 12s duration (confirmed) + resets HotR/Divine Storm/Holy Shock CDs | Not cleanly quantifiable — the CD-reset effect (compounds Hour of Judgement uptime, currently only 13.6% per §11) likely matters more than the flat 15% |
+| Bloodlust | +30%/+20% attack/cast speed, 40s duration (confirmed) | ~1-2% (assumes a long ~10min-class CD, unconfirmed) |
+| Twisted Mind | Flat +60 SP (not a %), +3% hit (near-worthless), hidden healing penalty | Low single digits |
+| Execution Sentence | Magnitude fully unresolved (DBC has no data for it) | Unquantifiable |
+
+**Net picture:** the reliable talent-stack ceiling (~48%) plus a rough **+5-10%** more from Divine Storm/buffs, landing somewhere in the **~55-60%** range as a working estimate — with Execution Sentence and The Art of War as unquantified upside beyond that.
+
 ---
 
 ## 11. ROTATION (v5)
