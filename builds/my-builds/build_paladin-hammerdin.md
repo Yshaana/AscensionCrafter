@@ -1,10 +1,20 @@
-# Project Ascension — Paladin Build Handoff (v8)
+# Project Ascension — Paladin Build Handoff (v10)
 
 **Location:** `builds/my-builds/build_paladin-hammerdin.md` (renamed from `Ascension_Paladin_Handoff.md` in the v12 restructure).
 
 **Purpose:** Continue work on my Ascension (WoW private server) Paladin character. **Classless server, Season 10, Wildcard mode.** Pair this with `primer/Ascension_Context_Primer.md` (v12) and `index/ascension_index.db` (queryable spell/card index — see primer §2a).
 
 **Realm:** Darkmoon (classless seasonal wildcard).
+
+**v10 changelog (2026-08-03):** Re-decoded a fresh live inspect export for Elric (active spec confirmed index 4, same Hammerdin spec as always). Full detail in §7. Summary: 21 of 23 previously-documented talents confirmed unchanged at the same ranks (five spellIDs that looked unresolved on first pass all landed on exact DBC hits at their expected v6 ranks — a decoding artifact, not a board change). Two real changes: **Accuracy confirmed Rank 5/5** (closes a v6/§12 open item), and **Glyph of Blood Strike is gone, replaced by Nurturing Instinct (Rank 2/2)** — an off-theme Druid healing talent (dead Cat Form clause, marginal Agility-scaled healing), added fresh to the reroll queue in place of the card it replaced.
+
+**v9 changelog (2026-08-03):** Major correction to §7's Improved Cleave chase-list entry, discovered while investigating a scouted player's (Pumprat) Voidbound Cleave — a different `-bound Cleave` card sharing Lightbound Cleave's exact DBC structure.
+
+- **Improved Cleave's true magnitude is +40%/rank, linear, confirmed clean across all 3 ranks via raw DBC** (`EffectBasePoints[0]`: R1=39→40%, R2=79→80%, R3=119→120%, `basepoints+1` convention). At 3/3 this is **+120% to "the bonus damage done by your Cleave ability"** — not the small flat-62-and-decaying value §7 previously assumed. The old estimate had no DBC or live-tooltip backing found in this session's history; treat it as superseded.
+- **Lightbound Cleave (907300) and Voidbound Cleave (907280) share byte-identical DBC coefficients**: Effect[0] (the `$s1` "bonus damage" term referenced by Cleave's own tooltip phrasing "weapon damage **plus** $s1") = flat 9 with `EffectBonusCoefficient=1.0` — a full 1:1 AP-scaling term, unusually strong for a per-hit coefficient in this project's data so far. Effect[1] = flat 65 with `EffectBonusCoefficient=0.0`, read as a ~65% weapon-damage component (no AP/SP scaling) corresponding to the tooltip's "your weapon damage" phrase. **"Bonus damage" in Improved Cleave's tooltip almost certainly means Effect[0] specifically** (the "plus $s1" term), not the weapon-damage half — consistent with Cleave's own tooltip pairing the two terms as separate clauses.
+- **Practical formula implied for Lightbound Cleave (and any Cleave-modifier-bucket card)**: per-hit ≈ `(weapon_damage × 0.65) + (9 + AP × 1.0) × (1 + Improved_Cleave_rank × 0.4)`. At 3/3 Improved Cleave that bonus term becomes `(9 + AP) × 2.2`. This is independently corroborated: applying this exact formula to a scouted character's own AP-plus-bonus estimate (back-solved from a separately-known formula on a different ability in the same log) landed within range of that character's actual observed Voidbound Cleave damage — see `builds/shared/scouted_Pumprat_2026-08-03.md` for the full derivation.
+- **Consequence: Improved Cleave should NOT be ranked last on the §7 chase list.** Moved up pending a fresh in-game parse to quantify Lightbound Cleave's actual total-damage share at our own build's AP (not yet re-measured this session) — see the reprioritized `2b` row below. The "Total gap ≈ 40% damage" figure at the bottom of §7 predates this correction and should be treated as stale until Lightbound Cleave is re-measured with the corrected formula.
+- **This does NOT change the Cleave class-tag verdict** (Lightbound Cleave / Voidbound Cleave both still confirmed Warrior-tagged, still feed zero Hammerdin procs, primer §4) — Improved Cleave lives in the same Warrior/Cleave modifier bucket, so it amplifying these cards is consistent with, not a contradiction of, that rule.
 
 **v8 changelog (2026-08-03):** Daily patch-note check (new standing practice, primer §5) against `https://ascension.gg/en/changelog/1`, Darkmoon-filtered. Two entries relevant to this build, both going live 2026-08-03:
 
@@ -190,7 +200,7 @@ Spell:  Bonus Damage 400 · Bonus Healing 379 · hit 57/96 · haste 29 · crit 1
 
 ---
 
-## 7. FINAL TALENT BOARD (v6 — confirmed live via inspect export, 2026-08-02)
+## 7. FINAL TALENT BOARD (v10 — confirmed live via inspect export, 2026-08-03)
 
 ### Slotted
 ```
@@ -201,14 +211,16 @@ Judgements of the Wise 3/3  Judgements of the Pure 3/3  Righteous Vengeance 3/3
 Wrecking Crew 3/3 (locked)  Vengeance 2/3                Flurry 2/3
 Mental Quickness 4/5        Fanaticism 1/3               Spellblade 1/3
 Hammerdin 1/1                Purification By Light 1/1   Righteous Zealot 1/1
-Twist of Faith 1/1           Accuracy ?/?
+Twist of Faith 1/1           Accuracy 5/5                Nurturing Instinct 2/2 (NEW, see below)
 ```
-**Plus two glyph-type cards occupying the same board:** Glyph of Seal of Command (deliberate, temporary), Glyph of Blood Strike (filler, unevaluated).
+**Plus one glyph-type card:** Glyph of Seal of Command (deliberate, temporary — see reroll targets).
 
-**Since v5:** Shadow Strikes, Enhanced Weapon Mastery, and Seals of the Pure are all confirmed gone — replaced by Accuracy and the two glyphs above. Rank on Accuracy not yet read live; flag for confirmation next parse.
+**Since v6 (v10, 2026-08-03):** Re-decoded live inspect export. Every v6 talent confirmed still present at the same rank (Vengeance/Flurry/Fanaticism/Spellblade/Mental Quickness all initially looked unresolved against the catalog on this pass but each resolved to an exact spellID hit in the DBC extract, same ranks as v6 — no actual change, just different spellIDs than the ones previously seen at those ranks). Two real changes:
+- **Accuracy confirmed Rank 5/5** — closes the open item from v6/§12. Tooltip: "Increases your chance to hit with all spells and attacks by X%." Given the hit walkback (§10 — spell hit only matters for ~5.4% of damage, melee hit already overcapped for dungeon content), this is likely a low-marginal-value slot, but not worth rerolling away since there's nothing better to put a "chance to hit" card toward at 5/5 already sunk.
+- **Glyph of Blood Strike is gone, replaced by Nurturing Instinct (Rank 2/2).** The v6 reroll-first recommendation for Blood Strike was evidently actioned. Nurturing Instinct's tooltip: *"Increases your healing spells by up to $s1% of your Agility, and increases healing done to you by $s1% while in Cat form."* This is a Druid Restoration talent — the Cat Form clause is fully dead (no shapeshifting in this kit), and the Agility-scaled healing clause is marginal at best (Agility is a 0.15-weight stat per §10, and this build isn't healing-postured). **Reads as another off-theme/low-value reroll landing, not an improvement over Blood Strike.** Added to reroll targets below.
 
 ### 🔴 Reroll targets (current)
-1. **Glyph of Blood Strike** — confirmed filler, "whatever I ended up with when I ran out of rerolls." No analysis needed, straightforward reroll-first.
+1. **Nurturing Instinct 2/2 (NEW, v10)** — off-theme Druid healing talent (Cat Form clause fully dead, Agility-scaled healing marginal for a DPS-postured build). Same "filler landed off-theme" shape as the Blood Strike slot it replaced. Reroll-first candidate.
 2. **Fanaticism 1/3** — unchanged from v5: Judgement crit only, unless Execution Sentence gets slotted.
 3. **Glyph of Seal of Command** — **not a mistake, don't touch yet.** Deliberately held as a mana-sustain stopgap until Spellblade reaches 3/3, at which point Judgements of the Wise + maxed Spellblade should cover mana and this can be rerolled freely. Log this as a *known temporary state*, not a dead slot.
 
@@ -230,9 +242,9 @@ Hammerdin · Purification By Light · Righteous Zealot · **Twist of Faith** (en
 | 4 | **Dark Justicar 0/1** | SoV to 10 stacks; Judgement consumes for `0.58 × (SP+AP)` → **+8.4%** | **none — 1/1** |
 | 5 | **Inevitable Vengeance 0/1** | SoV DoT crits + hastes; **1% Phys/Holy damage-taken per stack → 10%** | **none — 1/1** |
 | 6 | **The Art of War 3/3** | +% Judgement, Crusader Strike (→ Dawnreaver), Divine Storm | partial |
-| 7 | Improved Cleave 3/3 | scales only LC's flat 62 — decays with gear | partial |
+| 2b | **⚠ Improved Cleave 3/3 (REPRIORITIZED, see v9)** | **+120% to LC's AP-scaling bonus component** (not a flat 62 — see v9 changelog). Was ranked #7/last; likely belongs much higher. | partial |
 
-**Total gap ≈ 40% damage**, concentrated in six cards. The two 1/1s are the cheapest acquisitions (a hit is a complete hit). None of these six appear in the v6 live export — chase list is unchanged, still fully outstanding.
+**Total gap ≈ 40% damage**, concentrated in six cards (pre-v9 estimate — does not yet reflect Improved Cleave's corrected magnitude, see v9). The two 1/1s are the cheapest acquisitions (a hit is a complete hit). None of these six appear in the v6 live export — chase list is unchanged, still fully outstanding.
 
 ### ⚡ Execution Sentence cluster — status update
 v5 noted three slotted talents supporting Execution Sentence: Seals of the Pure, Judgements of the Pure, and Fanaticism. **Seals of the Pure is now gone**, dropping this to two. Judgements of the Pure and Fanaticism still support it. Re-evaluate whether an Execution Sentence ability slot is still worth it with one fewer multiplier behind it.
@@ -245,11 +257,12 @@ v5 noted three slotted talents supporting Execution Sentence: Seals of the Pure,
 Titan's Grip · Consecrated Weapon · Hour of Judgement · Judgement of the Three Hammers · Lightbound Cleave · Dawnreaver · Dawn Strike · **Judgement** · **Holy Shock** · Whirling Light · **Seal of Command** · **Seal of Vengeance** · Consecration
 
 ### Chase
-1. **Divine Storm** — the outstanding **Paladin-tagged** weapon-damage GCD; directly compresses Hour of Judgement. *(External sighting, v7: another player's Paladin/Hammerdin spec runs this live — supporting evidence it's playable, not a substitute for our own parse.)*
-2. **Execution Sentence** — two talents now support it (Judgements of the Pure + Fanaticism; Seals of the Pure dropped off, §7). *(External sighting, v7: another player's Paladin/Hammerdin spec runs this live alongside the same two supporting talents.)*
-3. **Avenging Wrath AND Guardian of Ancient Kings — both, independently. (Corrected v7, see retraction in §12.)** They aren't redundant: Guardian of Ancient Kings resets/discounts Hammer of the Righteous, Divine Storm, and Holy Shock plus a Holy damage buff; Avenging Wrath is a flat all-damage/healing cooldown on a separate timer. Even under a worst-case reading of their "does not stack with similar effects" clauses, that only blocks simultaneous *buff* uptime, not sequential use on two independent cooldowns — alternating them still nets more total burst-window uptime across a fight than picking one.
-4. **Twisted Mind** — SP still good, but its hit rider is now worthless (melee capped)
-5. Divine Protection · Bloodlust
+1. **Divine Storm** — the outstanding **Paladin-tagged** weapon-damage GCD; directly compresses Hour of Judgement. **Magnitude confirmed via DBC (v10):** 110% weapon damage to multiple enemies (`EffectBasePoints=109->110`), heals up to 3 party/raid members for a % of damage caused. Sanity-checked against Elric's own Dawn Strike average (812/hit in the 2026-08-03 log) — at self-buffed weapon damage ~723 avg, 110% lands at ~795/hit, same order of magnitude as an existing similar-shaped GCD ability. *(External sighting, v7: another player's Paladin/Hammerdin spec runs this live.)*
+2. **Execution Sentence** — two talents now support it (Judgements of the Pure + Fanaticism; Seals of the Pure dropped off, §7). **Magnitude UNRESOLVED even via DBC (v10):** all three EffectBasePoints are the DBC "no value" sentinel (-1) and EffectTriggerSpell is empty — the real formula lives entirely outside the effect slots this extract captures (likely a hardcoded script trigger). Cannot be quantified without a live tooltip screenshot showing the resolved number.
+3. **Avenging Wrath AND Guardian of Ancient Kings — both, independently. (Corrected v7, see retraction in §12.)** Magnitudes confirmed via DBC (v10): Avenging Wrath = **+20% all damage/healing, 20s duration** (`EffectBasePoints=19->20`, `DurationIndex=18`→20,000ms — duration is DBC-confirmed, cooldown is NOT in this extract, treat any uptime % as an assumption). Guardian of Ancient Kings = **+15% Holy damage, 12s duration** (`EffectBasePoints[1]=14->15`, `DurationIndex=29`→12,000ms, same cooldown caveat) plus the HotR/Divine Storm/Holy Shock cooldown resets, which compound Hour of Judgement uptime in a way this simple % can't capture. They aren't redundant: even under a worst-case reading of their "does not stack with similar effects" clauses, that only blocks simultaneous *buff* uptime, not sequential use on two independent cooldowns.
+4. **Twisted Mind** — SP still good, but its hit rider is now worthless (melee capped). **Magnitude confirmed via DBC (v10):** flat **+60 Spell Power** (`$PL*1` = player level × 1 = 60 at level 60, not a percentage), **+3% hit** (worthless, melee capped / spell hit barely matters), and a healing/absorb reduction whose own magnitude is *itself* hidden behind a second sub-spell (978705) not in this extract. Also a bar-changing/stance-type ability — check it doesn't conflict with anything else on the bar before slotting.
+5. **Divine Protection** — **defensive, not a DPS card.** Magnitude confirmed: **-50% damage taken, 12s duration** (`EffectBasePoints[1]=-51->-50`, `DurationIndex=29`→12,000ms). Shares a cooldown-exclusion with Avenging Wrath (can't use either within a window of the other). Kept on the chase list for survivability, not counted in any DPS estimate.
+6. **Bloodlust** — **magnitude confirmed via DBC (v10):** +30% melee/ranged attack speed, +20% casting speed (`EffectBasePoints`: index2=29->30 = $s3 attack speed, index0=19->20 = $s1 cast speed), **40s duration** (`DurationIndex=64`→40,000ms). No cooldown in this extract — in most WotLK-family servers this class of raid cooldown runs on a long timer (~10min class), which would cap its average-fight contribution in the low single digits; treat that framing as an assumption pending confirmation, not a measured value.
 
 ### Cut
 **Seal of Fervor** (Fire school, excluded from Seals of the Pure) · Exorcist's Slash · Judgement of Light / Justice · **Blades of Light for single-target** (Warrior tag + ability lockout starves Hammerdin; AoE/filler only)
@@ -386,15 +399,17 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 **Related external reference (v12, not part of this build):** `builds/shared/synergy_winds-of-winter.md` documents a different player's Titan's Grip Int/AP dual-scaling build encountered 2026-08-03. Two overlapping pieces worth noting for comparison: it runs the same Righteous Vengeance talent (87.7–89.5% uptime, consistent with our own pooling measurement above) and the same Hammerdin talent this build's name comes from. Its core finisher's quadratic-combo-point scaling is the same shape as our own Holy Finish — see primer §1/v12 for the cross-reference. Not a suggested pivot; different stat posture (dual AP+SP vs. our SP-lane separation).
 
 **Still open:**
-1. **Is Path of Duality actually active?** *(highest priority)*
+1. **Is Path of Duality actually active?** *(highest priority)* — **new data point, v10, not a resolution:** a fresh character-panel screenshot shows Bonus Damage 474 vs Bonus Healing 248, a 1.91x gap — much larger than v5's 400/379 (1.06x) and closer to the retracted v3 "x1.75 amp" figure than the "no amp" reading v4 settled on. Could mean the amp is now live (gear/patch change since v5?), or could just mean new gear itemises more flat SP than Int this time. **Still needs the gold-standard test** (crit-source breakdown tooltip, §5 method) before treating this as anything but a prompt to re-check.
 2. Hammer from the Heavens' coefficients (hidden sub-spell 282987) — 22.1% of damage
 3. Whether the Titan's Grip tax applies to Holystrike's weapon half
 4. ~~Answered Prayers' all-damage % (decides Enhanced Weapon Mastery)~~ — **moot as of v6**, Enhanced Weapon Mastery is no longer slotted
 5. "Brutal Crusader" on Light's Hope
 6. Mental Quickness exclusivity bucket
 7. Dark Justicar consume-vs-hold once acquired
-8. **(v6) Accuracy's exact rank** — not yet read from a live tooltip
+8. ~~Accuracy's exact rank~~ — **RESOLVED v10**, confirmed Rank 5/5 via fresh inspect export
 9. **(v8, new) Lightbound Cleave proc behavior post-2026-08-03 patch** — see §9 item 10
+10. **(v9, new) Lightbound Cleave's total-damage share needs re-measuring once Improved Cleave is acquired** — the corrected `(9+AP)×2.2` formula (v9) predicts a large gain but hasn't been checked against a fresh parse
+11. **(v10, new) Is Nurturing Instinct's Agility-scaled healing clause touching anything in this kit at all** (Holy Shock/Holy Finish healing components)? Assumed dead/marginal on tooltip reading alone; not proc-tested.
 
 ---
 
