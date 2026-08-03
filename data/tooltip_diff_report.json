@@ -1,0 +1,3282 @@
+[
+ {
+  "id": 275585,
+  "name": "Dark Apotheosis",
+  "kind": "plain",
+  "clause": "Dark Apotheosis cannot cower behind a shield.",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 275585,
+  "name": "Dark Apotheosis",
+  "kind": "plain",
+  "clause": "Shields cannot be equipped while transformed.",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 276066,
+  "name": "Fel Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 0.0,
+  "category": "modifier_missing"
+ },
+ {
+  "id": 276669,
+  "name": "Defias Gunslinger",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it.",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 277021,
+  "name": "Panache",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 277860,
+  "name": "Divine Concord",
+  "kind": "plain",
+  "clause": "While Harnessed Energy is active, it grants one additional Harnessed Energy charge instead.",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 285444,
+  "name": "Hammerstorm",
+  "kind": "plain",
+  "clause": "Requires Righteous Fury",
+  "best_match_score": 0.0,
+  "category": "other_missing"
+ },
+ {
+  "id": 276668,
+  "name": "Swashbuckling Duelist",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it.",
+  "best_match_score": 0.04,
+  "category": "other_missing"
+ },
+ {
+  "id": 277020,
+  "name": "Blurred Blade",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.04,
+  "category": "other_missing"
+ },
+ {
+  "id": 277049,
+  "name": "En Garde!",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.07,
+  "category": "other_missing"
+ },
+ {
+  "id": 286391,
+  "name": "Raging Lunge",
+  "kind": "ext",
+  "clause": "Multiple Raging Blow! charges cannot be gained within the same global cooldown. Does not receive a charge from Wrecking Crew.",
+  "best_match_score": 0.1,
+  "category": "other_missing"
+ },
+ {
+  "id": 879,
+  "name": "Exorcism",
+  "kind": "plain",
+  "clause": "It also stuns them for $900879d.",
+  "best_match_score": 0.11,
+  "category": "other_missing"
+ },
+ {
+  "id": 281597,
+  "name": "Swashbuckler: Matched Blows",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.24,
+  "category": "other_missing"
+ },
+ {
+  "id": 281602,
+  "name": "Swashbuckler: Flurry of Blows",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.24,
+  "category": "other_missing"
+ },
+ {
+  "id": 281944,
+  "name": "Swashbuckler: Shocktrooper",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.24,
+  "category": "other_missing"
+ },
+ {
+  "id": 285111,
+  "name": "Swashbuckler: Bloodsail",
+  "kind": "ext",
+  "clause": "A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.",
+  "best_match_score": 0.24,
+  "category": "other_missing"
+ },
+ {
+  "id": 879,
+  "name": "Exorcism",
+  "kind": "plain",
+  "clause": "Exorcism always critically strikes Undead and Demon targets.",
+  "best_match_score": 0.25,
+  "category": "other_missing"
+ },
+ {
+  "id": 275969,
+  "name": "Biting Drain",
+  "kind": "plain",
+  "clause": "Grants the periodic damage from your Drain Life and Drain Soul spells the ability to critically hit.",
+  "best_match_score": 0.25,
+  "category": "other_missing"
+ },
+ {
+  "id": 277860,
+  "name": "Divine Concord",
+  "kind": "plain",
+  "clause": "When Arcane Blast consumes The Art of War, it grants one additional Arcane Blast stack.",
+  "best_match_score": 0.31,
+  "category": "other_missing"
+ },
+ {
+  "id": 51885,
+  "name": "Mental Dexterity",
+  "kind": "plain",
+  "clause": "@req:300049@",
+  "best_match_score": 0.33,
+  "category": "other_missing"
+ },
+ {
+  "id": 278067,
+  "name": "Cremation",
+  "kind": "ext",
+  "clause": "Can only consume the spells specified above.",
+  "best_match_score": 0.33,
+  "category": "other_missing"
+ },
+ {
+  "id": 2896,
+  "name": "Water Elemental Totem",
+  "kind": "ext",
+  "clause": "This uses Fire Elemental Totem modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 2897,
+  "name": "Air Elemental Totem",
+  "kind": "ext",
+  "clause": "This uses Fire Elemental Totem modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 270034,
+  "name": "Eldritch Wrath",
+  "kind": "ext",
+  "clause": "This uses Holy Wrath modifiers. Attack power reduction increases with player level.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 270182,
+  "name": "Holy Supernova",
+  "kind": "ext",
+  "clause": "These effects cause no threat. This uses Holy Nova modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 270697,
+  "name": "Battle Charge",
+  "kind": "ext",
+  "clause": "This uses Charge modifiers. Usable in melee range.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 270766,
+  "name": "Purification By Light",
+  "kind": "ext",
+  "clause": "This uses Exorcism and Consecration modifiers",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271153,
+  "name": "Living Lightning",
+  "kind": "ext",
+  "clause": "This uses Chain Heal modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271205,
+  "name": "Cauterizing Fire",
+  "kind": "ext",
+  "clause": "This uses Fireball modifiers. Immunity spells prevent this healing, and this effect does not benefit from range-increasing effects.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271341,
+  "name": "Icy Penance",
+  "kind": "ext",
+  "clause": "This uses Penance modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271484,
+  "name": "Circle of Life",
+  "kind": "ext",
+  "clause": "This uses Halo modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271579,
+  "name": "Lava Sweep",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271626,
+  "name": "Astral Storm",
+  "kind": "ext",
+  "clause": "This uses Thunderstorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271676,
+  "name": "Sunburst",
+  "kind": "ext",
+  "clause": "This uses Starsurge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271779,
+  "name": "Titanic Mutilate",
+  "kind": "ext",
+  "clause": "This uses Mutilate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 271897,
+  "name": "Dragon Charge",
+  "kind": "ext",
+  "clause": "This uses Intercept modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 272031,
+  "name": "Water Nova",
+  "kind": "ext",
+  "clause": "This uses Frost Nova modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 272429,
+  "name": "Frostflame Shock",
+  "kind": "ext",
+  "clause": "This uses Flame Shock modifiers. This ability shares a cooldown with Shaman Shock spells.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 272989,
+  "name": "Renewed Through Absolution",
+  "kind": "ext",
+  "clause": "This heal uses Penance heal modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273121,
+  "name": "Righteous Zealot",
+  "kind": "ext",
+  "clause": "This damage uses Smite modifiers and can only occur once every 4.5 sec. Deals 80% damage and healing when triggered against enemy players.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273561,
+  "name": "Ice Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273872,
+  "name": "Disembowel",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273885,
+  "name": "Blood and Guts",
+  "kind": "ext",
+  "clause": "This damage uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273955,
+  "name": "Stormhammer",
+  "kind": "ext",
+  "clause": "This uses Concussion Blow modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 273990,
+  "name": "Shadow Counter",
+  "kind": "ext",
+  "clause": "This ability uses Shadowstep modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274026,
+  "name": "Temporal Blast",
+  "kind": "ext",
+  "clause": "This uses Arcane Blast modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274120,
+  "name": "Slice and Ice",
+  "kind": "ext",
+  "clause": "Uses Slice and Dice modifiers. Requires a single Two-Handed Melee Weapon.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274121,
+  "name": "Winds of Winter",
+  "kind": "ext",
+  "clause": "This uses Cone of Cold modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274210,
+  "name": "Dark Transfusion",
+  "kind": "ext",
+  "clause": "This uses Holy Nova modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274264,
+  "name": "Shield Strike",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274269,
+  "name": "Thrust",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274357,
+  "name": "Devil's Ignition",
+  "kind": "ext",
+  "clause": "This uses Incinerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274359,
+  "name": "Charred Bite",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274473,
+  "name": "Explosive Charges",
+  "kind": "ext",
+  "clause": "This uses Explosive Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274514,
+  "name": "Eclipse Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274515,
+  "name": "Solar Strike",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274680,
+  "name": "Ice Shock",
+  "kind": "ext",
+  "clause": "This uses Frost Shock modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274734,
+  "name": "Elemental Immolate",
+  "kind": "ext",
+  "clause": "This uses Immolate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274977,
+  "name": "Astral Flare",
+  "kind": "ext",
+  "clause": "This uses Starfire modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 274986,
+  "name": "Astral Plasma",
+  "kind": "ext",
+  "clause": "This uses Starsurge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275047,
+  "name": "Lightning Blade",
+  "kind": "ext",
+  "clause": "This uses Stormstrike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275048,
+  "name": "Thunder Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275204,
+  "name": "Unchained Blink",
+  "kind": "ext",
+  "clause": "This uses Blink modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275320,
+  "name": "Compound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275433,
+  "name": "Divine Blast",
+  "kind": "ext",
+  "clause": "This uses Arcane Blast modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275434,
+  "name": "Divine Missiles",
+  "kind": "ext",
+  "clause": "This uses Arcane Missiles modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275465,
+  "name": "Divine Barrage",
+  "kind": "ext",
+  "clause": "This uses Arcane Barrage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275655,
+  "name": "Serpent Strike",
+  "kind": "ext",
+  "clause": "This uses Claw modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275656,
+  "name": "Serpent Form",
+  "kind": "ext",
+  "clause": "This ability uses Cat Form modifiers and Poisonous Strikes uses Instant Poison modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275658,
+  "name": "Serpent Venom",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275659,
+  "name": "Venomous Fury",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275662,
+  "name": "Puncture",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275739,
+  "name": "Goldrinn's Fury",
+  "kind": "ext",
+  "clause": "This uses Tiger's Fury modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275796,
+  "name": "Shadow Missiles",
+  "kind": "ext",
+  "clause": "This uses Arcane Missiles modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 275861,
+  "name": "Razzashi Talon",
+  "kind": "ext",
+  "clause": "This uses Mutilate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276067,
+  "name": "Felblade",
+  "kind": "ext",
+  "clause": "Felblade uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276115,
+  "name": "Ground Slam",
+  "kind": "ext",
+  "clause": "This uses Sundering modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276116,
+  "name": "Upheaval",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276204,
+  "name": "Carnage Rend",
+  "kind": "ext",
+  "clause": "This uses Rend modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276250,
+  "name": "Prayer of Preservation",
+  "kind": "ext",
+  "clause": "This uses Prayer of Healing modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276343,
+  "name": "Align",
+  "kind": "ext",
+  "clause": "This uses Moonfire modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276344,
+  "name": "Time-bind",
+  "kind": "ext",
+  "clause": "This uses Renew modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276345,
+  "name": "Synchronize",
+  "kind": "ext",
+  "clause": "This uses Arcane Missiles modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276394,
+  "name": "Blind Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276431,
+  "name": "Plague Swarm",
+  "kind": "ext",
+  "clause": "This uses Insect Swarm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276631,
+  "name": "Pistol Shot",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276634,
+  "name": "Grape Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers. This ability's cooldown cannot be reduced",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276743,
+  "name": "Arctis",
+  "kind": "ext",
+  "clause": "This uses Pyroblast modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276810,
+  "name": "Blood Arrow",
+  "kind": "ext",
+  "clause": "This uses Drain Life modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276811,
+  "name": "Shadow Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276884,
+  "name": "Blooming Shot",
+  "kind": "ext",
+  "clause": "This uses Arcane Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 276885,
+  "name": "Medicinal Sting",
+  "kind": "ext",
+  "clause": "This uses Serpent Sting modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277019,
+  "name": "Hammer the Gap",
+  "kind": "ext",
+  "clause": "Uses Devastate modifiers and causes high threat.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277020,
+  "name": "Blurred Blade",
+  "kind": "ext",
+  "clause": "Uses Slice and Dice modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277021,
+  "name": "Panache",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277080,
+  "name": "Thunder Hide",
+  "kind": "ext",
+  "clause": "This uses Lightning Shield modifiers. This effect can only occur once every 3 sec.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277081,
+  "name": "Voltaic Bite",
+  "kind": "ext",
+  "clause": "This uses Stormstrike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277550,
+  "name": "Loa's Assault",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 277775,
+  "name": "Drakhacrisp",
+  "kind": "ext",
+  "clause": "This uses Dragon's Breath modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 278020,
+  "name": "Fulmination",
+  "kind": "ext",
+  "clause": "This uses Chain Lightning modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 278045,
+  "name": "Eclipse Blast",
+  "kind": "ext",
+  "clause": "Uses Wrath modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 278060,
+  "name": "Zandalari Glaive",
+  "kind": "ext",
+  "clause": "This uses Glaive Toss modifiers and shares a cooldown with Glaive Toss.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 278145,
+  "name": "Glacial Burst",
+  "kind": "ext",
+  "clause": "This uses Lava Burst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 278408,
+  "name": "Conduit",
+  "kind": "ext",
+  "clause": "This uses Lightning Shield modifiers. Usable in Bear Form. This does not trigger any other effects.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 281618,
+  "name": "Call Fungarians",
+  "kind": "ext",
+  "clause": "This uses Force of Nature modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 281627,
+  "name": "Mass Slow",
+  "kind": "ext",
+  "clause": "This uses Slow modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 281696,
+  "name": "Ice Age",
+  "kind": "ext",
+  "clause": "This uses Frost Nova modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 281702,
+  "name": "Mass Hysteria",
+  "kind": "ext",
+  "clause": "This uses Fear modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 282047,
+  "name": "Thief of Fate",
+  "kind": "ext",
+  "clause": "This uses Pick Pocket modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 282905,
+  "name": "Atal'ai Totem",
+  "kind": "ext",
+  "clause": "This uses Searing Totem modifiers and benefits from the Call of Flame talent.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 282930,
+  "name": "Rotting Breath",
+  "kind": "ext",
+  "clause": "This uses Dragon's Breath modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 282949,
+  "name": "Faerie Blink",
+  "kind": "ext",
+  "clause": "This uses Blink modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 282958,
+  "name": "Nightmare Roots",
+  "kind": "ext",
+  "clause": "This uses Entangling Roots modifiers. Nightmare Roots cannot trigger the Brambles Capstone.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283012,
+  "name": "Flameburst",
+  "kind": "ext",
+  "clause": "This uses Flamestrike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283100,
+  "name": "Twilight Shock",
+  "kind": "ext",
+  "clause": "This uses Shadowburn modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283182,
+  "name": "Wave of Despair",
+  "kind": "ext",
+  "clause": "This uses Seed of Corruption modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283344,
+  "name": "Deconstruct",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283714,
+  "name": "Controlled Blast",
+  "kind": "ext",
+  "clause": "This uses Blast Wave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283764,
+  "name": "Sunder Soul",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283896,
+  "name": "Into Darkness",
+  "kind": "ext",
+  "clause": "This uses Vanish modifiers. Removes invulnerabilities when used. Shares a $283900dond cooldown with other Vanishes.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 283959,
+  "name": "Light of Justice",
+  "kind": "ext",
+  "clause": "This uses Hammer of Justice modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284177,
+  "name": "Glacial Spike",
+  "kind": "ext",
+  "clause": "This uses Cone of Cold modifiers. Damage is split when hitting more than 3 enemies.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284476,
+  "name": "Warbreaker",
+  "kind": "ext",
+  "clause": "This uses Colossus Smash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284492,
+  "name": "Shadow Waste Bolt",
+  "kind": "ext",
+  "clause": "This uses Shadow Bolt modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284547,
+  "name": "Screams of the Past",
+  "kind": "ext",
+  "clause": "This uses Psychic Scream modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284579,
+  "name": "\"Stealth\"",
+  "kind": "ext",
+  "clause": "This uses crate modifiers. Perfect for board players.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284599,
+  "name": "Winterfall Firebreath",
+  "kind": "ext",
+  "clause": "This uses Cone of Cold modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284650,
+  "name": "Shadowfall",
+  "kind": "ext",
+  "clause": "This uses Starfall modifiers. Canceled if you shapeshift, lose character control, or mount.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284664,
+  "name": "Frostfall",
+  "kind": "ext",
+  "clause": "This uses Starfall modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284677,
+  "name": "Firefall",
+  "kind": "ext",
+  "clause": "This uses Starfall modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284697,
+  "name": "Arcanist's Explosion",
+  "kind": "ext",
+  "clause": "This uses Arcane Explosion modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284732,
+  "name": "Wraith",
+  "kind": "ext",
+  "clause": "This uses Haunt modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284758,
+  "name": "Temporal Rift",
+  "kind": "ext",
+  "clause": "This uses Arcane Explosion modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284789,
+  "name": "Absolute Hellfire",
+  "kind": "ext",
+  "clause": "This uses Rain of Fire modifiers",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284854,
+  "name": "Hydricles",
+  "kind": "ext",
+  "clause": "This uses Frostbolt modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284908,
+  "name": "Oil Dipped Arrow",
+  "kind": "ext",
+  "clause": "This uses Arcane Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 284937,
+  "name": "Divine Dash",
+  "kind": "ext",
+  "clause": "This uses Intervene modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285052,
+  "name": "Shadow Word: Gore",
+  "kind": "ext",
+  "clause": "This uses Shadow Word: Pain modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285069,
+  "name": "Shredding Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285085,
+  "name": "Stone Shard",
+  "kind": "ext",
+  "clause": "This uses Earth Shock modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285133,
+  "name": "Devour Mind",
+  "kind": "ext",
+  "clause": "This uses Devouring Plague modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285158,
+  "name": "Dark Domination",
+  "kind": "ext",
+  "clause": "This uses Fel Domination modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285566,
+  "name": "Exorcist's Slash",
+  "kind": "ext",
+  "clause": "This uses Exorcism modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285612,
+  "name": "Quick Draw",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285641,
+  "name": "Curse of the Swamp Witch",
+  "kind": "ext",
+  "clause": "This uses Curse of Exhaustion modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285693,
+  "name": "Hell Scream",
+  "kind": "ext",
+  "clause": "This damage uses Rend modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285710,
+  "name": "Jadefire Corruption",
+  "kind": "ext",
+  "clause": "This uses Corruption modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285759,
+  "name": "Vampiric Bite",
+  "kind": "ext",
+  "clause": "This uses Vampiric Touch modifiers. This periodic damage can critically strike.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285802,
+  "name": "Lunar Aspiration",
+  "kind": "ext",
+  "clause": "This uses Moonfire modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285822,
+  "name": "Veil of Shadows",
+  "kind": "ext",
+  "clause": "Does not stack with other similar effects. This uses Curse of the Elements modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285897,
+  "name": "Hydra's Venom",
+  "kind": "ext",
+  "clause": "This uses Rend modifiers and counts as both a bleed and poison effect.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285915,
+  "name": "Knifestorm",
+  "kind": "ext",
+  "clause": "This uses Hurricane modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 285959,
+  "name": "Zulian Guardian",
+  "kind": "ext",
+  "clause": "This uses Feral Spirits modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286025,
+  "name": "Light of the Guardian",
+  "kind": "ext",
+  "clause": "This uses Holy Light modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286201,
+  "name": "Localized Storm",
+  "kind": "ext",
+  "clause": "This uses Hurricane modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286212,
+  "name": "Crusader's Hammer",
+  "kind": "ext",
+  "clause": "Uses Hammer of Justice modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286266,
+  "name": "Divine Infusion",
+  "kind": "ext",
+  "clause": "This uses Pain Suppression modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286298,
+  "name": "Shadow Smash",
+  "kind": "ext",
+  "clause": "This uses Colossus Smash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286356,
+  "name": "Scorched Earth",
+  "kind": "ext",
+  "clause": "This uses Scorch modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286372,
+  "name": "Perilous Pain",
+  "kind": "ext",
+  "clause": "Uses Searing Pain modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286387,
+  "name": "Black Widow Strike",
+  "kind": "ext",
+  "clause": "This uses Black Arrow modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 286391,
+  "name": "Raging Lunge",
+  "kind": "ext",
+  "clause": "This uses Raging Blow modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 288847,
+  "name": "Seal of Ebon Vengeance",
+  "kind": "ext",
+  "clause": "This uses Seal of Vengeance modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 291042,
+  "name": "Payback",
+  "kind": "ext",
+  "clause": "This ability uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 291053,
+  "name": "Phalanx Thrust",
+  "kind": "ext",
+  "clause": "This uses Siegebreaker modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903000,
+  "name": "Aether Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903012,
+  "name": "Void Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903024,
+  "name": "Cinder Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903036,
+  "name": "Rime Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903048,
+  "name": "Volt Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903060,
+  "name": "Frost Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903068,
+  "name": "Holy Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903076,
+  "name": "Flare Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903092,
+  "name": "Locust Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903100,
+  "name": "Arcane Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903110,
+  "name": "Shadow Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903120,
+  "name": "Burning Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903130,
+  "name": "Frozen Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903140,
+  "name": "Storm Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903150,
+  "name": "Manareaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903158,
+  "name": "Dawnreaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903166,
+  "name": "Duskreaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903174,
+  "name": "Frostreaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903190,
+  "name": "Obliterating Ice",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903198,
+  "name": "Obliterating Void",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903206,
+  "name": "Obliterating Fire",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 903222,
+  "name": "Obliterating Storm",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904000,
+  "name": "Manaripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904020,
+  "name": "Duskripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904040,
+  "name": "Dawnripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904060,
+  "name": "Flameripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904080,
+  "name": "Frostripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904100,
+  "name": "Boltripper",
+  "kind": "ext",
+  "clause": "This uses Rip modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904120,
+  "name": "Aether Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904140,
+  "name": "Dusk Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904160,
+  "name": "Dawn Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904180,
+  "name": "Flame Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904200,
+  "name": "Frost Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904220,
+  "name": "Storm Rake",
+  "kind": "ext",
+  "clause": "This uses Rake modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904240,
+  "name": "Aethershred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904260,
+  "name": "Duskshred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904280,
+  "name": "Lightshred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904300,
+  "name": "Flameshred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904320,
+  "name": "Snowshred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904340,
+  "name": "Stormshred",
+  "kind": "ext",
+  "clause": "This uses Shred modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904360,
+  "name": "Mystic Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904380,
+  "name": "Dusk Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904400,
+  "name": "Light Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904420,
+  "name": "Flame Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904440,
+  "name": "Frost Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904460,
+  "name": "Storm Maul",
+  "kind": "ext",
+  "clause": "This uses Maul modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904480,
+  "name": "Wyrm Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904500,
+  "name": "Ghoul Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904520,
+  "name": "Dragonhawk Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904540,
+  "name": "Salamander Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904560,
+  "name": "Wendigo Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904580,
+  "name": "Thunderlizard Bite",
+  "kind": "ext",
+  "clause": "This uses Mongoose Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904600,
+  "name": "Mystic Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904620,
+  "name": "Shadow Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904640,
+  "name": "Light Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904660,
+  "name": "Flame Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904680,
+  "name": "Frost Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904700,
+  "name": "Storm Talon",
+  "kind": "ext",
+  "clause": "This uses Raptor Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904720,
+  "name": "Arcane Bullet",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904740,
+  "name": "Voidbound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904760,
+  "name": "Lightbound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904780,
+  "name": "Flamebound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904800,
+  "name": "Frostbound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904820,
+  "name": "Stormbound Shot",
+  "kind": "ext",
+  "clause": "This uses Aimed Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904840,
+  "name": "Arcane Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904860,
+  "name": "Ghostly Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904880,
+  "name": "Holy Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904900,
+  "name": "Blazing Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904920,
+  "name": "Freezing Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904940,
+  "name": "Shocking Finish",
+  "kind": "ext",
+  "clause": "This uses Eviscerate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904960,
+  "name": "Aether Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 904980,
+  "name": "Shadow Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907000,
+  "name": "Dawn Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907020,
+  "name": "Cinder Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907040,
+  "name": "Glacial Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907060,
+  "name": "Lightning Rupture",
+  "kind": "ext",
+  "clause": "This uses Rupture modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907080,
+  "name": "Mana Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907100,
+  "name": "Void Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907120,
+  "name": "Light Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907140,
+  "name": "Arcane Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907160,
+  "name": "Shadow Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907180,
+  "name": "Holy Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907200,
+  "name": "Fire Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907220,
+  "name": "Frost Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907240,
+  "name": "Lightning Slash",
+  "kind": "ext",
+  "clause": "This uses Heroic Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907260,
+  "name": "Spellbound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907280,
+  "name": "Voidbound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907300,
+  "name": "Lightbound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907320,
+  "name": "Flamebound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907340,
+  "name": "Frostbound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907360,
+  "name": "Stormbound Cleave",
+  "kind": "ext",
+  "clause": "This uses Cleave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907380,
+  "name": "Aether Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907400,
+  "name": "Umbral Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907420,
+  "name": "Dawn Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907440,
+  "name": "Lava Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907460,
+  "name": "Glacial Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907480,
+  "name": "Tempest Smash",
+  "kind": "ext",
+  "clause": "This uses Thunder Clap modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907540,
+  "name": "Light Breaker",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907560,
+  "name": "Flare Breaker",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907580,
+  "name": "Rime Breaker",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907600,
+  "name": "Storm Breaker",
+  "kind": "ext",
+  "clause": "This uses Devastate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907620,
+  "name": "Manachaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907640,
+  "name": "Voidchaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907660,
+  "name": "Dawnchaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907680,
+  "name": "Flamechaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907700,
+  "name": "Frostchaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907720,
+  "name": "Stormchaser",
+  "kind": "ext",
+  "clause": "This uses Overpower modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907740,
+  "name": "Whirling Aether",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907760,
+  "name": "Whirling Shadows",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907780,
+  "name": "Whirling Light",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907800,
+  "name": "Whirling Flames",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907820,
+  "name": "Whirling Ice",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907840,
+  "name": "Whirling Storm",
+  "kind": "ext",
+  "clause": "This uses Whirlwind modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907860,
+  "name": "Flamereaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907861,
+  "name": "Stormreaver",
+  "kind": "ext",
+  "clause": "This uses Crusader Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907862,
+  "name": "Rime Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907870,
+  "name": "Lightning Lash",
+  "kind": "ext",
+  "clause": "This uses Lava Lash modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907878,
+  "name": "Obliterating Aether",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907886,
+  "name": "Obliterating Light",
+  "kind": "ext",
+  "clause": "This uses Obliterate modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907894,
+  "name": "Dawn Strike",
+  "kind": "ext",
+  "clause": "This uses Sinister Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907906,
+  "name": "Brilliant Slam",
+  "kind": "ext",
+  "clause": "This uses Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 907916,
+  "name": "Mystic Shot",
+  "kind": "ext",
+  "clause": "This uses Steady Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910300,
+  "name": "Flamethirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910320,
+  "name": "Hailthirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910340,
+  "name": "Stormthirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910360,
+  "name": "Duskthirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910380,
+  "name": "Dawnthirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910400,
+  "name": "Manathirst",
+  "kind": "ext",
+  "clause": "This uses Bloodthirst modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910420,
+  "name": "Flaming Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910440,
+  "name": "Frozen Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910460,
+  "name": "Thundering Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910480,
+  "name": "Shadowed Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910500,
+  "name": "Dawning Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910520,
+  "name": "Mystic Riposte",
+  "kind": "ext",
+  "clause": "This uses Riposte modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910540,
+  "name": "Blazing Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910560,
+  "name": "Glacial Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910580,
+  "name": "Storm Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910600,
+  "name": "Void Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910620,
+  "name": "Righteous Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910640,
+  "name": "Magic Multi-Shot",
+  "kind": "ext",
+  "clause": "This uses Multi-Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910660,
+  "name": "Flamesinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910680,
+  "name": "Icesinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910700,
+  "name": "Boltsinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910720,
+  "name": "Shadesinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910740,
+  "name": "Dawnsinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910760,
+  "name": "Aethersinger Shot",
+  "kind": "ext",
+  "clause": "This uses Kill Shot modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910780,
+  "name": "Flame Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910800,
+  "name": "Rime Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910820,
+  "name": "Storm Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910840,
+  "name": "Dusk Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910860,
+  "name": "Dawn Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910880,
+  "name": "Aether Revenge",
+  "kind": "ext",
+  "clause": "This uses Revenge modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910900,
+  "name": "Blazing Shield Slam",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910920,
+  "name": "Glacial Shield Slam",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910940,
+  "name": "Tempest Shield Slam",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 910960,
+  "name": "Umbral Shield Slam",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911000,
+  "name": "Mystic Shield Slam",
+  "kind": "ext",
+  "clause": "This uses Shield Slam modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911740,
+  "name": "Flame Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911760,
+  "name": "Frost Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911780,
+  "name": "Storm Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911800,
+  "name": "Shadow Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911820,
+  "name": "Dawn Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911840,
+  "name": "Aether Counter",
+  "kind": "ext",
+  "clause": "This uses Counterattack modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911980,
+  "name": "Fire Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 911981,
+  "name": "Fire Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912000,
+  "name": "Frost Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912001,
+  "name": "Frost Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912020,
+  "name": "Storm Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912021,
+  "name": "Storm Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912040,
+  "name": "Shadow Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912041,
+  "name": "Shadow Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912060,
+  "name": "Light Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912061,
+  "name": "Light Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912080,
+  "name": "Arcane Swipe (Cat)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 912081,
+  "name": "Arcane Swipe (Bear)",
+  "kind": "ext",
+  "clause": "This uses Swipe modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913050,
+  "name": "Flurry of Fire",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913051,
+  "name": "Flurry of Ice",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913052,
+  "name": "Flurry of Lightning",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913053,
+  "name": "Flurry of Shadow",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913054,
+  "name": "Flurry of Light",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913055,
+  "name": "Flurry of Magic",
+  "kind": "ext",
+  "clause": "This uses Fan of Knives modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913060,
+  "name": "Burning Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913070,
+  "name": "Frozen Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913080,
+  "name": "Storming Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913090,
+  "name": "Shadowy Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913100,
+  "name": "Righteous Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913110,
+  "name": "Arcane Execution",
+  "kind": "ext",
+  "clause": "This uses Execute modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913120,
+  "name": "Blazing Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913132,
+  "name": "Freezing Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913144,
+  "name": "Thundering Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913156,
+  "name": "Shadowy Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913168,
+  "name": "Brilliant Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913180,
+  "name": "Mystic Bloodstrike",
+  "kind": "ext",
+  "clause": "This uses Blood Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913192,
+  "name": "Flame Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913202,
+  "name": "Frost Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913212,
+  "name": "Storm Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913222,
+  "name": "Shadow Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913232,
+  "name": "Holy Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913242,
+  "name": "Aether Siphon",
+  "kind": "ext",
+  "clause": "This uses Death Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913252,
+  "name": "Flame Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913261,
+  "name": "Cold Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913270,
+  "name": "Storm Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913279,
+  "name": "Shadow Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913288,
+  "name": "Dawn Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913297,
+  "name": "Aether Sever",
+  "kind": "ext",
+  "clause": "This uses Mortal Strike modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913306,
+  "name": "Flame Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913312,
+  "name": "Ices Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913318,
+  "name": "Volt Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913324,
+  "name": "Dusk Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913330,
+  "name": "Dawn Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913336,
+  "name": "Mana Spike",
+  "kind": "ext",
+  "clause": "This uses Hemorrhage modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913342,
+  "name": "Flamepierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913354,
+  "name": "Icepierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913366,
+  "name": "Stormpierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913378,
+  "name": "Shadowpierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913390,
+  "name": "Dawnpierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913402,
+  "name": "Aetherpierce",
+  "kind": "ext",
+  "clause": "This uses Backstab modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913414,
+  "name": "Flamewave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913417,
+  "name": "Frostwave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913420,
+  "name": "Thunderwave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913423,
+  "name": "Voidwave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913426,
+  "name": "Lightwave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913429,
+  "name": "Spellwave",
+  "kind": "ext",
+  "clause": "This uses Shockwave modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913432,
+  "name": "Blades of Flame",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913435,
+  "name": "Blades of Frost",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913438,
+  "name": "Blades of Lightning",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913441,
+  "name": "Blades of Shadow",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913444,
+  "name": "Blades of Light",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913447,
+  "name": "Blades of Magic",
+  "kind": "ext",
+  "clause": "This uses Bladestorm modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913450,
+  "name": "Flare Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913453,
+  "name": "Frost Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913456,
+  "name": "Storm Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913459,
+  "name": "Void Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913462,
+  "name": "Dawn Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913465,
+  "name": "Aether Spree",
+  "kind": "ext",
+  "clause": "This uses Killing Spree modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913480,
+  "name": "Frostfang Bite",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913491,
+  "name": "Duskfang Bite",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913502,
+  "name": "Dawnfang Bite",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 913513,
+  "name": "Spellfang Bite",
+  "kind": "ext",
+  "clause": "This uses Ferocious Bite modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939000,
+  "name": "Aether Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939060,
+  "name": "Dusk Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939120,
+  "name": "Dawn Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939180,
+  "name": "Flame Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939240,
+  "name": "Frost Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ },
+ {
+  "id": 939300,
+  "name": "Storm Mangle",
+  "kind": "ext",
+  "clause": "This uses Mangle modifiers.",
+  "best_match_score": 1.0,
+  "category": "modifier_present"
+ }
+]

@@ -26,6 +26,7 @@ import ctypes
 from ctypes import wintypes
 import json
 import os
+import re
 import sqlite3
 import struct
 import sys
@@ -35,7 +36,9 @@ ROOT = Path(__file__).resolve().parent.parent  # scripts/ -> repo root
 DB_PATH = str(ROOT / 'data' / 'ascension_index.db')
 
 DEFAULT_DATA_PATH = r"E:\Ascension Launcher\resources\ascension-live\Data"
-DEFAULT_STORMLIB_DLL = r"C:\Users\Yshaana\Documents\dbc-extraction-work\refs\stormlib\build\Release\StormLib.dll"
+DEFAULT_STORMLIB_DLL = os.environ.get(
+    'ASCENSION_STORMLIB_DLL',
+    r"C:\Users\Yshaana\Documents\dbc-extraction-work\refs\stormlib\build\Release\StormLib.dll")
 
 # Archives known to be stock Blizzard/locale files (not Ascension's own content).
 # Anything else that turns up in the Data folder is treated as a candidate
@@ -138,6 +141,17 @@ def read_cstr(string_block, offset):
         return ''
     end = string_block.index(b'\x00', offset)
     return string_block[offset:end].decode('utf-8', errors='replace')
+
+
+# NOTE on text that looks corrupted but isn't: raw descriptions frequently
+# contain "$<spellID>donds" (e.g. "over $61840donds as Holy damage") with no
+# space. This is not a read bug - verified byte-for-byte against the raw MPQ
+# data and confirmed as a standard, long-standing WoW tooltip convention that
+# recurs 400+ times across this file: the "$<id>d" macro renders as a bare
+# unit ("8 sec"/"8 min") at tooltip time, and authors glue on the remaining
+# letters ("onds"/"utes") to spell out the full word without a space, since
+# the client's renderer already inserted one. Leave these as-is; they are
+# meant to stay unresolved raw text same as any other $s1/$m1-style macro.
 
 
 def find_owning_archive(mpq_paths, internal_path, dll_path):
@@ -292,6 +306,161 @@ def parse_simple_record(record_bytes, string_block, fields, expected_slots, actu
     return out
 
 
+# ---------------------------------------------------------------------------
+# Validation: a small fixed set of spells with exact-wording facts already on
+# record (confirmed_facts / handoff docs), checked against freshly-extracted
+# spell_dbc_raw.description on every run. Substrings are chosen to be things
+# that appear in the RAW (unresolved-macro) text verbatim - not the rendered
+# English a player would see - so this doesn't false-positive on ordinary
+# $s1/$m1/$61840d-style placeholders that are supposed to stay unresolved.
+# If the client patches and any of these stop matching, something about the
+# extraction (or the spell itself) genuinely changed and needs a look.
+# ---------------------------------------------------------------------------
+VALIDATION_SPELLS = [
+    (907300, 'Lightbound Cleave', ['uses Cleave modifiers']),
+    (907894, 'Dawn Strike', ['uses Sinister Strike modifiers']),
+    (903158, 'Dawnreaver', ['uses Crusader Strike modifiers']),
+    (913444, 'Blades of Light', ['uses Bladestorm modifiers']),
+    (907780, 'Whirling Light', ['uses Whirlwind modifiers']),
+    (280210, 'Judgement of The Three Hammers', ['SP*0.325', 'AP*0.278']),
+    (276076, 'Fel Infused Weapon', ['AP*0.05', 'SP*0.05']),
+    (272624, 'Molten Earth', ['uses Fire Nova modifiers']),
+    (853486, 'The Art of War', ['Judgement, Crusader Strike, Execution Sentence and Divine Storm']),
+    (53382, 'Righteous Vengeance', ['$s1% additional damage', '$61840d']),
+]
+
+
+def validate_known_spells(cur):
+    cur.execute('SELECT id, description FROM spell_dbc_raw WHERE id IN ({})'.format(
+        ','.join(str(sid) for sid, _, _ in VALIDATION_SPELLS)))
+    by_id = dict(cur.fetchall())
+    failures = []
+    for sid, name, expected_substrings in VALIDATION_SPELLS:
+        desc = by_id.get(sid)
+        if desc is None:
+            failures.append(f'{sid} ({name}): not present in spell_dbc_raw at all')
+            continue
+        for expected in expected_substrings:
+            if expected not in desc:
+                failures.append(
+                    f'{sid} ({name}): expected substring {expected!r} not found.\n'
+                    f'    actual description: {desc!r}')
+    if failures:
+        print('\nVALIDATION FAILED - extraction regressed against known-good spells:', file=sys.stderr)
+        for f in failures:
+            print(f'  - {f}', file=sys.stderr)
+        sys.exit(1)
+    print(f'\nValidation OK: {len(VALIDATION_SPELLS)} known spells match expected raw text.')
+
+
+# ---------------------------------------------------------------------------
+# Resolve has_hidden_formula=1 spells: pull each hidden_ref's raw description
+# from spell_dbc_raw and run it through the exact same SP/AP/RAP/weapon regex
+# build_index.py uses on directly-visible tooltips, since the coefficients in
+# these hidden sub-spells are written the same way ("$AP*0.091", "$SP*0.325").
+# ---------------------------------------------------------------------------
+SP_PAT = re.compile(r'\$SP\s*\*\s*([\d.]+)')
+AP_PAT = re.compile(r'\$AP\s*\*\s*([\d.]+)')
+RAP_PAT = re.compile(r'\$RAP\s*\*\s*([\d.]+)')
+WEAPON_PAT = re.compile(r'\$(MWB|mwb|OWB|owb|mw|ow)\b|weapon damage|Normalized', re.I)
+
+
+def extract_scaling_terms(text):
+    terms = set()
+    for m in SP_PAT.finditer(text):
+        terms.add(('SP', float(m.group(1))))
+    for m in AP_PAT.finditer(text):
+        terms.add(('AP', float(m.group(1))))
+    for m in RAP_PAT.finditer(text):
+        terms.add(('RAP', float(m.group(1))))
+    if WEAPON_PAT.search(text):
+        terms.add(('WEAPON', None))
+    return terms
+
+
+def ensure_spell_scaling_source_column(cur):
+    cur.execute("PRAGMA table_info(spell_scaling)")
+    if 'source' not in {row[1] for row in cur.fetchall()}:
+        cur.execute("ALTER TABLE spell_scaling ADD COLUMN source TEXT")
+        cur.execute("UPDATE spell_scaling SET source='export_tooltip' WHERE source IS NULL")
+
+
+def resolve_hidden_formula_spells(cur):
+    ensure_spell_scaling_source_column(cur)
+    # idempotent: only this step's own rows get cleared/re-derived on re-run
+    cur.execute("DELETE FROM spell_scaling WHERE source='dbc_hidden_formula'")
+
+    cur.execute('SELECT id, hidden_refs FROM spells WHERE has_hidden_formula=1')
+    targets = cur.fetchall()
+    cur.execute('SELECT id, description, effect_json FROM spell_dbc_raw')
+    dbc_rows = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
+
+    resolved_count = 0
+    unresolved = []
+    new_rows = []
+    surprises = []
+
+    cur.execute("SELECT fact FROM confirmed_facts")
+    all_facts = [f[0] for f in cur.fetchall()]
+
+    for sid, hidden_refs in targets:
+        ref_ids = [int(x) for x in hidden_refs.split(',') if x.strip()]
+        found_terms = []
+        detail = []
+        for rid in ref_ids:
+            row = dbc_rows.get(rid)
+            if row is None:
+                detail.append(f'{rid}: not in spell_dbc_raw scope')
+                continue
+            desc, effect_json = row
+            terms = extract_scaling_terms(desc)
+            if terms:
+                found_terms.extend((rid, t, c) for t, c in terms)
+            else:
+                detail.append(f'{rid}: no SP/AP/RAP/weapon term in raw text '
+                               f'(effect_json={effect_json})')
+
+        if found_terms:
+            resolved_count += 1
+            for rid, term_type, coeff in found_terms:
+                new_rows.append((sid, term_type, coeff, 'dbc_hidden_formula'))
+            # surprise check: does an existing confirmed_facts row already
+            # assert a coefficient for one of these spells that now conflicts?
+            cur.execute('SELECT name FROM spells WHERE id=?', (sid,))
+            name_row = cur.fetchone()
+            name = name_row[0] if name_row else str(sid)
+            for rid, term_type, coeff in found_terms:
+                cur.execute('SELECT name FROM spell_dbc_raw WHERE id=?', (rid,))
+                sub_row = cur.fetchone()
+                sub_name = sub_row[0] if sub_row else str(rid)
+                for fact in all_facts:
+                    if sub_name and sub_name in fact and ('%' in fact or 'assumed' in fact.lower()):
+                        surprises.append({
+                            'spell_id': sid, 'spell_name': name,
+                            'hidden_ref_id': rid, 'hidden_ref_name': sub_name,
+                            'resolved_term': term_type, 'resolved_coefficient': coeff,
+                            'conflicting_fact': fact,
+                        })
+            cur.execute('UPDATE spells SET has_hidden_formula=0 WHERE id=?', (sid,))
+        else:
+            unresolved.append((sid, '; '.join(detail)))
+            note = ' | DBC lookup: ' + '; '.join(detail)
+            cur.execute('UPDATE spells SET notes=COALESCE(notes,"")||? WHERE id=?', (note, sid))
+
+    cur.executemany('INSERT INTO spell_scaling (spell_id, term_type, coefficient, source) VALUES (?,?,?,?)',
+                     new_rows)
+
+    print(f'\nhas_hidden_formula spells resolved into spell_scaling: {resolved_count} / {len(targets)}')
+    print(f'left flagged (no SP/AP/RAP/weapon term found in hidden sub-spell text): {len(unresolved)}')
+    if surprises:
+        print(f'\nSURPRISING resolutions (conflict with an existing confirmed_facts entry):')
+        for s in surprises:
+            print(f"  - spell {s['spell_id']} ({s['spell_name']}) -> hidden ref {s['hidden_ref_id']} "
+                  f"({s['hidden_ref_name']}): resolved {s['resolved_term']}={s['resolved_coefficient']}")
+            print(f"    existing fact: {s['conflicting_fact'][:300]}")
+    return resolved_count, unresolved, surprises
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--data-path', default=DEFAULT_DATA_PATH, help='Client Data folder')
@@ -426,7 +595,10 @@ def main():
 
     conn.commit()
 
-    # --- cross-reference has_hidden_formula ----------------------------------
+    # --- validate before trusting any of the above further -------------------
+    validate_known_spells(cur)
+
+    # --- cross-reference has_hidden_formula (raw resolution rate) ------------
     cur.execute('SELECT id, hidden_refs FROM spells WHERE has_hidden_formula=1')
     rows = cur.fetchall()
     cur.execute('SELECT id FROM spell_dbc_raw')
@@ -442,6 +614,10 @@ def main():
     print(f'\nhas_hidden_formula=1 spells: {len(rows)}')
     print(f'hidden_refs total: {total_refs}, resolved against DBC: {resolved_refs} '
           f'({resolved_refs / total_refs * 100:.1f}%)' if total_refs else '(none)')
+
+    # --- turn that resolution into actual spell_scaling rows -----------------
+    resolve_hidden_formula_spells(cur)
+    conn.commit()
 
     conn.close()
 
