@@ -1,6 +1,14 @@
-# Project Ascension — Systems Primer v16 (Context for Claude)
+# Project Ascension — Systems Primer v17 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
+
+**v17 changelog (2026-08-03):** Scouting-session mechanical findings (Titanus/Zavulon armory pulls + an 11-character, 17-report Hammer from the Heavens hunt). Closes a long-standing open question from `build_paladin-hammerdin.md`'s hit/expertise walkback section and refines the "Holy is unresistable" combat-engine default:
+
+- **✅ CLOSED: "Can Holy spells (particularly Hammer from the Heavens) miss?"** — No. 4,962 pooled hits across 11 characters and 17 reports: 0 miss, 0 dodge, 0 parry, 0 full resist. See `confirmed_facts.hammer_from_heavens_cannot_be_avoided`; detail edit in `build_paladin-hammerdin.md`'s hit/expertise walkback section.
+- **§1 refinement: "Holy is unresistable" specifically means no full-resist roll**, not immunity to ordinary partial/chip magic resistance. Confirmed on both Lightbound Cleave (356 hits, our own build) and Hammer from the Heavens (4,962 hits) — both show 0 full resists but nonzero partial resist. Forecasting off Holy damage should still account for target resistance stat's partial mitigation; "unresistable" is not "resistance-stat-proof."
+- **§1 refinement: Molten Earth's crit rate is not a fixed/flagged value** — three independent character measurements (40.7%/575, 46.6%/116, 64.8%/54) spread over 24 points. Reframe from "no structural predictor, per-spell flag" to "a normal crit-capable spell that scales with each character's own crit rating, like any other spell" — same conclusion in practice (verify per parse, don't infer from tooltip structure) but a cleaner mechanism.
+- **Righteous Vengeance's 0%-crit verdict now spans 9 characters / 4 Paths / 303 hits**, up from a handful of parses. Effectively settled.
+- New scouting methodology discovered this session, worth keeping in mind for future test design: **searching combat logs directly for an ability name across many reports finds who's actually playing a build far more reliably than browsing leaderboards or individual talent trees** — see `INDEX_GUIDE.md`'s scouting section (v7) for the technique. This is how the 11 Hammer-from-the-Heavens players were found after leaderboard-browsing and random-profile-clicking both came up empty.
 
 **v16 changelog (2026-08-03):** Amendment to v15's scouting tooling — scouted-build data split out of `ascension_index.db` into its own `index/scouted_builds.db` (separate, optional, rebuildable), and the primary scouting path is now the browser-free `index/scout_ascensionlogs_cli.py` rather than the browser-console script (which stays as a fallback). Detail in `INDEX_GUIDE.md` v5, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as v15.
 

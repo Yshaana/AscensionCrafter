@@ -1,0 +1,2252 @@
+{
+  "scouted_at": "2026-08-03T18:05:38.878488+00:00",
+  "name": "Phantomx",
+  "character": {
+    "id": 2739,
+    "name": "Phantomx",
+    "realm": "Unknown",
+    "region": "US",
+    "class": "Hero",
+    "spec": "Hero",
+    "level": null,
+    "guild_id": null,
+    "race": "Human",
+    "guild_name": "404"
+  },
+  "captured_for_boss": "Ysondre",
+  "gear": [
+    {
+      "slot": 1,
+      "item_id": 243923,
+      "name": "Lightforge Helm",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 557,
+        "stamina": 13,
+        "strength": 15,
+        "intellect": 8,
+        "critRating": 10,
+        "spellPower": 20
+      },
+      "damage": null,
+      "source": "Scholomance - Darkmaster Gandling",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 2,
+      "item_id": 319856,
+      "name": "The Eye of Hakkar",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "critRating": 17,
+        "attackPower": 35
+      },
+      "damage": null,
+      "source": "Zul'Gurub - Hakkar",
+      "source_category": "raid",
+      "tier": "@Heroic Zul'Gurub@"
+    },
+    {
+      "slot": 3,
+      "item_id": 214167,
+      "name": "Dregmetal Spaulders",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 298,
+        "stamina": 6,
+        "hitRating": 21,
+        "intellect": 10,
+        "spellPower": 14
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Ring of Law",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 5,
+      "item_id": 261126,
+      "name": "Tunic of the Crescent Moon",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 187,
+        "spirit": 10,
+        "stamina": 9,
+        "hitRating": 9,
+        "intellect": 12,
+        "critRating": 12,
+        "spellPower": 20,
+        "spellPenetration": 13
+      },
+      "damage": null,
+      "source": "Stratholme - Baron Rivendare",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 6,
+      "item_id": 214433,
+      "name": "Chillsteel Girdle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "mp5": 19,
+        "armor": 236,
+        "stamina": 14,
+        "intellect": 12,
+        "spellPower": 37
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Warder Stilgiss",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 7,
+      "item_id": 214191,
+      "name": "Savage Gladiator Leggings",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 349,
+        "agility": 16,
+        "stamina": 14,
+        "expertise": 6,
+        "critRating": 13,
+        "attackPower": 19
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Ring of Law",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 8,
+      "item_id": 319892,
+      "name": "Animist's Boots",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 244,
+        "spirit": 12,
+        "stamina": 9,
+        "intellect": 11,
+        "critRating": 11,
+        "spellPower": 15
+      },
+      "damage": null,
+      "source": "Zul'Gurub - Jin'do the Hexxer",
+      "source_category": "raid",
+      "tier": "@Heroic Zul'Gurub@"
+    },
+    {
+      "slot": 9,
+      "item_id": 248430,
+      "name": "Sublime Wristguards",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 41,
+        "spirit": 8,
+        "hitRating": 7,
+        "spellPower": 14,
+        "spellPenetration": 10
+      },
+      "damage": null,
+      "source": "Dire Maul North - Guard Slip'kik",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 10,
+      "item_id": 246632,
+      "name": "Gloves of Shadowy Mist",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 62,
+        "stamina": 17,
+        "spellPower": 21
+      },
+      "damage": null,
+      "source": "Dire Maul East - Zevrim Thornhoof",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 11,
+      "item_id": 248085,
+      "name": "Gordok Nose Ring",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 11,
+        "strength": 6,
+        "expertise": 11,
+        "spellPower": 11
+      },
+      "damage": null,
+      "source": "Dire Maul North - Guard Slip'kik",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 12,
+      "item_id": 123180,
+      "name": "Painweaver Band",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 6,
+        "intellect": 10,
+        "spellPower": 15,
+        "attackPower": 17
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - General Drakkisath",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 13,
+      "item_id": 241834,
+      "name": "Witching Hourglass",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "critRating": 20
+      },
+      "damage": null,
+      "source": "Blackrock Caverns - Ascendant Lord Obsidius",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 14,
+      "item_id": 221185,
+      "name": "Ramstein's Lightning Bolts",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "spellPower": 18,
+        "attackPower": 23
+      },
+      "damage": null,
+      "source": "Stratholme - Ramstein the Gorger",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 15,
+      "item_id": 246886,
+      "name": "Shadewood Cloak",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 48,
+        "stamina": 12,
+        "expertise": 6,
+        "attackPower": 36,
+        "natureResist": 9
+      },
+      "damage": null,
+      "source": "Dire Maul East - Alzzin the Wildshaper",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 16,
+      "item_id": 17665,
+      "name": "Glacierborn Greatsword",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 24,
+        "expertise": 20,
+        "hitRating": 12,
+        "attackPower": 54,
+        "frostResist": 20
+      },
+      "damage": null,
+      "source": "Snowgrave",
+      "source_category": "worldboss",
+      "tier": null
+    },
+    {
+      "slot": 17,
+      "item_id": 214631,
+      "name": "Angerforge's Battle Axe",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 12,
+        "strength": 18,
+        "expertise": 6,
+        "armorPenetration": 18
+      },
+      "damage": null,
+      "source": "Blackrock Depths - General Angerforge",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 18,
+      "item_id": 246569,
+      "name": "Lethtendris's Wand",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "spellPower": 19
+      },
+      "damage": null,
+      "source": "Dire Maul East - Lethtendris",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    }
+  ],
+  "build": {
+    "abilities": [
+      {
+        "entry_id": 40626,
+        "name": "Trueshot Aura",
+        "icon": "Ability_TrueShot",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the attack power of all party and raid members by 10% within 100 yards.\n\r\n@ext:Does not stack with other similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42052,
+        "name": "Aspect of the Beast",
+        "icon": "Ability_Mount_PinkTiger",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Take on the Aspects of a Beast, becoming untrackable and increasing melee attack power by 10% for you and your pet. \r\n\r\n@ext:Only one Aspect can be active at a time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 41877,
+        "name": "Death Wish",
+        "icon": "Spell_Shadow_DeathPact",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "When activated you become enraged, increasing your physical damage by 15% but increasing all damage taken by 5%. Lasts 30 sec.\n\nThis ability is usable while shapeshifted."
+        ]
+      },
+      {
+        "entry_id": 42038,
+        "name": "Charge",
+        "icon": "Ability_Warrior_Charge",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Charge an enemy, generate 12 rage, and root it for 1.5 sec.\n\nThis ability is usable while shapeshifted."
+        ]
+      },
+      {
+        "entry_id": 40876,
+        "name": "Titan's Grip",
+        "icon": "Ability_Warrior_TitansGrip",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Allows you to wield a Two-Handed Axe, Mace, or Sword in each hand. \r\n\r\nAlso allows for a weapon or shield to be held in the off-hand while a Staff is equipped.\r\n\r\nPhysical damage dealt is reduced by 10%."
+        ]
+      },
+      {
+        "entry_id": 40360,
+        "name": "Sweeping Strikes",
+        "icon": "Ability_Rogue_SliceDice",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "While active, casting a melee ability that deals damage will cause a Sweeping Strike, dealing 40% weapon damage to 5 nearby enemies, further increased by attack power. Lasts 10 sec. \r\n\n@ext:Can't be active at the same time as Blade Flurry.\r\n\r\nThis ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42078,
+        "name": "Berserker Stance",
+        "icon": "Ability_Racial_Avatar",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "An aggressive stance. Critical hit chance is increased by 3% and all damage taken is increased by 5%. "
+        ]
+      },
+      {
+        "entry_id": 40872,
+        "name": "Bladestorm",
+        "icon": "Ability_Warrior_Bladestorm",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Instantly Whirlwind up to $50622i nearby targets and for the next 6 sec you will perform a whirlwind attack every 1 sec. While under the effects of Bladestorm, you can move but cannot perform any other abilities but you do not feel pity or remorse or fear and you cannot be stopped unless disarmed or killed."
+        ]
+      },
+      {
+        "entry_id": 40068,
+        "name": "Cleave",
+        "icon": "Ability_Warrior_Cleave",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A sweeping attack that does your weapon damage plus 13 to the target and his $?s58366[two nearest allies][nearest ally]."
+        ]
+      },
+      {
+        "entry_id": 40400,
+        "name": "Blade Flurry",
+        "icon": "Ability_Warrior_PunishingBlow",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases your melee attack speed by 20%. In addition, attacks strike an additional nearby opponent. Lasts 20 sec.\r\n\r\n@ext:Can't be active at the same time as Sweeping Strikes.\r\n \r\nThis ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40094,
+        "name": "Arcane Intellect",
+        "icon": "Spell_Holy_MagicalSentry",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the target's Intellect by 2 and spell power by 2 for 30 min.\r\n\n@ext:Does not stack with other similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40093,
+        "name": "Life Tap",
+        "icon": "Spell_Shadow_BurningSpirit",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Converts 15 health into mana. Spell power increases the amount of mana returned."
+        ]
+      },
+      {
+        "entry_id": 42111,
+        "name": "Summon Felguard",
+        "icon": "Spell_Shadow_SummonFelGuard",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Felguard under the command of the Warlock."
+        ]
+      },
+      {
+        "entry_id": 40071,
+        "name": "Exorcism",
+        "icon": "Spell_Holy_Excorcism_02",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Causes 96 to 110 Holy damage to an enemy target. Exorcism always critically strikes Undead and Demon targets. It also stuns them for 3 sec."
+        ]
+      },
+      {
+        "entry_id": 42024,
+        "name": "Light's Hammer",
+        "icon": "spell_paladin_lightshammer",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Hurl a Light-infused hammer into the ground, where it will blast a 10 yard area with Arcing Light for 10 sec.\n\nDeals Holy damage to enemies and reduces their movement speed by 50% for 3 sec. Also heals up to 5 allies every 2 sec."
+        ]
+      },
+      {
+        "entry_id": 40989,
+        "name": "Divine Storm",
+        "icon": "Ability_Paladin_DivineStorm",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "An instant weapon attack that causes 110% of weapon damage to enemies within 8 yards. The Divine Storm heals up to 3 party or raid members for 25% of the damage caused. "
+        ]
+      },
+      {
+        "entry_id": 42025,
+        "name": "Execution Sentence",
+        "icon": "spell_paladin_executionsentence",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A hammer slowly falls from the sky, causing Holy damage if the target is an enemy and healing if the target is an ally, over 10 sec. \r\n\r\nThis culminates in a final burst of damage or healing. Dispelling the effect triggers the final burst."
+        ]
+      },
+      {
+        "entry_id": 42110,
+        "name": "Seal of Command",
+        "icon": "Ability_Warrior_InnerRage",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "All main hand auto attacks and Paladin melee abilities deal additional Holy damage to the target and up to 2 additional targets. Unleashing this Seal's energy will judge an enemy, instantly causing Holy damage."
+        ]
+      },
+      {
+        "entry_id": 42067,
+        "name": "Judgement of Wisdom",
+        "icon": "Ability_Paladin_JudgementBlue",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Unleashes the energy of a Seal spell to judge an enemy for 20 sec, giving each attack a chance to restore 2% of the attacker's base mana. \r\n\r\n@ext:Refer to individual Seals for additional Judgement effect.:ext@\r\n\r\n@ext:Only one Judgement per Paladin can be active at any one time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 41944,
+        "name": "Horn of Winter",
+        "icon": "INV_Misc_Horn_02",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the Strength and Agility of all party or raid members within 30 yards by 2 and generates 10 rage. Lasts 30 min."
+        ]
+      },
+      {
+        "entry_id": 41989,
+        "name": "Improved Icy Talons",
+        "icon": "Spell_Deathknight_IcyTalons",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the melee haste of all party and raid members within 100 yds by 20%.\r\n\r\nIncreases your melee and ranged haste by an additional 5%."
+        ]
+      },
+      {
+        "entry_id": 41932,
+        "name": "Blood Presence",
+        "icon": "Spell_Deathknight_BloodPresence",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Strengthens you with the presence of blood, increasing damage by 2% and heals you for 1% of your damage dealt.\r\n\r\n@ext:Only one Presence may be active at a time.:ext@\r\n\r\n@ext:Heals up to a maximum of 5% of your health per hit.:ext@"
+        ]
+      },
+      {
+        "entry_id": 43016,
+        "name": "Dawnreaver",
+        "icon": "CrusaderStrike_Holy",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "An instant holy strike that causes 50% weapon damage as Holystrike damage.\r\n\r\n@ext:This uses Crusader Strike modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36593,
+        "name": "Warcry",
+        "icon": "Ability_Warrior_IntensifyRage",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases your melee and ranged critical strike chance by 15% for 15 sec."
+        ]
+      },
+      {
+        "entry_id": 36845,
+        "name": "Fel Infused Weapon",
+        "icon": "custom_T_FelSpikes_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Infuses your weapon with Fel Flames, each auto attack and melee ability causes Shadowflame damage. \r\n\r\nDeals 15% more damage while a Single Two-Handed weapon is equipped."
+        ]
+      },
+      {
+        "entry_id": 36565,
+        "name": "Consecrated Weapon",
+        "icon": "inv_sword_1h_artifactvigfus_d_01",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Imbue your weapon with holy, increasing Holy Spell power by 11 and your attack power by 19 Each auto attack and melee ability causes $/77;200819m1 to $/25;200819M1 additional Holy damage, based on the speed of the weapon. Slower weapons cause more Holy damage per swing. This effect lasts for 2 hours. "
+        ]
+      },
+      {
+        "entry_id": 137842,
+        "name": "Halt",
+        "icon": "Blink",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFB5FFFFStarcaller|r\r\n\r\nInterrupt an enemy's current spell cast and prevents any spell in that school from being cast for 3 sec."
+        ]
+      },
+      {
+        "entry_id": 138301,
+        "name": "Voidborne",
+        "icon": "nhi_void_wraith_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFE0C7FFCultist|r\r\n\r\nTap into your inner voidborne rage, increasing your damage dealt and critical strike chance by 25%, and granting you immunity to stun effects for 10 sec."
+        ]
+      },
+      {
+        "entry_id": 37288,
+        "name": "Hour of Judgement",
+        "icon": "Ability_Paladin_JudgementofthePure",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Causes the Hour of Judgement, making a rain of hammers follow the caster dealing -39 Holy damage every 2 sec to enemies in 10 yards and unleashing a |cFFFFFFFFHammer from the Heavens|r every 0.5 sec.\n@s:282987:0@"
+        ]
+      },
+      {
+        "entry_id": 37565,
+        "name": "Piercing Cleaver",
+        "icon": "ability_skyreach_piercing_rush",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Throws cleavers at 5 nearby enemies, dealing 31 Physical damage. Increases the damage each target takes from your next Execute by 10% for 18 sec, stacks up to 5 times.\r\n\r\n@ext:The duration of Piercing Cleaver cannot be refreshed.:ext@"
+        ]
+      }
+    ],
+    "talents": [
+      {
+        "entry_id": 40386,
+        "name": "Improved Cleave",
+        "icon": "Ability_Warrior_Cleave",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the bonus damage done by your Cleave ability by 40%.",
+          "Increases the bonus damage done by your Cleave ability by 80%.",
+          "Increases the bonus damage done by your Cleave ability by 120%."
+        ]
+      },
+      {
+        "entry_id": 41014,
+        "name": "Wrecking Crew",
+        "icon": "Ability_Warrior_Trauma",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your melee critical hits enrage you, increasing all damage caused by 3% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects..",
+          "Your melee critical hits enrage you, increasing all damage caused by 6% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects..",
+          "Your melee critical hits enrage you, increasing all damage caused by 10% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects."
+        ]
+      },
+      {
+        "entry_id": 40960,
+        "name": "Prey on the Weak",
+        "icon": "Ability_Rogue_PreyontheWeak",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Melee attacks against the target that has less health than you (as a percentage of total health) increase your critical strike damage bonus by 7%.",
+          "Melee attacks against the target that has less health than you (as a percentage of total health) increase your critical strike damage bonus by 14%.",
+          "Melee attacks against the target that has less health than you (as a percentage of total health) increase your critical strike damage bonus by 20%."
+        ]
+      },
+      {
+        "entry_id": 41849,
+        "name": "Spellblade",
+        "icon": "Achievement_GarrisonFollower_Epic",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your melee attacks have a $h% chance to restore 7% of your base mana.",
+          "Your melee attacks have a $h% chance to restore 14% of your base mana.",
+          "Your melee attacks have a $h% chance to restore 20% of your base mana."
+        ]
+      },
+      {
+        "entry_id": 40317,
+        "name": "Impact",
+        "icon": "Spell_Fire_MeteorStorm",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your direct damaging spells have a $h% chance and your Meteor has a chance to cause the next Fire Blast you cast to stun the target for 3 sec",
+          "Your direct damaging spells have a $h% chance and your Meteor has a chance to cause the next Fire Blast you cast to stun the target for 3 sec",
+          "Your direct damaging spells have a $h% chance and your Meteor has a chance to cause the next Fire Blast you cast to stun the target for 3 sec"
+        ]
+      },
+      {
+        "entry_id": 40902,
+        "name": "Twin Disciplines",
+        "icon": "Spell_Holy_SealOfVengeance",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases the damage and healing done by your Holy spells and abilities by 1%, and their critical strike chance by 1%.",
+          "Increases the damage and healing done by your Holy spells and abilities by 2%, and their critical strike chance by 2%.",
+          "Increases the damage and healing done by your Holy spells and abilities by 3%, and their critical strike chance by 3%.",
+          "Increases the damage and healing done by your Holy spells and abilities by 4%, and their critical strike chance by 4%.",
+          "Increases the damage and healing done by your Holy spells and abilities by 5%, and their critical strike chance by 5%."
+        ]
+      },
+      {
+        "entry_id": 40442,
+        "name": "Holy Focus",
+        "icon": "ability_priest_holybolts01",
+        "rank": 4,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your spell critical strikes now deal 180% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Holy damaging spell critical strikes have a chance to increase magic damage done by 5% for 6 seconds.\r\n\r\nThis effect can only occur once every 8 seconds.|r",
+          "Your spell critical strikes now deal 185% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Holy damaging spell critical strikes have a chance to increase magic damage done by 5% for 6 seconds.\r\n\r\nThis effect can only occur once every 8 seconds.|r",
+          "Your spell critical strikes now deal 190% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\r\n\n|cFFAAAAAACapstone Bonus: Your Holy damaging spell critical strikes have a chance to increase magic damage done by 5% for 6 seconds.\r\n\r\nThis effect can only occur once every 8 seconds.|r",
+          "Your spell critical strikes now deal 195% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\r\n|cFFAAAAAACapstone Bonus: Your Holy damaging spell critical strikes have a chance to increase magic damage done by 5% for 6 seconds.\r\n\r\nThis effect can only occur once every 8 seconds.|r",
+          "Your spell critical strikes now deal 200% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\r\n\nCapstone Bonus: Your Holy damaging spell critical strikes have a chance to increase magic damage done by 5% for 6 seconds. \r\n\r\nThis effect can only occur once every 8 seconds."
+        ]
+      },
+      {
+        "entry_id": 40596,
+        "name": "Master Demonologist",
+        "icon": "Spell_Shadow_ShadowPact",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 1%, and increases the critical effect chance of your Fire spells by 1%.\n\nVoidwalker - Reduces Physical damage taken by 2%.\n\nSuccubus - Increases your Shadow damage by 1%, and increases the critical effect chance of your Shadow spells by 1%.\n\nFelhunter - Reduces all spell damage taken by 2%.\n\nFelguard - Increases all damage done by 1%, and reduces all damage taken by 1%.\n\nEnslaved Demons - Increases all damage done by 1%, and reduces all damage taken by 1%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 2%, and increases the critical effect chance of your Fire spells by 2%.\n\nVoidwalker - Reduces Physical damage taken by 4%.\n\nSuccubus - Increases your Shadow damage by 2%, and increases the critical effect chance of your Shadow spells by 2%.\n\nFelhunter - Reduces all spell damage taken by 4%.\n\nFelguard - Increases all damage done by 2%, and reduces all damage taken by 2%.\n\nEnslaved Demons - Increases all damage done by 2%, and reduces all damage taken by 2%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 3%, and increases the critical effect chance of your Fire spells by 3%.\n\nVoidwalker - Reduces Physical damage taken by 6%.\n\nSuccubus - Increases your Shadow damage by 3%, and increases the critical effect chance of your Shadow spells by 3%.\n\nFelhunter - Reduces all spell damage taken by 6%.\n\nFelguard - Increases all damage done by 3%, and reduces all damage taken by 3%.\n\nEnslaved Demons - Increases all damage done by 3%, and reduces all damage taken by 3%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 4%, and increases the critical effect chance of your Fire spells by 4%.\n\nVoidwalker - Reduces Physical damage taken by 8%.\n\nSuccubus - Increases your Shadow damage by 4%, and increases the critical effect chance of your Shadow spells by 4%.\n\nFelhunter - Reduces all spell damage taken by 8%.\n\nFelguard - Increases all damage done by 4%, and reduces all damage taken by 4%.\n\nEnslaved Demons - Increases all damage done by 4%, and reduces all damage taken by 4%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 5%, and increases the critical effect chance of your Fire spells by 5%.\n\nVoidwalker - Reduces Physical damage taken by 10%.\n\nSuccubus - Increases your Shadow damage by 5%, and increases the critical effect chance of your Shadow spells by 5%.\n\nFelhunter - Reduces all spell damage taken by 10%.\n\nFelguard - Increases all damage done by 5%, and reduces all damage taken by 5%.\n\nEnslaved Demons - Increases all damage done by 5%, and reduces all damage taken by 5%."
+        ]
+      },
+      {
+        "entry_id": 40890,
+        "name": "Demonic Pact",
+        "icon": "Spell_Shadow_DemonicPact",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your spell damage done by 2%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 1% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 4%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 2% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 6%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 3% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 8%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 4% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 10%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 5% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons."
+        ]
+      },
+      {
+        "entry_id": 40599,
+        "name": "Demonic Knowledge",
+        "icon": "Spell_Shadow_ImprovedVampiricEmbrace",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your spell damage by an amount equal to 4% of the total of your active demon's Stamina plus Intellect.",
+          "Increases your spell damage by an amount equal to 8% of the total of your active demon's Stamina plus Intellect.",
+          "Increases your spell damage by an amount equal to 12% of the total of your active demon's Stamina plus Intellect."
+        ]
+      },
+      {
+        "entry_id": 40721,
+        "name": "Demonic Tactics",
+        "icon": "Spell_Shadow_DemonicTactics",
+        "rank": 2,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 2%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 4%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 6%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 8%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 10%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40696,
+        "name": "Enhanced Weapon Mastery",
+        "icon": "Ability_Hunter_SwiftStrike",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases all damage done by 4%.",
+          "Increases all damage done by 7%.",
+          "Increases all damage done by 10%."
+        ]
+      },
+      {
+        "entry_id": 40489,
+        "name": "Flurry",
+        "icon": "Ability_GhoulFrenzy",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your melee attack speed by 10% for your next 3 swings after dealing a melee critical strike.",
+          "Increases your melee attack speed by 20% for your next 3 swings after dealing a melee critical strike.",
+          "Increases your melee attack speed by 30% for your next 3 swings after dealing a melee critical strike."
+        ]
+      },
+      {
+        "entry_id": 40681,
+        "name": "Holy Power",
+        "icon": "Spell_Holy_Power",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases the critical strike chance of your Holy spells and abilities by 1%.",
+          "Increases the critical strike chance of your Holy spells and abilities by 2%.",
+          "Increases the critical strike chance of your Holy spells and abilities by 3%.",
+          "Increases the critical strike chance of your Holy spells and abilities by 4%.",
+          "Increases the critical strike chance of your Holy spells and abilities by 5%."
+        ]
+      },
+      {
+        "entry_id": 40646,
+        "name": "Conviction",
+        "icon": "Spell_Holy_RetributionAura",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your critical strike chance by 1%.\n\n|cFFAAAAAACapstone Bonus: Your non-periodic damaging spell casts have a chance to increase your Strength by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@|r",
+          "Increases your critical strike chance by 2%.\n\n|cFFAAAAAACapstone Bonus: Your non-periodic damaging spell casts have a chance to increases your Strength by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@|r",
+          "Increases your critical strike chance by 3%.\n\n|cFFAAAAAACapstone Bonus: Your non-periodic damaging spell casts have a chance to increases your Strength by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@|r",
+          "Increases your chance to get a critical strike with all spells and attacks by 4%.\n\n|cFFAAAAAACapstone Bonus: Your non-periodic damaging spell casts have a chance to increases your Strength by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@|r",
+          "Increases your chance to get a critical strike with all spells and attacks by 5%.\n\nCapstone Bonus: Your non-periodic damaging spell casts have a chance to increases your Strength by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40786,
+        "name": "Crusade",
+        "icon": "Spell_Holy_Crusade",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases all damage caused by 1% and all damage caused against Humanoids, Demons, Undead and Elementals by an additional 1%.",
+          "Increases all damage caused by 2% and all damage caused against Humanoids, Demons, Undead and Elementals by an additional 2%.",
+          "Increases all damage caused by 3% and all damage caused against Humanoids, Demons, Undead and Elementals by an additional 3%."
+        ]
+      },
+      {
+        "entry_id": 41002,
+        "name": "Judgements of the Pure",
+        "icon": "Ability_Paladin_JudgementofthePure",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage done by your Seals, Judgements and Execution Sentence by 8%.\r\n\r\nYour Judgement spells increase your haste by 5% for 1 min.",
+          "Increases the damage done by your Seals, Judgements and Execution Sentence by 16%.\r\n\r\nYour Judgement spells increase your haste by 10% for 1 min.",
+          "Increases the damage done by your Seals, Judgements and Execution Sentence by 25%.\r\n\r\nYour Judgement spells increase your haste by 15% for 1 min."
+        ]
+      },
+      {
+        "entry_id": 40642,
+        "name": "Vengeance",
+        "icon": "Ability_Racial_Avatar",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Gives you a 1% bonus to Physical and Holy damage you deal after dealing a direct critical strike. \r\n\r\nStacks up to 3 times. Lasts 30 seconds.",
+          "Gives you a 2% bonus to Physical and Holy damage you deal after dealing a direct critical strike. \r\n\r\nStacks up to 3 times. Lasts 30 seconds.",
+          "Gives you a 3% bonus to Physical and Holy damage you deal after dealing a direct critical strike. \r\n\r\nStacks up to 3 times. Lasts 30 seconds."
+        ]
+      },
+      {
+        "entry_id": 40988,
+        "name": "Righteous Vengeance",
+        "icon": "Ability_Paladin_RighteousVengeance",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Direct critical strikes with spells and abilities make your target take 10% additional damage over 8 seconds as Holy damage.",
+          "Direct critical strikes with spells and abilities make your target take 20% additional damage over 8 seconds as Holy damage.",
+          "Direct critical strikes with spells and abilities make your target take 30% additional damage over 8 seconds as Holy damage."
+        ]
+      },
+      {
+        "entry_id": 40990,
+        "name": "The Art of War",
+        "icon": "Ability_Paladin_ArtofWar",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage of your Judgement, Crusader Strike, Execution Sentence and Divine Storm abilities by 3%. \r\n\r\nDealing direct damage with Holy and Physical abilities or spells has a 50% chance to reduce the cast time of your next Flash of Light or Exorcism by 33%. \r\n\r\n@ext:This effect has a 6 second cooldown.:ext@",
+          "Increases the damage of your Judgement, Crusader Strike, Execution Sentence and Divine Storm abilities by 6%. \r\n\r\nDealing direct damage with Holy and Physical abilities or spells has a 50% chance to reduce the cast time of your next Flash of Light or Exorcism by 66%. \r\n\r\n@ext:This effect has a 6 second cooldown.:ext@",
+          "Increases the damage of your Judgement, Crusader Strike, Execution Sentence and Divine Storm abilities by 9%.\r\n\r\nDealing direct damage with Holy and Physical abilities or spells has a 50% chance to reduce the cast time of your next Flash of Light or Exorcism by 100%. \r\n\r\n@ext:This effect has a 6 second cooldown.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40665,
+        "name": "Seals of the Pure",
+        "icon": "Ability_ThunderBolt",
+        "rank": 1,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage done by your Seal of Righteousness, Seal of Vengeance, Seal of Command and Execution Sentence by 10%.",
+          "Increases the damage done by your Seal of Righteousness, Seal of Vengeance, Seal of Command and Execution Sentence by 20%.",
+          "Increases the damage done by your Seal of Righteousness, Seal of Vengeance, Seal of Command and Execution Sentence by 30%."
+        ]
+      },
+      {
+        "entry_id": 41053,
+        "name": "Improved Blood Presence",
+        "icon": "Spell_Deathknight_BloodPresence",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Healing done to you is increased by 2% while in Blood Presence.\r\n\r\nThreat caused decreased by 4% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 4% while in Blood Presence.\r\n\r\nThreat caused decreased by 8% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 6% while in Blood Presence.\r\n\r\nThreat caused decreased by 12% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 8% while in Blood Presence.\r\n\r\nThreat caused decreased by 16% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 10% in Blood Presence.\r\n\r\nThreat caused decreased by 20% while in Blood Presence. \r\n\r\nCapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence."
+        ]
+      },
+      {
+        "entry_id": 41096,
+        "name": "Blood Gorged",
+        "icon": "Spell_Nature_Reincarnation",
+        "rank": 1,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "When you are above 75% health, you deal 2% more damage. In addition, your attacks ignore up to 2% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 4% more damage. In addition, your attacks ignore up to 4% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 6% more damage. In addition, your attacks ignore up to 6% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 8% more damage. In addition, your attacks ignore up to 8% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 10% more damage. In addition, your attacks ignore up to 10% of your opponent's armor at all times."
+        ]
+      },
+      {
+        "entry_id": 37021,
+        "name": "Divine Reset",
+        "icon": "inv_mace_1h_draenorraid_d_04yellow",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Direct damaging Holy spells and abilities have a $h% chance to reset the cooldown of Divine Storm."
+        ]
+      },
+      {
+        "entry_id": 36786,
+        "name": "One With The Light",
+        "icon": "ability_paladin_beaconsoflight",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Sacrifice your physical self, reducing Physical damage dealt by 35% to empower your Crusader Strike and Divine Storm, causing them to deal additional Holy damage and gain additional Holy power scaling.\r\n\r\nThis effect can be toggled on and off.\r\n\r\n@ext:Reduces physical damage versus players by 30%.:ext@"
+        ]
+      }
+    ]
+  },
+  "primary_stat": null,
+  "rankings": [
+    {
+      "phase": 0,
+      "zone": "Razorfen Downs",
+      "zone_summary": {
+        "location": "Razorfen Downs",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 6,
+        "total_points": 110.47,
+        "rank": 5,
+        "rank_total": 55,
+        "rank_percentile": 90.9,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 90.9,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Dire Maul",
+      "zone_summary": {
+        "location": "Dire Maul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 18,
+        "total_points": 106.96,
+        "rank": 31,
+        "rank_total": 113,
+        "rank_percentile": 72.6,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 88.2,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Wailing Caverns",
+      "zone_summary": {
+        "location": "Wailing Caverns",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 9,
+        "total_points": 80.22,
+        "rank": 28,
+        "rank_total": 95,
+        "rank_percentile": 70.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 84.4,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "All Dungeons",
+      "zone_summary": {
+        "location": "All Dungeons",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 35,
+        "total_bosses": 228,
+        "total_points": 79.67,
+        "rank": 32,
+        "rank_total": 194,
+        "rank_percentile": 83.5,
+        "best_spec": null,
+        "best_spec_class": null,
+        "best_spec_pct": null,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Scarlet Monastery",
+      "zone_summary": {
+        "location": "Scarlet Monastery",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 5,
+        "total_bosses": 12,
+        "total_points": 78.37,
+        "rank": 22,
+        "rank_total": 53,
+        "rank_percentile": 58.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 90.5,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Blackrock Depths",
+      "zone_summary": {
+        "location": "Blackrock Depths",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 28,
+        "total_points": 74.31,
+        "rank": 31,
+        "rank_total": 99,
+        "rank_percentile": 68.7,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 73.1,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Uldaman",
+      "zone_summary": {
+        "location": "Uldaman",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 10,
+        "total_points": 69.22,
+        "rank": 26,
+        "rank_total": 100,
+        "rank_percentile": 74,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 77.5,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Blackfathom Deeps",
+      "zone_summary": {
+        "location": "Blackfathom Deeps",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 4,
+        "total_bosses": 8,
+        "total_points": 64.82,
+        "rank": 28,
+        "rank_total": 81,
+        "rank_percentile": 65.4,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 67.6,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Lower Blackrock Spire",
+      "zone_summary": {
+        "location": "Lower Blackrock Spire",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 18,
+        "total_points": 59.88,
+        "rank": 36,
+        "rank_total": 100,
+        "rank_percentile": 64,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 90.8,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Stratholme",
+      "zone_summary": {
+        "location": "Stratholme",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 20,
+        "total_points": 52.51,
+        "rank": 53,
+        "rank_total": 126,
+        "rank_percentile": 57.9,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 62.5,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Shadowfang Keep",
+      "zone_summary": {
+        "location": "Shadowfang Keep",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 9,
+        "total_points": 42.09,
+        "rank": 37,
+        "rank_total": 95,
+        "rank_percentile": 61.1,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 35.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "The Deadmines",
+      "zone_summary": {
+        "location": "The Deadmines",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 9,
+        "total_points": 34.29,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 90.6,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Zul'Farrak",
+      "zone_summary": {
+        "location": "Zul'Farrak",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 13,
+        "total_points": 33.32,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 71,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Gnomeregan",
+      "zone_summary": {
+        "location": "Gnomeregan",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 6,
+        "total_points": 21.13,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 64.4,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Scholomance",
+      "zone_summary": {
+        "location": "Scholomance",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 14,
+        "total_points": 18.96,
+        "rank": 69,
+        "rank_total": 106,
+        "rank_percentile": 34.9,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 55.6,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Sunken Temple",
+      "zone_summary": {
+        "location": "Sunken Temple",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 11,
+        "total_points": 18.92,
+        "rank": 35,
+        "rank_total": 47,
+        "rank_percentile": 25.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 36.4,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Razorfen Kraul",
+      "zone_summary": {
+        "location": "Razorfen Kraul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 8,
+        "total_points": 14.99,
+        "rank": 56,
+        "rank_total": 76,
+        "rank_percentile": 26.3,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 58.1,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Upper Blackrock Spire",
+      "zone_summary": {
+        "location": "Upper Blackrock Spire",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 10,
+        "total_points": 4.75,
+        "rank": 21,
+        "rank_total": 23,
+        "rank_percentile": 8.7,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 12.5,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    }
+  ],
+  "capture_history": [
+    {
+      "capture_id": "1144488",
+      "captured_at": "2026-07-31T19:57:48.000Z",
+      "boss_name": "Ysondre",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144431",
+      "captured_at": "2026-07-31T19:49:45.000Z",
+      "boss_name": "Lethon",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144408",
+      "captured_at": "2026-07-31T19:38:41.000Z",
+      "boss_name": "Taerar",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144370",
+      "captured_at": "2026-07-31T19:27:06.000Z",
+      "boss_name": "Emeriss",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144348",
+      "captured_at": "2026-07-31T19:17:40.000Z",
+      "boss_name": "The Will of Soggoth",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144327",
+      "captured_at": "2026-07-31T19:17:21.000Z",
+      "boss_name": "Combat Segment",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1144306",
+      "captured_at": "2026-07-31T19:10:57.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144281",
+      "captured_at": "2026-07-31T19:09:37.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144241",
+      "captured_at": "2026-07-31T19:07:12.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144210",
+      "captured_at": "2026-07-31T19:04:51.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144167",
+      "captured_at": "2026-07-31T19:03:17.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144143",
+      "captured_at": "2026-07-31T18:58:35.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144128",
+      "captured_at": "2026-07-31T18:58:13.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144068",
+      "captured_at": "2026-07-31T18:57:12.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144038",
+      "captured_at": "2026-07-31T18:54:16.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144007",
+      "captured_at": "2026-07-31T18:51:44.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143984",
+      "captured_at": "2026-07-31T18:50:24.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143919",
+      "captured_at": "2026-07-31T18:46:05.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143901",
+      "captured_at": "2026-07-31T18:45:41.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143867",
+      "captured_at": "2026-07-31T18:40:17.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143812",
+      "captured_at": "2026-07-31T18:32:35.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1143796",
+      "captured_at": "2026-07-31T18:30:45.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143752",
+      "captured_at": "2026-07-31T18:23:53.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143662",
+      "captured_at": "2026-07-31T18:18:52.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143682",
+      "captured_at": "2026-07-31T18:18:52.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143704",
+      "captured_at": "2026-07-31T18:18:52.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143725",
+      "captured_at": "2026-07-31T18:18:52.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143615",
+      "captured_at": "2026-07-31T17:45:00.000Z",
+      "boss_name": "Kaldros Depthbreaker",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143601",
+      "captured_at": "2026-07-31T17:34:17.000Z",
+      "boss_name": "Azuregos",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143566",
+      "captured_at": "2026-07-31T17:26:32.000Z",
+      "boss_name": "Snowgrave",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143523",
+      "captured_at": "2026-07-31T17:18:35.000Z",
+      "boss_name": "Lord Kazzak",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143502",
+      "captured_at": "2026-07-31T17:11:40.000Z",
+      "boss_name": "Setis",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1133594",
+      "captured_at": "2026-07-30T22:58:21.000Z",
+      "boss_name": "Sandfury Blood Drinker",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133589",
+      "captured_at": "2026-07-30T22:58:16.000Z",
+      "boss_name": "Ghamoo-ra",
+      "report_id": 47,
+      "location": "Blackfathom Deeps",
+      "success": true
+    },
+    {
+      "capture_id": "1133580",
+      "captured_at": "2026-07-30T22:57:16.000Z",
+      "boss_name": "Snapping Crustacean",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133575",
+      "captured_at": "2026-07-30T22:56:11.000Z",
+      "boss_name": "High Chief Winterfall",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133555",
+      "captured_at": "2026-07-30T22:52:44.000Z",
+      "boss_name": "Balnazzar",
+      "report_id": 47,
+      "location": "Stratholme",
+      "success": true
+    },
+    {
+      "capture_id": "1133536",
+      "captured_at": "2026-07-30T22:50:36.000Z",
+      "boss_name": "Frost Elemental",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133507",
+      "captured_at": "2026-07-30T22:44:42.000Z",
+      "boss_name": "Archaedas",
+      "report_id": 47,
+      "location": "Uldaman",
+      "success": true
+    },
+    {
+      "capture_id": "1133496",
+      "captured_at": "2026-07-30T22:43:22.000Z",
+      "boss_name": "Spire Scarab",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133492",
+      "captured_at": "2026-07-30T22:43:17.000Z",
+      "boss_name": "Captain Greenskin",
+      "report_id": 47,
+      "location": "The Deadmines",
+      "success": true
+    },
+    {
+      "capture_id": "1133482",
+      "captured_at": "2026-07-30T22:42:17.000Z",
+      "boss_name": "Defias Pirate",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133467",
+      "captured_at": "2026-07-30T22:40:38.000Z",
+      "boss_name": "Druid of the Fang",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133457",
+      "captured_at": "2026-07-30T22:39:46.000Z",
+      "boss_name": "Ogom the Wretched",
+      "report_id": 47,
+      "location": "Sunken Temple",
+      "success": true
+    },
+    {
+      "capture_id": "1133452",
+      "captured_at": "2026-07-30T22:38:21.000Z",
+      "boss_name": "Atal'ai Deathwalker",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133448",
+      "captured_at": "2026-07-30T22:38:16.000Z",
+      "boss_name": "Magmus",
+      "report_id": 47,
+      "location": "Blackrock Depths",
+      "success": true
+    },
+    {
+      "capture_id": "1133437",
+      "captured_at": "2026-07-30T22:37:34.000Z",
+      "boss_name": "King Gordok",
+      "report_id": 47,
+      "location": "Dire Maul",
+      "success": true
+    },
+    {
+      "capture_id": "1133426",
+      "captured_at": "2026-07-30T22:36:27.000Z",
+      "boss_name": "Galgann Firehammer",
+      "report_id": 47,
+      "location": "Uldaman",
+      "success": true
+    },
+    {
+      "capture_id": "1133431",
+      "captured_at": "2026-07-30T22:36:27.000Z",
+      "boss_name": "Cho'Rush the Observer",
+      "report_id": 47,
+      "location": "Dire Maul",
+      "success": true
+    },
+    {
+      "capture_id": "1133410",
+      "captured_at": "2026-07-30T22:35:35.000Z",
+      "boss_name": "Eldreth Phantasm",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133416",
+      "captured_at": "2026-07-30T22:35:35.000Z",
+      "boss_name": "Magister Kalendris",
+      "report_id": 47,
+      "location": "Dire Maul",
+      "success": true
+    },
+    {
+      "capture_id": "1133403",
+      "captured_at": "2026-07-30T22:34:30.000Z",
+      "boss_name": "Eldreth Phantasm",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133393",
+      "captured_at": "2026-07-30T22:33:23.000Z",
+      "boss_name": "Viscous Fallout",
+      "report_id": 47,
+      "location": "Gnomeregan",
+      "success": true
+    },
+    {
+      "capture_id": "1133397",
+      "captured_at": "2026-07-30T22:33:23.000Z",
+      "boss_name": "Charlga Razorflank",
+      "report_id": 47,
+      "location": "Razorfen Kraul",
+      "success": true
+    },
+    {
+      "capture_id": "1133388",
+      "captured_at": "2026-07-30T22:32:53.000Z",
+      "boss_name": "Corrosive Lurker",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133383",
+      "captured_at": "2026-07-30T22:31:52.000Z",
+      "boss_name": "Marisa du'Paige",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133370",
+      "captured_at": "2026-07-30T22:30:45.000Z",
+      "boss_name": "Defias Pillager",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133364",
+      "captured_at": "2026-07-30T22:29:39.000Z",
+      "boss_name": "Crimson Gallant",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133344",
+      "captured_at": "2026-07-30T22:28:05.000Z",
+      "boss_name": "Houndmaster Loksey",
+      "report_id": 47,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "1133349",
+      "captured_at": "2026-07-30T22:28:05.000Z",
+      "boss_name": "Chop'gog the Butcher",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133334",
+      "captured_at": "2026-07-30T22:26:37.000Z",
+      "boss_name": "Araj the Summoner",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133339",
+      "captured_at": "2026-07-30T22:26:37.000Z",
+      "boss_name": "Scarlet Gallant",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133318",
+      "captured_at": "2026-07-30T22:25:10.000Z",
+      "boss_name": "Antu'sul",
+      "report_id": 47,
+      "location": "Zul'Farrak",
+      "success": true
+    },
+    {
+      "capture_id": "1133323",
+      "captured_at": "2026-07-30T22:25:10.000Z",
+      "boss_name": "Deep Borer",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133313",
+      "captured_at": "2026-07-30T22:23:52.000Z",
+      "boss_name": "Sul'lithuz Sandcrawler",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133301",
+      "captured_at": "2026-07-30T22:22:44.000Z",
+      "boss_name": "Balnazzar",
+      "report_id": 47,
+      "location": "Stratholme",
+      "success": true
+    },
+    {
+      "capture_id": "1133306",
+      "captured_at": "2026-07-30T22:22:44.000Z",
+      "boss_name": "Haunted Servitor",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133282",
+      "captured_at": "2026-07-30T22:21:36.000Z",
+      "boss_name": "Lord Roccor",
+      "report_id": 47,
+      "location": "Blackrock Depths",
+      "success": true
+    },
+    {
+      "capture_id": "1133287",
+      "captured_at": "2026-07-30T22:21:36.000Z",
+      "boss_name": "Crimson Gallant",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133298",
+      "captured_at": "2026-07-30T22:21:36.000Z",
+      "boss_name": "Grand Crusader Dathrohan",
+      "report_id": 47,
+      "location": "Stratholme",
+      "success": false
+    },
+    {
+      "capture_id": "1133269",
+      "captured_at": "2026-07-30T22:20:17.000Z",
+      "boss_name": "Glutton",
+      "report_id": 47,
+      "location": "Razorfen Downs",
+      "success": true
+    },
+    {
+      "capture_id": "1133274",
+      "captured_at": "2026-07-30T22:20:17.000Z",
+      "boss_name": "Anvilrage Guardsman",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133264",
+      "captured_at": "2026-07-30T22:19:41.000Z",
+      "boss_name": "Evolving Ectoplasm",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133256",
+      "captured_at": "2026-07-30T22:18:33.000Z",
+      "boss_name": "Ghamoo-ra",
+      "report_id": 47,
+      "location": "Blackfathom Deeps",
+      "success": true
+    },
+    {
+      "capture_id": "1133248",
+      "captured_at": "2026-07-30T22:17:15.000Z",
+      "boss_name": "Spirestone Enforcer",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133236",
+      "captured_at": "2026-07-30T22:16:27.000Z",
+      "boss_name": "Aku'mai",
+      "report_id": 47,
+      "location": "Blackfathom Deeps",
+      "success": true
+    },
+    {
+      "capture_id": "1133241",
+      "captured_at": "2026-07-30T22:16:27.000Z",
+      "boss_name": "Magmus",
+      "report_id": 47,
+      "location": "Blackrock Depths",
+      "success": true
+    },
+    {
+      "capture_id": "1133226",
+      "captured_at": "2026-07-30T22:15:20.000Z",
+      "boss_name": "Gelihast",
+      "report_id": 47,
+      "location": "Blackfathom Deeps",
+      "success": true
+    },
+    {
+      "capture_id": "1133220",
+      "captured_at": "2026-07-30T22:14:15.000Z",
+      "boss_name": "Blindlight Muckdweller",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133206",
+      "captured_at": "2026-07-30T22:13:04.000Z",
+      "boss_name": "Crystal Fang",
+      "report_id": 47,
+      "location": "Lower Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "1133210",
+      "captured_at": "2026-07-30T22:13:04.000Z",
+      "boss_name": "Rattlegore",
+      "report_id": 47,
+      "location": "Scholomance",
+      "success": true
+    },
+    {
+      "capture_id": "1133193",
+      "captured_at": "2026-07-30T22:11:59.000Z",
+      "boss_name": "Odo the Blindwatcher",
+      "report_id": 47,
+      "location": "Shadowfang Keep",
+      "success": true
+    },
+    {
+      "capture_id": "1133198",
+      "captured_at": "2026-07-30T22:11:59.000Z",
+      "boss_name": "Chop'gog the Butcher",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133179",
+      "captured_at": "2026-07-30T22:09:26.000Z",
+      "boss_name": "Spire Scarab",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133185",
+      "captured_at": "2026-07-30T22:09:26.000Z",
+      "boss_name": "Crimson Gallant",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133173",
+      "captured_at": "2026-07-30T22:09:11.000Z",
+      "boss_name": "Bloodmage Thalnos",
+      "report_id": 47,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "1133166",
+      "captured_at": "2026-07-30T22:08:04.000Z",
+      "boss_name": "Fallen Champion",
+      "report_id": 47,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "1133157",
+      "captured_at": "2026-07-30T22:07:22.000Z",
+      "boss_name": "Ironspine",
+      "report_id": 47,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "1133152",
+      "captured_at": "2026-07-30T22:06:43.000Z",
+      "boss_name": "Azshir the Sleepless",
+      "report_id": 47,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "1133140",
+      "captured_at": "2026-07-30T22:05:36.000Z",
+      "boss_name": "Lady Sarevess",
+      "report_id": 47,
+      "location": "Blackfathom Deeps",
+      "success": true
+    },
+    {
+      "capture_id": "1133144",
+      "captured_at": "2026-07-30T22:05:36.000Z",
+      "boss_name": "Haunted Servitor",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133128",
+      "captured_at": "2026-07-30T22:04:17.000Z",
+      "boss_name": "The Beast",
+      "report_id": 47,
+      "location": "Upper Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "1133135",
+      "captured_at": "2026-07-30T22:04:17.000Z",
+      "boss_name": "Hazzali Wasp",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133118",
+      "captured_at": "2026-07-30T22:03:09.000Z",
+      "boss_name": "Blackhand Iron Guard",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133112",
+      "captured_at": "2026-07-30T22:03:04.000Z",
+      "boss_name": "Amnennar the Coldbringer",
+      "report_id": 47,
+      "location": "Razorfen Downs",
+      "success": true
+    },
+    {
+      "capture_id": "1133101",
+      "captured_at": "2026-07-30T22:02:03.000Z",
+      "boss_name": "Charlga Razorflank",
+      "report_id": 47,
+      "location": "Razorfen Kraul",
+      "success": true
+    },
+    {
+      "capture_id": "1133106",
+      "captured_at": "2026-07-30T22:02:03.000Z",
+      "boss_name": "Skeletal Summoner",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133090",
+      "captured_at": "2026-07-30T22:00:47.000Z",
+      "boss_name": "Rot Hide Savage",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133097",
+      "captured_at": "2026-07-30T22:00:47.000Z",
+      "boss_name": "Quilguard Champion",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1133081",
+      "captured_at": "2026-07-30T21:59:40.000Z",
+      "boss_name": "Rot Hide Brute",
+      "report_id": 47,
+      "location": null,
+      "success": false
+    }
+  ]
+}

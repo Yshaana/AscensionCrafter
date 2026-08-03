@@ -314,7 +314,7 @@ An earlier v5 draft told the player to cap spell hit and expertise first. **That
 | Lightbound Cleave, Dawn Strike, autos, Sword Spec | ~22% | ❌ melee hit — **already capped at 57/30** |
 | Righteous Vengeance, Holy Vengeance, Consecration, Hour of Judgement | ~15% | ❌ periodic — cannot miss |
 | CHW, Seal of Vengeance | ~21% | ❌ ride an attack that already landed |
-| **Hammer from the Heavens, JotTH** | **~29%** | ❓ **summoned procs — UNRESOLVED** |
+| **Hammer from the Heavens, JotTH** | **~29%** | ✅ **RESOLVED (2026-08-03) — cannot be avoided, see below** |
 
 **Confirmed spell-hit-gated damage: ~5.4%.** Even at full raid tier with zero spell hit that's `17% × 5.4% ≈ 0.9%` of damage.
 
@@ -322,13 +322,9 @@ An earlier v5 draft told the player to cap spell hit and expertise first. **That
 
 **Expertise, same error.** Dodge does apply to melee abilities regardless of crit table, but the 0.80 figure assumed a large dodge-exposed share. It has not been verified that Lightbound Cleave is actually being dodged. Held provisionally at 0.30 pending the check below.
 
-**The one unknown that could reverse this:** **Hammer from the Heavens is 22.1% of damage** and it is not known whether summoned procs roll a hit check. If they do, raid-tier Hit Rating rises to ~1.2. If they don't, it stays near zero permanently.
+**✅ RESOLVED (2026-08-03 scouting session) — was: "The one unknown that could reverse this."** Hammer from the Heavens is 22.1% of damage, and it was not known whether summoned procs roll a hit check (if they do, raid-tier Hit Rating rises to ~1.2; if they don't, it stays near zero permanently). Now settled: **they do not roll an avoidable hit check.** 4,962 pooled Hammer from the Heavens hits across 11 characters (Professorpp 2471, Geniusdex 988, Phantomx 774, Germarona 239, and 7 others) and 17 reports show 0 miss/dodge/parry/full-resist. See `confirmed_facts.hammer_from_heavens_cannot_be_avoided` and primer v17. **Raid-tier Hit Rating stays near zero — the walkback's provisional weight (0.30) stands, does not reverse to ~1.2.** This is an avoidance/hit-table finding, not a crit-table one — Hammer from the Heavens' crit table was already separately confirmed via Holystrike (primer §1 v4). Its damage composition (30/30/40 SP/AP/flat split, second caveat below) remains unconfirmed.
 
-**Test (one click, Details! → click spell name → Miss/Dodge/Parry/Resist breakdown):**
-1. **Hammer from the Heavens** (78 hits) — any Miss count? *Decides the whole question.*
-2. **Consecrated Holy Weapon** (82 hits) — same question, second-largest source
-3. **Judgement of the Three Hammers** (23 hits) — do summoned hammers roll?
-4. **Lightbound Cleave** (21 hits) — check **Dodge/Parry**, validates the expertise weight independently
+**New scouting lead, not yet acted on:** Professorpp (Duality, 2,471 logged Hammer from the Heavens hits across sampled reports) is the heaviest confirmed user of this build's core ability found on the server — worth scouting as a comparison build. Also worth a look: Geniusdex (988 hits), Phantomx (774 hits).
 
 **Off-hand hit rating is worth 0 regardless** — 57/220 is unreachable at this tier; treat off-hand white swings as nonexistent.
 

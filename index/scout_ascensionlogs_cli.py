@@ -48,7 +48,12 @@ OUT_DIR = Path(__file__).parent / "scouted"
 def fetch_json(path):
     url = f"{BASE}{path}"
     try:
-        r = requests.get(url, timeout=15, headers={"User-Agent": "ascension-theorycraft-scout/1.0"})
+        r = requests.get(url, timeout=15, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+            "Referer": f"{BASE}/",
+            "Accept": "application/json",
+        })
     except requests.RequestException as e:
         return {"__error": True, "exception": str(e), "url": url}
     if not r.ok:
