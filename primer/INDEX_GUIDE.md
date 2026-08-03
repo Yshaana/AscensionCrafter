@@ -1,4 +1,6 @@
-# Ascension Spell/Card Index — Guide
+# Ascension Spell/Card Index — Guide (v2)
+
+**v2 changelog (2026-08-03):** Rewritten for the v12 repo reorg — new paths throughout, new `shared_synergies` table + confidence tiers, new `spell_scaling.source` column distinguishing export-tooltip coefficients from DBC-derived ones. **Confirmed correct:** `build_dbc_index.py` lives in `index/` alongside the rest of the pipeline (this matches the primer's v13 correction — an earlier primer changelog had mistakenly placed it in a separate repo; that's now fixed on both docs). Version-tagging this file going forward, matching the convention already used by the primer and build docs, so future edits are traceable instead of silent.
 
 `ascension_index.db` (SQLite) built from `spell-export.json` (3061 spells) + `Cards.txt` (owned cards). All of this lives in `index/` as of the v12 repo reorg — the db itself is gitignored/ephemeral (rebuild each session, see primer v10/v12).
 
@@ -6,7 +8,7 @@ Rebuild anytime with, from `index/`:
 ```
 python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_confirmed.py && python3 seed_synergies.py
 ```
-if the source exports change. Add `python3 build_dbc_index.py` (needs local client access + a built StormLib) if you also need `spell_dbc_raw`/`dbc_*`/`index/dbc-extract.json` refreshed.
+if the source exports change. Add `python3 build_dbc_index.py` (needs local client access + a built StormLib) if you also need `spell_dbc_raw`/`dbc_*`/`index/dbc-extract.json` refreshed — **not part of the routine per-session rebuild above**, since it depends on the local WoW client rather than plain-text project files that mount cleanly every time.
 
 ## Repo layout / naming convention (v12)
 
@@ -61,6 +63,8 @@ Filenames carry the prefix (not just the folder) because flat project-knowledge 
 - `confirmed_proc_test` — same top tier as the `spells.class_confidence` legend below, if it's ever earned one
 
 **Check `shared_synergies` before treating an external build's engine as novel** — it may already be logged.
+
+**Also see primer §5 for the daily patch-note check practice** (not duplicated here — kept in one place to avoid drift between docs).
 
 ## Confidence tiers for class_origin (read before trusting one)
 
