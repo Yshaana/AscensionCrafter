@@ -17,6 +17,7 @@ CLASS_ORIGIN = [
     (907300, 'Warrior', 'confirmed_proc_test',      'Borrows Cleave modifiers. CONFIRMED zero procs from "damaging Paladin abilities" trigger. Primer §4 / Handoff §2.'),
     (907780, 'Warrior', 'predicted_class_tag_rule', 'Borrows Whirlwind modifiers; does NOT feed Hammerdin proc. Primer §4.'),
     (913444, 'Warrior', 'confirmed_class_tag_rule', 'Borrows Bladestorm modifiers; does NOT feed Hammerdin. Also a channelled lockout ability - suppresses narrow-intake engines while active. Primer §4 / Handoff §2.'),
+    (276066, 'Warrior', 'confirmed_class_tag_rule', 'Fel Cleave - borrows Cleave modifiers. Export tooltip omits the clause entirely (same pattern as Enhanced Weapon Mastery, Primer §2); found via DBC pipeline, not a live screenshot. Not part of current Paladin kit (Shadowflame school). Primer §4 (v11).'),
     (20473,  'Paladin', 'confirmed_native',         'Native Paladin ability. Handoff §2.'),
     (280210, 'Physical', 'confirmed_native',        'Judgement of the Three Hammers - triggered by "any direct damage" (wide intake), crits on Physical/melee table. Handoff §4/§9.'),
     (26573,  'Paladin', 'confirmed_native',         'Native Paladin ability (Consecration). Handoff §12 - "Consecration earns its slot" (v4 verdict overturned).'),
