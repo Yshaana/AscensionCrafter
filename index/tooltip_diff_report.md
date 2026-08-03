@@ -1,0 +1,433 @@
+# Tooltip Diff Report
+
+Catalog spells compared: 3061
+Total flagged clauses: 410
+  - "uses X modifiers" line, MISSING from export tooltip entirely: 1
+  - "uses X modifiers" line, also present in export tooltip (catalogued for reference): 389
+  - other DBC-only clause, no export-tooltip match (similarity < 0.35): 20
+
+## "uses X modifiers" lines MISSING from the export tooltip (highest priority)
+
+These spells' class-tag mechanism (primer §4) is only visible in the raw
+client data - the export tooltip a player/addon sees does not mention it
+at all. Same shape as the Enhanced Weapon Mastery omission already on record.
+
+- **276066 Fel Cleave**: This uses Cleave modifiers.
+
+## Other DBC-only clauses (no good match in export tooltip)
+
+- **275585 Dark Apotheosis** (match=0.0): Dark Apotheosis cannot cower behind a shield.
+- **275585 Dark Apotheosis** (match=0.0): Shields cannot be equipped while transformed.
+- **276669 Defias Gunslinger** (match=0.0): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it.
+- **277021 Panache** (match=0.0): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **277860 Divine Concord** (match=0.0): While Harnessed Energy is active, it grants one additional Harnessed Energy charge instead.
+- **285444 Hammerstorm** (match=0.0): Requires Righteous Fury
+- **276668 Swashbuckling Duelist** (match=0.04): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it.
+- **277020 Blurred Blade** (match=0.04): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **277049 En Garde!** (match=0.07): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **286391 Raging Lunge** (match=0.1): Multiple Raging Blow! charges cannot be gained within the same global cooldown. Does not receive a charge from Wrecking Crew.
+- **879 Exorcism** (match=0.11): It also stuns them for $900879d.
+- **281597 Swashbuckler: Matched Blows** (match=0.24): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **281602 Swashbuckler: Flurry of Blows** (match=0.24): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **281944 Swashbuckler: Shocktrooper** (match=0.24): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **285111 Swashbuckler: Bloodsail** (match=0.24): A Duelist's Glove is an off-hand item that enables Swashbuckling. It is granted whenever you learn a talent or ability that requires it. Requires a one-handed weapon and does not work while shapeshifted.
+- **879 Exorcism** (match=0.25): Exorcism always critically strikes Undead and Demon targets.
+- **275969 Biting Drain** (match=0.25): Grants the periodic damage from your Drain Life and Drain Soul spells the ability to critically hit.
+- **277860 Divine Concord** (match=0.31): When Arcane Blast consumes The Art of War, it grants one additional Arcane Blast stack.
+- **51885 Mental Dexterity** (match=0.33): @req:300049@
+- **278067 Cremation** (match=0.33): Can only consume the spells specified above.
+
+## "uses X modifiers" lines already present in export tooltip (reference catalog)
+
+Not missing - just a full list of every class-tag mechanism spell found,
+for cross-referencing into the class-tag/duplicate-name-trap work.
+
+- **2896 Water Elemental Totem**: This uses Fire Elemental Totem modifiers.
+- **2897 Air Elemental Totem**: This uses Fire Elemental Totem modifiers.
+- **270034 Eldritch Wrath**: This uses Holy Wrath modifiers. Attack power reduction increases with player level.
+- **270182 Holy Supernova**: These effects cause no threat. This uses Holy Nova modifiers.
+- **270697 Battle Charge**: This uses Charge modifiers. Usable in melee range.
+- **270766 Purification By Light**: This uses Exorcism and Consecration modifiers
+- **271153 Living Lightning**: This uses Chain Heal modifiers.
+- **271205 Cauterizing Fire**: This uses Fireball modifiers. Immunity spells prevent this healing, and this effect does not benefit from range-increasing effects.
+- **271341 Icy Penance**: This uses Penance modifiers.
+- **271484 Circle of Life**: This uses Halo modifiers.
+- **271579 Lava Sweep**: This uses Lava Lash modifiers.
+- **271626 Astral Storm**: This uses Thunderstorm modifiers.
+- **271676 Sunburst**: This uses Starsurge modifiers.
+- **271779 Titanic Mutilate**: This uses Mutilate modifiers.
+- **271897 Dragon Charge**: This uses Intercept modifiers.
+- **272031 Water Nova**: This uses Frost Nova modifiers.
+- **272429 Frostflame Shock**: This uses Flame Shock modifiers. This ability shares a cooldown with Shaman Shock spells.
+- **272989 Renewed Through Absolution**: This heal uses Penance heal modifiers.
+- **273121 Righteous Zealot**: This damage uses Smite modifiers and can only occur once every 4.5 sec. Deals 80% damage and healing when triggered against enemy players.
+- **273561 Ice Lash**: This uses Lava Lash modifiers.
+- **273872 Disembowel**: This uses Eviscerate modifiers.
+- **273885 Blood and Guts**: This damage uses Execute modifiers.
+- **273955 Stormhammer**: This uses Concussion Blow modifiers.
+- **273990 Shadow Counter**: This ability uses Shadowstep modifiers.
+- **274026 Temporal Blast**: This uses Arcane Blast modifiers.
+- **274120 Slice and Ice**: Uses Slice and Dice modifiers. Requires a single Two-Handed Melee Weapon.
+- **274121 Winds of Winter**: This uses Cone of Cold modifiers.
+- **274210 Dark Transfusion**: This uses Holy Nova modifiers.
+- **274264 Shield Strike**: This uses Shield Slam modifiers.
+- **274269 Thrust**: This uses Sinister Strike modifiers.
+- **274357 Devil's Ignition**: This uses Incinerate modifiers.
+- **274359 Charred Bite**: This uses Ferocious Bite modifiers.
+- **274473 Explosive Charges**: This uses Explosive Shot modifiers.
+- **274514 Eclipse Strike**: This uses Sinister Strike modifiers.
+- **274515 Solar Strike**: This uses Eviscerate modifiers.
+- **274680 Ice Shock**: This uses Frost Shock modifiers.
+- **274734 Elemental Immolate**: This uses Immolate modifiers.
+- **274977 Astral Flare**: This uses Starfire modifiers.
+- **274986 Astral Plasma**: This uses Starsurge modifiers.
+- **275047 Lightning Blade**: This uses Stormstrike modifiers.
+- **275048 Thunder Slam**: This uses Slam modifiers.
+- **275204 Unchained Blink**: This uses Blink modifiers.
+- **275320 Compound Shot**: This uses Aimed Shot modifiers.
+- **275433 Divine Blast**: This uses Arcane Blast modifiers.
+- **275434 Divine Missiles**: This uses Arcane Missiles modifiers.
+- **275465 Divine Barrage**: This uses Arcane Barrage modifiers.
+- **275655 Serpent Strike**: This uses Claw modifiers.
+- **275656 Serpent Form**: This ability uses Cat Form modifiers and Poisonous Strikes uses Instant Poison modifiers.
+- **275658 Serpent Venom**: This uses Rip modifiers.
+- **275659 Venomous Fury**: This uses Ferocious Bite modifiers.
+- **275662 Puncture**: This uses Rake modifiers.
+- **275739 Goldrinn's Fury**: This uses Tiger's Fury modifiers.
+- **275796 Shadow Missiles**: This uses Arcane Missiles modifiers.
+- **275861 Razzashi Talon**: This uses Mutilate modifiers.
+- **276067 Felblade**: Felblade uses Bloodthirst modifiers.
+- **276115 Ground Slam**: This uses Sundering modifiers.
+- **276116 Upheaval**: This uses Lava Lash modifiers.
+- **276204 Carnage Rend**: This uses Rend modifiers.
+- **276250 Prayer of Preservation**: This uses Prayer of Healing modifiers.
+- **276343 Align**: This uses Moonfire modifiers.
+- **276344 Time-bind**: This uses Renew modifiers.
+- **276345 Synchronize**: This uses Arcane Missiles modifiers.
+- **276394 Blind Revenge**: This uses Revenge modifiers.
+- **276431 Plague Swarm**: This uses Insect Swarm modifiers.
+- **276631 Pistol Shot**: This uses Sinister Strike modifiers.
+- **276634 Grape Shot**: This uses Multi-Shot modifiers. This ability's cooldown cannot be reduced
+- **276743 Arctis**: This uses Pyroblast modifiers.
+- **276810 Blood Arrow**: This uses Drain Life modifiers.
+- **276811 Shadow Shot**: This uses Steady Shot modifiers.
+- **276884 Blooming Shot**: This uses Arcane Shot modifiers.
+- **276885 Medicinal Sting**: This uses Serpent Sting modifiers.
+- **277019 Hammer the Gap**: Uses Devastate modifiers and causes high threat.
+- **277020 Blurred Blade**: Uses Slice and Dice modifiers.
+- **277021 Panache**: This uses Eviscerate modifiers.
+- **277080 Thunder Hide**: This uses Lightning Shield modifiers. This effect can only occur once every 3 sec.
+- **277081 Voltaic Bite**: This uses Stormstrike modifiers.
+- **277550 Loa's Assault**: This uses Slam modifiers
+- **277775 Drakhacrisp**: This uses Dragon's Breath modifiers.
+- **278020 Fulmination**: This uses Chain Lightning modifiers.
+- **278045 Eclipse Blast**: Uses Wrath modifiers.
+- **278060 Zandalari Glaive**: This uses Glaive Toss modifiers and shares a cooldown with Glaive Toss.
+- **278145 Glacial Burst**: This uses Lava Burst modifiers.
+- **278408 Conduit**: This uses Lightning Shield modifiers. Usable in Bear Form. This does not trigger any other effects.
+- **281618 Call Fungarians**: This uses Force of Nature modifiers.
+- **281627 Mass Slow**: This uses Slow modifiers.
+- **281696 Ice Age**: This uses Frost Nova modifiers.
+- **281702 Mass Hysteria**: This uses Fear modifiers.
+- **282047 Thief of Fate**: This uses Pick Pocket modifiers.
+- **282905 Atal'ai Totem**: This uses Searing Totem modifiers and benefits from the Call of Flame talent.
+- **282930 Rotting Breath**: This uses Dragon's Breath modifiers.
+- **282949 Faerie Blink**: This uses Blink modifiers.
+- **282958 Nightmare Roots**: This uses Entangling Roots modifiers. Nightmare Roots cannot trigger the Brambles Capstone.
+- **283012 Flameburst**: This uses Flamestrike modifiers.
+- **283100 Twilight Shock**: This uses Shadowburn modifiers.
+- **283182 Wave of Despair**: This uses Seed of Corruption modifiers.
+- **283344 Deconstruct**: This uses Devastate modifiers.
+- **283714 Controlled Blast**: This uses Blast Wave modifiers.
+- **283764 Sunder Soul**: This uses Devastate modifiers.
+- **283896 Into Darkness**: This uses Vanish modifiers. Removes invulnerabilities when used. Shares a $283900dond cooldown with other Vanishes.
+- **283959 Light of Justice**: This uses Hammer of Justice modifiers.
+- **284177 Glacial Spike**: This uses Cone of Cold modifiers. Damage is split when hitting more than 3 enemies.
+- **284476 Warbreaker**: This uses Colossus Smash modifiers.
+- **284492 Shadow Waste Bolt**: This uses Shadow Bolt modifiers.
+- **284547 Screams of the Past**: This uses Psychic Scream modifiers.
+- **284579 "Stealth"**: This uses crate modifiers. Perfect for board players.
+- **284599 Winterfall Firebreath**: This uses Cone of Cold modifiers.
+- **284650 Shadowfall**: This uses Starfall modifiers. Canceled if you shapeshift, lose character control, or mount.
+- **284664 Frostfall**: This uses Starfall modifiers.
+- **284677 Firefall**: This uses Starfall modifiers.
+- **284697 Arcanist's Explosion**: This uses Arcane Explosion modifiers.
+- **284732 Wraith**: This uses Haunt modifiers.
+- **284758 Temporal Rift**: This uses Arcane Explosion modifiers.
+- **284789 Absolute Hellfire**: This uses Rain of Fire modifiers
+- **284854 Hydricles**: This uses Frostbolt modifiers.
+- **284908 Oil Dipped Arrow**: This uses Arcane Shot modifiers.
+- **284937 Divine Dash**: This uses Intervene modifiers.
+- **285052 Shadow Word: Gore**: This uses Shadow Word: Pain modifiers.
+- **285069 Shredding Shot**: This uses Kill Shot modifiers.
+- **285085 Stone Shard**: This uses Earth Shock modifiers.
+- **285133 Devour Mind**: This uses Devouring Plague modifiers.
+- **285158 Dark Domination**: This uses Fel Domination modifiers.
+- **285566 Exorcist's Slash**: This uses Exorcism modifiers.
+- **285612 Quick Draw**: This uses Steady Shot modifiers.
+- **285641 Curse of the Swamp Witch**: This uses Curse of Exhaustion modifiers.
+- **285693 Hell Scream**: This damage uses Rend modifiers.
+- **285710 Jadefire Corruption**: This uses Corruption modifiers.
+- **285759 Vampiric Bite**: This uses Vampiric Touch modifiers. This periodic damage can critically strike.
+- **285802 Lunar Aspiration**: This uses Moonfire modifiers.
+- **285822 Veil of Shadows**: Does not stack with other similar effects. This uses Curse of the Elements modifiers.
+- **285897 Hydra's Venom**: This uses Rend modifiers and counts as both a bleed and poison effect.
+- **285915 Knifestorm**: This uses Hurricane modifiers.
+- **285959 Zulian Guardian**: This uses Feral Spirits modifiers.
+- **286025 Light of the Guardian**: This uses Holy Light modifiers.
+- **286201 Localized Storm**: This uses Hurricane modifiers.
+- **286212 Crusader's Hammer**: Uses Hammer of Justice modifiers.
+- **286266 Divine Infusion**: This uses Pain Suppression modifiers.
+- **286298 Shadow Smash**: This uses Colossus Smash modifiers.
+- **286356 Scorched Earth**: This uses Scorch modifiers.
+- **286372 Perilous Pain**: Uses Searing Pain modifiers.
+- **286387 Black Widow Strike**: This uses Black Arrow modifiers.
+- **286391 Raging Lunge**: This uses Raging Blow modifiers.
+- **288847 Seal of Ebon Vengeance**: This uses Seal of Vengeance modifiers.
+- **291042 Payback**: This ability uses Revenge modifiers.
+- **291053 Phalanx Thrust**: This uses Siegebreaker modifiers.
+- **903000 Aether Strike**: This uses Sinister Strike modifiers.
+- **903012 Void Strike**: This uses Sinister Strike modifiers.
+- **903024 Cinder Strike**: This uses Sinister Strike modifiers.
+- **903036 Rime Strike**: This uses Sinister Strike modifiers.
+- **903048 Volt Strike**: This uses Sinister Strike modifiers.
+- **903060 Frost Shot**: This uses Steady Shot modifiers.
+- **903068 Holy Shot**: This uses Steady Shot modifiers.
+- **903076 Flare Shot**: This uses Steady Shot modifiers.
+- **903092 Locust Shot**: This uses Steady Shot modifiers.
+- **903100 Arcane Slam**: This uses Slam modifiers.
+- **903110 Shadow Slam**: This uses Slam modifiers.
+- **903120 Burning Slam**: This uses Slam modifiers.
+- **903130 Frozen Slam**: This uses Slam modifiers.
+- **903140 Storm Slam**: This uses Slam modifiers.
+- **903150 Manareaver**: This uses Crusader Strike modifiers.
+- **903158 Dawnreaver**: This uses Crusader Strike modifiers.
+- **903166 Duskreaver**: This uses Crusader Strike modifiers.
+- **903174 Frostreaver**: This uses Crusader Strike modifiers.
+- **903190 Obliterating Ice**: This uses Obliterate modifiers.
+- **903198 Obliterating Void**: This uses Obliterate modifiers.
+- **903206 Obliterating Fire**: This uses Obliterate modifiers.
+- **903222 Obliterating Storm**: This uses Obliterate modifiers.
+- **904000 Manaripper**: This uses Rip modifiers.
+- **904020 Duskripper**: This uses Rip modifiers.
+- **904040 Dawnripper**: This uses Rip modifiers.
+- **904060 Flameripper**: This uses Rip modifiers.
+- **904080 Frostripper**: This uses Rip modifiers.
+- **904100 Boltripper**: This uses Rip modifiers.
+- **904120 Aether Rake**: This uses Rake modifiers.
+- **904140 Dusk Rake**: This uses Rake modifiers.
+- **904160 Dawn Rake**: This uses Rake modifiers.
+- **904180 Flame Rake**: This uses Rake modifiers.
+- **904200 Frost Rake**: This uses Rake modifiers.
+- **904220 Storm Rake**: This uses Rake modifiers.
+- **904240 Aethershred**: This uses Shred modifiers.
+- **904260 Duskshred**: This uses Shred modifiers.
+- **904280 Lightshred**: This uses Shred modifiers.
+- **904300 Flameshred**: This uses Shred modifiers.
+- **904320 Snowshred**: This uses Shred modifiers.
+- **904340 Stormshred**: This uses Shred modifiers.
+- **904360 Mystic Maul**: This uses Maul modifiers.
+- **904380 Dusk Maul**: This uses Maul modifiers.
+- **904400 Light Maul**: This uses Maul modifiers.
+- **904420 Flame Maul**: This uses Maul modifiers.
+- **904440 Frost Maul**: This uses Maul modifiers.
+- **904460 Storm Maul**: This uses Maul modifiers.
+- **904480 Wyrm Bite**: This uses Mongoose Bite modifiers.
+- **904500 Ghoul Bite**: This uses Mongoose Bite modifiers.
+- **904520 Dragonhawk Bite**: This uses Mongoose Bite modifiers.
+- **904540 Salamander Bite**: This uses Mongoose Bite modifiers.
+- **904560 Wendigo Bite**: This uses Mongoose Bite modifiers.
+- **904580 Thunderlizard Bite**: This uses Mongoose Bite modifiers.
+- **904600 Mystic Talon**: This uses Raptor Strike modifiers.
+- **904620 Shadow Talon**: This uses Raptor Strike modifiers.
+- **904640 Light Talon**: This uses Raptor Strike modifiers.
+- **904660 Flame Talon**: This uses Raptor Strike modifiers.
+- **904680 Frost Talon**: This uses Raptor Strike modifiers.
+- **904700 Storm Talon**: This uses Raptor Strike modifiers.
+- **904720 Arcane Bullet**: This uses Aimed Shot modifiers.
+- **904740 Voidbound Shot**: This uses Aimed Shot modifiers.
+- **904760 Lightbound Shot**: This uses Aimed Shot modifiers.
+- **904780 Flamebound Shot**: This uses Aimed Shot modifiers.
+- **904800 Frostbound Shot**: This uses Aimed Shot modifiers.
+- **904820 Stormbound Shot**: This uses Aimed Shot modifiers.
+- **904840 Arcane Finish**: This uses Eviscerate modifiers.
+- **904860 Ghostly Finish**: This uses Eviscerate modifiers.
+- **904880 Holy Finish**: This uses Eviscerate modifiers.
+- **904900 Blazing Finish**: This uses Eviscerate modifiers.
+- **904920 Freezing Finish**: This uses Eviscerate modifiers.
+- **904940 Shocking Finish**: This uses Eviscerate modifiers.
+- **904960 Aether Rupture**: This uses Rupture modifiers.
+- **904980 Shadow Rupture**: This uses Rupture modifiers.
+- **907000 Dawn Rupture**: This uses Rupture modifiers.
+- **907020 Cinder Rupture**: This uses Rupture modifiers.
+- **907040 Glacial Rupture**: This uses Rupture modifiers.
+- **907060 Lightning Rupture**: This uses Rupture modifiers.
+- **907080 Mana Lash**: This uses Lava Lash modifiers.
+- **907100 Void Lash**: This uses Lava Lash modifiers.
+- **907120 Light Lash**: This uses Lava Lash modifiers.
+- **907140 Arcane Slash**: This uses Heroic Strike modifiers.
+- **907160 Shadow Slash**: This uses Heroic Strike modifiers.
+- **907180 Holy Slash**: This uses Heroic Strike modifiers.
+- **907200 Fire Slash**: This uses Heroic Strike modifiers.
+- **907220 Frost Slash**: This uses Heroic Strike modifiers.
+- **907240 Lightning Slash**: This uses Heroic Strike modifiers.
+- **907260 Spellbound Cleave**: This uses Cleave modifiers.
+- **907280 Voidbound Cleave**: This uses Cleave modifiers.
+- **907300 Lightbound Cleave**: This uses Cleave modifiers.
+- **907320 Flamebound Cleave**: This uses Cleave modifiers.
+- **907340 Frostbound Cleave**: This uses Cleave modifiers.
+- **907360 Stormbound Cleave**: This uses Cleave modifiers.
+- **907380 Aether Smash**: This uses Thunder Clap modifiers.
+- **907400 Umbral Smash**: This uses Thunder Clap modifiers.
+- **907420 Dawn Smash**: This uses Thunder Clap modifiers.
+- **907440 Lava Smash**: This uses Thunder Clap modifiers.
+- **907460 Glacial Smash**: This uses Thunder Clap modifiers.
+- **907480 Tempest Smash**: This uses Thunder Clap modifiers.
+- **907540 Light Breaker**: This uses Devastate modifiers.
+- **907560 Flare Breaker**: This uses Devastate modifiers.
+- **907580 Rime Breaker**: This uses Devastate modifiers.
+- **907600 Storm Breaker**: This uses Devastate modifiers.
+- **907620 Manachaser**: This uses Overpower modifiers.
+- **907640 Voidchaser**: This uses Overpower modifiers.
+- **907660 Dawnchaser**: This uses Overpower modifiers.
+- **907680 Flamechaser**: This uses Overpower modifiers.
+- **907700 Frostchaser**: This uses Overpower modifiers.
+- **907720 Stormchaser**: This uses Overpower modifiers.
+- **907740 Whirling Aether**: This uses Whirlwind modifiers.
+- **907760 Whirling Shadows**: This uses Whirlwind modifiers.
+- **907780 Whirling Light**: This uses Whirlwind modifiers.
+- **907800 Whirling Flames**: This uses Whirlwind modifiers.
+- **907820 Whirling Ice**: This uses Whirlwind modifiers.
+- **907840 Whirling Storm**: This uses Whirlwind modifiers.
+- **907860 Flamereaver**: This uses Crusader Strike modifiers.
+- **907861 Stormreaver**: This uses Crusader Strike modifiers.
+- **907862 Rime Lash**: This uses Lava Lash modifiers.
+- **907870 Lightning Lash**: This uses Lava Lash modifiers.
+- **907878 Obliterating Aether**: This uses Obliterate modifiers.
+- **907886 Obliterating Light**: This uses Obliterate modifiers.
+- **907894 Dawn Strike**: This uses Sinister Strike modifiers.
+- **907906 Brilliant Slam**: This uses Slam modifiers.
+- **907916 Mystic Shot**: This uses Steady Shot modifiers.
+- **910300 Flamethirst**: This uses Bloodthirst modifiers.
+- **910320 Hailthirst**: This uses Bloodthirst modifiers.
+- **910340 Stormthirst**: This uses Bloodthirst modifiers.
+- **910360 Duskthirst**: This uses Bloodthirst modifiers.
+- **910380 Dawnthirst**: This uses Bloodthirst modifiers.
+- **910400 Manathirst**: This uses Bloodthirst modifiers.
+- **910420 Flaming Riposte**: This uses Riposte modifiers.
+- **910440 Frozen Riposte**: This uses Riposte modifiers.
+- **910460 Thundering Riposte**: This uses Riposte modifiers.
+- **910480 Shadowed Riposte**: This uses Riposte modifiers.
+- **910500 Dawning Riposte**: This uses Riposte modifiers.
+- **910520 Mystic Riposte**: This uses Riposte modifiers.
+- **910540 Blazing Multi-Shot**: This uses Multi-Shot modifiers.
+- **910560 Glacial Multi-Shot**: This uses Multi-Shot modifiers.
+- **910580 Storm Multi-Shot**: This uses Multi-Shot modifiers.
+- **910600 Void Multi-Shot**: This uses Multi-Shot modifiers.
+- **910620 Righteous Multi-Shot**: This uses Multi-Shot modifiers.
+- **910640 Magic Multi-Shot**: This uses Multi-Shot modifiers.
+- **910660 Flamesinger Shot**: This uses Kill Shot modifiers.
+- **910680 Icesinger Shot**: This uses Kill Shot modifiers.
+- **910700 Boltsinger Shot**: This uses Kill Shot modifiers.
+- **910720 Shadesinger Shot**: This uses Kill Shot modifiers.
+- **910740 Dawnsinger Shot**: This uses Kill Shot modifiers.
+- **910760 Aethersinger Shot**: This uses Kill Shot modifiers.
+- **910780 Flame Revenge**: This uses Revenge modifiers.
+- **910800 Rime Revenge**: This uses Revenge modifiers.
+- **910820 Storm Revenge**: This uses Revenge modifiers.
+- **910840 Dusk Revenge**: This uses Revenge modifiers.
+- **910860 Dawn Revenge**: This uses Revenge modifiers.
+- **910880 Aether Revenge**: This uses Revenge modifiers.
+- **910900 Blazing Shield Slam**: This uses Shield Slam modifiers.
+- **910920 Glacial Shield Slam**: This uses Shield Slam modifiers.
+- **910940 Tempest Shield Slam**: This uses Shield Slam modifiers.
+- **910960 Umbral Shield Slam**: This uses Shield Slam modifiers.
+- **911000 Mystic Shield Slam**: This uses Shield Slam modifiers.
+- **911740 Flame Counter**: This uses Counterattack modifiers.
+- **911760 Frost Counter**: This uses Counterattack modifiers.
+- **911780 Storm Counter**: This uses Counterattack modifiers.
+- **911800 Shadow Counter**: This uses Counterattack modifiers.
+- **911820 Dawn Counter**: This uses Counterattack modifiers.
+- **911840 Aether Counter**: This uses Counterattack modifiers.
+- **911980 Fire Swipe (Cat)**: This uses Swipe modifiers.
+- **911981 Fire Swipe (Bear)**: This uses Swipe modifiers.
+- **912000 Frost Swipe (Cat)**: This uses Swipe modifiers.
+- **912001 Frost Swipe (Bear)**: This uses Swipe modifiers.
+- **912020 Storm Swipe (Cat)**: This uses Swipe modifiers.
+- **912021 Storm Swipe (Bear)**: This uses Swipe modifiers.
+- **912040 Shadow Swipe (Cat)**: This uses Swipe modifiers.
+- **912041 Shadow Swipe (Bear)**: This uses Swipe modifiers.
+- **912060 Light Swipe (Cat)**: This uses Swipe modifiers.
+- **912061 Light Swipe (Bear)**: This uses Swipe modifiers.
+- **912080 Arcane Swipe (Cat)**: This uses Swipe modifiers.
+- **912081 Arcane Swipe (Bear)**: This uses Swipe modifiers.
+- **913050 Flurry of Fire**: This uses Fan of Knives modifiers.
+- **913051 Flurry of Ice**: This uses Fan of Knives modifiers.
+- **913052 Flurry of Lightning**: This uses Fan of Knives modifiers.
+- **913053 Flurry of Shadow**: This uses Fan of Knives modifiers.
+- **913054 Flurry of Light**: This uses Fan of Knives modifiers.
+- **913055 Flurry of Magic**: This uses Fan of Knives modifiers.
+- **913060 Burning Execution**: This uses Execute modifiers.
+- **913070 Frozen Execution**: This uses Execute modifiers.
+- **913080 Storming Execution**: This uses Execute modifiers.
+- **913090 Shadowy Execution**: This uses Execute modifiers.
+- **913100 Righteous Execution**: This uses Execute modifiers.
+- **913110 Arcane Execution**: This uses Execute modifiers.
+- **913120 Blazing Bloodstrike**: This uses Blood Strike modifiers.
+- **913132 Freezing Bloodstrike**: This uses Blood Strike modifiers.
+- **913144 Thundering Bloodstrike**: This uses Blood Strike modifiers.
+- **913156 Shadowy Bloodstrike**: This uses Blood Strike modifiers.
+- **913168 Brilliant Bloodstrike**: This uses Blood Strike modifiers.
+- **913180 Mystic Bloodstrike**: This uses Blood Strike modifiers.
+- **913192 Flame Siphon**: This uses Death Strike modifiers.
+- **913202 Frost Siphon**: This uses Death Strike modifiers.
+- **913212 Storm Siphon**: This uses Death Strike modifiers.
+- **913222 Shadow Siphon**: This uses Death Strike modifiers.
+- **913232 Holy Siphon**: This uses Death Strike modifiers.
+- **913242 Aether Siphon**: This uses Death Strike modifiers.
+- **913252 Flame Sever**: This uses Mortal Strike modifiers.
+- **913261 Cold Sever**: This uses Mortal Strike modifiers.
+- **913270 Storm Sever**: This uses Mortal Strike modifiers.
+- **913279 Shadow Sever**: This uses Mortal Strike modifiers.
+- **913288 Dawn Sever**: This uses Mortal Strike modifiers.
+- **913297 Aether Sever**: This uses Mortal Strike modifiers.
+- **913306 Flame Spike**: This uses Hemorrhage modifiers.
+- **913312 Ices Spike**: This uses Hemorrhage modifiers.
+- **913318 Volt Spike**: This uses Hemorrhage modifiers.
+- **913324 Dusk Spike**: This uses Hemorrhage modifiers.
+- **913330 Dawn Spike**: This uses Hemorrhage modifiers.
+- **913336 Mana Spike**: This uses Hemorrhage modifiers.
+- **913342 Flamepierce**: This uses Backstab modifiers.
+- **913354 Icepierce**: This uses Backstab modifiers.
+- **913366 Stormpierce**: This uses Backstab modifiers.
+- **913378 Shadowpierce**: This uses Backstab modifiers.
+- **913390 Dawnpierce**: This uses Backstab modifiers.
+- **913402 Aetherpierce**: This uses Backstab modifiers.
+- **913414 Flamewave**: This uses Shockwave modifiers.
+- **913417 Frostwave**: This uses Shockwave modifiers.
+- **913420 Thunderwave**: This uses Shockwave modifiers.
+- **913423 Voidwave**: This uses Shockwave modifiers.
+- **913426 Lightwave**: This uses Shockwave modifiers.
+- **913429 Spellwave**: This uses Shockwave modifiers.
+- **913432 Blades of Flame**: This uses Bladestorm modifiers.
+- **913435 Blades of Frost**: This uses Bladestorm modifiers.
+- **913438 Blades of Lightning**: This uses Bladestorm modifiers.
+- **913441 Blades of Shadow**: This uses Bladestorm modifiers.
+- **913444 Blades of Light**: This uses Bladestorm modifiers.
+- **913447 Blades of Magic**: This uses Bladestorm modifiers.
+- **913450 Flare Spree**: This uses Killing Spree modifiers.
+- **913453 Frost Spree**: This uses Killing Spree modifiers.
+- **913456 Storm Spree**: This uses Killing Spree modifiers.
+- **913459 Void Spree**: This uses Killing Spree modifiers.
+- **913462 Dawn Spree**: This uses Killing Spree modifiers.
+- **913465 Aether Spree**: This uses Killing Spree modifiers.
+- **913480 Frostfang Bite**: This uses Ferocious Bite modifiers.
+- **913491 Duskfang Bite**: This uses Ferocious Bite modifiers.
+- **913502 Dawnfang Bite**: This uses Ferocious Bite modifiers.
+- **913513 Spellfang Bite**: This uses Ferocious Bite modifiers.
+- **939000 Aether Mangle**: This uses Mangle modifiers.
+- **939060 Dusk Mangle**: This uses Mangle modifiers.
+- **939120 Dawn Mangle**: This uses Mangle modifiers.
+- **939180 Flame Mangle**: This uses Mangle modifiers.
+- **939240 Frost Mangle**: This uses Mangle modifiers.
+- **939300 Storm Mangle**: This uses Mangle modifiers.
