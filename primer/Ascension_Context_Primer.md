@@ -1,6 +1,12 @@
-# Project Ascension — Systems Primer v17 (Context for Claude)
+# Project Ascension — Systems Primer v18 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
+
+> **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `index/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v18 changelog (2026-08-03):** Two `decode_inspect_export.py` fixes from this session's inspect-decoding work:
+- **Active-spec index (`n`) was parsed but silently dropped.** The header's 4th field (`fields[0:4]`) was already unpacked as `n` but never printed or used — confirmed this session against a live `Pumprat` export where `n=5` matched the spec the user identified as active. Now printed in the header (`Active spec: 5`) and the matching spec block is tagged `(ACTIVE)` in its own header line. Format-spec docstring updated to explain `<n>` instead of leaving it unglossed.
+- **Tool discoverability gap closed.** This session, Claude was handed a raw inspect fragment and hand-decoded it manually before the user pointed out the decoder already existed — the tool was documented (`INDEX_GUIDE.md`, primer v8/v9 changelogs, §2a's "related but separate" aside) but buried in prose a top-to-bottom read wouldn't connect to a pasted URL fragment. Added the pinned trigger note above, right after the title, before the changelog wall.
 
 **v17 changelog (2026-08-03):** Scouting-session mechanical findings (Titanus/Zavulon armory pulls + an 11-character, 17-report Hammer from the Heavens hunt). Closes a long-standing open question from `build_paladin-hammerdin.md`'s hit/expertise walkback section and refines the "Holy is unresistable" combat-engine default:
 

@@ -11,6 +11,9 @@ including the one spell ID our catalog doesn't cover):
 
   <header> = "2" "." <season/level> "." <level> "." <n> "." <hex:name> "."
              <hex:realm> "." <hex:title> "." <unix_ts> "." <specs_blob>
+    - <n> = active spec index (1-based, matches spec block order in
+      <specs_blob> below) - i.e. which of the character's spec blocks is
+      currently equipped/active in-game.
 
   <specs_blob> = <block> ("_" <block>)*     -- one block PER SPEC, in order
 
@@ -64,9 +67,11 @@ def decode(raw, spells):
 
     print(f"=== {name} ===")
     print(f"Realm: {realm}  |  Title/tag: {title}  |  Level: {level}  |  Export ts: {ts}")
+    print(f"Active spec: {n}")
     print()
 
     # ---- Specs ----
+    active_spec = int(n) if n.isdigit() else None
     blocks = specs_blob.split('_')
     for i, block in enumerate(blocks, start=1):
         parts = block.split('~')
@@ -76,7 +81,8 @@ def decode(raw, spells):
         abilities = [b36dec(t) for t in abil_str.split('.') if t]
         talents = [b36dec(t) for t in tal_str.split('.') if t]
 
-        print(f"--- Spec {i} ({len(abilities)} abilities, {len(talents)} talents) ---")
+        active_tag = ' (ACTIVE)' if i == active_spec else ''
+        print(f"--- Spec {i}{active_tag} ({len(abilities)} abilities, {len(talents)} talents) ---")
         print("Abilities:")
         for v in abilities:
             s = spells.get(v)
