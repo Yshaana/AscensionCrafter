@@ -11,8 +11,16 @@ real log). This is a different confidence tier than decode_alc.py, which was
 validated against the addon's own real vendored libraries end-to-end.
 
 Format per line:
-    <timestamp>  <EVENT>,<sourceGUID>,"<sourceName>",<sourceFlags>,<sourceRaidFlags>,
-                 <destGUID>,"<destName>",<destFlags>,<destRaidFlags>,<event-specific fields...>
+    <timestamp>  <EVENT>,<sourceGUID>,"<sourceName>",<sourceFlags>,
+                 <destGUID>,"<destName>",<destFlags>,<event-specific fields...>
+
+CONFIRMED against a real 2026-08-03 Ascension log: this Ascension client's log
+grammar omits sourceRaidFlags/destRaidFlags entirely (present in stock
+WotLK/retail logs) -- 6 base fields, not 8. Also, the miss-type events are
+SPELL_MISSED / SWING_MISSED, not SPELL_MISS / SWING_MISS. Both mismatches
+silently misaligned every field after sourceFlags (spellId, amount, critical,
+etc.) and zeroed out the miss-type lookups. Fixed 2026-08-03; see the git
+history for this file if the field layout is ever in doubt again.
 """
 
 import csv
@@ -32,8 +40,8 @@ SUFFIX_FIELDS = {
                 "glancing", "crushing"],
     "SWING_DAMAGE": ["amount", "overkill", "school", "resisted", "blocked",
                      "absorbed", "critical", "glancing", "crushing"],
-    "_MISS": ["spellId", "spellName", "spellSchool", "missType", "amountMissed"],
-    "SWING_MISS": ["missType", "amountMissed"],
+    "_MISSED": ["spellId", "spellName", "spellSchool", "missType", "amountMissed"],
+    "SWING_MISSED": ["missType", "amountMissed"],
     "_HEAL": ["spellId", "spellName", "spellSchool", "amount", "overhealing", "absorbed", "critical"],
     "_AURA_APPLIED": ["spellId", "spellName", "spellSchool", "auraType"],
     "_AURA_REMOVED": ["spellId", "spellName", "spellSchool", "auraType"],
@@ -42,15 +50,15 @@ SUFFIX_FIELDS = {
     "_INTERRUPT": ["spellId", "spellName", "spellSchool", "extraSpellId", "extraSpellName", "extraSpellSchool"],
 }
 
-BASE_FIELDS = ["sourceGUID", "sourceName", "sourceFlags", "sourceRaidFlags",
-               "destGUID", "destName", "destFlags", "destRaidFlags"]
+BASE_FIELDS = ["sourceGUID", "sourceName", "sourceFlags",
+               "destGUID", "destName", "destFlags"]
 
 
 def _fields_for_event(event: str):
     if event == "SWING_DAMAGE":
         return SUFFIX_FIELDS["SWING_DAMAGE"]
-    if event == "SWING_MISS":
-        return SUFFIX_FIELDS["SWING_MISS"]
+    if event == "SWING_MISSED":
+        return SUFFIX_FIELDS["SWING_MISSED"]
     for suffix, fields in SUFFIX_FIELDS.items():
         if suffix.startswith("_") and event.endswith(suffix):
             return fields
@@ -80,15 +88,15 @@ def parse_line(line: str):
         return None
 
     parts = _split_csv_line(rest)
-    if len(parts) < 9:
+    if len(parts) < 7:
         return None
 
     event = parts[0]
-    base = dict(zip(["event"] + BASE_FIELDS, parts[0:9]))
+    base = dict(zip(["event"] + BASE_FIELDS, parts[0:7]))
     base["timestamp"] = ts
 
     field_names = _fields_for_event(event)
-    extra = parts[9:]
+    extra = parts[7:]
     if field_names:
         for name, val in zip(field_names, extra):
             base[name] = val
@@ -146,11 +154,11 @@ def avoidance_breakdown(events, source_name=None):
     """miss/dodge/parry/resist/immune counts per (sourceName, ability)."""
     counts = defaultdict(lambda: defaultdict(int))
     for ev in events:
-        if not (ev["event"] == "SWING_MISS" or ev["event"].endswith("_MISS")):
+        if not (ev["event"] == "SWING_MISSED" or ev["event"].endswith("_MISSED")):
             continue
         if source_name and ev.get("sourceName", "").strip('"') != source_name:
             continue
-        ability = "Melee" if ev["event"] == "SWING_MISS" else ev.get("spellName", "?").strip('"')
+        ability = "Melee" if ev["event"] == "SWING_MISSED" else ev.get("spellName", "?").strip('"')
         key = (ev.get("sourceName", "?").strip('"'), ability)
         counts[key][ev.get("missType", "?")] += 1
     return {k: dict(v) for k, v in counts.items()}

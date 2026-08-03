@@ -228,6 +228,10 @@ def decode_chunks(chunk_lines, dictionary: bytes = None):
         if not m:
             continue
         session, frame_id, seq, total, payload = m.groups()
+        # The combat log wraps each chunk in a quoted CSV field; our capture
+        # (`.*` to end of line) picks up that field's closing '"', which is
+        # not part of the base64 payload and throws off the group-of-4 length.
+        payload = payload.rstrip('"')
         key = (session, frame_id)
         frames.setdefault(key, {})[int(seq)] = payload
         totals[key] = int(total)

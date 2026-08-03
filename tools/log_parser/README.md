@@ -17,11 +17,27 @@ No installs needed — pure Python 3 standard library (`zlib`, `csv`, `re`, `jso
   by the addon's own vendored libraries (base64 alphabet, dictionary-deflate,
   frame format, AceSerializer — all confirmed byte-exact, including special
   characters, floats, multi-chunk splits, and multi-record frames).
-- **Combat event parsing (`combat_log_parser.py`) is unverified against a real
-  Ascension log** — it's built on the standard Blizzard log grammar, but
-  Ascension's modified client could have field differences I can't check
-  blind. First real log you send: I'll confirm field alignment and fix
-  anything that's off.
+  **Also fixed 2026-08-03**: the chunk-reassembly regex was capturing the CSV
+  field's closing `"` as part of the base64 payload (every `SPELL_CAST_FAILED`
+  line quotes the fail-reason field), throwing off the base64 group-of-4
+  length on nearly every frame. `decode_chunks` now strips it. Confirmed fix
+  against a real log: 0 build records decoded before, 625 after.
+- **Combat event parsing (`combat_log_parser.py`) — verified against a real
+  Ascension log 2026-08-03, two field-layout bugs found and fixed:**
+  1. This Ascension client's log grammar has only **6 base fields**
+     (sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags) —
+     it omits `sourceRaidFlags`/`destRaidFlags` entirely, unlike stock
+     WotLK/retail logs. The old 8-field assumption silently shifted every
+     field after sourceFlags by 2, producing garbage spellIds and a flatlined
+     0% crit rate everywhere.
+  2. The miss-type events are `SPELL_MISSED`/`SWING_MISSED` in this log, not
+     `SPELL_MISS`/`SWING_MISS` — the old suffix/equality checks never matched,
+     so `avoidance_breakdown` silently returned nothing for spell misses.
+  Both confirmed by diffing raw log lines against parsed output; re-run
+  produced real spellIds, non-zero crit rates matching expected melee/spell
+  crit-table splits, and populated avoidance data. Treat this parser as
+  confirmed for this log format going forward — re-verify only if Ascension
+  changes their client's log grammar.
 
 ## Output
 `parse_log.py` writes `<logname>.summary.json` with:
