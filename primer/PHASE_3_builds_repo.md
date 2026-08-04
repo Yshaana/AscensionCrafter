@@ -316,9 +316,61 @@ fires and *where* it writes, not inventing the capture itself.
   resolved stats, spec index, zone/instance, timestamp
 - **Appends to a growing SavedVariables list, never overwrites.** Six players met in one raid = six
   pending entries. The ingestion pipeline clears them, not the addon
-- Exports an encoded blob to a copyable in-game frame
-- **SavedVariables only flush on logout or `/reload`** — a Lua addon has no other write path. Add an
-  optional "reload after capture" toggle, **off by default**
+- ~~Exports an encoded blob to a copyable in-game frame~~ — **dropped, see the delivery model below**
+- **SavedVariables only flush on logout or `/reload`** — a Lua addon has no other write path
+
+### 🆕 DELIVERY MODEL — settled 2026-08-04 (owner's design)
+
+**No `ReloadUI()` call. The addon never forces a flush.** Data lands on disk when the owner quits
+the game normally, which is the natural end of a play session anyway. Claude Code then reads the
+file directly at the start of the next working session, alongside the combat logs. Simpler addon, no
+disruption to play, and the in-combat/taint questions become moot.
+
+**Verified paths on the owner's machine (2026-08-04):**
+
+```
+SavedVariables:  <launcher>\resources\ascension-live\WTF\Account\Yshaana\SavedVariables\<Addon>.lua
+Combat logs:     <launcher>\resources\ascension-live\Logs\YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt
+Darkmoon S10 characters: Elric, Testouille, Yshaana
+```
+
+Precedent that this works on this client: `AscensionLogsCompanion.lua` already writes into that exact
+folder. WoW also keeps one previous generation as `<Addon>.lua.bak` — a free recovery net if a flush
+is ever interrupted.
+
+⚠ **Correction to the "1 file per session" assumption — this shapes the implementation.**
+SavedVariables is **one file per addon, rewritten wholesale on every flush**. An addon cannot choose
+its filename or emit a new file per session; the name is fixed by the addon name. So "one file per
+session" is not achievable and shouldn't be designed toward.
+
+**What delivers the same outcome:** the addon loads its saved table at login, **appends** this
+session's entries, and saves at logout — producing **one file containing a growing list, with one
+self-snapshot entry per session**. That is already what this task specifies ("appends to a growing
+SavedVariables list, never overwrites; the ingestion pipeline clears them, not the addon"), so the
+owner's intent and the existing design agree — only the mechanism differs from how it was pictured.
+Each entry must stamp **character + realm + timestamp**, since the file is account-level and covers
+Elric/Testouille/Yshaana together.
+
+**Two simplifications this unlocks — real complexity removed, not deferred:**
+
+1. **No encoding, no copyable in-game frame.** Both existed only to get data through a *chat* window
+   by copy-paste. Claude Code reads the file off disk, so the addon can write plain, readable Lua
+   tables — far easier to parse, diff and debug. Chat-only sessions are still served, because the
+   ingestion pipeline commits a normalised extract to the repo (§2.12).
+2. **`## SavedVariables:` must be added to the `.toc`** — the current `AscensionCrafterExport.toc`
+   declares none, which is precisely why it is copy-paste-only today. Use account-level
+   `## SavedVariables:` (not `SavedVariablesPerCharacter`) so one file covers every character.
+
+**The one real tradeoff, stated plainly:** without a forced flush, a client **crash** loses that
+session's in-memory captures — the data was never written. WoW does crash. This is accepted as the
+cost of a simpler addon. `ReloadUI()` is **confirmed working** (see below) and therefore remains a
+known escape hatch if crash-loss ever proves painful — but it is **not being implemented now**, and
+no toggle should be built speculatively.
+
+**Session-start workflow for Claude Code:** read the SavedVariables `.lua`, read the `Logs`
+directory, correlate entries to logs by the `[start, end]` window rule in Task 6, then normalise and
+commit. Requires a small Lua-table parser — the file is a plain `AscensionCrafterExportDB = { … }`
+assignment, not JSON.
 
 ✅ **RESOLVED 2026-08-04 — `ReloadUI()` works on this server.** Confirmed in-game by the project
 owner (tier-1 evidence). The stop-point that stood here is closed: a Lua addon **can** force a
