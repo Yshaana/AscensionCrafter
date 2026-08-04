@@ -69,26 +69,6 @@ only 15 are genuinely empty (debuff/immunity markers with no magnitude to find).
 tracking built, ID crosswalk built. Session record:
 `primer/Session_2026-08-04_1a_restructure_crosswalk.md`.
 
-**What 1b inherits, and should not re-derive:**
-
-- **One command rebuilds everything: `py cli/rebuild.py`** (13 steps, ~32s from empty). Add
-  `--with-dbc` only after a client patch. The database is now `data/derived/ascension.db`.
-- **`core/` is pure** — no `print()`, no `argparse`, no paths, connection passed in, and it may not
-  import `config.py`. `tools/audit/check_core_purity.py` enforces it; run it after touching `core/`.
-  **T4's `resolve_spell_mechanics()` goes in `core/spells/mechanics.py` and obeys this.**
-- **The crosswalk is live.** Never join `entry_id` to `spells.id`; call
-  `core.spells.crosswalk.resolve_entry_id()` or `py cli/crosswalk.py --resolve <id>`.
-- **Rank resolution is a function**, `core.spells.ranks.rank_for_level()`. T4's third resolver rule
-  ("never serve a lower-rank value for a higher-rank query") should call it rather than re-derive it.
-- **Fingerprinting is a function**, `core/spells/fingerprint.py`, with **two field sets** — see the
-  plan-changes table. T4's fourth rule is already implemented; wire to it.
-
-⚠ **Still not a named task, still the highest-value item Phase 0 found:** a **numeric-field DBC
-extractor** would resolve **788 of the 803 (98%)** hidden-formula spells the text resolver can't
-crack. It belongs in T4's scope or immediately after. **Numeric fields only — never the
-`description` string** (the Titanic Mutilate trap). `spell_dbc_raw` now carries 17 more numeric
-columns than it did, which makes this cheaper than it was.
-
 ### 🔁 Daily capture — now AUTOMATED (2026-08-04)
 
 **Nothing to remember. The daily crawl runs itself at logon**, 5 minutes in, at most once a day.
