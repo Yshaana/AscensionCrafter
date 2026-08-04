@@ -255,13 +255,23 @@ and fix the doc.
 
 **Also determine:**
 
-- **Healing data.** Is there a `character_spell_healing` (or equivalent) endpoint? §2.8 makes healer
-  support first-class; if healing data isn't reachable, healer support is limited to the sim with no
-  empirical calibration — that's a real constraint and needs to be stated, not discovered later.
-- **Damage-taken per character**, for tank modelling. Same reasoning.
-- **Resolve the `role=healer` empty-result quirk.** Documented in INDEX_GUIDE v7 as "likely the wrong
-  param value, not confirmed." Find the right value — this now gates a whole role.
-- Resolve the leaderboard's apparent 25-result cap regardless of `limit`.
+- ~~**Healing data.** Is there a `character_spell_healing` (or equivalent) endpoint?~~ ✅ **RESOLVED
+  in session 0b (2026-08-04): yes.** `/api/reports/{id}/character_spell_healing?...&participantType=friendlies`
+  returns per-character-per-spell `total_healing` / `overhealing` / `effective_healing` /
+  `total_absorbs` / `casts` / `hits` / `crits`, plus `source_breakdowns` and `target_breakdowns`.
+  `character_healing` (no `_spell_`) 404s. **The anticipated "healer support has no empirical
+  calibration" constraint does not apply.** Captured daily by the crawler.
+- **Damage-taken per character**, for tank modelling. Same reasoning. *(0b captures
+  `character_damage_taken_abilities` in both directions daily; per-character shaping is still 0a's to
+  characterise.)*
+- ~~**Resolve the `role=healer` empty-result quirk.**~~ ✅ **RESOLVED in session 0b.** The endpoint's
+  own 400 body enumerates them: `Allowed values: tank, dps, tanks-and-dps, support`. **`support` is
+  the healer role.** `metric=avg_hps` is also accepted and orders differently from `avg_dps`.
+- Resolve the leaderboard's apparent 25-result cap regardless of `limit`. *(0b note: not reproduced
+  at `limit=100`, which returned full sets. Not chased further — revisit only if a >100 pull is ever
+  needed.)*
+- ⚠ **Per-ability endpoints AGGREGATE across the `encounterIds` passed** — returned rows carry no
+  `encounter_id`. Per-encounter granularity requires one call per encounter (0b, 2026-08-04).
 - **Target count**: does any response carry it, or something implying it (enemy unit count, trash
   flag, encounter type)? If not, state explicitly that it must be *inferred*. **Never silently
   default to 1** — the entire scenario model depends on this being honest.
@@ -273,11 +283,45 @@ and fix the doc.
   exist on the current armory snapshot and not per-parse, say so — it means approximating from the
   nearest-in-time capture, with the error that implies.
 - **Date/patch/realm/season** per parse, for §2.5 stamping.
-- Are report IDs sequential integers, and what's the current maximum? Sizes the historical backfill.
+- ~~Are report IDs sequential integers, and what's the current maximum?~~ ✅ **PARTLY RESOLVED in
+  session 0b.** They are small sequential integers, but **there is no unauthenticated list
+  endpoint** — `/api/reports?limit=N` returns **401 `{"error":"No token provided"}`**, and
+  `/api/reports/recent` / `/latest` 400 because they're parsed as `{id}`. Discovery is therefore
+  **sequential ID probing**; a missing ID returns a clean 404 `{"error":"Report not found"}`. The
+  crawler walks upward from a stored frontier and stops after 20 consecutive 404s. **The current
+  maximum is still unknown** — it emerges from the first full run.
 
 ---
 
 ## Task 3 — Changelog: confirm the parse and assess the corpus
+
+### 🆕 AMENDED (session 0b, 2026-08-04): it's a JSON API — don't parse HTML
+
+The changelog page embeds a real paginated JSON API, discovered while building the daily fetcher:
+
+```
+https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=N
+```
+
+Laravel-style pagination, `per_page=100`, **353 pages / 35,238 entries**. Each entry carries a stable
+integer `id`, plus `label`, `category`, `realm_type`, `group_key` (the "Changes made on" date, as
+`YYYY/MM/DD`), `description` (with `[Darkmoon]` / `[Dawnrise]` / `[Pending Restart]` tags inline),
+`created_at`, and `updated_at`.
+
+**The HTML-scraping description below is superseded for *acquisition*.** The parsing work (realm,
+status, and ability-name extraction from `description`) is unchanged and still this task's job — it
+just runs against clean JSON fields instead of markup, and gets `updated_at` for free as a
+change-detection signal.
+
+**Backfill already done by session 0b:** 353/353 pages, 0 errors, 30.2 MB in
+`data/source/changelog/backfill/`. The corpus reaches back to **2016/07/23** — a decade of history,
+substantially more than this task assumed. Daily snapshots of pages 1–2 land in
+`data/source/changelog/daily/`. Item 2 below ("backfill all 352 pages") is therefore **complete**;
+items 1, 3, 4, 5 remain open.
+
+---
+
+*(Original task text, retained — its acquisition claims are superseded above, its analysis goals are not.)*
 
 **Confirmed 2026-08-04:** `https://ascension.gg/en/changelog/1` is fully server-rendered plain text,
 no JS, paginated `?page=N` with **352 pages**. Entries group under `Changes made on: YYYY/MM/DD` and
@@ -409,6 +453,7 @@ running is a day of parses that cannot be retroactively collected.
 - Per new character: full armory pull. Per new report/encounter: encounter list, per-ability damage,
   **avoidance**, and — if Task 2 finds them — healing and damage-taken
 - Writes NDJSON to `data/source/crawl/<date>/{characters,encounters,abilities,avoidance}.jsonl`
+  — ⚠ **amended to `.jsonl.gz` in session 0b**, see the deviations note at the end of this task
 - **Stamps every record with capture timestamp, patch date, realm, and season** (§2.5)
 - Keeps a `scan_log` so day 2 onward is incremental
 - Rate-limits per Task 1/2 findings. Running unattended daily against someone else's public API —
@@ -441,6 +486,73 @@ before anyone notices, and the Aug 8 baseline needs the crawler *run*, not *sche
 **Second daily job:** the changelog fetcher from Task 3. The `[Pending Restart]` tag means entries
 change state between fetches; a daily snapshot captures the transition. Cheap to run, impossible to
 reconstruct later.
+
+---
+
+### ✅ BUILT — session 0b, 2026-08-04
+
+| File | Role |
+|---|---|
+| `tools/scrapers/crawl_ascensionlogs.py` | the daily crawler |
+| `tools/scrapers/fetch_changelog.py` | changelog daily snapshot + `--backfill` |
+| `tools/scrapers/baseline_phase1.py` | the one-off pre-Aug-8 baseline described above |
+| `run_crawler.bat` | double-clickable launcher, runs both daily jobs, prints a summary |
+
+Full write-up: `primer/Session_2026-08-04_0b_crawler.md`. Deviations from the scope above, all
+deliberate:
+
+- **Report discovery is sequential ID probing, not a list walk** — the list endpoint requires auth
+  (401). See Task 2's amended note.
+- **Grind reports are grouped by `boss_id` instead of per-encounter.** Report #2 alone holds 658
+  encounters / 368 boss attempts from an 8-hour session; per-encounter calls would be ~1,500 requests
+  for one report. Reports over 40 boss encounters get one call per `boss_id` (scope
+  `boss_group:<id>`); normal raid reports keep per-encounter granularity. Per-attempt *ability*
+  granularity is lost for grind logs only — per-fight duration/kill/wipe data survives in the
+  encounters list.
+- **Healing is captured** (Task 2 found the endpoint), as is damage-taken in both directions.
+- **All three roles are captured** via `role` ∈ `dps`/`tank`/`support`.
+- **`patch_date` comes from the changelog fetcher's `latest_patch_date.txt`**, which is why the
+  launcher runs it first. If absent, the stamp is `null` and the summary says so — never fabricated.
+- **⚠ `phase_number` ≠ the server's "Phase N" label.** `/api/phases` record `phase_number=2` is named
+  **"Phase 1.1"** and is a child of Phase 1 (`progression_parent_phase_id`), *not* the Aug 8 Phase 2
+  launch. Build the phase timeline from `name` + parent id; treat `phase_number` as an opaque
+  ordinal. §2.10's per-phase gear tiers would silently mis-bucket otherwise.
+- **Not deadline-bound after all: the report backfill.** Reports persist after a phase flip, so
+  historical reports can be collected later. What is genuinely unrecoverable is the *leaderboard
+  standings* and *character armory snapshots* as they stand during Phase 1 — which is exactly what
+  `baseline_phase1.py` captures. Run the baseline before Aug 8; let the report walk grind.
+- 🆕 **Output is gzipped (`.jsonl.gz`), amending this task's "Writes NDJSON" line.** Measured on the
+  first real run: **3 reports produced 116 MB**, and `avoidance` alone crossed the 50 MB rotation
+  boundary (~370 KB per record — the enemy-side breakdown is large). A full historical walk would be
+  multiple GB in the working tree and would keep colliding with GitHub's 100 MB per-file limit.
+  **Honest accounting:** git already zlib-compresses blobs, so this is roughly *neutral* for `.git`
+  size — the wins are clone/working-tree size and per-file headroom, not repo size. §2.12's
+  "committed files are readable by a chat session" concern doesn't bind here: a 50 MB JSONL is
+  unreadable through `raw.githubusercontent.com` compressed or not, and everything a human or chat
+  session actually reads (docs, seed scripts, `index/scouted/*.json`) stays plain text. Read back
+  with `gzip.open(path, "rt", encoding="utf-8")`. Pre-switch captures were converted in place by
+  `tools/scrapers/compress_existing_crawl.py` (byte-verified round trip) rather than re-fetched.
+  Measured: **130.3 MB → 7.4 MB (17.6×)**, 990 records, 0 malformed.
+- 🆕 **Two storage tiers, owner-approved.** Volume and irreplaceability turn out to be
+  anti-correlated, so the split is nearly free:
+  **Tier 1 — committed** (`characters`, `leaderboards`, `phases`, `reports`, `scan_log.json`,
+  `manifest.json`; 1.4 MB of the measured run): point-in-time state that is *gone* once a phase
+  flips or a player regears.
+  **Tier 2 — gitignored, local** (`abilities`, `healing`, `avoidance`, `damage_taken`; 6.0 MB):
+  re-fetchable by report id, since reports persist on ascensionlogs.gg.
+  **Every run writes a committed `manifest.json` describing *all* files including the gitignored
+  ones** — record count, sha256, bytes, covered report ids — so git always knows what was captured
+  even without the bytes, and a future session can distinguish "never captured" from "captured,
+  stored locally." Recovery path: `crawl_ascensionlogs.py --recrawl-report <id>`.
+  ⚠ Accepted risk: "reports stay fetchable" is evidenced (reports #2–4 from 24–25 July still
+  fetchable on 4 Aug), **not guaranteed**. Hence tier 1 stays committed and `archive_crawl.py`
+  defers rather than deletes. Full model in `tools/scrapers/README.md`.
+- 🆕 **Armory records are content-hash deduped** over `ci_resolved`+`stats_summary` — written only
+  when a build actually changes, instead of ~90 KB per character per run.
+- ❌ **Rejected: deleting raw capture once normalised.** Normalisation encodes today's
+  interpretation, and the crosswalk it depends on is unresolved (Task 5 gates Phase 1) — this task
+  already forbids the adjacent version of the idea ("resolve at rebuild, so a crosswalk fix never
+  requires re-crawling"). Derived databases are the disposable layer; raw capture is not.
 
 ---
 

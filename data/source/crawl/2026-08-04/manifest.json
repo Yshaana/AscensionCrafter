@@ -1,0 +1,89 @@
+{
+ "date": "2026-08-04",
+ "captured_at": "2026-08-04T18:16:30.053431+00:00",
+ "realm": "darkmoon",
+ "season": 10,
+ "patch_date": "2026-08-04",
+ "new_report_ids": [
+  2,
+  3,
+  4
+ ],
+ "reports_known": 3,
+ "characters_known": 102,
+ "tier2_note": "tier-2 files are gitignored; re-fetchable from darkmoon.ascensionlogs.gg by report id \u2014 see tools/scrapers/README.md",
+ "files": [
+  {
+   "file": "abilities.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 218,
+   "bytes_gz": 1626892,
+   "sha256": "9a007c7edb50bd9df38bd2e4274cb66e11c9c4cf20ed4e30c58049de68141a62"
+  },
+  {
+   "file": "avoidance.1.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 72,
+   "bytes_gz": 1398065,
+   "sha256": "1a70bbcb264b59510b4c09a92768a4ae0807d924ce3cdb126ea5ad4531e3bda5"
+  },
+  {
+   "file": "avoidance.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 146,
+   "bytes_gz": 2144831,
+   "sha256": "b070591e9d8178365119d713674b7b8224cab48a5411baab2403d8fc8fceb5c2"
+  },
+  {
+   "file": "characters.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 102,
+   "bytes_gz": 1367553,
+   "sha256": "75a27baee28cb37345ec105a02ba66c66740bf21e2002dfb09bd1eac96f49824"
+  },
+  {
+   "file": "damage_taken.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 218,
+   "bytes_gz": 244313,
+   "sha256": "449f449a52fc8fa315e0d476f961c5fa685e8e1a8dc630db41a59e94a4d56aeb"
+  },
+  {
+   "file": "healing.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 218,
+   "bytes_gz": 561771,
+   "sha256": "91a9ec2dfc465c11ba040039624791e98102afe76384185dd32af97417c314f9"
+  },
+  {
+   "file": "leaderboards.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 12,
+   "bytes_gz": 3379,
+   "sha256": "1274c8ee96158e093fde96d63871930e80478523b76c5d0fc832eefd80449a74"
+  },
+  {
+   "file": "phases.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 1,
+   "bytes_gz": 765,
+   "sha256": "9113b0bcf8e37c9722b193dbffb63c2d21a009b4f08e5661a40ead6c910664c0"
+  },
+  {
+   "file": "reports.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 3,
+   "bytes_gz": 60001,
+   "sha256": "c52a7b4236d0d15724dc7d9889d6ab888d3eb5edb578c2d8d8aaa1b06fa0b95d"
+  }
+ ]
+}

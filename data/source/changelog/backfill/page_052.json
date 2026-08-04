@@ -1,0 +1,3026 @@
+{
+ "current_page": 52,
+ "per_page": 100,
+ "last_page": 353,
+ "from": 5101,
+ "to": 5200,
+ "total": 35238,
+ "links": [
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=51",
+   "label": "&laquo; Previous",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=1",
+   "label": "1",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=2",
+   "label": "2",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=3",
+   "label": "3",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=4",
+   "label": "4",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=5",
+   "label": "5",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=6",
+   "label": "6",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=7",
+   "label": "7",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=8",
+   "label": "8",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=9",
+   "label": "9",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=10",
+   "label": "10",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=11",
+   "label": "11",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=12",
+   "label": "12",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=13",
+   "label": "13",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=14",
+   "label": "14",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=15",
+   "label": "15",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=16",
+   "label": "16",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=17",
+   "label": "17",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=18",
+   "label": "18",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=19",
+   "label": "19",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=20",
+   "label": "20",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=21",
+   "label": "21",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=22",
+   "label": "22",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=23",
+   "label": "23",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=24",
+   "label": "24",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=25",
+   "label": "25",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=26",
+   "label": "26",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=27",
+   "label": "27",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=28",
+   "label": "28",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=29",
+   "label": "29",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=30",
+   "label": "30",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=31",
+   "label": "31",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=32",
+   "label": "32",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=33",
+   "label": "33",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=34",
+   "label": "34",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=35",
+   "label": "35",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=36",
+   "label": "36",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=37",
+   "label": "37",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=38",
+   "label": "38",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=39",
+   "label": "39",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=40",
+   "label": "40",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=41",
+   "label": "41",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=42",
+   "label": "42",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=43",
+   "label": "43",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=44",
+   "label": "44",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=45",
+   "label": "45",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=46",
+   "label": "46",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=47",
+   "label": "47",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=48",
+   "label": "48",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=49",
+   "label": "49",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=50",
+   "label": "50",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=51",
+   "label": "51",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=52",
+   "label": "52",
+   "active": true
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=53",
+   "label": "53",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=54",
+   "label": "54",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=55",
+   "label": "55",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=56",
+   "label": "56",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=57",
+   "label": "57",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=58",
+   "label": "58",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=59",
+   "label": "59",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=60",
+   "label": "60",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=61",
+   "label": "61",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=62",
+   "label": "62",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=63",
+   "label": "63",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=64",
+   "label": "64",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=65",
+   "label": "65",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=66",
+   "label": "66",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=67",
+   "label": "67",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=68",
+   "label": "68",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=69",
+   "label": "69",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=70",
+   "label": "70",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=71",
+   "label": "71",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=72",
+   "label": "72",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=73",
+   "label": "73",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=74",
+   "label": "74",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=75",
+   "label": "75",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=76",
+   "label": "76",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=77",
+   "label": "77",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=78",
+   "label": "78",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=79",
+   "label": "79",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=80",
+   "label": "80",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=81",
+   "label": "81",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=82",
+   "label": "82",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=83",
+   "label": "83",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=84",
+   "label": "84",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=85",
+   "label": "85",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=86",
+   "label": "86",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=87",
+   "label": "87",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=88",
+   "label": "88",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=89",
+   "label": "89",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=90",
+   "label": "90",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=91",
+   "label": "91",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=92",
+   "label": "92",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=93",
+   "label": "93",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=94",
+   "label": "94",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=95",
+   "label": "95",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=96",
+   "label": "96",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=97",
+   "label": "97",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=98",
+   "label": "98",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=99",
+   "label": "99",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=100",
+   "label": "100",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=101",
+   "label": "101",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=102",
+   "label": "102",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=103",
+   "label": "103",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=104",
+   "label": "104",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=105",
+   "label": "105",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=106",
+   "label": "106",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=107",
+   "label": "107",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=108",
+   "label": "108",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=109",
+   "label": "109",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=110",
+   "label": "110",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=111",
+   "label": "111",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=112",
+   "label": "112",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=113",
+   "label": "113",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=114",
+   "label": "114",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=115",
+   "label": "115",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=116",
+   "label": "116",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=117",
+   "label": "117",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=118",
+   "label": "118",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=119",
+   "label": "119",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=120",
+   "label": "120",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=121",
+   "label": "121",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=122",
+   "label": "122",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=123",
+   "label": "123",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=124",
+   "label": "124",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=125",
+   "label": "125",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=126",
+   "label": "126",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=127",
+   "label": "127",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=128",
+   "label": "128",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=129",
+   "label": "129",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=130",
+   "label": "130",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=131",
+   "label": "131",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=132",
+   "label": "132",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=133",
+   "label": "133",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=134",
+   "label": "134",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=135",
+   "label": "135",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=136",
+   "label": "136",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=137",
+   "label": "137",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=138",
+   "label": "138",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=139",
+   "label": "139",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=140",
+   "label": "140",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=141",
+   "label": "141",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=142",
+   "label": "142",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=143",
+   "label": "143",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=144",
+   "label": "144",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=145",
+   "label": "145",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=146",
+   "label": "146",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=147",
+   "label": "147",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=148",
+   "label": "148",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=149",
+   "label": "149",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=150",
+   "label": "150",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=151",
+   "label": "151",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=152",
+   "label": "152",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=153",
+   "label": "153",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=154",
+   "label": "154",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=155",
+   "label": "155",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=156",
+   "label": "156",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=157",
+   "label": "157",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=158",
+   "label": "158",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=159",
+   "label": "159",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=160",
+   "label": "160",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=161",
+   "label": "161",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=162",
+   "label": "162",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=163",
+   "label": "163",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=164",
+   "label": "164",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=165",
+   "label": "165",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=166",
+   "label": "166",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=167",
+   "label": "167",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=168",
+   "label": "168",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=169",
+   "label": "169",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=170",
+   "label": "170",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=171",
+   "label": "171",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=172",
+   "label": "172",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=173",
+   "label": "173",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=174",
+   "label": "174",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=175",
+   "label": "175",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=176",
+   "label": "176",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=177",
+   "label": "177",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=178",
+   "label": "178",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=179",
+   "label": "179",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=180",
+   "label": "180",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=181",
+   "label": "181",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=182",
+   "label": "182",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=183",
+   "label": "183",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=184",
+   "label": "184",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=185",
+   "label": "185",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=186",
+   "label": "186",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=187",
+   "label": "187",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=188",
+   "label": "188",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=189",
+   "label": "189",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=190",
+   "label": "190",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=191",
+   "label": "191",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=192",
+   "label": "192",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=193",
+   "label": "193",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=194",
+   "label": "194",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=195",
+   "label": "195",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=196",
+   "label": "196",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=197",
+   "label": "197",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=198",
+   "label": "198",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=199",
+   "label": "199",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=200",
+   "label": "200",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=201",
+   "label": "201",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=202",
+   "label": "202",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=203",
+   "label": "203",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=204",
+   "label": "204",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=205",
+   "label": "205",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=206",
+   "label": "206",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=207",
+   "label": "207",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=208",
+   "label": "208",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=209",
+   "label": "209",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=210",
+   "label": "210",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=211",
+   "label": "211",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=212",
+   "label": "212",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=213",
+   "label": "213",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=214",
+   "label": "214",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=215",
+   "label": "215",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=216",
+   "label": "216",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=217",
+   "label": "217",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=218",
+   "label": "218",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=219",
+   "label": "219",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=220",
+   "label": "220",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=221",
+   "label": "221",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=222",
+   "label": "222",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=223",
+   "label": "223",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=224",
+   "label": "224",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=225",
+   "label": "225",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=226",
+   "label": "226",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=227",
+   "label": "227",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=228",
+   "label": "228",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=229",
+   "label": "229",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=230",
+   "label": "230",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=231",
+   "label": "231",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=232",
+   "label": "232",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=233",
+   "label": "233",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=234",
+   "label": "234",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=235",
+   "label": "235",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=236",
+   "label": "236",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=237",
+   "label": "237",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=238",
+   "label": "238",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=239",
+   "label": "239",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=240",
+   "label": "240",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=241",
+   "label": "241",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=242",
+   "label": "242",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=243",
+   "label": "243",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=244",
+   "label": "244",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=245",
+   "label": "245",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=246",
+   "label": "246",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=247",
+   "label": "247",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=248",
+   "label": "248",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=249",
+   "label": "249",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=250",
+   "label": "250",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=251",
+   "label": "251",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=252",
+   "label": "252",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=253",
+   "label": "253",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=254",
+   "label": "254",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=255",
+   "label": "255",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=256",
+   "label": "256",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=257",
+   "label": "257",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=258",
+   "label": "258",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=259",
+   "label": "259",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=260",
+   "label": "260",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=261",
+   "label": "261",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=262",
+   "label": "262",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=263",
+   "label": "263",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=264",
+   "label": "264",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=265",
+   "label": "265",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=266",
+   "label": "266",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=267",
+   "label": "267",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=268",
+   "label": "268",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=269",
+   "label": "269",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=270",
+   "label": "270",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=271",
+   "label": "271",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=272",
+   "label": "272",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=273",
+   "label": "273",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=274",
+   "label": "274",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=275",
+   "label": "275",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=276",
+   "label": "276",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=277",
+   "label": "277",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=278",
+   "label": "278",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=279",
+   "label": "279",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=280",
+   "label": "280",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=281",
+   "label": "281",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=282",
+   "label": "282",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=283",
+   "label": "283",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=284",
+   "label": "284",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=285",
+   "label": "285",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=286",
+   "label": "286",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=287",
+   "label": "287",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=288",
+   "label": "288",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=289",
+   "label": "289",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=290",
+   "label": "290",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=291",
+   "label": "291",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=292",
+   "label": "292",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=293",
+   "label": "293",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=294",
+   "label": "294",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=295",
+   "label": "295",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=296",
+   "label": "296",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=297",
+   "label": "297",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=298",
+   "label": "298",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=299",
+   "label": "299",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=300",
+   "label": "300",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=301",
+   "label": "301",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=302",
+   "label": "302",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=303",
+   "label": "303",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=304",
+   "label": "304",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=305",
+   "label": "305",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=306",
+   "label": "306",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=307",
+   "label": "307",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=308",
+   "label": "308",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=309",
+   "label": "309",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=310",
+   "label": "310",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=311",
+   "label": "311",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=312",
+   "label": "312",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=313",
+   "label": "313",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=314",
+   "label": "314",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=315",
+   "label": "315",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=316",
+   "label": "316",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=317",
+   "label": "317",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=318",
+   "label": "318",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=319",
+   "label": "319",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=320",
+   "label": "320",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=321",
+   "label": "321",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=322",
+   "label": "322",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=323",
+   "label": "323",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=324",
+   "label": "324",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=325",
+   "label": "325",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=326",
+   "label": "326",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=327",
+   "label": "327",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=328",
+   "label": "328",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=329",
+   "label": "329",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=330",
+   "label": "330",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=331",
+   "label": "331",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=332",
+   "label": "332",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=333",
+   "label": "333",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=334",
+   "label": "334",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=335",
+   "label": "335",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=336",
+   "label": "336",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=337",
+   "label": "337",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=338",
+   "label": "338",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=339",
+   "label": "339",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=340",
+   "label": "340",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=341",
+   "label": "341",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=342",
+   "label": "342",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=343",
+   "label": "343",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=344",
+   "label": "344",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=345",
+   "label": "345",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=346",
+   "label": "346",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=347",
+   "label": "347",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=348",
+   "label": "348",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=349",
+   "label": "349",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=350",
+   "label": "350",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=351",
+   "label": "351",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=352",
+   "label": "352",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=353",
+   "label": "353",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=53",
+   "label": "Next &raquo;",
+   "active": false
+  }
+ ],
+ "path": "https://api.ascension.gg/api/v3/article/changelog",
+ "data": {
+  "2024/02/19": {
+   "1": [
+    {
+     "id": 46694,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Gurubashi Berserker] Gurubashi Bloodsurge now grants 25% Armor Penetration down from 50%.",
+     "created_at": "2024-02-19T22:44:06",
+     "updated_at": "2024-02-19T22:45:03"
+    },
+    {
+     "id": 46693,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Gurubashi Berserker] Gurubashi Rage now grants 20% increased rage generation down from 50%.",
+     "created_at": "2024-02-19T22:44:05",
+     "updated_at": "2024-02-19T22:45:03"
+    },
+    {
+     "id": 46692,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Gurubashi Berserker] Onslaught now increases your Execute damage by 20%, from 30%.",
+     "created_at": "2024-02-19T22:44:04",
+     "updated_at": "2024-02-19T22:45:03"
+    },
+    {
+     "id": 46691,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [White Walker] Increased the combo point attack and spellpower scaling of Winds of Winter by 25%.",
+     "created_at": "2024-02-19T22:44:04",
+     "updated_at": "2024-02-19T22:45:03"
+    },
+    {
+     "id": 46690,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Bone Arrow] Increased the base damage and scaling of the direct damage and dot portion of Bone Arrow by 20%.",
+     "created_at": "2024-02-19T22:44:01",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46689,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Wild Wrath] The Wrath damage increase from Wild Wrath is now 6% from 8% per stack, but it now also grants 6% critical strike chance per stack.",
+     "created_at": "2024-02-19T22:44:00",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46688,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Locust Ranger] Increased the ranged weapon damage of Locust Shot from 75% to 90%.",
+     "created_at": "2024-02-19T22:43:59",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46687,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Paratrooper] Reduced the weapon damage of Orbital Arrows from 100% to 85%.",
+     "created_at": "2024-02-19T22:43:59",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46686,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Dark Ranger] Fixed a bug where Explosive Shot could trigger, and consume Dark Arrow charges upon dealing damage instead of upon casting the ability.",
+     "created_at": "2024-02-19T22:43:58",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46685,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Dark Ranger] Dark Arrows now has 6 charges from 5.",
+     "created_at": "2024-02-19T22:43:57",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46684,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Dark Ranger] Increased the ranged weapon damage of Dark Arrows from 70% to 80%.",
+     "created_at": "2024-02-19T22:43:56",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46683,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Dark Ranger] Casting Shadow Artillery now increases the damage of subsequent Shadow Artillery casts by 20% for 5 seconds, stacking 3 times. This effect cannot be refreshed at 3 stacks.",
+     "created_at": "2024-02-19T22:43:55",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46682,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52] [Dark Ranger] Shadow Artillery now lasts for 8 seconds, from 3 seconds. And the dot deals damage every 2 seconds from every 1 second. Shadow Artillery will now also increase all damage taken from the caster by 10%.",
+     "created_at": "2024-02-19T22:43:55",
+     "updated_at": "2024-02-19T22:44:01"
+    },
+    {
+     "id": 46681,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] The Spellpower and attack power scaling of the direct and damage-over-time portion of Chaos Burn has been increased by 15%.",
+     "created_at": "2024-02-19T22:42:29",
+     "updated_at": "2024-02-19T22:43:03"
+    },
+    {
+     "id": 46680,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug causing the damage over time from Chaos Burn to benefit from the damage increase of Corrupted Maelstrom Weapon despite the tooltip stating that it only affects direct damage.",
+     "created_at": "2024-02-19T22:42:28",
+     "updated_at": "2024-02-19T22:43:03"
+    },
+    {
+     "id": 46679,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1305909,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug causing Chaos Burn to be unable to benefit from Molten Fel Core.",
+     "created_at": "2024-02-19T22:42:27",
+     "updated_at": "2024-02-19T22:43:03"
+    },
+    {
+     "id": 46678,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Area 52][Elemental Destruction] Normalized pvp mod of Energy Bolt to be the same as Lightning Bolt: 10% reduced damage against players.",
+     "created_at": "2024-02-19T21:50:54",
+     "updated_at": "2024-02-19T21:51:03"
+    },
+    {
+     "id": 46677,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Mass Razorlash: Increased the scaling of the damage over time effect by 20%.",
+     "created_at": "2024-02-19T21:40:06",
+     "updated_at": "2024-02-19T21:41:04"
+    },
+    {
+     "id": 46676,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Razorlash: Increased the scaling of the damage over time effect by 20%.",
+     "created_at": "2024-02-19T21:40:06",
+     "updated_at": "2024-02-19T21:41:04"
+    },
+    {
+     "id": 46675,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Crimson Tempest: Increased the scaling by 25%.",
+     "created_at": "2024-02-19T21:40:05",
+     "updated_at": "2024-02-19T21:41:04"
+    },
+    {
+     "id": 46674,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Rupture: Increased the scaling by 20%.",
+     "created_at": "2024-02-19T21:40:04",
+     "updated_at": "2024-02-19T21:41:04"
+    },
+    {
+     "id": 46673,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Garrote: Increased the scaling by 15%.",
+     "created_at": "2024-02-19T21:40:03",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46672,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Buffed Flowing. It now only requires 3 stacks to apply Overflowing. Down from 4.",
+     "created_at": "2024-02-19T21:40:02",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46671,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Both Realms] Buffed Overflow. The range of Overflow's heal is now 12 Yards. Up from 8 Yards.",
+     "created_at": "2024-02-19T21:40:01",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46670,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Boomer was triggering additional effects.[Elune] Void Erruption Shadow Word: Pain AoE application now also works with Worgen Form.",
+     "created_at": "2024-02-19T21:40:00",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46669,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Purification by Light was triggering additional effects.",
+     "created_at": "2024-02-19T21:39:59",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46668,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Twilight Treason was triggering additional effects.",
+     "created_at": "2024-02-19T21:39:58",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46667,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Righteous Zealot was triggering additional effects.",
+     "created_at": "2024-02-19T21:39:58",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46666,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Inferno was triggering additional effects.",
+     "created_at": "2024-02-19T21:39:57",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46665,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Frost Lich was triggering additional effects.",
+     "created_at": "2024-02-19T21:39:56",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46664,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Consuming Flames was reducing the critical damage by 2% instead of intended 5%.",
+     "created_at": "2024-02-19T21:39:55",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46663,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Traumatic Wounds. Duration of Rip extend is now 2 seconds. Up form 1 second.",
+     "created_at": "2024-02-19T21:39:55",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46662,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Traumatic Wounds. It now also triggers its effects with Shred, Ravage and Mangle (Cat) in addition to Claw and Bloodthirst.",
+     "created_at": "2024-02-19T21:39:54",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46661,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Fixed a bug where Traumatic Wounds enable extending the duration of Rip with any Physical ability.",
+     "created_at": "2024-02-19T21:39:53",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46660,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Midnight Flames now increases the damage of mentioned spells by 10%. Down from 12%.",
+     "created_at": "2024-02-19T21:39:52",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46659,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Midnight Flames. It now also increases the damage of your Shadowflame.",
+     "created_at": "2024-02-19T21:39:52",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46658,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Pyrolate now increases the damage of your Immolate by 12%. Down from 15%.",
+     "created_at": "2024-02-19T21:39:50",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46657,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Elemental Destruction now increases the damage of your active Immolate by 13%. Down form 15%.",
+     "created_at": "2024-02-19T21:39:50",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46656,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Elemental Immolate: Decreased damage by 5%.",
+     "created_at": "2024-02-19T21:39:49",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46655,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Astral Storm: Decreased damage by 10%.",
+     "created_at": "2024-02-19T21:39:48",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46654,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Temporal Haste: Decreased cast time of the next spell by 35%. Down from 40%.",
+     "created_at": "2024-02-19T21:39:47",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46653,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Silence in the Library and Spartan Kick no longer trigger additional procs.",
+     "created_at": "2024-02-19T21:39:46",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46652,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Double Down: The offhand attacks now correctly scale as much as your regular Sinister Strike.",
+     "created_at": "2024-02-19T21:39:46",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46651,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Sinister Flurry triggered attack no longer procs other procs.",
+     "created_at": "2024-02-19T21:39:45",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46650,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Sinister Flurry: The triggered attack now deals 50% more damage.",
+     "created_at": "2024-02-19T21:39:44",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46649,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Dark Intent: Increased scaling by 10%.",
+     "created_at": "2024-02-19T21:39:43",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46648,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Dark Intent: Increased base damage by 10%.",
+     "created_at": "2024-02-19T21:39:42",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46647,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Sinister Intent: Decreased scaling by 10%.",
+     "created_at": "2024-02-19T21:39:42",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46646,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Sinister Intent: Increased base damage by 10%.",
+     "created_at": "2024-02-19T21:39:41",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46645,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Using Sinister Strike with Dark Intent talent will now trigger Sinister Intent. This is just a copy of Dark Intent but enables separate balance for these procs.",
+     "created_at": "2024-02-19T21:39:39",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46644,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Biting Drain. Previously enabled your Drain Life to critically hit (thats now baseline). Now it increases the critical strike damage bonus of your Drain Life by 30%.",
+     "created_at": "2024-02-19T21:39:39",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46643,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Drain Life, Lingering Shadows, Unbounded Drain Life are now capable of critical hits baseline on Elune.",
+     "created_at": "2024-02-19T21:39:38",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46642,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Spiderbite now has a new mechanic: Spider's Harvest reduces the duration of your next drain life by 15%, but reduces the healing by 50%.",
+     "created_at": "2024-02-19T21:39:37",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46641,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Buffed Spiderbite. Each charge now increases the damage of the next damaging Drain Life tick by 100%.",
+     "created_at": "2024-02-19T21:39:37",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46640,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Necromancer’s Touch increases the damage of your next Drain Life by 25% or next Blood Arrow and Shadow Dagger by 15%.",
+     "created_at": "2024-02-19T21:39:35",
+     "updated_at": "2024-02-19T21:40:04"
+    },
+    {
+     "id": 46639,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Elune] Harvest Essence now stacks up to 5 times. Changed from the bugged behaviour of charge system that did not work properly.",
+     "created_at": "2024-02-19T21:39:35",
+     "updated_at": "2024-02-19T21:40:04"
+    }
+   ],
+   "0": [
+    {
+     "id": 46638,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1420008,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Requires Launcher Update] Re-Added the option to flash the windows taskbar icon for Ascension whenever something in-game needs your attention (ex: Battleground / Arena Queue ready, party invites etc..). You can find this option in [Esc -> Interface -> Notifications]",
+     "created_at": "2024-02-19T16:54:15",
+     "updated_at": "2024-02-19T16:55:04"
+    }
+   ],
+   "6": [
+    {
+     "id": 46637,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/19",
+     "description": "[Karzhan] [Gruul's Lair] [Magtheridon's Lair] [All Bosses] All bosses inside Karazhan, Gruul's Lair and Magtherrdon's Lair once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-19T15:50:42",
+     "updated_at": "2024-02-19T15:51:02"
+    }
+   ]
+  },
+  "2024/02/18": {
+   "1": [
+    {
+     "id": 46593,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Pending Restart] [Elune] Fixed a bug where Burning Inner Fire would generate stack of Righteous Radiance whenever Inner Fire charge would be consumed. This would also work with triggered damage. Since this mechanic was well liked, it is now properly established and described on Righteous Radiance: Two stacks of Righteous Radiance are awarded if you are benefiting from Burning Inner.",
+     "created_at": "2024-02-18T22:13:18",
+     "updated_at": "2024-02-18T22:14:02"
+    }
+   ],
+   "6": [
+    {
+     "id": 46592,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Elune] The heart heal that drops on creature death in manastorm has had it's coefficient scaling increased by 350%.",
+     "created_at": "2024-02-18T19:04:07",
+     "updated_at": "2024-02-18T19:05:04"
+    },
+    {
+     "id": 46590,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Elune] Lord Vyletongue stun effect has been reworked, you will now be able to get out the effect with Millhouse's Magical Escape. Also, the stun effect will adopt normal DR benefits.",
+     "created_at": "2024-02-18T17:28:57",
+     "updated_at": "2024-02-18T17:29:03"
+    },
+    {
+     "id": 46589,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Elune] Millhouse's Magical Escape will now let you trinket banish effects.",
+     "created_at": "2024-02-18T17:28:56",
+     "updated_at": "2024-02-18T17:29:03"
+    },
+    {
+     "id": 46588,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Elune] Greedy Goblin loot swords will now be instant click while in manastorm.",
+     "created_at": "2024-02-18T17:28:55",
+     "updated_at": "2024-02-18T17:29:03"
+    },
+    {
+     "id": 46587,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[Serpentshrine Cavern] [All Bosses] All bosses inside Serpentshrine Cavern once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-18T15:33:48",
+     "updated_at": "2024-02-18T15:34:02"
+    },
+    {
+     "id": 46586,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/18",
+     "description": "[The Eye] [All Bosses] All bosses inside The Eye once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-18T13:44:30",
+     "updated_at": "2024-02-18T13:45:05"
+    }
+   ]
+  },
+  "2024/02/17": {
+   "6": [
+    {
+     "id": 46585,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Zul'Aman] [All Bosses] All bosses inside Zul'Aman once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-17T22:40:50",
+     "updated_at": "2024-02-17T22:41:03"
+    },
+    {
+     "id": 46584,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[The Battle for Mount Hyjal] [All Bosses] All bosses in inside The Battle for Mount Hyjal once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-17T19:17:12",
+     "updated_at": "2024-02-17T19:18:03"
+    },
+    {
+     "id": 46582,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Illidan Stormrage] Reduced the duration of Eye Beam's fire trail to 10 seconds down from 30 seconds.",
+     "created_at": "2024-02-17T14:00:17",
+     "updated_at": "2024-02-17T14:01:02"
+    },
+    {
+     "id": 46581,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Illidan Stormrage] Illidan will now cast his first Dark Barrage or Eye Beam at random during P2 and then will alternate between the two events.",
+     "created_at": "2024-02-17T14:00:10",
+     "updated_at": "2024-02-17T14:01:02"
+    },
+    {
+     "id": 46580,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Illidan Stormrage] Reduced the cooldown of Throw Unharnessed Glaive by 10 seconds to not overlap with Flame Crash. Illidan will now cast Throw Unharnessed Glaive a second time earlier in P3 and P5. The total occurences per phase is unchanged.",
+     "created_at": "2024-02-17T14:00:04",
+     "updated_at": "2024-02-17T14:00:05"
+    },
+    {
+     "id": 46579,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Illidan Stormrage] Increased the cooldown of Flame Crash by 5 seconds, causing Illidan now to cast Flame Crash when the previous one starts to disappear.",
+     "created_at": "2024-02-17T13:59:57",
+     "updated_at": "2024-02-17T14:00:05"
+    },
+    {
+     "id": 46578,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Illidan Stormrage] Illidan will now entirely ignore pets, totems and guardians.",
+     "created_at": "2024-02-17T13:59:47",
+     "updated_at": "2024-02-17T14:00:05"
+    },
+    {
+     "id": 46577,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [Supremus] Supremus will now entirely ignore pets, totems and guardians.",
+     "created_at": "2024-02-17T13:59:41",
+     "updated_at": "2024-02-17T14:00:05"
+    },
+    {
+     "id": 46576,
+     "label": 0,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1266826,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [The Black Temple] [All Bosses] All bosses in inside The Black Temple once again drop all of the following curreny: Badges of Justice, Mystic Runes, Mystic Orbs, Marks of Ascension, Raider's Commendations.",
+     "created_at": "2024-02-17T13:59:33",
+     "updated_at": "2024-02-17T14:00:05"
+    }
+   ],
+   "1": [
+    {
+     "id": 46583,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/17",
+     "description": "[Pending Restart] [Elune] Fixed a bug where Blessing of the Moon could overwrite a higher rank of Moonfire with rank 1.",
+     "created_at": "2024-02-17T17:45:55",
+     "updated_at": "2024-02-17T17:46:03"
+    }
+   ]
+  },
+  "2024/02/16": {
+   "5": [
+    {
+     "id": 46575,
+     "label": 0,
+     "category": 5,
+     "realm_type": 1,
+     "user_id": 1684115,
+     "author": null,
+     "group_key": "2024/02/16",
+     "description": "Fixed the size and fitting of Fel heart Shoulder Pads on all races.",
+     "created_at": "2024-02-16T20:28:54",
+     "updated_at": "2024-02-16T20:29:02"
+    },
+    {
+     "id": 46574,
+     "label": 0,
+     "category": 5,
+     "realm_type": 1,
+     "user_id": 1684115,
+     "author": null,
+     "group_key": "2024/02/16",
+     "description": "Fixed the flies emanating from Stinkrot Smasher.",
+     "created_at": "2024-02-16T20:28:31",
+     "updated_at": "2024-02-16T20:29:02"
+    },
+    {
+     "id": 46573,
+     "label": 0,
+     "category": 5,
+     "realm_type": 1,
+     "user_id": 1684115,
+     "author": null,
+     "group_key": "2024/02/16",
+     "description": "Fixed an issue which made the belt buckle of Girdle of the Highlord look like it was flying in the air.",
+     "created_at": "2024-02-16T20:28:05",
+     "updated_at": "2024-02-16T20:29:02"
+    }
+   ]
+  },
+  "2024/02/15": {
+   "6": [
+    {
+     "id": 46545,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] The creatures that Bile Spewer spawns on death will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T15:35:42",
+     "updated_at": "2024-02-15T15:36:02"
+    },
+    {
+     "id": 46544,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] The creatures that Spire Spider spawns on death will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T15:35:41",
+     "updated_at": "2024-02-15T15:36:02"
+    },
+    {
+     "id": 46543,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] Fixed an issue that was causing you not to be ported to the next level of manastorm when banished.",
+     "created_at": "2024-02-15T14:49:53",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46542,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] During the Razelikh the Defiler encounter adds will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T14:49:52",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46541,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] During the Andre Firebeard encounter adds will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T14:49:51",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46540,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] During the Houndmaster Loksey encounter adds will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T14:49:50",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46539,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] During the Edwin VanCleef encounter adds will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T14:49:49",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46538,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] During the Ambassador Flamelash encounter adds will no longer transform into random creatures or have affixes while in manastorm.",
+     "created_at": "2024-02-15T14:49:49",
+     "updated_at": "2024-02-15T14:50:03"
+    },
+    {
+     "id": 46537,
+     "label": 1,
+     "category": 6,
+     "realm_type": 1,
+     "user_id": 1865021,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] [Elune] Fel Steed has been remove from the manastorm creature pool.",
+     "created_at": "2024-02-15T14:49:48",
+     "updated_at": "2024-02-15T14:50:03"
+    }
+   ],
+   "1": [
+    {
+     "id": 46536,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1807035,
+     "author": null,
+     "group_key": "2024/02/15",
+     "description": "[Pending Restart] Lightbringer Armor Tier 6 (5) Set bonus: Hammer of the Righteous and Divine Storm can now trigger this damaging effect.",
+     "created_at": "2024-02-15T12:38:09",
+     "updated_at": "2024-02-15T12:39:02"
+    }
+   ]
+  },
+  "2024/02/14": {
+   "1": [
+    {
+     "id": 46399,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Blessed by the Moon will now prioritize applying Solar Burn first if available.",
+     "created_at": "2024-02-14T20:04:02",
+     "updated_at": "2024-02-14T20:04:03"
+    },
+    {
+     "id": 46398,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Draconic Slam now deals 20% less damage versus players.",
+     "created_at": "2024-02-14T18:55:50",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46397,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Mayhem now deals 20% less damage versus players.",
+     "created_at": "2024-02-14T18:55:49",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46396,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] While Hot Streak is active, Pyroblast now deals 10% less damage versus players.",
+     "created_at": "2024-02-14T18:55:48",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46395,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Ambush now deals 5% less damage versus players",
+     "created_at": "2024-02-14T18:55:47",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46394,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Silence of the Library now deals 30% less damage versus players. (This is an ability without a GCD which can add up to a lot of instant burst.)",
+     "created_at": "2024-02-14T18:55:46",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46393,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Spartan Kick now deals 30% less damage versus players. (This is an ability without a GCD which can add up to a lot of instant burst.)",
+     "created_at": "2024-02-14T18:55:46",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46392,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Elune] Filthy Tricks now increases the damage of your next melee ability by 10% versus players, changed from 20%. (This was recently changed to 20% but now reduced back to 10% versus players to reduce burst potential.)",
+     "created_at": "2024-02-14T18:55:45",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46391,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Area 52] Ambush now deals 10% less versus players.",
+     "created_at": "2024-02-14T18:55:44",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46390,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Area 52] Empowered Stormstrike now deals 10% less versus players.",
+     "created_at": "2024-02-14T18:55:43",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46389,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Area 52] Harbinger's Bile now deals 10% less versus players.",
+     "created_at": "2024-02-14T18:55:42",
+     "updated_at": "2024-02-14T18:56:01"
+    },
+    {
+     "id": 46388,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 185833,
+     "author": null,
+     "group_key": "2024/02/14",
+     "description": "[Pending Restart] [Area 52] Pyroblast now deals 10% less versus players.",
+     "created_at": "2024-02-14T18:55:42",
+     "updated_at": "2024-02-14T18:56:01"
+    }
+   ]
+  }
+ },
+ "first_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=1",
+ "prev_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=51",
+ "next_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=53",
+ "last_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=353"
+}

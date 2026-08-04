@@ -1,0 +1,37 @@
+{
+ "date": "baseline_phase1",
+ "captured_at": "2026-08-04T18:28:52.256457+00:00",
+ "realm": "darkmoon",
+ "season": 10,
+ "patch_date": "2026-08-04",
+ "new_report_ids": [],
+ "reports_known": 3,
+ "characters_known": 102,
+ "tier2_note": "tier-2 files are gitignored; re-fetchable from darkmoon.ascensionlogs.gg by report id \u2014 see tools/scrapers/README.md",
+ "files": [
+  {
+   "file": "characters.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 48,
+   "bytes_gz": 725717,
+   "sha256": "9a676ad8a1dab60ac377c8088008e407b211da30982291c343b98141379729f1"
+  },
+  {
+   "file": "leaderboards.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 12,
+   "bytes_gz": 7815,
+   "sha256": "cb696ae9b566c2b5db30db805bc406cf518abc4c91b00f64545395fe8d0166e5"
+  },
+  {
+   "file": "phases.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 1,
+   "bytes_gz": 770,
+   "sha256": "9c5bc196f7311a73e3162ad61f0a75842590bde628ae8b80649d6642939ed06b"
+  }
+ ]
+}

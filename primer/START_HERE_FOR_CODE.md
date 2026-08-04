@@ -44,9 +44,13 @@ prose lag behind commits — this has produced a confidently wrong answer in thi
 - Season 10, realm **Darkmoon**. A second realm, **Dawnrise**, exists and receives *different*
   balance changes — never apply a fact across realms without evidence.
 - **Server is on Phase 1 (Zul'Gurub). Phase 2 launches 2026-08-08.**
-- 🚨 **The crawler (Phase 0 Task 6) is time-critical.** A phase transition is a one-time,
-  unrecoverable measurement. Data not captured before the 8th is gone permanently. If anything in
-  Phase 0 slips, it is not this.
+  ⚠ The logs API's `phase_number` field does **not** match this label — its `phase_number=2` record is
+  named "Phase 1.1" and is a child of Phase 1. Read `name` + `progression_parent_phase_id`, never
+  `phase_number` alone.
+- ✅ **The crawler (Phase 0 Task 6) is built and running** as of 2026-08-04 — `run_crawler.bat`,
+  double-clicked once a day. 🚨 **One deadline item remains: run `py tools\scrapers\baseline_phase1.py`
+  before Aug 8.** Reports persist across a phase flip, so historical parses are safe; the
+  *leaderboard standings and armory snapshots* are what cannot be recovered afterward.
 - The project owner runs **Windows**. Scripts meant to run on his machine (the crawler, the addon
   ingest, session hooks) target Windows — no cron, no bash-only assumptions. The crawler is
   **manual-first**: launched by hand until proven, scheduled later.
@@ -117,8 +121,8 @@ adjust it there if reality disagrees.
 
 | Session | Scope |
 |---|---|
-| **0b** | Task 6 — crawler + changelog fetcher (manual-first, Windows). 🚨 **DO THIS FIRST, before Aug 8** — Phase 1 parse data is unrecoverable after the phase flips |
-| **0a** | Recon Tasks 1–5, 7, 9. Fetching and reading, almost no code. Produces `RECON_FINDINGS.md`. After or alongside 0b — no deadline |
+| **0b** | Task 6 — crawler + changelog fetcher (manual-first, Windows). ✅ **DONE 2026-08-04** |
+| **0a** | Recon Tasks 1–5, 7, 9. Fetching and reading, almost no code. Produces `RECON_FINDINGS.md`. ▶ **next** |
 | **1a** | Repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3) |
 | **1b** | `spell_mechanics` (T4) + relationship graph (T5) — the schema core |
 | **1c** | Facts/questions (T6), `spell_profile()` (T7), auto-debugger + test protocols (T8), browsing (T9), volatility (T10) |
@@ -129,9 +133,8 @@ adjust it there if reality disagrees.
 | **3b** | Addon (T5) + logs (T6) + automation (T7) + crawler refinement (T8) |
 | **4** | Legos and Theorycrafter, chunked as it goes |
 
-**Start with 0b, not 0a** — the crawler is on a hard deadline (Aug 8), recon is not. They're
-independent and can overlap, but if only one session happens before the 8th it must be 0b.
-Everything after Phase 0 is sequential.
+0b came first because the crawler was on a hard deadline; it's done. Everything after Phase 0 is
+sequential.
 
 ---
 

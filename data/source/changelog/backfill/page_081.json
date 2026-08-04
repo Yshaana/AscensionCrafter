@@ -1,0 +1,3002 @@
+{
+ "current_page": 81,
+ "per_page": 100,
+ "last_page": 353,
+ "from": 8001,
+ "to": 8100,
+ "total": 35238,
+ "links": [
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=80",
+   "label": "&laquo; Previous",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=1",
+   "label": "1",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=2",
+   "label": "2",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=3",
+   "label": "3",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=4",
+   "label": "4",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=5",
+   "label": "5",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=6",
+   "label": "6",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=7",
+   "label": "7",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=8",
+   "label": "8",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=9",
+   "label": "9",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=10",
+   "label": "10",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=11",
+   "label": "11",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=12",
+   "label": "12",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=13",
+   "label": "13",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=14",
+   "label": "14",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=15",
+   "label": "15",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=16",
+   "label": "16",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=17",
+   "label": "17",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=18",
+   "label": "18",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=19",
+   "label": "19",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=20",
+   "label": "20",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=21",
+   "label": "21",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=22",
+   "label": "22",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=23",
+   "label": "23",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=24",
+   "label": "24",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=25",
+   "label": "25",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=26",
+   "label": "26",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=27",
+   "label": "27",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=28",
+   "label": "28",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=29",
+   "label": "29",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=30",
+   "label": "30",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=31",
+   "label": "31",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=32",
+   "label": "32",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=33",
+   "label": "33",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=34",
+   "label": "34",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=35",
+   "label": "35",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=36",
+   "label": "36",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=37",
+   "label": "37",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=38",
+   "label": "38",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=39",
+   "label": "39",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=40",
+   "label": "40",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=41",
+   "label": "41",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=42",
+   "label": "42",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=43",
+   "label": "43",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=44",
+   "label": "44",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=45",
+   "label": "45",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=46",
+   "label": "46",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=47",
+   "label": "47",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=48",
+   "label": "48",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=49",
+   "label": "49",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=50",
+   "label": "50",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=51",
+   "label": "51",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=52",
+   "label": "52",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=53",
+   "label": "53",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=54",
+   "label": "54",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=55",
+   "label": "55",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=56",
+   "label": "56",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=57",
+   "label": "57",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=58",
+   "label": "58",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=59",
+   "label": "59",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=60",
+   "label": "60",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=61",
+   "label": "61",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=62",
+   "label": "62",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=63",
+   "label": "63",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=64",
+   "label": "64",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=65",
+   "label": "65",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=66",
+   "label": "66",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=67",
+   "label": "67",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=68",
+   "label": "68",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=69",
+   "label": "69",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=70",
+   "label": "70",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=71",
+   "label": "71",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=72",
+   "label": "72",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=73",
+   "label": "73",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=74",
+   "label": "74",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=75",
+   "label": "75",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=76",
+   "label": "76",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=77",
+   "label": "77",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=78",
+   "label": "78",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=79",
+   "label": "79",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=80",
+   "label": "80",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=81",
+   "label": "81",
+   "active": true
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=82",
+   "label": "82",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=83",
+   "label": "83",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=84",
+   "label": "84",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=85",
+   "label": "85",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=86",
+   "label": "86",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=87",
+   "label": "87",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=88",
+   "label": "88",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=89",
+   "label": "89",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=90",
+   "label": "90",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=91",
+   "label": "91",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=92",
+   "label": "92",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=93",
+   "label": "93",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=94",
+   "label": "94",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=95",
+   "label": "95",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=96",
+   "label": "96",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=97",
+   "label": "97",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=98",
+   "label": "98",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=99",
+   "label": "99",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=100",
+   "label": "100",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=101",
+   "label": "101",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=102",
+   "label": "102",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=103",
+   "label": "103",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=104",
+   "label": "104",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=105",
+   "label": "105",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=106",
+   "label": "106",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=107",
+   "label": "107",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=108",
+   "label": "108",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=109",
+   "label": "109",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=110",
+   "label": "110",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=111",
+   "label": "111",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=112",
+   "label": "112",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=113",
+   "label": "113",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=114",
+   "label": "114",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=115",
+   "label": "115",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=116",
+   "label": "116",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=117",
+   "label": "117",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=118",
+   "label": "118",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=119",
+   "label": "119",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=120",
+   "label": "120",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=121",
+   "label": "121",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=122",
+   "label": "122",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=123",
+   "label": "123",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=124",
+   "label": "124",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=125",
+   "label": "125",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=126",
+   "label": "126",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=127",
+   "label": "127",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=128",
+   "label": "128",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=129",
+   "label": "129",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=130",
+   "label": "130",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=131",
+   "label": "131",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=132",
+   "label": "132",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=133",
+   "label": "133",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=134",
+   "label": "134",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=135",
+   "label": "135",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=136",
+   "label": "136",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=137",
+   "label": "137",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=138",
+   "label": "138",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=139",
+   "label": "139",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=140",
+   "label": "140",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=141",
+   "label": "141",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=142",
+   "label": "142",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=143",
+   "label": "143",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=144",
+   "label": "144",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=145",
+   "label": "145",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=146",
+   "label": "146",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=147",
+   "label": "147",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=148",
+   "label": "148",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=149",
+   "label": "149",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=150",
+   "label": "150",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=151",
+   "label": "151",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=152",
+   "label": "152",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=153",
+   "label": "153",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=154",
+   "label": "154",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=155",
+   "label": "155",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=156",
+   "label": "156",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=157",
+   "label": "157",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=158",
+   "label": "158",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=159",
+   "label": "159",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=160",
+   "label": "160",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=161",
+   "label": "161",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=162",
+   "label": "162",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=163",
+   "label": "163",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=164",
+   "label": "164",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=165",
+   "label": "165",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=166",
+   "label": "166",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=167",
+   "label": "167",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=168",
+   "label": "168",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=169",
+   "label": "169",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=170",
+   "label": "170",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=171",
+   "label": "171",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=172",
+   "label": "172",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=173",
+   "label": "173",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=174",
+   "label": "174",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=175",
+   "label": "175",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=176",
+   "label": "176",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=177",
+   "label": "177",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=178",
+   "label": "178",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=179",
+   "label": "179",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=180",
+   "label": "180",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=181",
+   "label": "181",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=182",
+   "label": "182",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=183",
+   "label": "183",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=184",
+   "label": "184",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=185",
+   "label": "185",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=186",
+   "label": "186",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=187",
+   "label": "187",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=188",
+   "label": "188",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=189",
+   "label": "189",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=190",
+   "label": "190",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=191",
+   "label": "191",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=192",
+   "label": "192",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=193",
+   "label": "193",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=194",
+   "label": "194",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=195",
+   "label": "195",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=196",
+   "label": "196",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=197",
+   "label": "197",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=198",
+   "label": "198",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=199",
+   "label": "199",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=200",
+   "label": "200",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=201",
+   "label": "201",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=202",
+   "label": "202",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=203",
+   "label": "203",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=204",
+   "label": "204",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=205",
+   "label": "205",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=206",
+   "label": "206",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=207",
+   "label": "207",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=208",
+   "label": "208",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=209",
+   "label": "209",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=210",
+   "label": "210",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=211",
+   "label": "211",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=212",
+   "label": "212",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=213",
+   "label": "213",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=214",
+   "label": "214",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=215",
+   "label": "215",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=216",
+   "label": "216",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=217",
+   "label": "217",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=218",
+   "label": "218",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=219",
+   "label": "219",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=220",
+   "label": "220",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=221",
+   "label": "221",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=222",
+   "label": "222",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=223",
+   "label": "223",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=224",
+   "label": "224",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=225",
+   "label": "225",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=226",
+   "label": "226",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=227",
+   "label": "227",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=228",
+   "label": "228",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=229",
+   "label": "229",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=230",
+   "label": "230",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=231",
+   "label": "231",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=232",
+   "label": "232",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=233",
+   "label": "233",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=234",
+   "label": "234",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=235",
+   "label": "235",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=236",
+   "label": "236",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=237",
+   "label": "237",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=238",
+   "label": "238",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=239",
+   "label": "239",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=240",
+   "label": "240",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=241",
+   "label": "241",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=242",
+   "label": "242",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=243",
+   "label": "243",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=244",
+   "label": "244",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=245",
+   "label": "245",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=246",
+   "label": "246",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=247",
+   "label": "247",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=248",
+   "label": "248",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=249",
+   "label": "249",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=250",
+   "label": "250",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=251",
+   "label": "251",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=252",
+   "label": "252",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=253",
+   "label": "253",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=254",
+   "label": "254",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=255",
+   "label": "255",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=256",
+   "label": "256",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=257",
+   "label": "257",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=258",
+   "label": "258",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=259",
+   "label": "259",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=260",
+   "label": "260",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=261",
+   "label": "261",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=262",
+   "label": "262",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=263",
+   "label": "263",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=264",
+   "label": "264",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=265",
+   "label": "265",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=266",
+   "label": "266",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=267",
+   "label": "267",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=268",
+   "label": "268",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=269",
+   "label": "269",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=270",
+   "label": "270",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=271",
+   "label": "271",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=272",
+   "label": "272",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=273",
+   "label": "273",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=274",
+   "label": "274",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=275",
+   "label": "275",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=276",
+   "label": "276",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=277",
+   "label": "277",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=278",
+   "label": "278",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=279",
+   "label": "279",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=280",
+   "label": "280",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=281",
+   "label": "281",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=282",
+   "label": "282",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=283",
+   "label": "283",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=284",
+   "label": "284",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=285",
+   "label": "285",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=286",
+   "label": "286",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=287",
+   "label": "287",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=288",
+   "label": "288",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=289",
+   "label": "289",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=290",
+   "label": "290",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=291",
+   "label": "291",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=292",
+   "label": "292",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=293",
+   "label": "293",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=294",
+   "label": "294",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=295",
+   "label": "295",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=296",
+   "label": "296",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=297",
+   "label": "297",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=298",
+   "label": "298",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=299",
+   "label": "299",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=300",
+   "label": "300",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=301",
+   "label": "301",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=302",
+   "label": "302",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=303",
+   "label": "303",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=304",
+   "label": "304",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=305",
+   "label": "305",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=306",
+   "label": "306",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=307",
+   "label": "307",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=308",
+   "label": "308",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=309",
+   "label": "309",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=310",
+   "label": "310",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=311",
+   "label": "311",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=312",
+   "label": "312",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=313",
+   "label": "313",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=314",
+   "label": "314",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=315",
+   "label": "315",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=316",
+   "label": "316",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=317",
+   "label": "317",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=318",
+   "label": "318",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=319",
+   "label": "319",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=320",
+   "label": "320",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=321",
+   "label": "321",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=322",
+   "label": "322",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=323",
+   "label": "323",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=324",
+   "label": "324",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=325",
+   "label": "325",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=326",
+   "label": "326",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=327",
+   "label": "327",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=328",
+   "label": "328",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=329",
+   "label": "329",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=330",
+   "label": "330",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=331",
+   "label": "331",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=332",
+   "label": "332",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=333",
+   "label": "333",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=334",
+   "label": "334",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=335",
+   "label": "335",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=336",
+   "label": "336",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=337",
+   "label": "337",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=338",
+   "label": "338",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=339",
+   "label": "339",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=340",
+   "label": "340",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=341",
+   "label": "341",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=342",
+   "label": "342",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=343",
+   "label": "343",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=344",
+   "label": "344",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=345",
+   "label": "345",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=346",
+   "label": "346",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=347",
+   "label": "347",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=348",
+   "label": "348",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=349",
+   "label": "349",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=350",
+   "label": "350",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=351",
+   "label": "351",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=352",
+   "label": "352",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=353",
+   "label": "353",
+   "active": false
+  },
+  {
+   "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=82",
+   "label": "Next &raquo;",
+   "active": false
+  }
+ ],
+ "path": "https://api.ascension.gg/api/v3/article/changelog",
+ "data": {
+  "2023/07/26": {
+   "1": [
+    {
+     "id": 36880,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Eagle Eye from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:24:16",
+     "updated_at": "2023-07-26T01:25:02"
+    },
+    {
+     "id": 36879,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Soothe Animal from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:24:15",
+     "updated_at": "2023-07-26T01:25:02"
+    },
+    {
+     "id": 36878,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Aquatic Form from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:24:15",
+     "updated_at": "2023-07-26T01:25:02"
+    },
+    {
+     "id": 36877,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Eyes of the Beast from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:24:14",
+     "updated_at": "2023-07-26T01:25:02"
+    },
+    {
+     "id": 36876,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Pick Pocketfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:39",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36875,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Health Funnelfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:39",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36874,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Redemptionfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:36",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36873,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Call of the Spiritsfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:36",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36872,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Call of the Ancestorsfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:35",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36871,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Call of the Elementsfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:35",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36870,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Conjure Foodfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:34",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36869,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Unending Breathfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:34",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36868,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Astral Recallfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:33",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36867,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Conjure Waterfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:32",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36866,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Water Walkingfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:30",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36865,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Revivefrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:30",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36864,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Mind Soothefrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:27",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36863,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Totemic Recallfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:27",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36862,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Mind Visionfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:26",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36861,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Ancestral Spiritfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:26",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36860,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Resurrectionfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:25",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36859,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Teleport: Moongladefrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:24",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36858,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Safe Fallfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:23",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36857,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Levitatefrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:22",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36856,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Water Breathingfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:22",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36855,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Slow Fallfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:21",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36854,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of Eye of Kilroggfrom from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:20",
+     "updated_at": "2023-07-26T01:21:02"
+    },
+    {
+     "id": 36853,
+     "label": 0,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1201360,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Reduced the AE cost of many common utility abilities on Area 52 from from 2 AE to 1 AE.",
+     "created_at": "2023-07-26T01:20:20",
+     "updated_at": "2023-07-26T01:21:02"
+    }
+   ],
+   "0": [
+    {
+     "id": 36840,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Divine Sacrifice now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:55",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36839,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Killing Spree now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:53",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36838,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Feral Spirit now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:51",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36837,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Thunderstorm now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:49",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36836,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Typhoon now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:47",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36835,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Dispersion now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:44",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36834,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Psychic Horror now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:42",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36833,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Shockwave now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:40",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36832,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Deep Freeze now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:39",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36831,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Scatter Shot now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:37",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36830,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Dragon's Breath now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:34",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36829,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Shadowfury now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:33",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36828,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Repentance now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:31",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36827,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Intimidation now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:28",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36826,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Bestial Wrath now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:27",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36825,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Readiness now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:27",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36824,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Wyvern Sting now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:26",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36823,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Survival Instincts now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:25",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36822,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Preparation now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:23",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36821,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Last Stand now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:22",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36820,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Concussion Blow now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:21",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36819,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Cold Snap now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:21",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36818,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Blast Wave now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:20",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36817,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Ice Block now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:19",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36816,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Cyclone now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:19",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36815,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Cloak of Shadows now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:18",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36814,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Barkskin now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:17",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36813,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Maim now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:17",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36812,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Intercept now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:16",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36811,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Deterrence now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:15",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36810,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Berserker Rage now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:14",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36809,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Psychic Scream now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:13",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36808,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Hand of Sacrifice now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:11",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36807,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Death Coil now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:10",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36806,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Fear now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:10",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36805,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Howl of Terror now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:09",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36804,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Intimidating Shout now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:08",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36803,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Bash now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:08",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36802,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Blind now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:07",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36801,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Blink now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:06",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36800,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Gouge now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:05",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36799,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Hand of Freedom now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:05",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36798,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Hand of Protection now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:04",
+     "updated_at": "2023-07-26T00:40:02"
+    },
+    {
+     "id": 36797,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Shield Wall now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:02",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36796,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Hammer of Justice now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:01",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36795,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Travel Form now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:01",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36794,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Disengage now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:00",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36793,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Divine Shield now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:39:00",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36792,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Divine Protection now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:59",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36791,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Kidney Shot now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:57",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36790,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Polymorph now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:56",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36789,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Hypnosis now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:55",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36788,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Petrification Totem now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:54",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36787,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Ring of Frost now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:54",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36786,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Alter Time now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:53",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36785,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Anti-Magic Zone now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:51",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36784,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Summon Gargoyle now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:50",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36783,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Dancing Rune Weapon now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:50",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36782,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Solar Beam now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:49",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36781,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Demonic Leap now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:49",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36780,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Smoke Bomb now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:48",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36779,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Blinding Light now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:47",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36778,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Avatar now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:47",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36777,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Heroic Leap now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:46",
+     "updated_at": "2023-07-26T00:39:02"
+    },
+    {
+     "id": 36776,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/26",
+     "description": "Skull Banner now costs 3 AE (down from 4 AE).",
+     "created_at": "2023-07-26T00:38:45",
+     "updated_at": "2023-07-26T00:39:02"
+    }
+   ]
+  },
+  "2023/07/25": {
+   "0": [
+    {
+     "id": 36774,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Build Draft is now live on Area 52, this brings you 87 unique builds for you to explore. Each build has a leveling (1-70), PvE, and PvP variant, meaning there is 261 variations for you to play.",
+     "created_at": "2023-07-25T22:50:42",
+     "updated_at": "2023-07-25T22:51:02"
+    },
+    {
+     "id": 36773,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "This allows you to play more archetypes during the leveling experience.",
+     "created_at": "2023-07-25T22:48:49",
+     "updated_at": "2023-07-25T22:49:02"
+    },
+    {
+     "id": 36772,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Devastate can now be learned at level 10",
+     "created_at": "2023-07-25T22:47:43",
+     "updated_at": "2023-07-25T22:48:02"
+    },
+    {
+     "id": 36771,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Incinerate can now be learned at level 28",
+     "created_at": "2023-07-25T22:47:32",
+     "updated_at": "2023-07-25T22:48:02"
+    },
+    {
+     "id": 36770,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Lacerate can now be learned at level 10",
+     "created_at": "2023-07-25T22:47:12",
+     "updated_at": "2023-07-25T22:48:02"
+    },
+    {
+     "id": 36769,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Tranquilizing Shot can now be learned at level 44",
+     "created_at": "2023-07-25T22:47:01",
+     "updated_at": "2023-07-25T22:47:02"
+    },
+    {
+     "id": 36768,
+     "label": 0,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2023/07/25",
+     "description": "Feral Charge can now be learned at level 1",
+     "created_at": "2023-07-25T22:46:51",
+     "updated_at": "2023-07-25T22:47:02"
+    }
+   ]
+  }
+ },
+ "first_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=1",
+ "prev_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=80",
+ "next_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=82",
+ "last_page_url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=353"
+}

@@ -9,26 +9,34 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-### ▶ START WITH `0b`, NOT `0a`. This is deliberate — read why before doing anything else.
+**Next session: `0a` — recon Tasks 1–5, 7, 9.**
 
-**`0b` (the crawler) is the first session, even though `0a` sorts first alphabetically.** The reason
-is a hard external deadline, not preference:
+`0b` is ✅ done (2026-08-04) — crawler, changelog fetcher, and launcher all shipped and run. See
+`primer/Session_2026-08-04_0b_crawler.md`.
 
-- **Phase 2 launches 2026-08-08.** A phase transition permanently changes the gear distribution and
-  the meta. Parse data from Phase 1 (Zul'Gurub) can only be collected *while Phase 1 is live* — it
-  cannot be backfilled afterward. Every day the crawler isn't running before the 8th is data lost
-  forever.
-- `0a` is recon: fetching and reading. Valuable, but nothing breaks if it lands on the 10th.
-- **So: `0b` first. Then `0a`.** They're independent and can even overlap, but if only one session
-  happens before Aug 8, it must be `0b`.
+**Start `0a` from that handoff's endpoint section rather than re-probing.** Healing
+(`character_spell_healing` exists), the role vocabulary (`support` = healer), report discovery
+(sequential probing; the list endpoint is auth-gated), and the changelog JSON API are all settled.
+Task 2's remaining unknowns are target-count inference, content-type derivation, per-parse character
+stats, and per-parse date/patch/realm stamping. **Task 5 still gates Phase 1 and is untouched.**
 
-Do not start `0a` first just because it appears above `0b` in the session-log table below. The table
-is sorted by ID; **this pointer, not the table order, decides what's next.**
+### 🔁 Standing daily action for the project owner (not a session task)
 
-**Next session: `0b` — crawler + changelog fetcher (Phase 0 Task 6)**
+**Double-click `run_crawler.bat` once a day.** It runs the changelog snapshot then the crawl, and
+prints a success/failure summary. Manual-first by design — no scheduler until a few runs prove out.
 
-Environment: **Windows**. Crawler is **manual-first** (no scheduler yet) — ship a double-clickable
-launcher with a clear success/failure summary.
+### ✅ Phase 1 baseline — CAPTURED 2026-08-04, deadline met
+
+48 characters (full gear + build + resolved stats), 12 leaderboards, 3 phase records, 0 errors, in
+`data/source/crawl/baseline_phase1/` (0.70 MB, all tier 1, committed). 50 were requested; 2 of the
+top-50 have no armory capture on the site (404 — not an error).
+
+**Correction to the earlier framing of this deadline:** reports *persist* after a phase flip, so
+historical parse data is **not** lost on the 8th and the report backfill is not deadline-bound. What
+was genuinely unrecoverable is the **leaderboard standings and character armory snapshots as they
+stand during Phase 1** — and that is now captured. Nothing else in Phase 0 is deadline-bound.
+
+Optionally re-run closer to the 8th for a tighter "before" edge; the folder is overwritten in place.
 
 ---
 
@@ -36,8 +44,8 @@ launcher with a clear success/failure summary.
 
 | Session | Scope | Status | Handoff | Notes |
 |---|---|---|---|---|
-| **0b** | Crawler + changelog fetcher (T6) | ⬜ not started | — | 🚨 **DO FIRST — before Aug 8.** See Current Position |
-| 0a | Recon T1–5, 7, 9 | ⬜ not started | — | After/alongside 0b. Fetching + reading, no deadline |
+| **0b** | Crawler + changelog fetcher (T6) | ✅ done | `Session_2026-08-04_0b_crawler.md` | Shipped 2026-08-04. Changelog backfilled (353 pages, back to 2016). Baseline script ready, **run before Aug 8** |
+| **0a** | Recon T1–5, 7, 9 | ⬜ not started | — | ▶ **NEXT.** Start from 0b's endpoint findings, don't re-probe |
 | 1a | Restructure, patches/realms/seasons, crosswalk | ⬜ | — | Gated on 0a Task 5 |
 | 1b | `spell_mechanics` + relationship graph | ⬜ | — | |
 | 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | |
@@ -73,6 +81,17 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-04 | 🆕 **Two-tier crawl storage: tier 1 committed, tier 2 gitignored + local** | Volume and irreplaceability are anti-correlated. Armory/leaderboard state (1.4 MB) can never be re-fetched; per-ability bulk (6.0 MB) is re-fetchable by report id. A **committed `manifest.json`** lists every file incl. gitignored ones (records, sha256, report ids), so git knows what exists without holding it. Recovery: `--recrawl-report <id>`. Risk accepted: "reports stay fetchable" is evidenced, not guaranteed |
+| 2026-08-04 | 🆕 **Armory records deduped by content hash** | Was rewriting ~90 KB per character per run (~37 MB/day at 400 chars). Now written only on change, hashed over `ci_resolved`+`stats_summary`. Also yields the gear/build timeline INDEX_GUIDE wants |
+| 2026-08-04 | ❌ **REJECTED: delete raw data after normalising** | Normalisation encodes today's interpretation and the crosswalk is still unresolved (T5 gates Phase 1). Phase 0 T6 already forbids the adjacent version ("resolve at rebuild, so a crosswalk fix never requires re-crawling"). Derived DBs are the disposable layer; raw capture is not |
+| 2026-08-04 | 🆕 **Crawl output gzipped (`.jsonl.gz`)**, amending Phase 0 T6's "Writes NDJSON" | 3 reports = 116 MB uncompressed; `avoidance` alone crossed the 50 MB rotation cap. Multiple GB working tree + GitHub's 100 MB per-file limit. Note: git already zlib-compresses, so `.git` size is ~neutral — the win is clone size and per-file headroom. §2.12 unaffected: docs/seeds/`index/scouted/*.json` stay plain text |
+| 2026-08-04 | 🚨 **`phase_number` ≠ the server's "Phase N" label** | `/api/phases` record with `phase_number=2` is *named* "Phase 1.1" and is a child of Phase 1 (`progression_parent_phase_id`), not the Aug 8 Phase 2 launch. Build phase timelines from `name` + parent id; §2.10's gear tiers would mis-bucket off `phase_number` |
+| 2026-08-04 | ⚠ **Aug 8 deadline re-scoped: baseline, not backfill** | Reports persist after a phase flip, so historical parses aren't lost. Only leaderboard standings + armory snapshots are unrecoverable → `baseline_phase1.py` is the deadline item; the report walk can grind |
+| 2026-08-04 | ✅ **Changelog is a JSON API, not HTML** (`api.ascension.gg/api/v3/article/changelog`) | 353 pages / 35,238 entries with stable ids, `group_key` dates, `updated_at`. Task 3's parser never needs to touch markup. Backfill done; corpus reaches back to 2016/07/23 |
+| 2026-08-04 | ✅ **`character_spell_healing` exists** | Healer support is NOT limited to an uncalibrated sim, contrary to Phase 0 Task 2's anticipated constraint |
+| 2026-08-04 | ✅ **`role=healer` quirk resolved: the value is `support`** | Endpoint's own 400 body: `Allowed values: tank, dps, tanks-and-dps, support`. Open since INDEX_GUIDE v7 |
+| 2026-08-04 | ⚠ **Report list endpoint is auth-gated (401)** | Discovery is sequential ID probing with a 404 "not found" signal, not a list walk |
+| 2026-08-04 | ⚠ **Per-ability endpoints aggregate over `encounterIds`** | Rows carry no `encounter_id`, so per-encounter granularity costs one call each. Drove the grind-report `boss_id` grouping compromise |
 | 2026-08-04 | Lego definition corrected: coupling-based, not "not a school" | A mostly-Frost cross-class cluster (Frost Mage ability + Frost Shaman feeder + Frost-damage talents) is a valid lego. Shared school is common evidence of coupling, not a disqualifier |
 | 2026-08-04 | New `amplifies_school` relation type; graph is partly build-dependent | "Increases Frost damage" boosts unnamed abilities. Without a school-scoped edge that resolves against a build, school-amplifier legos are invisible to graph discovery. Enters at lower confidence per §5 |
 | 2026-08-04 | ❌ **RETRACTED: "coefficients scale with rank"** and the `spell_scaling` re-key that depended on it | Derived by comparing `81193` to `270182` — two *different* abilities sharing the name "Holy Supernova" (radius 10 vs 15, cooldown 50 vs 40, instant vs 2s cast). Still plausible, now an open question |
@@ -98,6 +117,11 @@ Seed these into `open_questions` (Phase 1 Task 6) rather than losing them here.
 
 | Question | Blocks | How to settle |
 |---|---|---|
+| Does `stats_summary.sourcesByStat` itemise per-source stat contributions? | Could settle the Path of Duality question (`build_paladin-hammerdin.md` §4) from already-captured data, for any scouted character, with zero in-game work | Inspect the field in `data/source/crawl/baseline_phase1/characters.jsonl.gz`. Primer §5 calls crit-source breakdowns the gold-standard method |
+| What is the current maximum report ID? | Sizes the historical backfill | Emerges from the first full crawler run (no list endpoint exists to ask directly) |
+| Does any endpoint carry **target count**? | The whole scenario model (§2.9) | 0a Task 2. **Never silently default to 1** |
+| Can content type (`raid`/`dungeon_*`/`world_boss`) be derived from zone/difficulty/bracket? | §2.9 content profiles derived from real data | 0a Task 2 |
+| Are per-parse **character stats** available, or only the current armory snapshot? | Phase 3 pooled inference regresses crit% against per-character crit | 0a Task 2 |
 | Do damage coefficients scale with rank? | `spell_scaling` schema | Read one ability's in-game tooltip at two confirmed ranks of the **same** line; compare SP/AP terms |
 | Is scouted `entry_id` the CharacterAdvancement ID? | Crosswalk, all "who runs X" queries | Collect ~10 CA IDs in-game, check against committed scouted JSON |
 | Can the client dump a CA↔spellId mapping? | Crosswalk (if above confirms) | Addon API, debug command, or export |

@@ -10,3 +10,22 @@ index/ascension_index.db
 # scouted_builds.db is the same "derived cache, not source of truth" rule -
 # rebuild via index/build_scouted_builds_db.py from index/scouted/*.json (committed).
 index/scouted_builds.db
+
+# --- Crawl storage tiers (session 0b, 2026-08-04) --------------------------
+# TIER 2: bulk per-ability capture. Large (~99% of crawl bytes) and RE-FETCHABLE
+# from darkmoon.ascensionlogs.gg by report id, because reports persist there.
+# Kept local; NOT committed. Every run still commits a manifest.json recording
+# each of these files' record count, sha256 and covered report ids, so git always
+# knows what was captured even without holding the bytes.
+# To rebuild: py tools/scrapers/crawl_ascensionlogs.py --recrawl-report <id>
+#
+# TIER 1 (characters / leaderboards / phases / reports / scan_log / manifest) is
+# small and IRREPLACEABLE - point-in-time state that is gone once a phase flips
+# or a player regears - and IS committed. Do not add it here.
+data/source/crawl/**/abilities*.jsonl.gz
+data/source/crawl/**/healing*.jsonl.gz
+data/source/crawl/**/avoidance*.jsonl.gz
+data/source/crawl/**/damage_taken*.jsonl.gz
+
+# Archived tier-2 tarballs (tools/scrapers/archive_crawl.py). Local/offline only.
+data/archive/
