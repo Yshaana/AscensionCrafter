@@ -115,7 +115,8 @@ def populate_character_advancement(conn, *, pool_only=False):
         for rank, sid in populated:
             confidence, extra = "confirmed", ""
             if len(populated) > 1 and rank != populated[0][0]:
-                verdict, _detail = fp.verdict_from_fingerprints(base_fp, fps.get(sid))
+                verdict, _detail = fp.verdict_from_fingerprints(
+                    base_fp, fps.get(sid), fp.RANK_FINGERPRINT_FIELDS)
                 if verdict == "mismatch":
                     confidence = "conflict"
                     extra = "; FINGERPRINT MISMATCH vs rank-1 spell of the same CA row"
@@ -186,31 +187,42 @@ def populate_catalog_vs_live(conn, level=60):
 
     clear_source(conn, "catalog_vs_live")
     gaps = list(catalog_rank_gaps(conn, level))
-    ids = {g["catalog_spell_id"] for g in gaps} | {g["level_rank_spell_id"] for g in gaps}
+    ids = {g["catalog_spell_id"] for g in gaps}
+    ids.update(c["spell_id"] for g in gaps for c in g["candidates"])
     fps = fp.fingerprint_index(conn, ids)
 
-    out, stats = [], {"gaps": len(gaps), "rows": 0, "conflicts": 0, "unchecked": 0,
-                      "level_rank_absent_from_catalog": 0}
+    out = []
+    stats = {"gaps": len(gaps), "rows": 0, "conflicts": 0, "unchecked": 0,
+             "ambiguous": 0, "level_rank_absent_from_catalog": 0}
     for g in gaps:
-        verdict, _detail = fp.verdict_from_fingerprints(
-            fps.get(g["catalog_spell_id"]), fps.get(g["level_rank_spell_id"]))
-        confidence = "confirmed"
-        note = (f"catalog holds rank {g['catalog_rank']} (SpellLevel {g['catalog_spell_level']}); "
-                f"a level-{level} character casts rank {g['level_rank']} "
-                f"(SpellLevel {g['level_spell_level']}); "
-                f"level-rank id in catalog: {g['level_rank_in_catalog']}")
-        if verdict == "mismatch":
-            confidence = "conflict"
-            note += "; FINGERPRINT MISMATCH - do not treat as the same ability"
-            stats["conflicts"] += 1
-        elif verdict == "unknown":
-            note += "; fingerprint not comparable"
-            stats["unchecked"] += 1
-        if not g["level_rank_in_catalog"]:
-            stats["level_rank_absent_from_catalog"] += 1
-        out.append(("catalog_vs_live", str(g["catalog_spell_id"]), g["level_rank_spell_id"],
-                    g["level_rank"], "level_gate", confidence,
-                    f"dbc_spell_rank line {g['line_id']}", note))
+        if g["ambiguous"]:
+            stats["ambiguous"] += 1
+        for cand in g["candidates"]:
+            verdict, _detail = fp.verdict_from_fingerprints(
+                fps.get(g["catalog_spell_id"]), fps.get(cand["spell_id"]),
+                fp.RANK_FINGERPRINT_FIELDS)
+            confidence = "confirmed"
+            note = (f"catalog holds rank {g['catalog_rank']} "
+                    f"(SpellLevel {g['catalog_spell_level']}); a level-{level} character "
+                    f"casts rank {cand['rank']} (SpellLevel {cand['spell_level']}); "
+                    f"level-rank id in catalog: {cand['in_catalog']}")
+            if g["ambiguous"]:
+                confidence = "conflict"
+                note += (f"; AMBIGUOUS - {len(g['candidates'])} spells share the top "
+                         f"rank available at level {level}: "
+                         f"{[c['spell_id'] for c in g['candidates']]}")
+            if verdict == "mismatch":
+                confidence = "conflict"
+                note += "; FINGERPRINT MISMATCH - do not treat as the same ability"
+                stats["conflicts"] += 1
+            elif verdict == "unknown":
+                note += "; fingerprint not comparable"
+                stats["unchecked"] += 1
+            if not cand["in_catalog"]:
+                stats["level_rank_absent_from_catalog"] += 1
+            out.append(("catalog_vs_live", str(g["catalog_spell_id"]), cand["spell_id"],
+                        cand["rank"], "level_gate", confidence,
+                        f"dbc_spell_rank line {g['line_id']}", note))
     conn.executemany(_INSERT, out)
     stats["rows"] = len(out)
     return stats
@@ -263,13 +275,20 @@ def resolve_entry_id(conn, entry_id, card_rank=None, level=60):
     out = []
     for hit in hits:
         live = resolve(conn, "catalog_vs_live", hit["spell_id"])
+        # An ambiguous rank line has several level-appropriate candidates. Returning
+        # the first would be exactly the silent tie-break §2.3 forbids, so the caller
+        # gets them all plus a flag, and `level_spell_id` stays None.
+        ambiguous = len(live) > 1
         out.append({
             "entry_id": int(entry_id),
             "card_rank": hit["rank"],
             "card_spell_id": hit["spell_id"],
-            "level_spell_id": live[0]["spell_id"] if live else hit["spell_id"],
+            "level_spell_id": (None if ambiguous
+                               else (live[0]["spell_id"] if live else hit["spell_id"])),
+            "level_spell_candidates": [row["spell_id"] for row in live],
+            "level_rank_ambiguous": ambiguous,
             "level_rank_differs": bool(live),
-            "confidence": hit["confidence"],
+            "confidence": "conflict" if ambiguous else hit["confidence"],
             "notes": hit["notes"],
         })
     return out

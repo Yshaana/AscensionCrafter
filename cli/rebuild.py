@@ -33,7 +33,10 @@ from config import DB_PATH  # noqa: E402
 # (path, why it is here) — order matters, see the module docstring
 CHAIN = [
     ("ingest/export/build_index.py", "catalog + owned cards; DROPS and recreates the db"),
+    # early, because seed_class_from_skill_line and the crosswalk both read dbc_*
+    ("ingest/dbc/load_extract.py", "dbc_* tables from the committed extract (no client needed)"),
     ("ingest/export/seed_borrowed_modifiers.py", "class_origin from 'uses X modifiers' clauses"),
+    # after the weaker tooltip tier above, so disagreements are detectable
     ("ingest/export/seed_class_from_skill_line.py", "class_origin from the client's skill lines"),
     ("ingest/export/seed_confirmed.py", "confirmed_facts from the docs"),
     ("ingest/export/seed_synergies.py", "shared_synergies from builds/shared/"),
@@ -43,8 +46,7 @@ CHAIN = [
     ("ingest/export/seed_spell_flags.py", "crit_table / proc_icd_seconds"),
     ("ingest/export/seed_cp_scaling.py", "combo-point scaling types"),
     ("ingest/changelog/ingest_changelog.py", "patches, patch_entries, seasons, server_phases"),
-    ("ingest/dbc/load_extract.py", "dbc_* tables from the committed extract (no client needed)"),
-    ("cli/crosswalk.py", "spell_id_crosswalk - needs the dbc_* tables above"),
+    ("cli/crosswalk.py", "spell_id_crosswalk - needs the dbc_* tables"),
 ]
 
 DBC_STEP = ("ingest/dbc/build_dbc_index.py",
@@ -70,8 +72,8 @@ def main():
 
     chain = list(CHAIN)
     if args.with_dbc:
-        # after build_index.py (it reads `spells` to scope itself) but before the
-        # steps that consume dbc_* tables
+        # after build_index.py (it reads `spells` to scope itself), and before
+        # load_extract.py so the freshly written JSON is what gets loaded
         chain.insert(1, DBC_STEP)
 
     failed = []

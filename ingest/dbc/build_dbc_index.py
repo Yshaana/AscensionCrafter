@@ -576,11 +576,12 @@ def resolve_hidden_formula_spells(cur):
 # pipeline from scratch.
 # ---------------------------------------------------------------------------
 def export_dbc_extract_json(cur):
-    cur.execute('SELECT id, name, name_subtext, description, aura_description, '
-                'attributes, attributes_ex, school_mask, effect_json, source_archive '
-                'FROM spell_dbc_raw')
-    cols = ['id', 'name', 'name_subtext', 'description', 'aura_description',
-            'attributes', 'attributes_ex', 'school_mask', 'effect_json', 'source_archive']
+    # SELECT *, not a hardcoded column list. This export is the ONLY way a session
+    # without the game client sees spell_dbc_raw, so a column added to the table and
+    # forgotten here would be invisible everywhere except this machine - which is
+    # exactly what happened to the fingerprint scalars added in Phase 1 T1.
+    cur.execute('SELECT * FROM spell_dbc_raw')
+    cols = [d[0] for d in cur.description]
     spell_dbc_raw = [dict(zip(cols, row)) for row in cur.fetchall()]
 
     support_tables = {}

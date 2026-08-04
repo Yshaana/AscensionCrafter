@@ -27,6 +27,22 @@ FINGERPRINT_FIELDS = (
     "effect_types",          # Effect[3]
 )
 
+# ⚠ A DIFFERENT question needs a different field set. The strict set above answers
+# *"are these two IDs the same ability?"* — the hard rule's case, where a differing
+# radius or cooldown is exactly what tells Holy Supernova `270182` apart from the
+# unrelated `81193`.
+#
+# It is the wrong test for *"are these two RANKS of one ability?"*, because rank
+# legitimately changes those very fields: Gravity Bomb R1 carries a radius on its
+# third effect and the higher rank does not; Soul Reaper's ranks differ in
+# `power_type`. Applied to rank chains the strict set produced 48 in-pool "conflicts"
+# on ordinary talents (Malice R4/R5, Tactical Mastery R3) — noise that would bury the
+# real ones.
+#
+# What genuinely must NOT change between ranks is the damage school and the effect
+# structure. That is this set.
+RANK_FINGERPRINT_FIELDS = ("school_mask", "effect_types")
+
 # Some columns arrived with the Phase 1 T1 extractor widening. On an older
 # spell_dbc_raw they are simply absent — a missing field is reported as
 # `unknown`, never silently treated as equal (§2.3: absence is not agreement).
@@ -99,11 +115,16 @@ def fingerprint_index(conn, spell_ids=None):
     return out
 
 
-def verdict_from_fingerprints(fp_a, fp_b):
-    """`same_ability`'s decision, on two already-loaded fingerprints."""
+def verdict_from_fingerprints(fp_a, fp_b, fields=FINGERPRINT_FIELDS):
+    """`same_ability`'s decision, on two already-loaded fingerprints.
+
+    Pass `fields=RANK_FINGERPRINT_FIELDS` when the question is "two ranks of one
+    ability" rather than "the same ability".
+    """
     if fp_a is None or fp_b is None:
         return "unknown", {"reason": "one or both ids absent from spell_dbc_raw"}
-    cmp = compare_fingerprints(fp_a, fp_b)
+    cmp = compare_fingerprints(fp_a, fp_b, fields,
+                               effects_subset_ok=(fields is RANK_FINGERPRINT_FIELDS))
     detail = {"comparison": cmp}
     if cmp["differ"]:
         return "mismatch", detail
@@ -112,18 +133,40 @@ def verdict_from_fingerprints(fp_a, fp_b):
     return "match", detail
 
 
-def compare_fingerprints(fp_a, fp_b):
+def effects_compatible(a, b):
+    """Do two `Effect[3]` triples describe the same ability at different ranks?
+
+    Effect opcode `0` is `SPELL_EFFECT_NONE` — an **empty slot**, not a different
+    effect. Higher ranks routinely fill slots the lower rank leaves empty:
+
+        Malice R1-R3 [6,0,0]  ->  R4 [6,0,6]  ->  R5 [6,6,6]
+
+    Requiring exact equality called all 45 in-pool cards of that shape a conflict.
+    So: compare only the positions where both sides are non-zero, and require those
+    to agree. A slot filled on one side and empty on the other is absence.
+    """
+    for x, y in zip(a, b):
+        if x and y and x != y:
+            return False
+    return True
+
+
+def compare_fingerprints(fp_a, fp_b, fields=FINGERPRINT_FIELDS, *, effects_subset_ok=False):
     """Field-by-field comparison of two fingerprints.
 
     Returns `{"agree": [...], "differ": [...], "unknown": [...]}`. A field lands in
     `unknown` when either side could not supply it — deliberately NOT counted as
     agreement, so a thin fingerprint can never manufacture a match.
+
+    `effects_subset_ok` switches `effect_types` to the rank-aware comparison above.
     """
     agree, differ, unknown = [], [], []
-    for field in FINGERPRINT_FIELDS:
+    for field in fields:
         a, b = fp_a.get(field), fp_b.get(field)
         if a is None or b is None:
             unknown.append(field)
+        elif field == "effect_types" and effects_subset_ok:
+            (agree if effects_compatible(a, b) else differ).append(field)
         elif a == b:
             agree.append(field)
         else:

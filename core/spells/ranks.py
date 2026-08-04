@@ -75,11 +75,21 @@ def rank_for_level(conn, spell_id, level=DEFAULT_LEVEL):
 def catalog_rank_gaps(conn, level=DEFAULT_LEVEL):
     """Catalog entries stored at a rank the character does not hold.
 
-    Yields one dict per affected `spells.id`, carrying the level-appropriate id and
-    whether that id is present in the catalog at all. This is the query behind the
-    "≈50% of the multi-rank catalog carries the wrong magnitudes" finding — kept as
-    a function, not a one-off script, because it has to be re-run every time the
+    Yields one dict per affected `spells.id`, carrying **every** level-appropriate
+    candidate and whether that id is present in the catalog at all. This is the query
+    behind the "≈50% of the multi-rank catalog carries the wrong magnitudes" finding —
+    a function rather than a one-off script, because it must be re-run every time the
     export is refreshed.
+
+    ⚠ **`ambiguous` is why this returns a list.** Some lines contain more than one
+    spell at the same top rank available at this level, so "the level-60 id" is not
+    unique. Two causes seen in real data: a line whose members all read "Rank 1"
+    (`Desolation`, 5 members), and a line that pulls in an **other-realm variant**
+    from the 11-prefix id space (`Arcane Focus` -> 912840 *and* 1212840). Phase 0's
+    own reporter used `max()`, which silently returns the first of a tie and hides
+    both cases; the counts it published (697) are therefore a lower bound. Surfacing
+    the tie is §2.3's rule applied to rank resolution — an ambiguous answer is
+    recorded as ambiguous, never resolved by list order.
     """
     sql = """
     SELECT s.id, s.name, sr.line_id, sr.rank, sr.spell_level, live.spell_id, live.rank,
@@ -93,12 +103,18 @@ def catalog_rank_gaps(conn, level=DEFAULT_LEVEL):
                         WHERE d2.line_id = d.line_id AND d2.spell_level <= :level)
     ) live ON live.line_id = sr.line_id
     WHERE sr.line_size > 1 AND live.spell_id != s.id
-    ORDER BY s.name
+    ORDER BY s.id, live.spell_id
     """
+    grouped = {}
     for r in conn.execute(sql, {"level": level}):
-        yield {
+        entry = grouped.setdefault(r[0], {
             "catalog_spell_id": r[0], "name": r[1], "line_id": r[2],
-            "catalog_rank": r[3], "catalog_spell_level": r[4],
-            "level_rank_spell_id": r[5], "level_rank": r[6], "level_spell_level": r[7],
-            "level_rank_in_catalog": bool(r[8]),
-        }
+            "catalog_rank": r[3], "catalog_spell_level": r[4], "candidates": [],
+        })
+        entry["candidates"].append({
+            "spell_id": r[5], "rank": r[6], "spell_level": r[7],
+            "in_catalog": bool(r[8]),
+        })
+    for entry in grouped.values():
+        entry["ambiguous"] = len(entry["candidates"]) > 1
+        yield entry
