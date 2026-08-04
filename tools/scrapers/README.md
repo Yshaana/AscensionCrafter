@@ -12,9 +12,25 @@ resolving at capture time would bake today's guess into data that cannot be re-c
 **Double-click `run_crawler.bat`** in the repo root. That's it. It runs, in order:
 
 1. `fetch_changelog.py` — changelog snapshot (also refreshes the patch-date stamp)
-2. `crawl_ascensionlogs.py` — the crawl, then auto-commits and pushes
+2. `crawl_ascensionlogs.py --max-reports 25` — the crawl, then auto-commits and pushes
 
 Read the summary it prints. Manual-first by design: no scheduler until a few runs prove out.
+
+### Two launchers, on purpose
+
+| Launcher | Cap | When |
+|---|---|---|
+| `run_crawler.bat` | 25 new reports | **Daily.** Bounded and predictable, ~30–60 min worst case |
+| `catchup_crawler.bat` | uncapped | The historical backfill. Run when the machine can stay on for hours — overnight is ideal |
+
+The cap exists because grind reports take ~10 minutes each (report #2 has 658 encounters), so an
+uncapped run can take many hours. That is fine for a deliberate backfill and wrong for a daily
+double-click.
+
+**Ctrl+C is safe in both.** `scan_log.json` is written after every report, so the next run resumes
+from where the last one stopped — nothing re-fetched, nothing lost.
+
+⚠ Both launchers **push to GitHub** at the end. Use `--no-push` if you want to inspect first.
 
 ---
 

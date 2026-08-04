@@ -22,8 +22,14 @@ stats, and per-parse date/patch/realm stamping. **Task 5 still gates Phase 1 and
 
 ### 🔁 Standing daily action for the project owner (not a session task)
 
-**Double-click `run_crawler.bat` once a day.** It runs the changelog snapshot then the crawl, and
-prints a success/failure summary. Manual-first by design — no scheduler until a few runs prove out.
+**Double-click `run_crawler.bat` once a day.** Changelog snapshot + a crawl capped at 25 new
+reports, then auto-commit and push. Bounded to ~30–60 min worst case. Manual-first by design — no
+scheduler until a few runs prove out.
+
+**Separately, `catchup_crawler.bat`** is the uncapped historical backfill — run it when the machine
+can stay on for hours (overnight). Grind reports take ~10 min each, so a full backfill is long.
+Ctrl+C is safe in both: `scan_log.json` is saved after every report and the next run resumes.
+Not urgent — reports persist on the site, so the backfill has no deadline.
 
 ### ✅ Phase 1 baseline — CAPTURED 2026-08-04, deadline met
 
