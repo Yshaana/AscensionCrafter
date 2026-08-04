@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ Progress — amended 2026-08-04 after session `1a`
+## ✅ Progress — amended 2026-08-05 after session `1b`
 
 | Task | Status |
 |---|---|
@@ -12,9 +12,40 @@
 | **T2** patch, realm, season tracking | ✅ **done** (`1a`) |
 | **T3** the ID crosswalk | ✅ **done** (`1a`) |
 | **1x** numeric-field DBC extractor | ✅ **done** (`1x`) |
-| **T4** `spell_mechanics` | ⬜ session `1b`, next |
-| **T5** relationship graph | ⬜ session `1b` |
-| T6–T10 | ⬜ session `1c` |
+| **T4** `spell_mechanics` | ✅ **done** (`1b`) |
+| **T5** relationship graph | ✅ **done** (`1b`) |
+| T6–T10 | ⬜ session `1c`, next |
+
+### `1b` deviations from the task text below (2026-08-05, recorded per §6)
+
+- **`spell_scaling` lost its FK to `spells`, deliberately** — the T4 rank migration inserts
+  rows for level-60 rank *siblings*, and in all 697 wrong-rank cases the sibling id is absent
+  from `spell-export.json` entirely. An FK would reject exactly the rows that fix the
+  wrong-rank problem. Same precedent and reasoning as `owned_cards` (1a).
+- **T5's "migrate and retire" is realised as "migrate and demote":** `modifier_links`,
+  `talent_amplifiers`, `exclusivity_buckets` are KEPT as staging inputs (their seed scripts
+  own them and run earlier in the chain); what retired is treating them as query surfaces.
+  `spell_relationships` is the one queryable home. **`exclusivity_buckets` was NOT converted
+  to a view**: bucket 3 (Holy Focus) has a single member — "does not stack with other similar
+  effects", other members unknown — and a 1-member bucket cannot round-trip through pairwise
+  edges. The table stays the bucket-metadata home; every multi-member bucket is validated to
+  appear as an edge group on each rebuild.
+- **Trigger attribution semantics (owner decision, 2026-08-05): bounded walk, flagged.**
+  Depth ≤ 2, cycle-safe, single-path targets only, out-of-catalog targets only (an in-catalog
+  target's magnitude is its own row — never double-attributed). Rows land in
+  `spell_effect_values` with `via='trigger_hop1'/'trigger_hop2'` and `confidence='inferred'`,
+  full chain in `evidence_ref`. Result: **724 magnitude rows across 444 cards** (619 1-hop,
+  105 2-hop), 26 multi-path targets skipped unattributed. Hammer from the Heavens reproduces
+  its resolved 122–145 formula end-to-end through this path.
+- **`spells.crit_table` / `hit_table` / `rolls_hit_check` / `proc_icd_seconds` are GONE**
+  ("one home per fact", as specified): doc-confirmed values now seed the
+  `doc_confirmed_mechanics` staging table and surface only in `spell_mechanics`.
+- **T4's uncertainty defaults are live** per the table below; ~29 `spell_mechanics` rows carry
+  `confidence='conflict'`, and most are *multi-effect-slot collisions* (one spell whose two
+  effects have different radii/chain counts feeding a single column) rather than cross-source
+  disagreements — a modelling honesty case T8's conflict sweep should bucket separately.
+- **The compound-form text-extraction gap (`($SP+$AP)*x`, `$SPFR*x`) is still open** — not in
+  `1b`'s brief; falls to `1c` alongside T8's coverage sweep.
 
 **🆕 A task this doc never named was inserted and has now run: session `1x`, the numeric-field DBC
 extractor**, before T4. It resolved **794 of the 887** blocked hidden-formula spells from

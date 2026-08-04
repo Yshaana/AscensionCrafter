@@ -127,9 +127,9 @@ adjust it there if reality disagrees.
 | **0b** | Task 6 — crawler + changelog fetcher (manual-first, Windows). ✅ **DONE 2026-08-04** |
 | **0a** | Recon Tasks 1–5, 7, 9. Fetching and reading, almost no code. Produces `RECON_FINDINGS.md`. ✅ **DONE 2026-08-04** |
 | **1a** | Repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3). ✅ **DONE 2026-08-04** |
-| **1x** | Numeric-field DBC extractor (788/803 blocked spells) + settle rank-vs-coefficient. ▶ **next** |
-| **1b** | `spell_mechanics` (T4) + relationship graph (T5) — the schema core |
-| **1c** | Facts/questions (T6), `spell_profile()` (T7), auto-debugger + test protocols (T8), browsing (T9), volatility (T10) |
+| **1x** | Numeric-field DBC extractor + settle rank-vs-coefficient. ✅ **DONE 2026-08-04** |
+| **1b** | `spell_mechanics` (T4) + relationship graph (T5) — the schema core. ✅ **DONE 2026-08-05** |
+| **1c** | Facts/questions (T6), `spell_profile()` (T7), auto-debugger + test protocols (T8), browsing (T9), volatility (T10). ▶ **next** |
 | **2a** | Combat engine (T1) + content profiles (T2) + ability model (T3) + build spec (T4) |
 | **2b** | Three sim tiers (T5) + uncertainty (T6) |
 | **2c** | Weights/paths/curves (T7) + calibration (T8) + prediction ledger (T9) + cache/report/CLI (T10–12) |

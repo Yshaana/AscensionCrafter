@@ -9,92 +9,55 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `1b` — `spell_mechanics` (T4) + relationship graph (T5), the schema core.**
+**Next session: `1c` — facts/questions (T6), `spell_profile()` (T7), auto-debugger +
+test protocols (T8), browsing (T9), volatility (T10).**
 
-> ✅ **`max_level` is populated — the owner ran `py cli/rebuild.py --with-dbc` on
-> 2026-08-04, so this is no longer a T4 blocker.** `spell_effect_values` stores flats
-> **unscaled**; a level-60 value is
-> `flat + (min(level, max_level or level) − spell_level) × per_level`.
-> **1,653 spells carry a real cap and 196 of the 354 level-scaled catalog spells are
-> capped**, so T4 must apply it rather than assuming uncapped scaling.
-> ⚠ **`max_level = 0` means UNCAPPED, not "caps at zero"** — that distinction is what
-> falsified this session's own cap hypothesis. Treat 0 as "no cap".
+**✅ SESSION `1b` IS DONE (2026-08-05).** T4 (`spell_mechanics`) and T5
+(`spell_relationships` + graph) built, validated, idempotent. Session record:
+`primer/Session_2026-08-05_1b_mechanics_relationships.md`.
+
+**What `1c` inherits from `1b`:**
+
+- **`py cli/rebuild.py` is now 16 steps** (~75s): `cli/relationships.py` (T5) then
+  `cli/mechanics.py` (T4) run last, in that order — the trigger-attributed
+  `spell_effect_values` rows T5 writes are inputs to T4's resolver. The piped-output
+  `UnicodeEncodeError` crash is FIXED (env `PYTHONIOENCODING=utf-8` in `run_step`).
+- **`spell_mechanics` is live: 3,747 rows** (3,061 catalog + 686 unambiguous level-60
+  rank siblings), per-field provenance/uncertainty JSON, 29 conflict rows (mostly
+  multi-effect-slot collisions, surfaced not resolved), **710 rows carrying an explicit
+  rank gap** — `resolve_spell_mechanics()` names the level-60 id instead of silently
+  serving Rank-1 magnitudes. 25 ambiguous rank lines contribute no sibling, per §2.3.
+- **`spell_relationships` is live: 5,302 edges** (4,670 triggers, 388 borrows_modifiers,
+  218 amplifies, 17 shares_exclusivity_bucket, 9 amplifies_school). Graph queries in
+  `core/spells/graph.py` (networkx): `neighbourhood` / `find_clusters` / `path_between` /
+  `gating_requirements`, all taking optional `build_spec` for `amplifies_school`
+  expansion (hybrid schools double-dip: a Fire amplifier reaches a Shadowflame ability).
+- **Bounded trigger attribution ran** (owner decision 2026-08-05: depth ≤ 2, cycle-safe,
+  single-path, out-of-catalog targets only, `via='trigger_hopN'`, `confidence='inferred'`):
+  **724 magnitude rows across 444 cards**; 26 ambiguous targets skipped. **Hammer from
+  the Heavens reproduces 122–145 end-to-end** — it is a rebuild-time validation now.
+- **`spell_scaling` is rank-keyed** (+`rank` label column; 229 level-60 sibling
+  coefficient rows at `source='dbc_rank_sibling_text'`, covering the 7 known-different
+  lines — Sun Down SP 1.3 is a rebuild-time validation). ⚠ **Its FK to `spells` was
+  dropped** (sibling ids are absent from the export by definition; `owned_cards` precedent).
+- **`spells.crit_table`/`hit_table`/`rolls_hit_check`/`proc_icd_seconds` no longer exist**
+  — doc-confirmed combat-table facts live in the `doc_confirmed_mechanics` staging table
+  (reworked `seed_spell_flags.py`) and surface only in `spell_mechanics`. Anything still
+  querying the old `spells` columns must switch.
+- **243 `talent_amplifiers` rows remain 'needs manual review' and contribute NO edges** —
+  a standing human-review queue T6/T8 should surface rather than let rot.
+- **The compound-form extraction gap is still open** (`($SP+$AP)*x`, `$SPFR*x`) — was not
+  in `1b`'s brief; do it in `1c` or log it as a T8 coverage-sweep item.
+- T4/T5 deviations from the phase doc are recorded in `PHASE_1_spell_database.md`'s
+  progress block (FK drop, migrate-and-demote, single-member bucket, attribution bounds).
 
 **✅ SESSION `1x` IS DONE (2026-08-04).** 794 of 887 blocked hidden-formula spells
 resolved from numeric DBC fields; the rank question settled. Session record:
-`primer/Session_2026-08-04_1x_numeric_extractor.md`.
-
-**🚨 `1x` produced two corrections that change what `1b` builds. Read them before
-starting T4:**
-
-1. **`EffectBonusCoefficient` is NOT the SP/AP coefficient.** It is stock 3.3.5's
-   `EffectBonusMultiplier`, default `1.0` — **7,647 of 9,211** non-zero values are
-   exactly 1.0, and it matches a spell's own stated `$SP*x`/`$AP*x` in **4 of 98**
-   calibration cases. Phase 0's *"311 blocked spells carry a non-zero
-   `EffectBonusCoefficient` (SP/AP scaling)"* counted right and read the field wrong;
-   of the 343 with any coefficient, **270 carry only 1.0**. Ascension keeps the
-   coefficients it actually applies in **tooltip text**. Stored as
-   `spell_effect_values.bonus_multiplier`, never emitted as SP or AP.
-   🛑 **T4 must not read a coefficient from that column.**
-2. **Coefficients DO scale with rank — `spell_scaling` needs rank keying.** Across
-   1,580 multi-rank lines: numeric coefficient constant 696 / **varies 169**; tooltip
-   literals constant 132 / **varies 34**. The shape is retail's low-rank penalty that
-   ramps then plateaus (110 of 169), and the catalog stores **Rank 1** — exactly where
-   the penalty is deepest. Seven catalog entries measurably affected, worst
-   **Sun Down SP 0.4 → 1.3 (3.25×)** and **Grasp of Darkness SP 0.5 → 1.4 (2.8×)**;
-   Spirit Charge changes **term type** (SP → AP). ❌ **Retracts Phase 0's *"reading a
-   coefficient off a Rank-1 entry is probably safe"***, which came from one line.
-   Owner decision 2026-08-04: **record-and-flag in `1x`, migrate in T4** — `1b` rebuilds
-   the table anyway.
-
-**Also from `1x`, for T4/T5:**
-
-- **`spell_effect_values` is what `resolve_spell_mechanics()` should consume** for flat,
-  per-level and per-combo terms. Keyed `(spell_id, source_spell_id, effect_index)`;
-  `via` says whether the value came from the card's own record or a hidden sub-spell.
-- **Flat convention validated and self-checking:** `min = base_points + 1`,
-  `max = base_points + die_sides`, verified against 7 magnitudes established
-  independently of the DBC. `base_points = -1` with `die_sides <= 1` is the **"no value"
-  sentinel** — the decoder returns `None`, never `0.0`.
-- 🆕 **T5's `triggers` relation unlocks ~519 more spells.** Magnitudes are also reached
-  by `EffectTriggerSpell`, not only by tooltip `hidden_refs`: **529 catalog →
-  out-of-catalog trigger links across 519 distinct targets**, none attributed by `1x`.
-  This is how **Hammer from the Heavens** (`282987`, 22.1% of the owner's damage) is
-  linked — via Hour of Judgement `282986`, two hops from the card.
-- ⚠ **`core/spells/text_extraction.py`'s compound-form gap now costs coverage**, not
-  just tidiness: `($SP+$AP)*0.36` and `$SPFR*0.0096` are unreadable, which is why 8 rank
-  comparisons could not be made.
-- ⚠ **Pre-existing bug, left unfixed:** `py cli/rebuild.py` crashes when its output is
-  **piped or redirected** — `build_index.py` prints `⚠`, Python picks cp1252 for a
-  non-console stdout, `UnicodeEncodeError` kills the chain at step 1. Works in a
-  terminal. Workaround `PYTHONIOENCODING=utf-8`. One-line fix, worth doing in `1b`.
-
-**What `1b` inherits, and should not re-derive:**
-
-- **One command rebuilds everything: `py cli/rebuild.py`** (13 steps, ~32s from empty).
-  Add `--with-dbc` only after a client patch. Database: `data/derived/ascension.db`.
-- **`core/` is pure** — no `print()`, no `argparse`, no paths, connection passed in, and
-  it may not import `config.py`. `tools/audit/check_core_purity.py` enforces it; run it
-  after touching `core/`. **T4's `resolve_spell_mechanics()` goes in
-  `core/spells/mechanics.py` and obeys this.**
-- **The crosswalk is live.** Never join `entry_id` to `spells.id`; call
-  `core.spells.crosswalk.resolve_entry_id()` or `py cli/crosswalk.py --resolve <id>`.
-- **Rank resolution is a function**, `core.spells.ranks.rank_for_level()`. T4's third
-  resolver rule ("never serve a lower-rank value for a higher-rank query") calls it
-  rather than re-deriving it.
-- **Fingerprinting is a function**, `core/spells/fingerprint.py`, with **two field
-  sets** — see the plan-changes table. T4's fourth rule is already implemented.
-- **`networkx` 3.6.1 is installed** (owner decision, 2026-08-04) — T5 uses it as
-  ARCHITECTURE specifies rather than hand-rolling graph algorithms. See
-  `requirements.txt`.
-- **T4's primary key:** measured in `1a` — **0** CA cards reuse a spell_id across rank
-  slots and **0** in-pool spell_ids are shared across cards, so `spell_id` already
-  identifies a card-rank uniquely in the playable pool. Key as the doc specifies
-  anyway (`rank = 0` means rank-independent); just know `rank` is a label there, not a
-  disambiguator.
-- **Do the carried-over `stats_summary.sourcesByStat` check** — deferred from `0b`
-  *and* `0a`. Cheap, and it could settle the Path of Duality question from data already
-  on disk.
+`primer/Session_2026-08-04_1x_numeric_extractor.md`. Its two corrections
+(`EffectBonusCoefficient` is not the SP/AP coefficient; coefficients DO scale with
+rank) are now **enforced in code** — `1b` built T4/T5 on them, and both are
+rebuild-time validations. The `sourcesByStat` check it also carried was closed in `1x`
+itself (premise wrong — the block is gear-only).
 
 **✅ SESSION `1a` IS DONE (2026-08-04).** Repo restructured to ARCHITECTURE §4, patch/realm/season
 tracking built, ID crosswalk built. Session record:
@@ -139,8 +102,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **0a** | Recon T1–5, 7, 8, 9 | ✅ done | `Session_2026-08-04_0a_recon.md` | **Phase 0 complete.** `RECON_FINDINGS.md` written. Crosswalk resolved; class coverage 13%→58%; rank resolution solved; 2 pipeline bugs fixed |
 | **1a** | Restructure, patches/realms/seasons, crosswalk | ✅ done | `Session_2026-08-04_1a_restructure_crosswalk.md` | `core/api/cli` split + purity check; `cli/rebuild.py`; 5 patch tables; `spell_id_crosswalk` (4 ID spaces); class coverage 394→1,794. Crawler scheduling automated in the same session |
 | **1x** | Numeric-field DBC extractor (+ settle rank-vs-coefficient) | ✅ done | `Session_2026-08-04_1x_numeric_extractor.md` | 794/887 blocked spells resolved; `spell_effect_values` + `dbc_numeric.py` + `rank_scaling.py`. **Two Phase 0 claims corrected** — `EffectBonusCoefficient` is not the SP/AP coefficient, and coefficients DO scale with rank |
-| 1b | `spell_mechanics` + relationship graph | ⬜ | — | ▶ **NEXT.** Read `PHASE_1_spell_database.md` T4+T5 **and the two `1x` corrections above**. Put the resolver in `core/spells/mechanics.py`; consume `spell_effect_values`; reuse `ranks.py`, `fingerprint.py`, `crosswalk.py` rather than re-deriving them |
-| 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | |
+| **1b** | `spell_mechanics` (T4) + relationship graph (T5) | ✅ done | `Session_2026-08-05_1b_mechanics_relationships.md` | 3,747 mechanics rows, 5,302 edges, bounded trigger attribution (724 rows / 444 cards, HftH 122–145 reproduces end-to-end), `spell_scaling` rank-keyed (+229 sibling rows), `spells` combat-table columns → `doc_confirmed_mechanics`. Rebuild is 16 steps; piped-output crash fixed. Two stale `confirmed_facts` rows qualified SUPERSEDED (pre-`1b` prep item) |
+| 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | ▶ **NEXT.** T6–T10; also: compound-form extraction gap, the 243 manual-review amplifier rows, and T8 bucketing multi-effect-slot "conflicts" separately from cross-source ones |
 | 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | |
 | 2b | Three sim tiers + uncertainty | ⬜ | — | |
 | 2c | Weights, calibration, prediction ledger, cache, CLI | ⬜ | — | |
@@ -206,6 +169,11 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (1b) | ⚠ **`spell_scaling` lost its FK to `spells`, deliberately** | The T4 rank migration inserts rows for level-60 rank siblings, and in all 697 wrong-rank cases the sibling id is absent from `spell-export.json` — an FK rejects exactly the rows that fix the wrong-rank problem. Same precedent as `owned_cards` (1a) |
+| 2026-08-05 (1b) | 🆕 **Trigger attribution semantics decided (owner, 2026-08-05): bounded walk, flagged** | Depth ≤ 2, cycle-safe, single-path targets only, out-of-catalog targets only, `via='trigger_hopN'`, `confidence='inferred'`, chain in `evidence_ref`. 724 rows / 444 cards; 26 multi-path targets deliberately unattributed. In-catalog targets are never double-attributed — their magnitude is their own row |
+| 2026-08-05 (1b) | ⚠ **T5's "migrate and retire" became "migrate and demote"; `exclusivity_buckets` stays a TABLE, not a view** | Staging tables are kept as ingestion inputs (their seeds own them, run earlier in the chain); `spell_relationships` is the one query surface. A view could not round-trip bucket 3 (Holy Focus) — a single-member bucket has no pairwise edge to reconstruct from. Every multi-member bucket is validated as an edge group each rebuild |
+| 2026-08-05 (1b) | 🆕 **`spells.crit_table`/`hit_table`/`rolls_hit_check`/`proc_icd_seconds` removed** | T4's "one home per fact": doc-confirmed combat-table values seed `doc_confirmed_mechanics` (reworked `seed_spell_flags.py`) and surface only in `spell_mechanics` |
+| 2026-08-05 (1b) | ⚠ **Most `spell_mechanics` conflict rows are multi-effect-slot collisions, not cross-source disagreements** | 29 rows carry `confidence='conflict'`; sampled cases are one spell whose two effect slots have different radii or chain counts feeding a single column (e.g. 276884 radius 8 vs 5). Honest per §2.3, but T8's conflict sweep should bucket them separately from genuine source disagreements or they become noise |
 | 2026-08-04 (1x) | ❌ **RETRACTED: "reading a coefficient off the catalog's Rank-1 entry is probably safe."** Coefficients DO scale with rank; **`spell_scaling` needs rank keying** | Phase 0 derived it from **one** line (Holy Supernova, identical at R1 and R6). Measured across all **1,580** multi-rank lines with 2+ DBC members: numeric coefficient constant 696 / **varies 169**; tooltip literals constant 132 / **varies 34**. The shape is retail's low-rank penalty — ramp then plateau, 110 of the 169 — and the catalog stores **Rank 1**, the deepest point of the penalty. Seven catalog entries measurably affected (Sun Down SP 0.4→1.3 = 3.25×; Grasp of Darkness 0.5→1.4 = 2.8×; Spirit Charge changes term type SP→AP). Seven is a **floor**: 547 more state no coefficient in either rank's text. Migration deferred to T4 by owner decision |
 | 2026-08-04 (1x) | 🚨 **CORRECTED: `EffectBonusCoefficient` is NOT the SP/AP coefficient** — it is `EffectBonusMultiplier`, default 1.0 | Phase 0's *"311 blocked spells carry a non-zero `EffectBonusCoefficient` (SP/AP scaling)"* counted right and read the field wrong. **7,647 of 9,211** non-zero values are exactly 1.0; the recurring non-defaults are retail's cast-time formula (`0.429 = 1.5/3.5`, `0.714 = 2.5/3.5`); calibrated against 98 spells stating their own `$SP*x`/`$AP*x` it agrees **4 times**. Of the 343 blocked spells with any coefficient, **270 carry only 1.0** → the real surface is **≤73, not 311**. Building the extractor on it would have fabricated SP coefficients across 311 spells *with tier-4 provenance attached*. Ascension keeps applied coefficients in **tooltip text**; the field is stored as `bonus_multiplier` and never emitted as SP/AP |
 | 2026-08-04 (1x) | 🚨 **A live tooltip can render an arithmetically impossible range — and solving it pins values no single source states** | Hammer from the Heavens displays *"194 to 147"* in-game (owner screenshot, tier 1). The description hand-rolls level scaling at **two different rates** — `($PL-10)*2.4` on the min, `($PL-10)*1` on the max — while `$m1`/`$M1` render the raw base unscaled. The min's rate matches the effect's real 2.4/level and is **correct**; the max's 1/level is **wrong**, so the min overtakes it above ~level 29. At 60 it should read **194 to 217**. Treating the two numbers as simultaneous equations cancels the unknown stat term and yields **`L = 60` exactly** — the character's level falls out of a tooltip |
@@ -317,7 +285,8 @@ order. ⚠ Two intermediate answers were retracted along the way; see the plan-c
 | ⚠ **NEW (1x):** is armor penetration 5 or 4.2 rating per 1% at level 60? | Physical-build stat weights only | **Conflict, recorded not resolved (§2.3).** The site's own calculator says **5**, the client's `gtCombatRatings` says **4.2**. Every other level-60 divisor agrees exactly across both sources (crit 14, hit 10, haste 10, expertise 2.5, dodge/parry 13.8, defense 1.5, block 5). Settle with a level-60 in-game armor-pen reading |
 | What is the current maximum report ID? | Sizes the historical backfill | Emerges from a full crawler run (no list endpoint exists to ask directly) |
 | ⚠ **NEW (1x):** does a level-scaled flat ever need a cap the crawl/tooltip can't reveal? | Nothing — recorded for completeness | ✅ Largely answered: `max_level` is extracted and populated. **1,653 spells carry a real cap; 196 of the 354 level-scaled catalog spells are capped.** What remains unverified is whether the engine applies the cap the way `min(level, max_level)` assumes — Hammer from the Heavens couldn't test it (`max_level = 0`). Settle opportunistically by checking one *capped* level-scaled spell's in-game tooltip against the computed value |
-| ⚠ **NEW (1x):** should `EffectTriggerSpell` chains be followed for magnitude attribution? | ~519 spells with unattributed magnitudes, incl. Hammer from the Heavens | Build it as **T5's `triggers` relation** (session `1b`). Needs a decision on multi-hop attribution semantics and cycle handling before it can be a resolver input |
+| ~~⚠ (1x): should `EffectTriggerSpell` chains be followed for magnitude attribution?~~ | — | ✅ **RESOLVED in `1b` (owner decision 2026-08-05):** yes, bounded — depth ≤ 2, cycle-safe, single-path, out-of-catalog targets, `confidence='inferred'`. 724 magnitude rows attributed; 26 ambiguous targets deliberately left unattributed (their attribution question is real but needs per-case judgment, not a looser walk) |
+| ⚠ **NEW (1b):** 243 `talent_amplifiers` rows are flagged 'needs manual review' and contribute no graph edges | Amplifier coverage of the relationship graph | Human read of the staging rows (bulk-extracted target lists that didn't cleanly resolve). T6 should carry this as a standing open question; a few (e.g. Improved Cleave, now hand-seeded) are high-value |
 | ⚠ **NEW:** the 97-card gap between `in_current_pool` (3,129) and BisBeard's S10 count (3,226) | Exactness of the card-pool scope | Intersect BisBeard's `entryId` list against `in_current_pool=1` and inspect the difference |
 | Which of the 5 `class_origin` conflicts is right? | `class_origin` correctness | Proc test or live tooltip per spell. Note Fel Infused Weapon's existing value ("Duality") is a Path, not a class |
 

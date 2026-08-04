@@ -1,3 +1,65 @@
+# Ascension Spell/Card Index — Guide (v11)
+
+**v11 changelog (2026-08-05, session `1b` — Phase 1 T4 + T5).** Two new query surfaces,
+one demotion, and a rebuild-chain change. `py cli/rebuild.py` is now **16 steps** (~75s);
+the piped/redirected-output crash noted in v10 is **fixed**.
+
+- 🆕 **`spell_mechanics`** — the resolved truth table (PHASE_1 T4). One row per
+  `(spell_id, rank, realm, season)`; 3,747 rows = 3,061 catalog spells + 686 unambiguous
+  level-60 rank siblings. Resource/timing/school/GCD/next-swing/periodicity decoded from
+  validated DBC fields; flats level-scaled (🛑 `max_level = 0` = UNCAPPED); SP/AP
+  coefficients carried from `spell_scaling` as tier-6 text with rank-ramp warnings;
+  doc-confirmed combat-table facts overlaid at their own tier. **Per-field provenance**:
+  `source_tier_json` / `evidence_ref_json` / `uncertainty_json` are `{field: ...}` maps;
+  conflicts land in `conflicts_json` with `confidence='conflict'`, never auto-resolved.
+  Resolver: `core.spells.mechanics.resolve_spell_mechanics(conn, spell_id, ...)` — its
+  result carries an explicit `rank_gap` when the queried id is not what a level-60
+  character casts (it never silently serves Rank-1 magnitudes).
+- 🆕 **`spell_relationships`** — the relationship graph (PHASE_1 T5). 5,302 edges:
+  `triggers` 4,670 (from `EffectTriggerSpell`, all extracted DBC records),
+  `borrows_modifiers` 388, `amplifies` 218, `shares_exclusivity_bucket` 17,
+  `amplifies_school` 9 (school in `condition_json`, NULL target — resolves against a
+  build). Graph queries: `core/spells/graph.py` (networkx) — `neighbourhood`,
+  `find_clusters`, `path_between`, `gating_requirements`, each with optional
+  `build_spec`; school expansion honours hybrid double-dipping (a Fire amplifier reaches
+  a Shadowflame ability).
+- 🆕 **Bounded trigger attribution** (owner decision 2026-08-05): `spell_effect_values`
+  now also holds `via='trigger_hop1'/'trigger_hop2'` rows — a card's magnitude reached
+  through its trigger chain (depth ≤ 2, cycle-safe, single-path, out-of-catalog targets
+  only), always `confidence='inferred'`, chain in `evidence_ref`. 724 rows across 444
+  cards. **Hammer from the Heavens (282987 → 122–145 at 60) reproduces end-to-end and is
+  a rebuild-time validation.**
+- 🆕 **`spell_scaling` is rank-keyed**: new `rank` label column, plus 229 level-60
+  sibling coefficient rows at `source='dbc_rank_sibling_text'` (the 7 measurably-wrong
+  lines included — Sun Down SP 1.3 is validated each rebuild). ⚠ **Its FK to `spells`
+  was dropped** — sibling ids are absent from the export by definition (`owned_cards`
+  precedent).
+- ⚠ **`spells.crit_table` / `rolls_hit_check` / `hit_table` / `proc_icd_seconds` no
+  longer exist** (v3 columns, retired). Doc-confirmed values seed the new
+  `doc_confirmed_mechanics` staging table and surface only in `spell_mechanics` — query
+  that. The v3 table descriptions below are kept for history.
+- ⚠ **`modifier_links`, `talent_amplifiers`, `exclusivity_buckets` are DEMOTED to
+  staging inputs** — still built, still owned by their seeds, but `spell_relationships`
+  is the query surface. `exclusivity_buckets` deliberately stays a table (a single-member
+  bucket — Holy Focus — cannot round-trip through pairwise edges). 243 amplifier rows
+  remain 'needs manual review' and contribute no edges.
+
+```sql
+-- what does the resolved truth table say about a spell, provenance included?
+SELECT * FROM spell_mechanics WHERE spell_id = ?;
+
+-- everything that amplifies a spell, graph edition (replaces the modifier_links query)
+SELECT r.source_spell_id, s.name, r.magnitude, r.magnitude_unit, r.confidence
+FROM spell_relationships r LEFT JOIN spells s ON s.id = r.source_spell_id
+WHERE r.target_spell_id = ? AND r.relation_type IN ('amplifies','borrows_modifiers');
+
+-- a card's trigger-attributed magnitudes, chain visible in evidence_ref
+SELECT source_spell_id, via, flat_min, flat_max, per_level, evidence_ref
+FROM spell_effect_values WHERE spell_id = ? AND via LIKE 'trigger_hop%';
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v10)
 
 **v10 changelog (2026-08-04, session `1x` — the numeric-field DBC extractor).** One new

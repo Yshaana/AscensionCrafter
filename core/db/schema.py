@@ -36,11 +36,27 @@ CREATE TABLE IF NOT EXISTS spells (
     notes TEXT
 );
 
+-- ⚠ Rank-keyed as of session 1b (T4). `rank` is the spell's own rank label from
+-- `dbc_spell_rank` (0 = not in a rank line / unknown). It is a LABEL, not a
+-- disambiguator — measured in 1a: spell_id already identifies a card-rank uniquely
+-- in the playable pool. It exists because coefficients DO scale with rank (1x:
+-- 169 of 1,580 multi-rank lines vary, ramp-then-plateau), so a row must say which
+-- rank's coefficient it carries. `source` says where the number came from:
+-- 'export_tooltip' (catalog text, usually Rank 1 — the DEEPEST point of the ramp),
+-- 'dbc_hidden_formula' (sub-spell text), 'dbc_rank_sibling_text' (the level-60
+-- sibling's own text, added by the T4 migration), 'hand_seeded'.
+-- NO foreign key on spell_id, deliberately (dropped in 1b, same precedent as
+-- owned_cards): the T4 rank migration inserts rows for level-60 rank SIBLINGS,
+-- and in all 697 wrong-rank cases the sibling id is absent from
+-- spell-export.json entirely — an FK would reject exactly the rows that fix
+-- the wrong-rank problem.
 CREATE TABLE IF NOT EXISTS spell_scaling (
     spell_id INTEGER,
     term_type TEXT,    -- SP / AP / RAP / WEAPON
     coefficient REAL,  -- NULL for WEAPON (normalized, no fixed coeff in text)
-    FOREIGN KEY(spell_id) REFERENCES spells(id)
+    source TEXT DEFAULT 'export_tooltip',
+    cp_scaling_type TEXT,   -- 'linear' | 'quadratic' | NULL (seed_cp_scaling.py)
+    rank INTEGER NOT NULL DEFAULT 0
 );
 
 -- NO foreign key on spellId, deliberately. `Cards.txt` is a CLIENT export and the
@@ -230,7 +246,136 @@ CREATE INDEX IF NOT EXISTS idx_effect_values_spell ON spell_effect_values(spell_
 CREATE INDEX IF NOT EXISTS idx_effect_values_source ON spell_effect_values(source_spell_id);
 """
 
-PHASE1_DDL = PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL + PHASE1_NUMERIC_DDL
+# --------------------------------------------------------------------------
+# Phase 1 Task 4 — spell_mechanics: the resolved truth table (session 1b)
+# --------------------------------------------------------------------------
+# One row per (spell_id, rank, realm, season). `rank = 0` means rank-independent /
+# the spell's own identity (1a measured that spell_id already identifies a
+# card-rank uniquely in the playable pool, so rank is a label here, not a
+# disambiguator). Populated by core/spells/mechanics.py via cli/mechanics.py.
+#
+# Provenance is PER FIELD: source_tier_json / evidence_ref_json / uncertainty_json
+# are {field_name: ...} maps covering every non-NULL mechanic field in the row —
+# §2.1 enforced at the row level (NOT NULL) and audited at the field level (T8).
+# Two sources disagreeing on a field → both values into conflicts_json and
+# confidence='conflict'; the resolver never picks a winner (§2.3).
+PHASE1_MECHANICS_DDL = """
+CREATE TABLE IF NOT EXISTS spell_mechanics (
+  spell_id INTEGER NOT NULL,
+  rank     INTEGER NOT NULL DEFAULT 0,
+  realm    TEXT    NOT NULL,
+  season   TEXT    NOT NULL,
+
+  -- Resource & timing
+  resource_type          TEXT,     -- 'mana','rage','energy','runic','holypower','combopoints','none'
+  resource_cost          REAL,
+  resource_cost_pct_base INTEGER,
+  cooldown_seconds       REAL,
+  cooldown_category      TEXT,     -- shared-cooldown group (seals share one — confirm)
+  gcd_type               TEXT,     -- 'normal','off_gcd','none'
+  cast_time_seconds      REAL,
+  is_channeled           INTEGER,
+  is_next_swing          INTEGER,  -- On-Next-Hit replacement (Cleave/Heroic Strike pattern)
+  charges                INTEGER,
+  charge_recharge_seconds REAL,
+
+  -- Output
+  effect_type            TEXT,     -- 'damage','heal','absorb','mitigation','buff','utility'
+  school                 TEXT,     -- incl. hybrids: Holystrike, Shadowflame, Froststrike...
+  damage_formula_text    TEXT,
+  damage_formula_terms_json TEXT,  -- [{"term":"SP","coefficient":0.0096,"cp_scaling":"quadratic"}]
+  healing_formula_terms_json TEXT, -- §2.8 — healer support is first-class, not bolted on later
+  absorb_formula_terms_json  TEXT,
+  mitigation_pct         REAL,     -- tank support
+  threat_modifier        REAL,
+  weapon_damage_pct      REAL,
+  normalized_weapon_speed REAL,
+
+  -- Combat table
+  crit_table             TEXT,     -- 'melee','spell','none'
+  hit_table              TEXT,     -- 'melee','spell','none'
+  rolls_hit_check        INTEGER,
+  can_be_dodged          INTEGER,
+  can_be_parried         INTEGER,
+  can_be_blocked         INTEGER,
+  can_glance             INTEGER,
+  can_be_full_resisted   INTEGER,
+  affected_by_armor      INTEGER,
+  crit_damage_multiplier REAL,     -- 2.0 melee / 1.5 spell baseline; overridable
+  always_crits           INTEGER,  -- e.g. "Exorcism is now guaranteed to critically strike"
+
+  -- Proc behaviour
+  proc_chance_pct        REAL,
+  proc_ppm               REAL,
+  proc_icd_seconds       REAL,     -- 0 = confirmed no ICD; NULL = unknown
+  proc_trigger_events    TEXT,
+  can_proc_from_off_gcd  INTEGER,  -- see the 2026-08-03 change restricting this
+
+  -- AoE
+  max_targets            INTEGER,  -- NULL = uncapped
+  damage_split_behavior  TEXT,     -- 'none','split_evenly','falloff','fixed_cleave_n'
+  cleave_fixed_n         INTEGER,
+  aoe_radius             REAL,
+  falloff_pct_per_target REAL,
+  falloff_floor_pct      REAL,
+
+  -- Periodic
+  is_periodic            INTEGER,
+  tick_interval_seconds  REAL,
+  duration_seconds       REAL,
+  ticks_can_crit         INTEGER,
+  scales_with_haste      INTEGER,
+  is_ground_effect       INTEGER,
+
+  -- Provenance & uncertainty (§2.1, §2.4)
+  source_tier_json       TEXT NOT NULL,  -- per-field: which tier supplied each value
+  evidence_ref_json      TEXT NOT NULL,  -- per-field: pointer to the actual evidence
+  uncertainty_json       TEXT NOT NULL,  -- per-field: {"low":..,"high":..,"basis":".."}
+  conflicts_json         TEXT,           -- non-null when sources disagreed; ALL values seen
+  confidence             TEXT NOT NULL,
+  verified_at_patch      INTEGER NOT NULL REFERENCES patches(patch_id),
+  last_resolved_at       TEXT NOT NULL,
+
+  PRIMARY KEY (spell_id, rank, realm, season)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mechanics_school ON spell_mechanics(school);
+CREATE INDEX IF NOT EXISTS idx_mechanics_effect ON spell_mechanics(effect_type);
+"""
+
+# --------------------------------------------------------------------------
+# Phase 1 Task 5 — the relationship graph (session 1b)
+# --------------------------------------------------------------------------
+# `relation_type` is enumerated in core/spells/relationships.py :: RELATION_TYPES,
+# never free text. `amplifies_school` edges carry {"school": ...} in condition_json
+# and a NULL target_spell_id — they resolve against a build at graph-build time
+# (core/spells/graph.py), which makes part of the graph build-dependent by design.
+PHASE1_RELATIONSHIPS_DDL = """
+CREATE TABLE IF NOT EXISTS spell_relationships (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  source_spell_id INTEGER NOT NULL,
+  target_spell_id INTEGER,
+  target_name     TEXT,          -- when the target doesn't resolve
+  relation_type   TEXT NOT NULL,
+  magnitude       REAL,
+  magnitude_unit  TEXT,          -- 'pct','flat','seconds','stacks','charges'
+  condition_json  TEXT,          -- gating: required talents, buffs, stacks, weapon type
+  direction       TEXT NOT NULL, -- 'source_affects_target' | 'source_requires_target'
+  source_tier     TEXT NOT NULL,
+  evidence_ref    TEXT NOT NULL,
+  confidence      TEXT NOT NULL,
+  realm TEXT NOT NULL, season TEXT NOT NULL,
+  verified_at_patch INTEGER NOT NULL REFERENCES patches(patch_id),
+  UNIQUE (source_spell_id, target_spell_id, target_name, relation_type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_rel_source ON spell_relationships(source_spell_id);
+CREATE INDEX IF NOT EXISTS idx_rel_target ON spell_relationships(target_spell_id);
+CREATE INDEX IF NOT EXISTS idx_rel_type   ON spell_relationships(relation_type);
+"""
+
+PHASE1_DDL = (PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL + PHASE1_NUMERIC_DDL
+              + PHASE1_MECHANICS_DDL + PHASE1_RELATIONSHIPS_DDL)
 
 
 def create_catalog_schema(conn) -> None:
