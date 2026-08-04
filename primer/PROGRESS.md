@@ -292,6 +292,15 @@ spell that deals no damage; the damage is `276075`, SchoolMask 36 = Shadowflame*
 `EffectBonusCoefficient` is *identical* at R1 and R6; only the flat term scales (60 → 594)
 
 **Resolved in session `1x` (2026-08-04):**
+~~Does `stats_summary.sourcesByStat` itemise per-source stat contributions?~~ ✅ **Answered
+and CLOSED after four deferrals — and its recorded justification was wrong.** It itemises
+**item sources only** (`gear` / `enchant` / `set`), never talents or path grants, so it
+could never have settled the Path of Duality question `PROGRESS` claimed for it. ⚠ **The
+whole `stats_summary` block is gear-only** (explicit `_gearOnly` key; a level-60 character
+shows Strength 13) — a real trap for Phase 3, which must not read it as a character sheet.
+✅ Genuine value instead: a clean gear-only stat vector for 48 characters, exactly what
+§2.10's gear tiers need — plus independent confirmation of 8 of 9 level-60 rating
+divisors, with **armor penetration the lone conflict** (below). ·
 ~~Do damage coefficients scale with rank?~~ ✅ **YES** — 169 of 865 lines with numeric
 data vary, 34 of 166 with text data vary, in a ramp-then-plateau shape. `spell_scaling`
 needs rank keying; see the plan-changes table. ·
@@ -305,7 +314,7 @@ order. ⚠ Two intermediate answers were retracted along the way; see the plan-c
 
 | Question | Blocks | How to settle |
 |---|---|---|
-| Does `stats_summary.sourcesByStat` itemise per-source stat contributions? | Could settle the Path of Duality question (`build_paladin-hammerdin.md` §4) from already-captured data, for any scouted character, with zero in-game work | Inspect the field in `data/source/crawl/baseline_phase1/characters.jsonl.gz`. Primer §5 calls crit-source breakdowns the gold-standard method. **Carried over from 0b and 1a — still not done** |
+| ⚠ **NEW (1x):** is armor penetration 5 or 4.2 rating per 1% at level 60? | Physical-build stat weights only | **Conflict, recorded not resolved (§2.3).** The site's own calculator says **5**, the client's `gtCombatRatings` says **4.2**. Every other level-60 divisor agrees exactly across both sources (crit 14, hit 10, haste 10, expertise 2.5, dodge/parry 13.8, defense 1.5, block 5). Settle with a level-60 in-game armor-pen reading |
 | What is the current maximum report ID? | Sizes the historical backfill | Emerges from a full crawler run (no list endpoint exists to ask directly) |
 | ⚠ **NEW (1x):** does a level-scaled flat ever need a cap the crawl/tooltip can't reveal? | Nothing — recorded for completeness | ✅ Largely answered: `max_level` is extracted and populated. **1,653 spells carry a real cap; 196 of the 354 level-scaled catalog spells are capped.** What remains unverified is whether the engine applies the cap the way `min(level, max_level)` assumes — Hammer from the Heavens couldn't test it (`max_level = 0`). Settle opportunistically by checking one *capped* level-scaled spell's in-game tooltip against the computed value |
 | ⚠ **NEW (1x):** should `EffectTriggerSpell` chains be followed for magnitude attribution? | ~519 spells with unattributed magnitudes, incl. Hammer from the Heavens | Build it as **T5's `triggers` relation** (session `1b`). Needs a decision on multi-hop attribution semantics and cycle handling before it can be a resolver input |
