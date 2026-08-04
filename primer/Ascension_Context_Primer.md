@@ -31,19 +31,24 @@ evidence in `primer/Session_2026-08-04_1x_numeric_extractor.md`; only the rule c
   Heavens** (`282987`) — reached only as *Hour of Judgement* → it. Same family as §4's
   trigger-vs-modifier trap, but about *where the number is* rather than *whose modifiers apply*.
 - ✅ **Hammer from the Heavens is fully resolved** — the largest single unknown in the Paladin
-  build's stat weights. At level 60: **74–97 Holy, +9.1% SP, +9.1% AP** per hit. Three sources
+  build's stat weights. At level 60: **122–145 Holy, +9.1% SP, +9.1% AP** per hit. Three sources
   agree (client numeric fields, db.ascension.gg's `Value: 2 to 25, plus 2.4 per level` plus its two
-  Scaling rows, and the live tooltip). **Its level scaling caps at level 40**, so the bonus is
-  `(40−10)×2.4 = 72`, not the uncapped 120. The build doc's assumed 30/30/40 SP/AP/flat split is
-  **confirmed** (real split 26/26/46), not overturned.
+  Scaling rows, and the live tooltip). Level scaling is **uncapped** (`MaxLevel = 0`), so the bonus
+  is `(60−10)×2.4 = 120`. The build doc's assumed 30/30/40 SP/AP/flat split is **revised to
+  ~21/23/57** — right that SP and AP are equal, wrong about how flat-dominated it is.
 - 🚨 **A live tooltip can render an INVERTED damage range, and it is a bug in the tooltip text, not
   a reading error.** Hammer from the Heavens displays *"dealing 194 to 147 Holy damage"* in-game.
-  Cause: the description **double-applies level scaling** — once inside `$m1`/`$M1`, then again as
-  explicit `($PL-10)*2.4` (minimum) and `($PL-10)*1` (maximum) terms. The mismatched rates mean the
-  minimum overtakes the maximum above ~level 29. **The engine computes from the numeric fields and
-  never evaluates those text terms**, confirmed against 17,972 pooled hits whose implied non-crit
-  damage sits below the tooltip's own stated *minimum*. **A displayed tooltip number can be
-  arithmetically impossible — treat the rendered range as text, not as a measurement.**
+  Cause: the description hand-rolls the level scaling as `($PL-10)*2.4` on the minimum and
+  `($PL-10)*1` on the maximum, while `$m1`/`$M1` render the **raw base points with no scaling**.
+  The minimum's rate matches the effect's real `EffectRealPointsPerLevel` of 2.4 and is *correct*;
+  **the maximum's rate of 1 is simply wrong**, so the minimum overtakes it above ~level 29. At 60
+  it should read 194 to **217**, not 147.
+- 🔬 **A self-contradictory tooltip is solvable, and worth solving — the arithmetic can pin values
+  no single source states.** Treating the two displayed numbers as simultaneous equations
+  (`min = (L-10)*2.4 + 2 + A`, `max = (L-10)*1 + 25 + A`) eliminates the unknown stat term `A` on
+  subtraction and yields **`L = 60` exactly** — the character's level falls out of a *tooltip*,
+  independently of gear. Back-substituting gives the stat term. **Before dismissing a broken
+  tooltip as noise, check whether its own numbers over-determine the formula.**
 
 **v20 changelog (2026-08-04, Phase 1 session `1a`).** The repo was restructured and three schema tasks
 landed. **The `index/` folder no longer exists, so every path in this document was rewritten.** Full
@@ -470,13 +475,21 @@ Abilities worded *"while under this effect you cannot perform any other abilitie
 - **When decoding a live in-game spell ID export (WeakAura, inspect addon, etc.) against the catalog, an unresolved ID is very likely a different rank of a known card, not missing content (v7).** Multi-rank talents get a distinct spellID per rank in-game, while the catalog export only stores one canonical ID per card. ❌ **The "check ±1-3 of the unresolved ID" half of this practice is RETRACTED as a general rule (v19).** Measured across the client's full `Spell.dbc`: only **1,908** rank lines are id-contiguous while **4,791 are not** — Winds of Winter runs R1 `274121` then R2–R8 at `274129`–`274135`. The 5/5 hit rate that justified it came from lines that happen to be contiguous. **Use `dbc_spell_rank` instead** (`INDEX_GUIDE` v8): it groups rank lines on name + skill line + mechanical fingerprint, and the rank a character holds is the highest in the line whose `SpellLevel` ≤ their level. The *conclusion* the practice reached is still right — an unresolved ID is usually a rank sibling, not missing content — only the ±1-3 search method is unsafe.
 - **⚠ Check a tooltip's ARITHMETIC before trusting its numbers (v21).** A displayed range can be
   internally impossible: Hammer from the Heavens renders *"dealing 194 to 147 Holy damage"* in-game
-  — a minimum larger than its maximum. Cause was a description that **double-applies level scaling**
-  at two different per-level rates, so the minimum outgrows the maximum past ~level 29. **The engine
-  computed correctly from the numeric fields the whole time; only the text was wrong.** Before
-  building anything on a tooltip figure, sanity-check that min < max, that the range width is
-  plausible, and that the value is consistent with what parses actually show. This is the mirror
-  image of §2's "export tooltips are incomplete" — here the tooltip is *present, precise, and
-  wrong*, which is harder to notice.
+  — a minimum larger than its maximum. The description hand-rolls level scaling at **two different
+  per-level rates**, and only the minimum's rate matches the effect's real scaling, so the minimum
+  outgrows the maximum past ~level 29. **The engine computed correctly from the numeric fields the
+  whole time; only the text was wrong.** Before building anything on a tooltip figure, sanity-check
+  that min < max and that the range width is plausible. This is the mirror image of §2's "export
+  tooltips are incomplete" — here the tooltip is *present, precise, and wrong*, which is harder to
+  notice. **And when a tooltip is self-contradictory, try solving it**: its numbers may
+  over-determine the formula (this one yields the character's exact level on subtraction).
+- **⚠ Pooled parse data cannot settle a LEVEL-SCALED magnitude, because the crawl has no character
+  level (v21).** This was learned by getting it wrong: implied non-crit averages from 12 crawled
+  characters were used to "rule out" a flat term of 122–145, but Hammer from the Heavens scales
+  2.4/level, so a level-40 character deals 74–97 for the very same spell. With levels unknown and
+  Holy taking partial resistance, the pooled figures could not discriminate at all. **Before citing
+  pooled damage as evidence about a magnitude, ask whether that magnitude varies with anything the
+  crawl does not record** — level, rank, and gear all qualify.
 - **🐛 Log game bugs in `bugs/` — don't let them die in a session transcript (v21).** When a tooltip
   contradicts a log, a parse, or itself, add a row to `bugs/README.md`; the owner submits these to
   Ascension when he has time. Write the full field-by-field report only once the evidence stands on

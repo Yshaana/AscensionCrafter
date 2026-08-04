@@ -3,6 +3,33 @@
 📤 **SUBMITTED 2026-08-04 → [ascension.gg/bugtracker/view/199929](https://ascension.gg/bugtracker/view/199929)**
 (the tracker is auth-gated, so status and any dev reply have to be read while logged in).
 
+## 🔴 If you already submitted: the diagnosis needs correcting
+
+**The core report is still valid** — the range really is inverted, and that is the part a
+dev acts on. But the *explanation* I supplied was wrong, and it points at the wrong fix.
+
+| | submitted version | correct |
+|---|---|---|
+| cause | description **double-applies** level scaling | scaling is applied **once**; the **maximum** term just uses the wrong rate (1/level instead of 2.4/level) |
+| suggested fix | remove both `($PL-10)` terms | change the maximum's `($PL-10)*1` to `($PL-10)*2.4` |
+| expected display | 74 to 97 | **194 to 217** — the minimum shown today is already correct |
+
+**Worth a follow-up comment**, because the submitted fix would break the minimum, which
+is currently right. Suggested wording:
+
+```
+Correction to my own report: the scaling is not applied twice. The macros render the
+raw base points, and the description supplies the level scaling once. The minimum's
+rate (2.4/level) matches the effect's actual EffectRealPointsPerLevel and is correct;
+only the maximum's rate (1/level) is wrong. At level 60 the correct display is
+194 to 217 - so the fix is to change the maximum's ($PL-10)*1 to ($PL-10)*2.4, not to
+remove the terms. Apologies for the noise.
+```
+
+What falsified my original explanation: a client re-extraction returned `MaxLevel = 0`
+for this spell (uncapped), and a double application would render `242/195` — *above* the
+observed minimum of 194, which is impossible.
+
 **Filed:** 2026-08-04 · **Realm:** Darkmoon · **Spell:** 282987 (triggered by Hour of
 Judgement, 282986) · **Character:** Elric, level 60
 
@@ -34,34 +61,35 @@ The spell id and the "194 to 147" figure are both in the Issue body, so nothing 
 by keeping the title short.
 
 ## Issue
+⚠ **This is the CORRECTED text (2026-08-04).** The originally submitted version blamed a
+double-applied scaling term; that was wrong. See "If you already submitted" below.
 ```
 The tooltip for Hammer from the Heavens displays a damage range whose minimum is
 LARGER than its maximum: "A Holy hammer falls from the heavens, dealing 194 to 147
 Holy damage to nearby enemies."
 
-The cause looks like a double-applied level-scaling term in the spell's description
-text, with two different per-level rates:
+The cause appears to be that the maximum-damage term in the spell's description uses
+the wrong per-level scaling rate. The description reads:
 
-  min = ($PL-10)*2.4 + $m1
-  max = ($PL-10)*1   + $M1
+  min = ($PL-10)*2.4 + $m1 + ($AP*0.091) + ($SP*0.091)
+  max = ($PL-10)*1   + $M1 + ($AP*0.091) + ($SP*0.091)
 
-$m1 and $M1 ALREADY include the per-level scaling from the effect
-(EffectRealPointsPerLevel = 2.4, base level 10), so the "($PL-10)" terms add it a
-second time. Because the minimum term uses 2.4 per level and the maximum term uses
-only 1 per level, the minimum grows faster than the maximum and overtakes it at
-roughly level 29. At level 60 the gap is wide enough to be obvious.
+The effect's actual per-level scaling is 2.4 (db.ascension.gg reports Effect #1 as
+"School Damage: Value: 2 to 25, plus 2.4 per level"). So the MINIMUM term, at 2.4 per
+level, is correct - but the MAXIMUM term uses only 1 per level. The minimum therefore
+grows 2.4x faster than the maximum and overtakes it at around level 29.
 
-Checking the numbers at level 60: the level bonus resolves to 72, so $m1 = 74 and
-$M1 = 97. The text then renders (60-10)*2.4 + 74 = 194 and (60-10)*1 + 97 = 147,
-which is exactly what the tooltip shows.
+At level 60 the numbers work out exactly:
+  min = (60-10)*2.4 + 2  + stat terms = 194   <- correct
+  max = (60-10)*1   + 25 + stat terms = 147   <- too low; should be 217
 
-The underlying effect data itself looks fine - db.ascension.gg reports Effect #1 as
-"School Damage: Value: 2 to 25, plus 2.4 per level", a sane ascending range. So this
-reads like a text/template problem rather than bad spell data, and removing the two
-redundant "($PL-10)" terms from the description should resolve it.
+So the displayed maximum is short by 70 at level 60, and the fix looks like changing
+the maximum's "($PL-10)*1" to "($PL-10)*2.4" to match the minimum and the effect's
+real scaling rate.
 
-The two scaling components (+9.10% spell power, +9.10% attack power) are not affected
-and appear correct.
+The underlying effect data looks fine, and the two scaling components (+9.10% spell
+power, +9.10% attack power) are unaffected - this reads as a description/template
+problem rather than bad spell data.
 ```
 
 ## Is this a Gamebreaking Issue
@@ -83,8 +111,9 @@ Heavens is the spell triggered by Hour of Judgement (282986 -> 282987).
 
 ## Expected Outcome
 ```
-A damage range where the minimum is lower than the maximum, e.g. "dealing 74 to 97
-Holy damage" before spell power and attack power contributions.
+A damage range where the minimum is lower than the maximum. At level 60 the correct
+display would be "dealing 194 to 217 Holy damage" (the minimum shown today is already
+correct; only the maximum is wrong).
 ```
 
 ## Actual Outcome
@@ -93,7 +122,6 @@ Holy damage" before spell power and attack power contributions.
 enemies."
 
 The minimum (194) is higher than the maximum (147), which cannot be a valid range.
-Both numbers also appear too high, since they include the level scaling twice.
 ```
 
 ## Steps to Reproduce

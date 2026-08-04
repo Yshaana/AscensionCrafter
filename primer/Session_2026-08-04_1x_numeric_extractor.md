@@ -177,21 +177,65 @@ sentinel**. The decoder returns `None`, never `0.0` — so nothing downstream ca
 > live tooltip screenshot and the two db.ascension.gg pages, which closed it.** The
 > original analysis is kept below the verdict because the *reasoning* is what generalises.
 
-**At level 60: `74 to 97` Holy damage, `+9.1%` Spell Power, `+9.1%` Attack Power, per
-hit.** Radius 8 yards, instant. For Elric (AP 584 / SP 533): **176–199 per non-crit hit.**
+> ⚠ **CORRECTED after a `--with-dbc` re-extraction.** This section first said 74–97, on
+> the theory that level scaling capped at 40. The client returned `MaxLevel = 0`
+> (uncapped), falsifying it. The real explanation is below; **the figure is 122–145.**
+> Two claims made here earlier are retracted in §4a.
+
+**At level 60: `122 to 145` Holy damage, `+9.1%` Spell Power, `+9.1%` Attack Power, per
+hit.** Radius 8 yards, instant. For Elric (AP 584 / SP 533): **224–247 per non-crit hit**,
+averaging ~235.
 
 Three independent sources:
 
 | Source | Tier | What it gave |
 |---|---|---|
-| client DBC numeric fields | 4 | `base_points 1`, `die_sides 24`, `per_level 2.4`, `base_level 10` → unscaled 2–25 plus 2.4/level |
+| client DBC numeric fields | 4 | `base_points 1`, `die_sides 24`, `per_level 2.4`, `SpellLevel 10`, **`MaxLevel 0` (uncapped)** → `2+120` to `25+120` at level 60 |
 | **db.ascension.gg** page for `282987` | 3 | *"School Damage: Value: 2 to 25, plus 2.4 per level"* — matches the numeric fields exactly; plus *"Scaling #1: +9.10% of spell power"* and *"Scaling #2: +9.10% of attack power"* |
-| **live in-game tooltip** | 1 | `194 to 147` — which pins the level cap (below) |
+| **live in-game tooltip** | 1 | `194 to 147` — whose arithmetic independently solves to level 60 (§4a) |
 
-**The level scaling caps at level 40.** db renders `$m1`/`$M1` **unscaled** (literally
-`+2` and `+25` in its tooltip text); the client renders them **scaled**; the gap is
-exactly **72 = (40−10)×2.4** on both ends. So the level-60 roll is `2+72` to `25+72`,
-not the uncapped 122–145.
+## 4a. Solving the tooltip — and two retractions
+
+`$m1`/`$M1` render the **raw base points, unscaled** (2 and 25), exactly as db shows
+them. The description then supplies the level scaling itself. Treating the two displayed
+numbers as simultaneous equations, with `A` the shared `0.091×(AP+SP)` term:
+
+```
+min = (L-10)*2.4 +  2 + A = 194
+max = (L-10)*1   + 25 + A = 147
+      subtract:  (L-10)*1.4 - 23 = 47   ->   L = 60 exactly
+      back-substitute:                        A = 72  ->  AP+SP = 791
+```
+
+`A` cancels on subtraction, so **the character's level falls out of a tooltip
+independently of gear** — and it lands exactly on 60. That is what makes the model
+credible rather than fitted.
+
+**The bug is narrower than first described.** Scaling is applied *once*, not twice. The
+minimum's `2.4`/level **matches** the effect's real `EffectRealPointsPerLevel` and is
+correct; **the maximum's `1`/level is simply wrong.** At level 60 the tooltip should read
+**194 to 217**; it shows 147.
+
+### ❌ Retraction 1 — "the description double-applies level scaling"
+
+It does not. `$m1`/`$M1` carry no scaling. A double application would render `242/195` —
+**above** the observed minimum of 194, impossible since `A` cannot be negative.
+
+### ❌ Retraction 2 — "level scaling caps at 40, so the flat is 74–97"
+
+Falsified by the client: `MaxLevel = 0`. The 48-point gap that motivated the cap
+hypothesis is entirely explained by `A = 72`.
+
+### ❌ Retraction 3 — the pooled-parse argument was overconfident
+
+I cited 17,972 crawled hits as ruling out a 122–145 flat, because implied non-crit
+averages were 124–140. **That treated 12 crawled characters as if all were level 60.**
+The crawl records no character level (Phase 0 T2), and this ability scales 2.4/level — a
+level-40 character deals 74–97 for the same spell. With levels unknown and Holy taking
+partial resistance, those figures cannot discriminate flat hypotheses at all.
+
+**Generalised into primer §5:** pooled parse data cannot settle a magnitude that varies
+with anything the crawl does not record — level, rank, or gear.
 
 ### 🚨 The best proof in the project of §1's finding
 
@@ -200,74 +244,34 @@ scales at 9.1% SP and 9.1% AP. A numeric-fields-only reading of *coefficients* w
 have concluded this spell has **no stat scaling at all**. Numeric fields own the flats;
 they do not own Ascension's coefficients.
 
-### ✅ Correction to a claim made earlier in this same session
+### ⚠ Composition: the build doc's assumption revised
 
-An earlier draft said the build doc's assumed **30% SP / 30% AP / 40% flat** composition
-was *"wrong in shape."* **It is not.** That assumption already had SP and AP equal, which
-is exactly what the two Scaling rows confirm. At Elric's stats the real split is
-**26 / 26 / 46** — close, and now confirmed rather than overturned. The §10 stat weights
-resting on it stand.
+`build_paladin-hammerdin.md` §10 assumed **30% SP / 30% AP / 40% flat**. It was **right
+that SP and AP contribute equally** — the coefficients are identical at 0.091 — but
+**understated how flat-dominated the ability is.** At Elric's stats the real split is
+**~21 / 23 / 57**.
 
-### Why the tooltip is inverted — the generalisable part
+That is the direction §10's own caveat anticipated (*"if it's mostly flat, SP and AP
+weights drop and spell crit's dominance grows further"*), so it **reinforces** the
+existing gearing order rather than disturbing it. It also means this ability's 22.1%
+damage share **decays as gear scales** and should be re-derived after a tier jump.
 
-The description **double-applies level scaling**: once inside `$m1`/`$M1`, then again as
-explicit `($PL-10)*2.4` on the minimum and `($PL-10)*1` on the maximum. **The rates
-differ**, so the minimum grows 2.4× faster than the maximum and overtakes it above
-roughly level 29.
+*(An earlier draft of this section said 26/26/46, computed from the retracted 74–97
+flat.)*
 
-The engine does **not** evaluate those text terms. Confirmed against **17,972 pooled
-hits** from 12 characters in the 2026-08-04 crawl: implied non-crit damage is 124–140 on
-the two largest samples (Zyzz 4,310 hits, Kieceblower 2,860), which is **below the
-tooltip's own stated minimum of 194** — and below the uncapped flat term before any
-spell power at all, which would require negative SP.
-
-**Rule worth carrying: a rendered tooltip number can be arithmetically impossible.**
-Treat the displayed range as text, not as a measurement.
-
-### `max_level` added to the extractor
+### `max_level` added to the extractor — and what it actually found
 
 `spell_dbc_raw` did not store `MaxLevel`, and without it a level-scaled magnitude cannot
-be computed — this spell is why. The column is added to `build_dbc_index.py`; it stays
-**NULL until the next `--with-dbc` run**, since only the client has it.
+be computed. Added to `build_dbc_index.py`, and the owner ran `--with-dbc` the same day.
 
----
+**It returned `MaxLevel = 0` for `282987` — uncapped — which falsified the cap
+hypothesis** (§4a, Retraction 2). Column alignment was verified independently: Holy
+Supernova R6 reads `spell_level 60`, R1 reads `14`, cooldown 40,000 ms, all matching
+known values.
 
-### Original analysis, kept for the reasoning
-
-`build_paladin-hammerdin.md` §12 item 2 calls sub-spell `282987` *"the largest
-uncertainty in the stat weights"* (22.1% of damage). It **is** in `spell_dbc_raw`:
-
-```
-SchoolMask 2 (Holy) · Effect[0] = 2 (school damage)
-EffectBasePoints [1, 0, -1] · EffectDieSides [24, 1, 1]
-EffectRealPointsPerLevel [2.4, 0, 0] · EffectBonusCoefficient ALL ZERO
-```
-
-So the flat term is a numeric-field fact (`$m1 = 2`, `$M1 = 25`, 2.4/level) while the
-SP/AP coefficients exist **only as text** — `$AP*0.091` and `$SP*0.091`, equal to each
-other. Another instance of §1.
-
-🛑 **The flat term is NOT settled and no number should be published from it.** The
-description's own formula is `${(($PL-10)*2.4+$m1)+…}` to `${(($PL-10)*1+$M1)+…}`, which
-evaluated literally at level 60 gives a **minimum of 122 and a maximum of 75** — an
-inverted range. Either the macro semantics differ from the literal reading (likely:
-`$m1`/`$M1` may already include per-level scaling) or the text is stale. **Needs a
-tier-1 in-game tooltip read at level 60.**
-
-What *did* change: the build doc's assumed **30% SP / 30% AP / 40% flat** composition is
-wrong in shape — the SP and AP coefficients are **equal**, at 0.091 each.
-
-### Attribution gap found in the same check
-
-`282987` is reached from a card by **`EffectTriggerSpell`** (Hour of Judgement `282986`
-triggers it), **not** by a tooltip `hidden_ref` — so this session's extractor never
-attributed it to a catalog card. **529 such catalog → out-of-catalog trigger links
-exist, across 519 distinct targets.**
-
-Following them is `PHASE_1` **T5's `triggers` relation**, and it was deliberately not
-built here: multi-hop chains need cycle handling and an attribution semantics decision,
-and T5 already owns the relation type. **`1b` should pick this up** — it is the next
-sizeable block of unresolved magnitudes after this session's 794.
+The column earns its place regardless: **1,653 spells carry a real cap, and 196 of the
+354 level-scaled catalog spells are capped.** T4 cannot compute a correct level-60 flat
+for those without it.
 
 ## 5. Unrelated pre-existing bug, not fixed
 

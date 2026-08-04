@@ -11,14 +11,14 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 **Next session: `1b` — `spell_mechanics` (T4) + relationship graph (T5), the schema core.**
 
-> 🛑 **Do this before T4 computes any level-60 magnitude: `py cli/rebuild.py --with-dbc`**
-> (needs the game client + StormLib — owner's machine only). `spell_effect_values` stores
-> flats **unscaled**, and a level-60 value needs `min(level, max_level)`; `max_level` was
-> added to the extractor in `1x` but is **NULL until a client re-extraction**. 354 catalog
-> spells carry a per-level term (342 of them owned), and the cap is material —
-> Hammer from the Heavens caps at level 40 (48 points, ~39% of its flat), and
-> **Consecrated Weapon**, 17.8–22.4% of the owner's damage, is base 411 **+19/level**.
-> ⚠ That run rewrites the committed extracts, so commit it separately.
+> ✅ **`max_level` is populated — the owner ran `py cli/rebuild.py --with-dbc` on
+> 2026-08-04, so this is no longer a T4 blocker.** `spell_effect_values` stores flats
+> **unscaled**; a level-60 value is
+> `flat + (min(level, max_level or level) − spell_level) × per_level`.
+> **1,653 spells carry a real cap and 196 of the 354 level-scaled catalog spells are
+> capped**, so T4 must apply it rather than assuming uncapped scaling.
+> ⚠ **`max_level = 0` means UNCAPPED, not "caps at zero"** — that distinction is what
+> falsified this session's own cap hypothesis. Treat 0 as "no cap".
 
 **✅ SESSION `1x` IS DONE (2026-08-04).** 794 of 887 blocked hidden-formula spells
 resolved from numeric DBC fields; the rank question settled. Session record:
@@ -208,8 +208,10 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 |---|---|---|
 | 2026-08-04 (1x) | ❌ **RETRACTED: "reading a coefficient off the catalog's Rank-1 entry is probably safe."** Coefficients DO scale with rank; **`spell_scaling` needs rank keying** | Phase 0 derived it from **one** line (Holy Supernova, identical at R1 and R6). Measured across all **1,580** multi-rank lines with 2+ DBC members: numeric coefficient constant 696 / **varies 169**; tooltip literals constant 132 / **varies 34**. The shape is retail's low-rank penalty — ramp then plateau, 110 of the 169 — and the catalog stores **Rank 1**, the deepest point of the penalty. Seven catalog entries measurably affected (Sun Down SP 0.4→1.3 = 3.25×; Grasp of Darkness 0.5→1.4 = 2.8×; Spirit Charge changes term type SP→AP). Seven is a **floor**: 547 more state no coefficient in either rank's text. Migration deferred to T4 by owner decision |
 | 2026-08-04 (1x) | 🚨 **CORRECTED: `EffectBonusCoefficient` is NOT the SP/AP coefficient** — it is `EffectBonusMultiplier`, default 1.0 | Phase 0's *"311 blocked spells carry a non-zero `EffectBonusCoefficient` (SP/AP scaling)"* counted right and read the field wrong. **7,647 of 9,211** non-zero values are exactly 1.0; the recurring non-defaults are retail's cast-time formula (`0.429 = 1.5/3.5`, `0.714 = 2.5/3.5`); calibrated against 98 spells stating their own `$SP*x`/`$AP*x` it agrees **4 times**. Of the 343 blocked spells with any coefficient, **270 carry only 1.0** → the real surface is **≤73, not 311**. Building the extractor on it would have fabricated SP coefficients across 311 spells *with tier-4 provenance attached*. Ascension keeps applied coefficients in **tooltip text**; the field is stored as `bonus_multiplier` and never emitted as SP/AP |
-| 2026-08-04 (1x) | 🚨 **A live tooltip can render an arithmetically impossible range** — Hammer from the Heavens displays *"194 to 147"* in-game. The engine ignores it | Owner-supplied screenshot, tier 1. The description **double-applies level scaling** — once inside `$m1`/`$M1`, then again as `($PL-10)*2.4` (min) and `($PL-10)*1` (max) — and the mismatched rates make the minimum overtake the maximum above ~level 29. Confirmed the engine does **not** evaluate those terms: 17,972 pooled hits give implied non-crit damage of 124–140 on the two largest samples, **below the tooltip's own stated minimum**. **Treat a rendered range as text, not as a measurement** |
-| 2026-08-04 (1x) | 🆕 **`max_level` added to `spell_dbc_raw`** — without it a level-scaled magnitude cannot be computed at all | Hammer from the Heavens' level scaling caps at **40**, not 60, which is the whole difference between a 74–97 roll and a 122–145 one. The column exists in `build_dbc_index.py` now but is **NULL until the next `--with-dbc` extraction** — only the client has the field |
+| 2026-08-04 (1x) | 🚨 **A live tooltip can render an arithmetically impossible range — and solving it pins values no single source states** | Hammer from the Heavens displays *"194 to 147"* in-game (owner screenshot, tier 1). The description hand-rolls level scaling at **two different rates** — `($PL-10)*2.4` on the min, `($PL-10)*1` on the max — while `$m1`/`$M1` render the raw base unscaled. The min's rate matches the effect's real 2.4/level and is **correct**; the max's 1/level is **wrong**, so the min overtakes it above ~level 29. At 60 it should read **194 to 217**. Treating the two numbers as simultaneous equations cancels the unknown stat term and yields **`L = 60` exactly** — the character's level falls out of a tooltip |
+| 2026-08-04 (1x) | ❌ **RETRACTED, twice, on Hammer from the Heavens: "double-applies scaling" and "caps at level 40 → flat 74–97"** | Both were mine, both wrong, both caught the same day. A double application would render 242/195 — *above* the observed minimum, impossible. And a `--with-dbc` re-extraction returned **`MaxLevel = 0`** (uncapped). The 48-point gap that motivated the cap is fully explained by the stat term `A = 72`. **The flat is 122–145 at level 60**, and §10's assumed 30/30/40 split becomes **~21/23/57** — right that SP and AP are equal, wrong about how flat-dominated it is |
+| 2026-08-04 (1x) | ❌ **RETRACTED: pooled crawl data "ruled out" the higher flat** — it cannot settle a level-scaled magnitude at all | 17,972 hits were cited as decisive, treating 12 crawled characters as if all were level 60. **The crawl records no character level** (Phase 0 T2) and this ability scales 2.4/level — a level-40 character deals 74–97 for the same spell. With Holy partial resistance on top, the figures discriminate nothing. **Generalised into primer §5:** never cite pooled damage about a magnitude that varies with something the crawl does not record |
+| 2026-08-04 (1x) | 🆕 **`max_level` added to `spell_dbc_raw`, and the owner re-extracted the same day** | Without it a level-scaled magnitude cannot be computed. **1,653 spells carry a real cap; 196 of the 354 level-scaled catalog spells are capped**, so T4 needs it. Column alignment verified independently (Holy Supernova R6 `spell_level 60`, R1 `14`, cooldown 40,000 ms). ✅ **No longer a T4 blocker — it is populated** |
 | 2026-08-04 (1x) | 🆕 **Magnitudes are also reached by `EffectTriggerSpell`, not only by tooltip `hidden_refs`** — ~519 spells still unattributed | Found while checking **Hammer from the Heavens** (`282987`), the owner's largest stat-weight unknown: it is triggered by Hour of Judgement (`282986`), two hops from any card, so `1x`'s hidden_ref-based extractor never saw it. **529 catalog → out-of-catalog trigger links across 519 distinct targets.** Deliberately not built here — multi-hop chains need cycle handling and an attribution decision, and **T5 already owns the `triggers` relation** |
 | 2026-08-04 (1x) | ⚠ **The "15 rank differences" number was nearly published; the honest figure is 7** | Eight entries had a coefficient at one rank and none at the other — **not** a difference. Three confirmed causes: a compound form the regex cannot read (`($SP+$AP)*0.36`, Bone Arrow), a formula moved into a sub-spell (`$71791m1`, Deep Freeze), and a rank line that pulled in a **different ability of the same name** (Blood Drinker) — the duplicate-name trap surviving inside `dbc_spell_rank`'s grouping. Now a separate verdict, excluded from the headline |
 | 2026-08-04 (1a) | 🔬 **REFINED: "697 wrong-rank catalog entries" is a LOWER BOUND. The real figure is 711, and 25 of them are genuinely AMBIGUOUS** | Phase 0's reporter used `max()`, which silently returns the first of a tie. Two real causes of ties: a rank line whose members *all* read "Rank 1" (`Desolation`, 5 members), and a line pulling in an other-realm 11-prefix variant (`Arcane Focus` → 912840 **and** 1212840). Now recorded as `confidence='conflict'` in `spell_id_crosswalk`, never tie-broken. `resolve_entry_id()` returns `level_spell_id=None` plus a candidate list when ambiguous |
@@ -294,10 +296,12 @@ spell that deals no damage; the damage is `276075`, SchoolMask 36 = Shadowflame*
 data vary, 34 of 166 with text data vary, in a ramp-then-plateau shape. `spell_scaling`
 needs rank keying; see the plan-changes table. ·
 ~~What are Hammer from the Heavens' coefficients?~~ ✅ **RESOLVED mid-session** from an
-owner-supplied live tooltip + the db.ascension.gg pages: **74–97 Holy, +9.1% SP, +9.1%
-AP** at level 60 (level scaling caps at 40). This was the largest single unknown in the
-Paladin build's stat weights, open since v5. The build doc's assumed 30/30/40 split is
-**confirmed** (real: 26/26/46), not overturned.
+owner-supplied live tooltip + the db.ascension.gg pages + a `--with-dbc` re-extraction:
+**122–145 Holy, +9.1% SP, +9.1% AP** at level 60 (level scaling **uncapped**). This was
+the largest single unknown in the Paladin build's stat weights, open since v5. §10's
+assumed 30/30/40 split becomes **~21/23/57** — right that SP and AP are equal, wrong
+about how flat-dominated it is, which *reinforces* the existing spell-crit-first gearing
+order. ⚠ Two intermediate answers were retracted along the way; see the plan-changes table.
 
 | Question | Blocks | How to settle |
 |---|---|---|

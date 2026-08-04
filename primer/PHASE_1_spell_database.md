@@ -443,23 +443,26 @@ Ascension keeps the coefficients it applies in **tooltip text**. The field is st
 Standing caveat, unchanged: **every coefficient currently in the index was extracted from a
 Rank 1 catalog tooltip**, so those rows are lower bounds wherever the line ramps.
 
-### 🛑 T4 PREREQUISITE: run `py cli/rebuild.py --with-dbc` first
+### ✅ Level scaling: `max_level` is populated, and T4 must apply it
 
-`spell_effect_values` stores flats **unscaled**, because a level-60 value needs
-`min(level, max_level)` — and **`max_level` does not exist in the database yet.** The column was
-added to `build_dbc_index.py` in `1x`, but only the game client has the field, so it stays NULL
-until a client re-extraction (client + StormLib required).
+`spell_effect_values` stores flats **unscaled**. The level-N value is:
 
-**This is not cosmetic.** 354 catalog spells carry a per-level term, 342 of them cards the owner
-owns. Hammer from the Heavens proved the cap is real and material — its scaling stops at level 40,
-worth 48 points, ~39% of its flat term. And **Consecrated Weapon** — 17.8–22.4% of the owner's
-damage — is base 411 **+19/level**, so a wrong cap corrupts a headline number in his own build.
+```
+flat + (min(level, max_level or level) - spell_level) * per_level
+```
 
-Without it T4 must either assume uncapped scaling (demonstrably wrong at least sometimes) or leave
-level-scaled flats unresolved. Get the field first, then build the truth table on top of it.
+`max_level` was added to `spell_dbc_raw` in `1x` and the owner re-extracted the same day, so the
+field is live. **354 catalog spells carry a per-level term** (342 of them cards he owns), and
+**1,653 spells have a real cap, 196 of them among those 354** — so T4 cannot simply assume
+uncapped scaling.
 
-⚠ That run **rewrites the two committed extracts** in `data/source/dbc/`, so it belongs in a commit
-of its own.
+🛑 **`max_level = 0` means UNCAPPED, not "caps at zero".** 12,532 spells read 0. Getting this
+backwards is not hypothetical — it is what produced this session's own retracted claim that Hammer
+from the Heavens caps at level 40.
+
+Worked example, `282987`: `base 2..25`, `per_level 2.4`, `spell_level 10`, `max_level 0` →
+at level 60, `2 + (60-10)*2.4 = 122` to `25 + 120 = 145`. Verified against the live tooltip and
+db.ascension.gg.
 
 ### 🆕 T4 consumes `spell_effect_values` (built in `1x`)
 
