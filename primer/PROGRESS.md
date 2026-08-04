@@ -9,7 +9,61 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `1b` — `spell_mechanics` (T4) + the relationship graph (T5). The schema core.**
+**Next session: `1x` — the numeric-field DBC extractor. Then `1b`.**
+
+> **Why `1x` and not `1b`:** the a/b/c chunking in `START_HERE_FOR_CODE.md` was written
+> before Phase 0 discovered this task, and renumbering would break every existing
+> cross-reference — the project's own most expensive failure mode. Letters here have
+> never implied order anyway: **`0b` ran before `0a`.** `1x` runs between `1a` and `1b`.
+
+**`1x` scope (owner decision, 2026-08-04): its own session, before `1b`.** Build a
+numeric-field extractor over the client DBC. It resolves **788 of the 803 (98%)**
+hidden-formula spells the current text-regex resolver cannot crack — 311 carry a
+non-zero `EffectBonusCoefficient`, 770 carry usable `EffectBasePoints`/`DieSides`, and
+only 15 are genuinely empty (debuff/immunity markers with no magnitude to find).
+
+- 🛑 **Numeric fields ONLY — never the `description` string.** That is the Titanic
+  Mutilate trap: the description said 115%, the field said 70%, and the description
+  was stale dead text. It has already cost this project one retraction.
+- It goes before `1b` because `spell_mechanics` is meant to be the *resolved* truth
+  table; populating it while 98% of hidden formulas are unresolved means building it
+  twice.
+- Cheaper than it was: `spell_dbc_raw` gained 17 numeric columns in `1a`.
+- **Settle "do coefficients scale with rank?" in the same session** — no in-game work
+  needed any more. `dbc_spell_rank` gives confirmed same-line rank pairs, so compare
+  `EffectBonusCoefficient` across ranks of one line, at scale. Phase 0's single-line
+  result (identical at R1 and R6; only flats scale) is the hypothesis to test. **This
+  is a `PHASE_1` T4 blocker** — T4 says settle it before deciding whether
+  `spell_scaling` needs rank keying.
+
+**Then `1b`** — `spell_mechanics` (T4) + relationship graph (T5), the schema core.
+
+**What `1x` and `1b` inherit, and should not re-derive:**
+
+- **One command rebuilds everything: `py cli/rebuild.py`** (13 steps, ~32s from empty).
+  Add `--with-dbc` only after a client patch. Database: `data/derived/ascension.db`.
+- **`core/` is pure** — no `print()`, no `argparse`, no paths, connection passed in, and
+  it may not import `config.py`. `tools/audit/check_core_purity.py` enforces it; run it
+  after touching `core/`. **T4's `resolve_spell_mechanics()` goes in
+  `core/spells/mechanics.py` and obeys this.**
+- **The crosswalk is live.** Never join `entry_id` to `spells.id`; call
+  `core.spells.crosswalk.resolve_entry_id()` or `py cli/crosswalk.py --resolve <id>`.
+- **Rank resolution is a function**, `core.spells.ranks.rank_for_level()`. T4's third
+  resolver rule ("never serve a lower-rank value for a higher-rank query") calls it
+  rather than re-deriving it.
+- **Fingerprinting is a function**, `core/spells/fingerprint.py`, with **two field
+  sets** — see the plan-changes table. T4's fourth rule is already implemented.
+- **`networkx` 3.6.1 is installed** (owner decision, 2026-08-04) — T5 uses it as
+  ARCHITECTURE specifies rather than hand-rolling graph algorithms. See
+  `requirements.txt`.
+- **T4's primary key:** measured in `1a` — **0** CA cards reuse a spell_id across rank
+  slots and **0** in-pool spell_ids are shared across cards, so `spell_id` already
+  identifies a card-rank uniquely in the playable pool. Key as the doc specifies
+  anyway (`rank = 0` means rank-independent); just know `rank` is a label there, not a
+  disambiguator.
+- **Do the carried-over `stats_summary.sourcesByStat` check** — deferred from `0b`
+  *and* `0a`. Cheap, and it could settle the Path of Duality question from data already
+  on disk.
 
 **✅ SESSION `1a` IS DONE (2026-08-04).** Repo restructured to ARCHITECTURE §4, patch/realm/season
 tracking built, ID crosswalk built. Session record:
@@ -73,7 +127,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **0b** | Crawler + changelog fetcher (T6) | ✅ done | `Session_2026-08-04_0b_crawler.md` | Shipped 2026-08-04. Changelog backfilled (353 pages, back to 2016). Baseline captured |
 | **0a** | Recon T1–5, 7, 8, 9 | ✅ done | `Session_2026-08-04_0a_recon.md` | **Phase 0 complete.** `RECON_FINDINGS.md` written. Crosswalk resolved; class coverage 13%→58%; rank resolution solved; 2 pipeline bugs fixed |
 | **1a** | Restructure, patches/realms/seasons, crosswalk | ✅ done | `Session_2026-08-04_1a_restructure_crosswalk.md` | `core/api/cli` split + purity check; `cli/rebuild.py`; 5 patch tables; `spell_id_crosswalk` (4 ID spaces); class coverage 394→1,794. Crawler scheduling automated in the same session |
-| 1b | `spell_mechanics` + relationship graph | ⬜ | — | ▶ **NEXT.** Read `PHASE_1_spell_database.md` T4+T5. Put the resolver in `core/spells/mechanics.py`; reuse `ranks.py`, `fingerprint.py`, `crosswalk.py` rather than re-deriving them |
+| **1x** | Numeric-field DBC extractor (+ settle rank-vs-coefficient) | ⬜ | — | ▶ **NEXT.** Inserted 2026-08-04 by owner decision; not in the original chunking. 788/803 blocked spells. 🛑 numeric fields only |
+| 1b | `spell_mechanics` + relationship graph | ⬜ | — | After `1x`. Read `PHASE_1_spell_database.md` T4+T5. Put the resolver in `core/spells/mechanics.py`; reuse `ranks.py`, `fingerprint.py`, `crosswalk.py` rather than re-deriving them |
 | 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | |
 | 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | |
 | 2b | Three sim tiers + uncertainty | ⬜ | — | |

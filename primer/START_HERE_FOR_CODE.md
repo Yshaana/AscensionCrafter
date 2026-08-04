@@ -122,8 +122,9 @@ adjust it there if reality disagrees.
 | Session | Scope |
 |---|---|
 | **0b** | Task 6 — crawler + changelog fetcher (manual-first, Windows). ✅ **DONE 2026-08-04** |
-| **0a** | Recon Tasks 1–5, 7, 9. Fetching and reading, almost no code. Produces `RECON_FINDINGS.md`. ▶ **next** |
-| **1a** | Repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3) |
+| **0a** | Recon Tasks 1–5, 7, 9. Fetching and reading, almost no code. Produces `RECON_FINDINGS.md`. ✅ **DONE 2026-08-04** |
+| **1a** | Repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3). ✅ **DONE 2026-08-04** |
+| **1x** | Numeric-field DBC extractor (788/803 blocked spells) + settle rank-vs-coefficient. ▶ **next** |
 | **1b** | `spell_mechanics` (T4) + relationship graph (T5) — the schema core |
 | **1c** | Facts/questions (T6), `spell_profile()` (T7), auto-debugger + test protocols (T8), browsing (T9), volatility (T10) |
 | **2a** | Combat engine (T1) + content profiles (T2) + ability model (T3) + build spec (T4) |
@@ -134,7 +135,9 @@ adjust it there if reality disagrees.
 | **4** | Legos and Theorycrafter, chunked as it goes |
 
 0b came first because the crawler was on a hard deadline; it's done. Everything after Phase 0 is
-sequential.
+sequential. **Letters do not imply order** — `0b` ran before `0a`, and `1x` was inserted between
+`1a` and `1b` after Phase 0 found a task the original chunking didn't anticipate. `PROGRESS.md`
+decides what's next, not the alphabet.
 
 ---
 

@@ -1,0 +1,19 @@
+# AscensionCrafter dependencies. Deliberately short — most of this repo is stdlib,
+# and the ingest/rebuild chain (py cli/rebuild.py) needs NOTHING from this file.
+#
+#   pip install -r requirements.txt
+
+# Acquisition only: tools/scrapers/* (the daily crawler, changelog fetcher, scouting).
+requests
+
+# Phase 1 Task 5's relationship graph: core/spells/graph.py.
+# ARCHITECTURE §T5 - "using networkx, no graph database; at a few thousand nodes this
+# is trivially in-memory and a graph DB adds an operational dependency for no gain."
+networkx
+
+# NOT a dependency, on purpose:
+#   * StormLib - ingest/dbc/build_dbc_index.py loads it via ctypes from a locally
+#     built DLL (ASCENSION_STORMLIB_DLL overrides the path). Only needed when
+#     re-extracting from the game client; every other session reads the committed
+#     JSON in data/source/dbc/ instead.
+#   * datasette - Phase 1 Task 9, browsing convenience only. Install it ad hoc.

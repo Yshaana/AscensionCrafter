@@ -1,5 +1,5 @@
 {
- "next_report_id": 5,
+ "next_report_id": 9,
  "reports": {
   "2": {
    "crawled_at": "2026-08-04T18:00:59.900800+00:00",
@@ -15,6 +15,26 @@
    "crawled_at": "2026-08-04T18:07:35.152796+00:00",
    "encounters": 83,
    "bosses": 49
+  },
+  "5": {
+   "crawled_at": "2026-08-04T21:17:55.755683+00:00",
+   "encounters": 138,
+   "bosses": 80
+  },
+  "6": {
+   "crawled_at": "2026-08-04T21:19:42.112006+00:00",
+   "encounters": 56,
+   "bosses": 28
+  },
+  "7": {
+   "crawled_at": "2026-08-04T21:20:22.070919+00:00",
+   "encounters": 30,
+   "bosses": 10
+  },
+  "8": {
+   "crawled_at": "2026-08-04T21:20:47.711361+00:00",
+   "encounters": 26,
+   "bosses": 6
   }
  },
  "missing_reports": [
@@ -429,5 +449,8 @@
    "name": "Xizek",
    "last_armory_at": "2026-08-04T18:12:43.154809+00:00"
   }
+ },
+ "watchlist_ids": {
+  "Elric": 39772
  }
 }
