@@ -295,6 +295,11 @@ other reason to touch. Worth doing in `1b`.
   multiplier 83% of the time.
 - **`resolve_spell_mechanics()` should consume `spell_effect_values`** for flats,
   per-level and per-combo terms — that is what it was built for.
+- **Apply level scaling when serving a flat.** `spell_effect_values` stores it *unscaled*:
+  `flat + (min(level, max_level or level) − spell_level) × per_level`. 354 catalog spells
+  need it, 196 of them are genuinely capped.
+  🛑 **`max_level = 0` means UNCAPPED**, not "caps at zero" — 12,532 spells read 0, and
+  getting it backwards is what produced this session's retracted cap hypothesis.
 - **The trigger-chain gap (§4) is T5's `triggers` relation** and unlocks ~519 more
   spells' magnitudes.
 - `core/spells/text_extraction.py`'s **compound-form gap** (`($SP+$AP)*0.36`,

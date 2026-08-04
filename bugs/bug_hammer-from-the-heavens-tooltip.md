@@ -3,10 +3,14 @@
 📤 **SUBMITTED 2026-08-04 → [ascension.gg/bugtracker/view/199929](https://ascension.gg/bugtracker/view/199929)**
 (the tracker is auth-gated, so status and any dev reply have to be read while logged in).
 
-## 🔴 If you already submitted: the diagnosis needs correcting
+## ✅ Correction filed 2026-08-04 — report is now accurate
 
-**The core report is still valid** — the range really is inverted, and that is the part a
-dev acts on. But the *explanation* I supplied was wrong, and it points at the wrong fix.
+The originally submitted diagnosis was wrong and would have pointed a dev at a fix that
+breaks the currently-correct minimum. **The owner has updated the report**; the table
+below records what changed, so a future session doesn't re-raise it.
+
+**The core report was always valid** — the range really is inverted, and that is the part
+a dev acts on. Only the *explanation* was wrong.
 
 | | submitted version | correct |
 |---|---|---|

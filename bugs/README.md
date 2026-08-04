@@ -19,7 +19,7 @@ submitted whenever there's time rather than lost in a session transcript.
 
 | Status | Bug | Spell | File |
 |---|---|---|---|
-| 📤 **submitted 2026-08-04** — [tracker #199929](https://ascension.gg/bugtracker/view/199929) | Tooltip damage range is inverted — displays "194 to 147" at level 60 | `282987` Hammer from the Heavens | [bug_hammer-from-the-heavens-tooltip.md](bug_hammer-from-the-heavens-tooltip.md) |
+| 📤 **submitted 2026-08-04, diagnosis corrected same day** — [tracker #199929](https://ascension.gg/bugtracker/view/199929) | Tooltip damage range is inverted — displays "194 to 147" at level 60 where it should read 194 to 217. The maximum term scales at 1/level where the effect scales 2.4/level | `282987` Hammer from the Heavens | [bug_hammer-from-the-heavens-tooltip.md](bug_hammer-from-the-heavens-tooltip.md) |
 | 🔍 needs verification | Damage school **changes across ranks of one card** — 0 → 32 (Shadow) → 1 (Physical). Found in session `1a`, recorded as an unresolved conflict; it is the only card in the pool that does this | Necrosis | — |
 | 🔍 needs verification | Scaling **term type changes across ranks** — catalog rank scales from Spell Power (0.2), the level-60 rank scales from Attack Power (0.2). A stat swap between ranks of one ability is odd enough to be a data error | `281220` → `281224` Spirit Charge | — |
 | 🔍 needs verification | **AP term disappears at higher rank** — catalog rank has SP 0.4 / AP 0.2, the level-60 rank has SP 1.3 and no AP term at all | `289100` → `289107` Sun Down | — |
@@ -84,3 +84,11 @@ is open in-game.
   wrong about a detail we flagged as a guess costs nothing; asserting it as measured does.
 - **Say plainly what would change if they disagree** — e.g. "if the text is the intended
   damage, this is a damage bug, not a display bug." That is the follow-up worth tracking.
+- **🔴 Separate the observation from the diagnosis, and label which is which.** Report
+  #199929 had to be corrected the same day: the observation (the range is inverted) was
+  right, but the offered cause was wrong and its suggested fix would have broken the part
+  of the tooltip that was already correct. The report survived because the two were
+  written as separate paragraphs — a dev could still act on the observation. **Had the
+  diagnosis been woven into the description, the whole report would have been wrong.**
+- **If a diagnosis turns out wrong, file the correction yourself** rather than leaving it.
+  Volume of reports is worth less than a reporter whose reports can be trusted.
