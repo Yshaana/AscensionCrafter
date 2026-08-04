@@ -1,4 +1,53 @@
-# Ascension Spell/Card Index — Guide (v7)
+# Ascension Spell/Card Index — Guide (v8)
+
+**v8 changelog (2026-08-04, session `0a`):** Phase 0 recon landed four new client-derived tables and
+corrected three claims this guide was carrying. Full evidence in `primer/RECON_FINDINGS.md` — only
+the index-mechanics consequences are here.
+
+- 🎯 **RESOLVED, open since v4: `scouted_build_entries.entry_id` is the CharacterAdvancement ID, NOT
+  `spells.id`.** Measured over 1,054 distinct entry_ids from 12 scouted characters + the 48-character
+  Phase 1 baseline: **0 of 1,054** equal the catalog id of the same-named card. The one numeric
+  collision (`50043`) is a false friend — `Ghostly Finish` in the crawl, `Chilblains` in the catalog.
+  They are structurally different: `entry_id` is **rank-independent** (rank lives in its own field),
+  `spellId` is **rank-specific**. The v4/v5 "do not join" warnings below were right and are now
+  upgraded from caution to **confirmed fact**. Join through `dbc_character_advancement` instead.
+- 🆕 **`CharacterAdvancement.dbc` is extractable** (10,231 records) and is the crosswalk: `ca_id` =
+  `entry_id`, slots 5–9 = `SpellRank[5]` = the spellId per card rank. 1,054/1,054 crawled entry_ids
+  resolve; 660/660 names agree. It also carries **rarity** (Poor→Artifact) and required levels.
+- 🆕 **`dbc_spell_rank` makes "which rank does a level-60 character cast" a query.** Rule: highest
+  rank in the line with `SpellLevel <= level`. ❌ The **contiguous-id rank rule is disproven**
+  (4,791 non-contiguous lines vs 1,908 contiguous), so the primer §5 "check ±1–3" heuristic is not
+  safe in general. 🚨 **697 catalog entries — ~50% of the multi-rank ones — are stored at a rank a
+  level-60 character does not hold**, with the correct id absent from the catalog entirely.
+- 🆕 **`dbc_spell_class` resolves class from SkillLine NAMES, not ClassMask.** Ascension renamed the
+  skill lines to class names (line 26 is "Warrior", not retail's "Arcane"); `ClassMask` is 512
+  (its own "Hero" class) on ~10k rows and useless. **1,789/3,061 catalog entries (58%)** get a
+  deterministic single class, vs 394 (13%) via `class_origin` today — and it agrees with 382/387
+  existing rows and 7/7 of primer §4's proof cases. **5 conflicts are recorded, not resolved.**
+- 🆕 **`dbc_gt_tables`** — the `gt*` combat-rating conversion tables (22,564 rows) Phase 2 needs for
+  rating→percent at level 60, rather than assuming retail values.
+- 🆕 **New committed artifact `index/dbc-ascension-extract.json`** (~16 MB) holding those four tables
+  plus `dbc_skill_line` / `dbc_skilllineability`. Separate from `dbc-extract.json` because that file
+  is already ~14 MB and is rewritten wholesale each run. Committed because none of it can be
+  reproduced without the game client.
+- ❌ **CORRECTION to v3 below: the hidden-formula resolver WAS incremental, and destructively so.**
+  v3 claims it "already runs against the *full* `has_hidden_formula=1` list every time it's invoked
+  (not incremental)". Wrong: it clears `has_hidden_formula` on every spell it resolves, so a second
+  run found nothing to re-derive **after deleting its own rows** — two consecutive runs took
+  `spell_scaling`'s `dbc_hidden_formula` rows from 113 to 0. The `spell_dbc_raw` scoping filter had
+  the same bug. Both fixed; clean run and re-run now both give 84/887 resolved, 113 rows.
+- 🚨 **98% of the 803 blocked hidden-formula spells would resolve from NUMERIC fields** (311 carry a
+  non-zero `EffectBonusCoefficient`, 770 carry usable `EffectBasePoints`/`DieSides`). v3 called
+  decoding those "out of scope for the current regex-based resolver" — correct, and now quantified:
+  it is the largest single data win available. ⚠ Numeric fields only, never the `description` string.
+- ⚠ **`spell_dbc_raw` scoping widened** to include rank siblings (+7,639 ids, 11,714 → 15,769 rows).
+  The old catalog±3 buffer was excluding the exact spell a level-60 character casts — which is how
+  274132 came to be recorded as "absent from the client". It is **Winds of Winter Rank 5**.
+- ✅ **Self-contradiction fixed** (Phase 0 Task 8): the "Known gaps" section still listed the
+  fight-level per-ability endpoint as not found while v7's changelog documented it working. Removed.
+- ✅ **v7's two "known API quirks" resolved** by session 0b: the leaderboard's 25-cap was not
+  reproduced at `limit=100`, and `role=healer` is wrong — the allowed values are
+  `tank, dps, tanks-and-dps, support`, so **`support` is the healer role**.
 
 **v7 changelog (2026-08-03):** Two new reusable API techniques from the Hammer-from-the-Heavens hunt (the same 2026-08-03 scouting session as v6), documented here rather than re-discovered per search:
 
@@ -133,6 +182,45 @@ Seeded with the 4 known buckets from the primer (Enhanced Weapon Mastery/Unendin
 | notes | classification rationale; `'needs manual review'` on ambiguous bulk-scan extractions rather than a guessed classification |
 
 Hand-seeded with the 3 primer §5 cases, then bulk-scanned across all `type='talent'` tooltips for amplifier language (`increases ... by $sN%` patterns). The bulk pass is intentionally conservative — anything that doesn't cleanly resolve to either a known ability/hybrid-school name or a bare pure-school name gets `match_type='school_generic'` with a `'needs manual review'` note rather than a forced classification (~70% of bulk hits landed here, since the pattern also catches non-damage amplifiers like crit/dodge/block chance).
+
+### Client-derived tables (v8, `build_dbc_index.py`)
+
+All four need the game client + a built StormLib, and are exported to the committed
+`index/dbc-ascension-extract.json` so a session without client access can still use them.
+
+**dbc_character_advancement** — Ascension's own card catalog, 10,231 rows. **This is the crosswalk.**
+| Column | Meaning |
+|---|---|
+| `ca_id` | the CharacterAdvancement ID — **equals the crawl's / scouted `entry_id`** |
+| `spell_rank_1` … `spell_rank_5`, `max_rank` | the spellId per card rank. Talents fill 2/3/5; **ability cards fill only rank_1** |
+| `name`, `icon`, `description` | display fields. ⚠ the *rank chain* is authoritative, the name is not — 2 lines rename mid-chain (`Improved Spell Reflection` R3 is called `Shield Cover`) |
+| `rarity_a/b/c` (+ `_n`) | Poor / Normal / Uncommon / Rare / Epic / Legendary / Artifact, three parallel fields (per game mode — meaning unconfirmed) |
+| `ca_type` | `Talent` (6,169) / `TalentAbility` (399) / empty |
+| `prereq_1`, `prereq_2` | prerequisite CA ids |
+| `req_level_a/b/c`, `category_a/b` | level gates and category ordinals |
+| `raw_ints_json` | **every other non-zero int slot, verbatim.** Unmapped slots are stored rather than guessed at — decode them later without re-extracting |
+
+**dbc_spell_rank** — 42,606 ranked spells in 12,779 lines. `(spell_id, line_id, name, rank,
+rank_text, spell_level, line_size)`. Lines are grouped on **(name, skill lines, mechanical
+fingerprint)** — never name alone (primer's duplicate-name trap; `PHASE_0` §1d).
+```sql
+-- the spell a level-60 character actually casts, for a given line
+SELECT spell_id, rank, spell_level FROM dbc_spell_rank
+WHERE line_id = (SELECT line_id FROM dbc_spell_rank WHERE spell_id = ?)
+  AND spell_level <= 60 ORDER BY rank DESC LIMIT 1;
+```
+
+**dbc_spell_class** — `(spell_id, class_name, ambiguous, all_classes)`. Derived from
+`dbc_skilllineability` × `dbc_skill_line`, using the skill line's **name**. Covers 1,789 catalog
+entries unambiguously. **Class only — says nothing about coefficients.**
+
+**dbc_gt_tables** — `(table_name, row_index, value)`, 22,564 rows across 10 `gt*` files
+(`gtCombatRatings`, `gtChanceToMeleeCrit`, `gtChanceToSpellCrit`, the `Base` variants, regen tables).
+⚠ These have **no ID column — the row index is the key** (class-major, level-minor for per-class
+tables). Stored raw; interpreting the indexing is Phase 2's job.
+
+Supporting: **dbc_skill_line** (872 rows, `is_class_line` flag) and **dbc_skilllineability**
+(40,973 rows, stock 3.3.5a layout).
 
 **Also see primer §5 for the daily patch-note check practice** (not duplicated here — kept in one place to avoid drift between docs).
 
@@ -298,9 +386,34 @@ Two separate encodings in one payload: spec data is **base-36 spell IDs**, gear 
 | `GET /api/armory/character/{id}/captures?limit=` | capture history (report_id per past kill) |
 | `GET /api/encounters/rankings/overall?location=&difficulty=&phase=&metric=&page=&limit=&role=&cohort=` | zone-wide leaderboard (`findTopCharacters`) |
 
-**Known gaps (v4, carried over unresolved through v5), not attempted further this batch:**
-- Fight-level per-ability damage breakdown endpoint not found (`/api/reports/{id}` is metadata-only; `/summary`, `/fights`, `/table`, `/damage-done` all 404). Would unlock per-ability damage-share comparisons against your own rotation if found — the single most valuable addition, but requires capturing the network call from an actual report-page click, not further guessing.
-- `scouted_build_entries.entry_id` correspondence to `spells.id` unconfirmed.
+**Known gaps — both CLOSED as of v8 (2026-08-04). Kept here with their resolutions so the history is
+readable rather than silently rewritten:**
+- ~~Fight-level per-ability damage breakdown endpoint not found.~~ ✅ **It exists and is in the
+  endpoint map above** (`/api/reports/{id}/character_spell_damage`, plus the healing/avoidance/
+  damage-taken siblings). This gap entry contradicted v7's own changelog for two revisions — the
+  self-contradiction Phase 0 Task 8 was written to fix.
+- ~~`scouted_build_entries.entry_id` correspondence to `spells.id` unconfirmed.~~ ✅ **Resolved:
+  they are different ID spaces and must never be joined.** `entry_id` is the CharacterAdvancement
+  ID; join through `dbc_character_advancement.ca_id` → `spell_rank_<N>` → `spells.id`. See the v8
+  changelog and `RECON_FINDINGS.md` Task 5.
+
+**Endpoint additions confirmed live 2026-08-04** (sessions 0b/0a), previously documented only in
+changelog prose:
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/reports/{id}` | report metadata + `encounters[]` (carries `participant_count`, `player_participant_count`, `is_boss_encounter`, `difficulty`, `boss_id`, `duration_seconds`) |
+| `GET /api/reports/{id}/encounters?includeTrash=true` | encounter list per report |
+| `GET /api/reports/{id}/character_spell_damage?scope=&encounterIds=&format=flat&limit=&participantType=friendlies` | per-character per-ability damage / casts / hits / crits. ⚠ **aggregates across the `encounterIds` passed** — rows carry no `encounter_id` |
+| `GET /api/reports/{id}/character_spell_healing?...` | same shape for healing (+ `source_breakdowns` / `target_breakdowns`) |
+| `GET /api/reports/{id}/character_damage_taken_abilities?...&participantType=enemies` | **enemy** avoidance vs player abilities. ⚠ keyed by `target_character_id` only — **no attacker id**, so avoidance cannot be attributed to one player |
+| `GET /api/reports/{id}/character_damage_taken_abilities?...&participantType=friendlies` | damage the raid took — tank/healer modelling |
+| `GET /api/reports?limit=N` | ⛔ **401, auth-gated.** Report discovery is sequential id probing; a missing id gives a clean 404 |
+
+⚠ **Per-ability rows carry no character stats** (no crit rating / SP / AP / haste) — only
+`character_id`, `class`, `spec`, and the damage counters. But **`character_spec` carries the PATH**
+(`Duality` / `Intelligence` / `Strength` / `Agility` / `Healing`, plus `Hero`/`Hero Tank`), which is
+per-parse Path attribution for every logged character.
 
 **Rate limiting:** no explicit limit hit so far, but both scouting paths run sequentially on purpose (`scoutMany()` in the browser version, the per-character loop with a `--delay` pause in `scout_ascensionlogs_cli.py`) — don't parallelize a large batch against someone else's public API without reason to think it's fine.
 
@@ -339,7 +452,20 @@ The tables below are unchanged in shape from v4 — only their database moved, f
 | tooltip | tooltip text **at the current rank only** (`per_rank_tooltip_json[rank-1]`) |
 | per_rank_tooltip_json | full per-rank tooltip array — richer than our own `spells.tooltip`, which only stores text at one (owned) rank |
 
-⚠ **Do not join `entry_id` to `spells.id`** — unconfirmed to be the same ID space (open item above). Note this join would also now cross databases (`scouted_builds.db` ↔ `ascension_index.db`), not just tables — attach both if you ever confirm it's safe to try.
+🛑 **Never join `entry_id` to `spells.id`** — **confirmed different ID spaces** as of v8 (0 of 1,054
+match; the single numeric collision is two unrelated cards). `entry_id` is the CharacterAdvancement
+ID. The correct join, which crosses databases (`scouted_builds.db` ↔ `ascension_index.db`), is:
+
+```sql
+-- entry_id -> the spell id for the rank the character actually holds
+SELECT sbe.name, sbe.rank, ca.spell_rank_1, ca.spell_rank_2, ca.spell_rank_3,
+       ca.spell_rank_4, ca.spell_rank_5, ca.max_rank
+FROM scouted_build_entries sbe
+JOIN dbc_character_advancement ca ON ca.ca_id = sbe.entry_id;   -- ATTACH both dbs
+```
+Pick `spell_rank_<sbe.rank>` for talents. **Ability cards populate only `spell_rank_1`** — an
+ability's *spell* rank is set by character level, not by the card, so resolve it through
+`dbc_spell_rank` (highest rank in the line with `spell_level <= 60`) instead.
 
 **scouted_rankings** — one row per (character, scouted_at, phase, zone, boss); only rows with `kills > 0` are kept (the source API returns every zone/boss including zero-kill filler, dropped at capture time).
 | Column | Meaning |

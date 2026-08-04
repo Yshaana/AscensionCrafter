@@ -330,3 +330,7 @@ remaining unknowns are target-count inference, content-type derivation, per-pars
 and date/patch/realm stamping per parse.
 
 Task 5 (the `entry_id ↔ spells.id` crosswalk) still gates Phase 1 and is untouched.
+
+> ✅ **Superseded — `0a` ran on 2026-08-04 and Phase 0 is complete.** Task 5 is resolved:
+> `entry_id` is the CharacterAdvancement ID and must never be joined to `spells.id`.
+> See `RECON_FINDINGS.md` and `Session_2026-08-04_0a_recon.md`. Next session is `1a`.

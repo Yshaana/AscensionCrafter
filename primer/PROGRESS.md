@@ -9,16 +9,21 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `0a` — recon Tasks 1–5, 7, 9.**
+**Next session: `1a` — repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3).**
 
-`0b` is ✅ done (2026-08-04) — crawler, changelog fetcher, and launcher all shipped and run. See
-`primer/Session_2026-08-04_0b_crawler.md`.
+**🎉 PHASE 0 IS COMPLETE (2026-08-04).** Both sessions done: `0b` (crawler) and `0a` (recon).
+Verdicts: **`primer/RECON_FINDINGS.md`** — read that, not the phase doc. Session record:
+`primer/Session_2026-08-04_0a_recon.md`.
 
-**Start `0a` from that handoff's endpoint section rather than re-probing.** Healing
-(`character_spell_healing` exists), the role vocabulary (`support` = healer), report discovery
-(sequential probing; the list endpoint is auth-gated), and the changelog JSON API are all settled.
-Task 2's remaining unknowns are target-count inference, content-type derivation, per-parse character
-stats, and per-parse date/patch/realm stamping. **Task 5 still gates Phase 1 and is untouched.**
+**Task 5's 🛑 gate is OPEN.** `entry_id` is the **CharacterAdvancement ID**, never `spells.id`
+(0 of 1,054 match). `CharacterAdvancement.dbc` is in the client and is now extracted — the crosswalk
+is a real table. `1a` starts from a confirmed mapping, and `RECON_FINDINGS.md` Task 5 names the
+primary key.
+
+⚠ **Carry into Phase 1 planning, it is not currently a named task:** a **numeric-field DBC
+extractor** would resolve **788 of the 803 (98%)** hidden-formula spells the text resolver can't
+crack. It is the highest-value item Phase 0 found. It belongs in T4's scope or immediately after.
+**Numeric fields only — never the `description` string** (the Titanic Mutilate trap).
 
 ### 🔁 Standing daily action for the project owner (not a session task)
 
@@ -50,9 +55,9 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 
 | Session | Scope | Status | Handoff | Notes |
 |---|---|---|---|---|
-| **0b** | Crawler + changelog fetcher (T6) | ✅ done | `Session_2026-08-04_0b_crawler.md` | Shipped 2026-08-04. Changelog backfilled (353 pages, back to 2016). Baseline script ready, **run before Aug 8** |
-| **0a** | Recon T1–5, 7, 9 | ⬜ not started | — | ▶ **NEXT.** Start from 0b's endpoint findings, don't re-probe |
-| 1a | Restructure, patches/realms/seasons, crosswalk | ⬜ | — | Gated on 0a Task 5 |
+| **0b** | Crawler + changelog fetcher (T6) | ✅ done | `Session_2026-08-04_0b_crawler.md` | Shipped 2026-08-04. Changelog backfilled (353 pages, back to 2016). Baseline captured |
+| **0a** | Recon T1–5, 7, 8, 9 | ✅ done | `Session_2026-08-04_0a_recon.md` | **Phase 0 complete.** `RECON_FINDINGS.md` written. Crosswalk resolved; class coverage 13%→58%; rank resolution solved; 2 pipeline bugs fixed |
+| 1a | Restructure, patches/realms/seasons, crosswalk | ⬜ | — | ▶ **NEXT.** No longer gated — crosswalk is confirmed, see `RECON_FINDINGS.md` Task 5 |
 | 1b | `spell_mechanics` + relationship graph | ⬜ | — | |
 | 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | |
 | 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | |
@@ -120,6 +125,18 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-04 | 🎯 **RESOLVED (was the Phase 1 gate): `entry_id` = CharacterAdvancement ID, and `CharacterAdvancement.dbc` is extractable** | 0 of 1,054 crawled entry_ids equal a catalog `spells.id`; the one numeric collision is two unrelated cards. `entry_id` is rank-independent, `spellId` is rank-specific. The client ships the mapping as a DBC (10,231 rows; slots 5–9 = `SpellRank[5]`). 1,054/1,054 resolve, 660/660 names agree. Corroborated independently by BisBeard, which keys on `entryId` and carries no spellId at all |
+| 2026-08-04 | ❌ **RETRACTED: the contiguous rank rule** — replaced by a level gate | 4,791 non-contiguous rank lines vs 1,908 contiguous. Winds of Winter R1 `274121` → R2 `274129`. The rule that *does* hold: highest rank with `SpellLevel <= level`, verified against both captured in-game tooltips. **Primer §5's "check ±1–3" heuristic is unsafe in general** |
+| 2026-08-04 | 🚨 **≈50% of the multi-rank catalog carries the wrong rank's magnitudes** | 697 of 1,409 catalog entries in a rank line are stored at a rank a level-60 character doesn't hold, and in all 697 the correct id is absent from the export entirely. Sensitivity-checked: 697–794 across four grouping strictnesses |
+| 2026-08-04 | ❌ **RETRACTED: "spell 274132 is absent from the client"** | It is **Winds of Winter Rank 5**. The absence was an artifact of `spell_dbc_raw`'s catalog±3 scoping, which excluded non-contiguous rank siblings. Fixed (+7,639 ids). Settles the long-running 274121-vs-274132 confusion |
+| 2026-08-04 | 🆕 **Class resolves from SkillLine NAMES, not ClassMask — coverage 13% → 58%** | Ascension renamed skill lines to class names; ClassMask is 512 ("Hero") on ~10k rows and useless. 1,789/3,061 catalog entries get one deterministic class, agreeing with 382/387 existing rows and 7/7 of primer §4's proof cases. **5 conflicts recorded, not resolved** (§2.3) |
+| 2026-08-04 | 🚨 **98% of the 803 blocked hidden-formula spells resolve from NUMERIC fields** | 311 carry a non-zero `EffectBonusCoefficient`, 770 carry usable `EffectBasePoints`/`DieSides`; only 15 are genuinely empty. Highest-value Phase 1 task, and it is not currently a named one. ⚠ Numeric fields only — never the `description` string |
+| 2026-08-04 | ❌ **RETRACTED (`INDEX_GUIDE` v3): "the resolver is not incremental"** | It was incremental **and destructive** — two consecutive runs took `spell_scaling`'s `dbc_hidden_formula` rows from 113 to 0, and shrank `spell_dbc_raw`. Both bugs fixed and verified idempotent. Any coverage number published from this pipeline before today was only reproducible from a clean DB |
+| 2026-08-04 | 🆕 **The client DBC is the earliest complete card source** | 52/52 cards announced since 2026-07-01 are in `CharacterAdvancement.dbc`; **2/52** are in `spell-export.json`. The export goes stale within days. ⚠ Don't over-read it: CA's 10,231 records include other realms'/modes' entries — BisBeard's S10 set is 3,226 |
+| 2026-08-04 | ❌ **Changelog is NOT a new-card discovery source, and NOT a phase-timeline source** | Every announced card is already in the client. Its 93 "phase" mentions are boss-mechanic phases, not content phases — `/api/phases` stays authoritative. It remains valuable for change history, prose magnitudes, and realm/status |
+| 2026-08-04 | ⚠ **Target count: no endpoint carries it; per-parse character stats do NOT exist** | `participant_count − player_participant_count` counts every non-player unit (boss encounters median 12), not concurrent targets — must be inferred, never defaulted to 1. Ability rows carry no crit/SP/AP/haste, confirming the anticipated constraint and reinforcing Phase 3 T5's self-snapshot. **But `character_spec` carries the PATH per parse**, which is new and useful |
+| 2026-08-04 | 🛑 **Phase 3 T4 re-scoped: don't build a gear optimizer; gear DATA source still open** | BisBeard takes stat weights as a first-class input (`weightString`, `configStatWeights`) and owns items/phase-tagging/BiS. Its item JSON path is phase-tagged but the serving host is unresolved. Alternative: the client's own `Item.dbc` + `ItemStat.dbc` (1,513,931 records, confirmed present, layout unverified) |
+| 2026-08-04 | ⛔ **The official builder is Area-52/Elune only — NOT usable as a Darkmoon source** | It embeds a full catalog with explicit SP/AP coefficients, rarity and **essence costs** (Phase 4 acquisition inputs), but `/v2/builder/darkmoon` redirects to the homepage and those realms are max level 70. §2.5 forbids applying it cross-realm |
 | 2026-08-04 | 🆕 **Phase 3 T5 delivery model settled: no `ReloadUI()`, flush on quit, Claude Code reads the file off disk** | Owner's design. Data lands at normal logout; next session I read SavedVariables + `Logs\` directly and correlate. Drops the encoded blob **and** the copyable in-game frame (both existed only for chat copy-paste) → addon writes plain readable Lua. ⚠ Corrects a misconception worth keeping straight: SavedVariables is **one file per addon, rewritten wholesale** — "one file per session" is impossible; the equivalent is one file holding a growing list, one entry per session (which is what T5 already specified). `## SavedVariables:` must be added to the `.toc` — it currently declares none, which is why the addon is copy-paste-only today. Accepted tradeoff: a client crash loses that session's captures; `ReloadUI()` stays a known-working escape hatch but is deliberately **not** implemented |
 | 2026-08-04 | 🆕 **Phase 3 T5 addon must self-snapshot FIRST, at the top of every capture list** | Owner is in the logs he collects, so it's near-free. Closes Phase 0 T2's flagged *per-parse character stats* risk for at least one character (exact, not approximated from nearest capture); satisfies §2.2's tier-1 "capture stats alongside" rule automatically; is the **only** source of *measured* gear-scaling curves for §2.10; makes him Phase 2's calibration anchor. **Deferred deliberately** — no interim script, do it properly in Phase 3. Full reasoning in `PHASE_3_builds_repo.md` T5 — don't re-derive it, and don't drop it |
 | 2026-08-04 | 🆕 **Two-tier crawl storage: tier 1 committed, tier 2 gitignored + local** | Volume and irreplaceability are anti-correlated. Armory/leaderboard state (1.4 MB) can never be re-fetched; per-ability bulk (6.0 MB) is re-fetchable by report id. A **committed `manifest.json`** lists every file incl. gitignored ones (records, sha256, report ids), so git knows what exists without holding it. Recovery: `--recrawl-report <id>`. Risk accepted: "reports stay fetchable" is evidenced, not guaranteed |
@@ -156,17 +173,39 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 Seed these into `open_questions` (Phase 1 Task 6) rather than losing them here.
 
+**Resolved in session 0a (2026-08-04)** — full evidence in `RECON_FINDINGS.md`:
+~~Is scouted `entry_id` the CharacterAdvancement ID?~~ ✅ **yes** ·
+~~Can the client dump a CA↔spellId mapping?~~ ✅ **yes, `CharacterAdvancement.dbc`** ·
+~~Is the contiguous rank rule real?~~ ❌ **no — rank is level-gated** ·
+~~Does any endpoint carry target count?~~ ❌ **no, must be inferred** ·
+~~Can content type be derived?~~ ⚠ **partially** ·
+~~Are per-parse character stats available?~~ ❌ **no (but Path is)** ·
+~~Which ID space do `ascensionlogs.gg` payloads use?~~ ✅ **catalog/client space**
+
+**Also resolved 2026-08-04 (pre-Phase-1 follow-ups, `RECON_FINDINGS.md` §A1–A3):**
+~~Is there a playable-pool discriminator in the CA table?~~ ✅ **yes — slot 121 byte 2, now
+`dbc_character_advancement.in_current_pool`; 3,129 of 10,231, covers 1,054/1,054 observed** ·
+~~Which ID space does the client's `WoWCombatLog.txt` use?~~ ✅ **plain client `Spell.dbc`, 809/809 —
+no fifth space** · ~~Do the `gt*` tables match retail?~~ ✅ **yes, unmodified; crit = exactly 14.0 at
+level 60, validating both the tables and the row-index decoding**
+
+**Also resolved 2026-08-04 from the two owner-supplied db.ascension.gg pages:**
+~~Fel Infused Weapon school (Fire vs Shadowflame)?~~ ✅ **both right — `276076` is a Fire *enchant*
+spell that deals no damage; the damage is `276075`, SchoolMask 36 = Shadowflame** ·
+~~Holy Supernova AP term?~~ ✅ **three-way (0.159 / 0.157 / 0.161) and immaterial — treat as ~0.16 ± 0.002** ·
+🆕 **Do coefficients scale with rank?** — partially answered: within the Holy Supernova line
+`EffectBonusCoefficient` is *identical* at R1 and R6; only the flat term scales (60 → 594)
+
 | Question | Blocks | How to settle |
 |---|---|---|
-| Does `stats_summary.sourcesByStat` itemise per-source stat contributions? | Could settle the Path of Duality question (`build_paladin-hammerdin.md` §4) from already-captured data, for any scouted character, with zero in-game work | Inspect the field in `data/source/crawl/baseline_phase1/characters.jsonl.gz`. Primer §5 calls crit-source breakdowns the gold-standard method |
-| What is the current maximum report ID? | Sizes the historical backfill | Emerges from the first full crawler run (no list endpoint exists to ask directly) |
-| Does any endpoint carry **target count**? | The whole scenario model (§2.9) | 0a Task 2. **Never silently default to 1** |
-| Can content type (`raid`/`dungeon_*`/`world_boss`) be derived from zone/difficulty/bracket? | §2.9 content profiles derived from real data | 0a Task 2 |
-| Are per-parse **character stats** available, or only the current armory snapshot? | Phase 3 pooled inference regresses crit% against per-character crit | 0a Task 2 |
-| Do damage coefficients scale with rank? | `spell_scaling` schema | Read one ability's in-game tooltip at two confirmed ranks of the **same** line; compare SP/AP terms |
-| Is scouted `entry_id` the CharacterAdvancement ID? | Crosswalk, all "who runs X" queries | Collect ~10 CA IDs in-game, check against committed scouted JSON |
-| Can the client dump a CA↔spellId mapping? | Crosswalk (if above confirms) | Addon API, debug command, or export |
-| Which ID space do combat logs use? | Canonical ID choice project-wide | Inspect `ascensionlogs.gg` per-ability damage payloads |
-| Is the contiguous rank rule real? | Rank resolution for Ascension originals | Fingerprint `270183`–`270186` against `270182` |
-| Holy Supernova AP term: catalog `0.159` vs db `15.70%` | Coefficient accuracy | Live tooltip read |
-| Fel Infused Weapon school: db says Fire, docs say Shadowflame | Ability classification | Live tooltip read |
+| Does `stats_summary.sourcesByStat` itemise per-source stat contributions? | Could settle the Path of Duality question (`build_paladin-hammerdin.md` §4) from already-captured data, for any scouted character, with zero in-game work | Inspect the field in `data/source/crawl/baseline_phase1/characters.jsonl.gz`. Primer §5 calls crit-source breakdowns the gold-standard method. **Carried over from 0b — still not done** |
+| What is the current maximum report ID? | Sizes the historical backfill | Emerges from a full crawler run (no list endpoint exists to ask directly) |
+| Do damage coefficients scale with rank? | `spell_scaling` schema | Now cheap: `dbc_spell_rank` gives confirmed same-line rank pairs, so compare `EffectBonusCoefficient` across two ranks of one line — no in-game work needed |
+| ⚠ **NEW:** the 97-card gap between `in_current_pool` (3,129) and BisBeard's S10 count (3,226) | Exactness of the card-pool scope | Intersect BisBeard's `entryId` list against `in_current_pool=1` and inspect the difference |
+| Which of the 5 `class_origin` conflicts is right? | `class_origin` correctness | Proc test or live tooltip per spell. Note Fel Infused Weapon's existing value ("Duality") is a Path, not a class |
+
+| Where is BisBeard's item JSON actually served from? | Phase 3 T4 gear source | Read the base-URL construction in its `itemDatabaseSync` chunk, or ask the author |
+| Are `Item.dbc`/`ItemStat.dbc` layouts stable enough to extract? | A gear database with no third-party dependency | Extract a handful of known items, compare against in-game tooltips |
+
+| What do CA slots 14/15/17/21/25/29–41 mean? | Acquisition / prerequisite modelling | Correlate `raw_ints_json` against known card properties — no re-extraction needed |
+| ⚠ **NEW:** Fel Infused Weapon per-level term — db renders **4.5**/level, client DBC says **1.5** (exactly 3×) | The card's flat damage component, which the docs currently have in the wrong *shape* too (`ppl` is a per-level rate, not a flat add) | **In-game tooltip read at level 60** — fully resolved there, tier 1, beats both. db was byte-faithful on Holy Supernova, so suspect a rank/variant (`276069` vs `276076`) or a stale snapshot |

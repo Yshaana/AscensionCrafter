@@ -48,6 +48,26 @@ Check this list before hand-parsing, hand-decoding, or guessing at anything belo
 
 Run from `index/` after any seed/schema change — full chain in primer §2a.
 
+`build_dbc_index.py` (needs the client + a built StormLib) additionally produces the
+client-derived tables — `dbc_character_advancement` (the crosswalk), `dbc_spell_rank`,
+`dbc_spell_class`, `dbc_gt_tables` — and exports them to the committed
+`index/dbc-ascension-extract.json`, so a session without client access can still use them.
+Schema in `INDEX_GUIDE.md` v8.
+
+## 🛑 Hard rules (Phase 0, 2026-08-04 — these have each cost a session)
+
+- **Never join `entry_id` to `spells.id`.** They are different ID spaces — 0 of 1,054 match.
+  `entry_id` (scouted builds, armory captures, BisBeard) is the **CharacterAdvancement ID**. Join
+  through `dbc_character_advancement.ca_id` → `spell_rank_<N>` → `spells.id`.
+- **Never relate two spell IDs by name.** Fingerprint on mechanics (school, cooldown, radius, cast
+  type, effect structure) first. Two spells named "Holy Supernova" are unrelated abilities.
+- **Never read a magnitude from a DBC `description` string** — numeric fields only.
+- **Check the rank before trusting a magnitude.** The catalog stores the wrong rank for ~half of all
+  multi-rank cards (697 of 1,409), usually Rank 1 — up to a 10× error on flat values. Rank is
+  level-gated: highest rank in the line with `SpellLevel` ≤ character level. Use `dbc_spell_rank`.
+- **Scope card queries to `dbc_character_advancement.in_current_pool = 1`** (3,129 of 10,231). The
+  rest are other realms'/modes' entries and are the main source of duplicate-name confusion.
+
 ## Repo conventions
 
 - Scouted-build data lives in `index/scouted_builds.db`, kept separate from

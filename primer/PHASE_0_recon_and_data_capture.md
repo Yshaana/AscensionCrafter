@@ -1,6 +1,31 @@
-# PHASE 0 — Recon & Start Capturing (v2)
+# PHASE 0 — Recon & Start Capturing (v3)
 
 **Read `00_ARCHITECTURE.md` first.**
+
+---
+
+## ✅ PHASE 0 IS COMPLETE (2026-08-04). Verdicts live in `primer/RECON_FINDINGS.md`.
+
+Read that file, not this one, for what was actually found. This document is the **brief**; it is kept
+for its reasoning, and amended in place where reality contradicted it.
+
+| Task | Verdict | Session |
+|---|---|---|
+| 1 — db.ascension.gg | CONFIRMED earlier; closed to further automated work by policy (§1a robots) | prior + 0a |
+| 2 — ascensionlogs.gg endpoints | CONFIRMED map; ⚠ target count must be **inferred**; ❌ per-parse stats do **not** exist | 0b + 0a |
+| 3 — changelog | CONFIRMED as change history; ❌ **not** a new-card discovery source; ❌ **not** a phase-timeline source | 0b + 0a |
+| 4 — DBC re-run | CONFIRMED. 🚨 **98% of the 803 blocked spells resolve from numeric fields** | 0a |
+| 4a — SkillLineAbility | CONFIRMED, via skill-line **names** not ClassMask. 13% → **58%** class coverage | 0a |
+| 5 — crosswalk 🛑 | **RESOLVED — Phase 1's gate is open.** `entry_id` = CharacterAdvancement ID, never join to `spells.id` | 0a |
+| 6 — crawler | ✅ built and running | 0b |
+| 7 — official builder | CONFIRMED rich catalog + coefficients + essence costs — but **Area-52/Elune only, not Darkmoon** | 0a |
+| 8 — doc fixes + write-up | ✅ done | 0a |
+| 9 — BisBeard 🛑 | CONFIRMED integration target. **Phase 3 T4 re-scoped**, gear source still open | 0a |
+
+### ⚠ Three claims in the body below are WRONG and are corrected inline
+1. **Task 4 item 1's "274132 is absent"** — it exists, as Winds of Winter **Rank 5**.
+2. **§1f's contiguous rank rule** — disproven (4,791 non-contiguous lines vs 1,908 contiguous).
+3. **Task 1's "fetch ~30 spells"** — superseded by §1a's robots finding before it was ever run.
 
 **Purpose:** answer every open question about what data is actually reachable, and in what form,
 before a single table is designed — and get capture running so data starts accruing today.
@@ -168,6 +193,14 @@ are 26542 / 12277 / 24322 / 26543. None match.
 
 **Hypothesis: `scouted_build_entries.entry_id` = CharacterAdvancement ID, NOT `spells.id`.**
 
+✅ **CONFIRMED (0a), and the mapping table was found: `CharacterAdvancement.dbc` is in the client**
+(10,231 records). `ca_id` = `entry_id`; slots 5–9 are `SpellRank[5]`, the spellId per card rank.
+All three in-game CA IDs match crawled build entries (40094 Arcane Intellect, 40017 Mend Pet,
+40050 Shadow Bolt); 1,054/1,054 crawled entry_ids resolve; 660/660 names agree; 0 of 1,054 entry_ids
+equal a catalog `spells.id`. The answer to the question open since INDEX_GUIDE v4 is exactly the one
+predicted here: **different spaces, never join directly.** The task's "determine whether the addon or
+client can dump a mapping" is answered — the client ships it as a DBC.
+
 **Test it (this is now the highest-priority part of Task 5):** collect CharacterAdvancement IDs for
 ~10 abilities from in-game tooltips, then check whether they appear as `entry_id` in the committed
 scouted JSON for characters known to run those abilities. If confirmed, the answer to the
@@ -183,8 +216,19 @@ contains entries our catalog does not. A real mapping is required.)*
 
 | Regime | Example | Rule | Status |
 |---|---|---|---|
-| **Ascension originals** | Holy Supernova R1 `270182` → R6 `270187` | **Contiguous:** `rank1_id + (rank − 1)` | ⚠ **Provisional.** Consistent with one pair (+5 for R1→R6). `270183`–`270186` have not been checked |
+| **Ascension originals** | Holy Supernova R1 `270182` → R6 `270187` | ~~**Contiguous:** `rank1_id + (rank − 1)`~~ | ❌ **DISPROVEN (0a).** 4,791 rank lines are non-contiguous vs 1,908 contiguous. Holy Supernova happens to be contiguous; **Winds of Winter is not** — R1 `274121`, then R2–R8 at `274129`–`274135` |
 | **Classic WotLK spells** | Arcane Intellect R1 `1459` → R5 `10157` | **Scattered** — requires DBC rank chains | ✅ Confirmed from two in-game tooltips |
+
+✅ **REPLACED BY A RULE THAT DOES HOLD (0a): rank is level-gated.** A character holds the highest
+rank in the line whose `SpellLevel` ≤ their level. Verified against both captured in-game tooltips
+(Holy Supernova → `270187` R6 at `SpellLevel` 60; Winds of Winter → `274132` R5 at 58). Extracted
+into `dbc_spell_rank`, with lines grouped on (name, skill lines, mechanical fingerprint) per §1d —
+never name alone. **The primer §5 "check ±1–3 of an unresolved id" heuristic is not safe in general.**
+
+🚨 **And the consequence is large:** 697 of the 1,409 catalog entries sitting in a multi-rank line
+(≈50%) are stored at a rank a level-60 character does not hold, with the correct id absent from the
+catalog entirely. That is the answer to this task's "report how many catalog entries the owner
+actually plays at a rank the catalog doesn't carry."
 
 **Confirm the contiguous rule properly before relying on it**, and apply §1d's fingerprint rule when
 you do: check that `270183`–`270186` are Holy Supernova **and share radius, cooldown, cast type, and
@@ -361,9 +405,14 @@ and new Paladin-adjacent enchants (`[Righteous Opportunity]`, `[Vengeful Plague]
 python3 index/build_dbc_index.py
 ```
 
-1. Confirm whether spell **274132** is now present. It wasn't previously; it also doesn't exist on
-   db.ascension.gg (Task 1). Two independent absences is meaningful — record which sources have it
-   and which don't rather than treating it as one open item.
+1. ~~Confirm whether spell **274132** is now present. It wasn't previously; it also doesn't exist on
+   db.ascension.gg (Task 1). Two independent absences is meaningful.~~
+   ❌ **RETRACTED (0a): the premise was wrong. 274132 is in the client — it is Winds of Winter
+   Rank 5 (`SpellLevel` 58), and 274121 is Rank 1 of the same line.** It only looked absent because
+   `spell_dbc_raw` was scoped to catalog ids ±3, and rank ids are frequently **non-contiguous**
+   (R1 `274121` → R2 `274129`) — so the filter was excluding the exact spell a level-60 character
+   casts. Fixed: rank siblings are now pulled into scope (+7,639 ids). This also settles the
+   long-running 274121-vs-274132 question: same line, different ranks, Rank 5 is the level-60 one.
 2. Report totals: records, catalog entries resolved, `has_hidden_formula=1` spells resolved.
 3. **Assess the 803 blocked spells.** They're present in DBC but blocked because the resolver is a
    *text regex* over description strings, while their coefficients live in **numeric fields**

@@ -1,8 +1,40 @@
-# Project Ascension — Systems Primer v18 (Context for Claude)
+# Project Ascension — Systems Primer v19 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `index/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v19 changelog (2026-08-04, Phase 0 recon session `0a`):** The client's own DBC files turned out to
+answer several questions this document had been treating as open or heuristic. Full evidence in
+`primer/RECON_FINDINGS.md`; index mechanics in `INDEX_GUIDE.md` v8. **Read those for detail — only the
+consequences for the rules in this document are recorded here.**
+
+- 🚨 **The catalog stores the WRONG RANK for about half of all multi-rank cards.** `spell-export.json`
+  holds **697 of 1,409** multi-rank entries at a rank a level-60 character does not hold, and in **all
+  697** the correct id is absent from the export entirely. Holy Supernova is the live example: the
+  catalog has Rank 1 (61–69 damage), the owner casts **Rank 6 (595–714)** — a ~9.7× gap.
+  **Never read a flat magnitude off a catalog entry without checking its rank first.**
+  ✅ Silver lining, measured on the same line: **coefficients do *not* change with rank** (identical
+  `EffectBonusCoefficient` at R1 and R6) — only flats do. So reading an SP/AP *coefficient* off a
+  Rank-1 entry is probably safe; reading a flat is catastrophic. One line, not yet a law.
+- ❌ **The §5 "check ±1-3 for a rank sibling" heuristic is retracted** as a general rule — 4,791 rank
+  lines are non-contiguous vs 1,908 contiguous. Rank is **level-gated**: the highest rank in the line
+  whose `SpellLevel` ≤ character level. Corrected inline in §5.
+- 🆕 **Class resolution is now deterministic for 58% of the catalog** via `SkillLineAbility` — see the
+  new note at the top of §4. The class-tag rule becomes the fallback for the rest.
+- ✅ **The crit-rating conversion (§1) is confirmed from `gtCombatRatings.dbc`**, along with every
+  other level-60 rating conversion. Ascension has not modified those tables.
+- 🆕 **Weapon-imbue exclusivity (§2) is mechanically confirmed and now queryable** — effect type 54.
+- 🆕 **New rule in §2: the school of an *applying* spell is not the school of its damage.**
+- 🎯 **The `entry_id` ↔ `spells.id` question is answered: they are different ID spaces and must never
+  be joined.** `entry_id` is the **CharacterAdvancement ID**; the client ships the mapping as
+  `CharacterAdvancement.dbc`. This affects every "who runs ability X" query — see `INDEX_GUIDE` v8.
+- 🆕 **The duplicate-name trap (§2) now has a structural explanation.** A card name can appear several
+  times in the CA table — once per game-mode/realm pool — and only one is currently playable. "Titan's
+  Grip" and "Holy Power" each have three entries. `in_current_pool` picks the right one.
+- ⚠ **Three idempotency bugs found in this project's own scripts** (two in `build_dbc_index.py`, one
+  in `seed_confirmed.py`), all the same shape: *a script that derives rows without owning the deletion
+  of its own previous output*. All fixed. Worth checking on any new ingester.
 
 **v18 changelog (2026-08-03):** Two `decode_inspect_export.py` fixes from this session's inspect-decoding work:
 - **Active-spec index (`n`) was parsed but silently dropped.** The header's 4th field (`fields[0:4]`) was already unpacked as `n` but never printed or used — confirmed this session against a live `Pumprat` export where `n=5` matched the spec the user identified as active. Now printed in the header (`Active spec: 5`) and the matching spec block is tagged `(ACTIVE)` in its own header line. Format-spec docstring updated to explain `<n>` instead of leaving it unglossed.
@@ -95,7 +127,7 @@ python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_con
 - Combat engine stays 3.3.5-based regardless of content era.
 
 ### Combat-engine defaults (3.3.5 base, verify per season)
-- **Crit rating conversion: 14.0 rating per 1%** — *measured, identical for melee and spell* (393 rating → 28.07%; 164 → 11.71%).
+- **Crit rating conversion: 14.0 rating per 1%** — *measured, identical for melee and spell* (393 rating → 28.07%; 164 → 11.71%). ✅ **Confirmed from the client's own `gtCombatRatings.dbc` (v19): exactly 14.0000 at level 60 for melee, ranged AND spell — the same number in the same table, which is why they're identical.** Ascension has **not** modified these tables; the level curve matches retail (70 = 22.0769, 80 = 45.9060). Other level-60 conversions now available without measuring: hit melee/ranged 10.0, hit spell 8.0, haste 10.0, expertise 2.5, armor pen 4.2, dodge/parry 13.8. See `dbc_gt_tables`.
 - Special-attack (yellow) hit cap vs raid boss: **8%**. Dual-wield **white** attacks carry an additional **+19% miss** — the DW white cap is effectively unreachable at low tiers, so **auto-attacks in a dual-wield build may be near-worthless** (measured: 4.2% of damage, 37 landed swings in 309s).
 - Expertise dodge cap: **26**.
 - **Ground/periodic effects generally cannot crit** — *confirmed repeatedly for aura-tick DoTs* (PBL ground 0%/32 ticks; Righteous Vengeance 0% over 4 parses).
@@ -186,6 +218,16 @@ Random rolls **skew toward what the build already looks like** (class/school the
 ### Duplicate-name trap
 Distinct cards can share a name across classes (e.g. Vengeance: Paladin r3 stacking-damage vs Druid r5 spell-crit-damage; Dual Wield Specialization: Rogue r5 crit/off-hand vs Shaman r3 hit/elemental). Also watch for cards sharing a **name with a retail/classic talent but with completely different mechanics** — Ascension's **Mental Quickness** is a physical↔magic ping-pong damage buff, *not* the WotLK AP→SP converter. **Always read the actual tooltip.**
 
+🆕 **v19 — one major source of this now has a structural explanation and a fix.** A card name can
+appear several times in `CharacterAdvancement.dbc`, **once per game-mode/realm pool**, with only one
+currently playable. "Titan's Grip" has three entries and "Holy Power" three; the non-playable ones
+point at other-realm spell ids (e.g. `1146917`, in the "11-prefix" space). The
+`dbc_character_advancement.in_current_pool` flag isolates the **3,129** playable cards from 10,231
+and picks the right entry every time — validated against all 1,054 cards seen on live characters.
+**This does not retire the trap** (genuinely different cards still share names *within* the playable
+pool — Vengeance and Dual Wield Specialization above are real), but it removes the largest and most
+confusing source of it.
+
 ### ⚠ Exclusivity buckets
 Some effects share a **"does not stack / only the highest applies"** bucket, and the exclusion list is often **only in the live tooltip**. Known bucket: **Enhanced Weapon Mastery ↔ Unending Fury ↔ Answered Prayers ↔ Blessed Weapons** (all-damage %) — **as of the 2026-08-03 Darkmoon patch, this is now an explicit patch-noted server rule** (previously tooltip-only), see §5's daily-changelog practice. Similar wording appears on **Holy Focus** ("spell crits deal 200%, does not stack with other similar effects") and **Dual Wield Specialization ↔ Dual Wield Mastery** (fully redundant — one of them is always a dead slot).
 
@@ -193,6 +235,25 @@ Some effects share a **"does not stack / only the highest applies"** bucket, and
 
 ### ⚠ Weapon-imbue exclusivity (v7)
 Weapon-imbue-type ability cards (Windfury Weapon, Flametongue Weapon, Fel Infused Weapon, Rockbiter Weapon, Frostbrand Weapon, etc.) share a **weapon-enchant slot** — only one can be active at a time. This is a **different bucket from the talent all-damage% exclusivity above** — it's a mechanical slot conflict, not a stated "does not stack" tooltip clause, so it won't surface from a text scan the way §2's other exclusivity examples do. **Before recommending any weapon-imbue card alongside another, ask "is this an imbue?" first** — the same reflex as checking for a shared talent bucket, just without a tooltip to search for.
+
+✅ **MECHANICALLY CONFIRMED (v19), and it's now detectable by query rather than by reflex.** Fel
+Infused Weapon (276076) has exactly one effect: **type 54, `SPELL_EFFECT_ENCHANT_HELD_ITEM`**, with
+`MiscValue` 952. That *is* the temporary-weapon-enchant slot — so the conflict is a real engine slot,
+not a convention. **Any card whose effect list contains type 54 is an imbue and belongs in this
+bucket**; find them with a query against `spell_dbc_raw.effect_json` instead of asking the question
+by hand.
+
+### 🆕 The school of an *applying* spell is not the school of its damage (v19)
+Fel Infused Weapon reads school **Fire** on db.ascension.gg while every project doc calls it
+**Shadowflame**, and **both are correct** — they describe different spells. `276076` is the
+enchant-application spell (`SchoolMask` 4 = Fire) and **deals no damage at all**; the damage comes
+from `276075` "Fel Infused Attack" (`SchoolMask` 36 = Shadow|Fire = **Shadowflame**, effect type 2
+`SCHOOL_DAMAGE`).
+
+**This is §4's trigger-vs-modifier trap in a new guise.** Before reading a school off the card you
+press, check whether that card actually carries a damage effect — if it only applies an enchant, aura
+or proc, follow the effect chain to the spell that carries `SCHOOL_DAMAGE` and read the school
+there.
 
 ### Prestige / farming
 Prestige laps (1→60 resets) yield ~160 packs × ~5 cards + rerolls; dupes feed golden economy. "Not guaranteed ≠ not in the build" — roll/fish for it.
@@ -240,6 +301,19 @@ Enables the Healer role; Healing Power exists as a distinct gated stat — **off
 ## 4. ⚠ The class-tag rule (predictive heuristic)
 
 **A card's `uses X modifiers` line predicts its class tag — not its flavour, name, or damage school.**
+
+> 🆕 **v19 — this rule is now a FALLBACK, not the primary method, for most of the catalog.** The
+> client's `SkillLineAbility.dbc` resolves class **deterministically for 1,789 of 3,061 catalog
+> entries (58%)**, up from 394 (13%) — see `dbc_spell_class`. The mechanism is not what you'd expect:
+> **Ascension renamed the skill lines themselves to class names** (line 26 is "Warrior", not retail's
+> "Arcane"), so the *skill line's name* carries the class. `ClassMask` is useless — it is `512`
+> (Ascension's own classless "Hero" class) on ~10k rows, which is exactly what db.ascension.gg reports
+> as "Class: Hero" on every card.
+>
+> It **agrees with 382/387** existing doc-confirmed rows and **7/7** of the proof cases below that
+> appear in the table — including the proc-tested Lightbound Cleave. Where a spell isn't in
+> `SkillLineAbility` (36% of the catalog, e.g. Molten Earth), the rule below is still how you predict.
+> **Neither method replaces a proc test when engine-gating is on the line.**
 
 Proof case: **Lightbound Cleave** is Holy-flavoured, deals Holystrike, reads like a Paladin ability — and produced **zero** procs from a "damaging Paladin abilities" trigger. It borrows **Cleave** modifiers, so it is **Warrior**-tagged.
 
@@ -302,5 +376,5 @@ Abilities worded *"while under this effect you cannot perform any other abilitie
 - **Be willing to walk back your own recommendations** when a measurement contradicts them, and say so plainly. Several v2/v3/v4 conclusions were overturned by single logs or single tooltips — including recommendations made earlier in the same session.
 - **Check for ICDs before dismissing a per-hit proc as diluted by fast weapons.** A per-hit effect with no stated internal cooldown (Fel Infused Weapon, v6) scales UP with attack frequency rather than down — the opposite of the usual "more, smaller hits average out" intuition. Confirm ICD presence/absence from the live tooltip before valuing these against weapon speed.
 - **When hunting multipliers for a specific effect, prefer talents that name it verbatim over talents matched by generic school wording (v7).** Shadow and Flame and Bane both list "Shadowflame" explicitly in their tooltips — ground truth, no test needed. Emberstorm only says "Fire and Shadow spells" — a prediction under the hybrid double-dip rule, not a confirmed hit, even though it reads like it should apply. Named lists outrank generic wording until proc-tested. This is the same discipline as the class-tag rule (§4) applied to damage-multiplier talents instead of proc-engine tags — and proof case #2 above (Elemental Fusion/Lava Flows vs. Molten Earth) is what happens when it's skipped: a spawned effect was assumed to inherit its trigger's modifiers by proximity, without checking its own `uses X modifiers` line first.
-- **When decoding a live in-game spell ID export (WeakAura, inspect addon, etc.) against the catalog, an unresolved ID is very likely a different rank of a known card, not missing content (v7).** Multi-rank talents appear to get a distinct spellID per rank in-game, while the catalog export only stores one canonical ID per card. Check ±1-3 of the unresolved ID for a known card name before concluding it's absent — this resolved 5/5 unmatched IDs in one live cross-check, each landing exactly on a card already known to be held at partial rank.
+- **When decoding a live in-game spell ID export (WeakAura, inspect addon, etc.) against the catalog, an unresolved ID is very likely a different rank of a known card, not missing content (v7).** Multi-rank talents get a distinct spellID per rank in-game, while the catalog export only stores one canonical ID per card. ❌ **The "check ±1-3 of the unresolved ID" half of this practice is RETRACTED as a general rule (v19).** Measured across the client's full `Spell.dbc`: only **1,908** rank lines are id-contiguous while **4,791 are not** — Winds of Winter runs R1 `274121` then R2–R8 at `274129`–`274135`. The 5/5 hit rate that justified it came from lines that happen to be contiguous. **Use `dbc_spell_rank` instead** (`INDEX_GUIDE` v8): it groups rank lines on name + skill line + mechanical fingerprint, and the rank a character holds is the highest in the line whose `SpellLevel` ≤ their level. The *conclusion* the practice reached is still right — an unresolved ID is usually a rank sibling, not missing content — only the ±1-3 search method is unsafe.
 - **A tooltip-diff report finds candidates, it doesn't confirm novelty (v11).** The DBC-vs-export tooltip diff flagged Exorcism's stun as DBC-only; the export tooltip had the same fact in different words, and a fuzzy-match similarity score missed it. Same discipline as everything else in this doc: **check the actual export tooltip yourself before writing a diff hit into `seed_confirmed.py`** — the tool surfaces what to look at, not a confirmed fact.

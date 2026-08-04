@@ -1,8 +1,32 @@
-# Project Ascension — Paladin Build Handoff (v10)
+# Project Ascension — Paladin Build Handoff (v11)
+
+**v11 changelog (2026-08-04, from Phase 0 recon session `0a` — no build decisions changed, two facts
+worth knowing):**
+
+- ⚠ **Holy Supernova is PRIEST-tagged, so it does NOT feed Hammerdin.** Three independent sources
+  agree: its live tooltip states *"This uses Holy Nova modifiers"* (Holy Nova is a Priest ability),
+  the index already inferred Priest from `borrows_from`, and a new deterministic `SkillLineAbility`
+  resolution returns Priest by a completely different mechanism. **Same trap as Lightbound Cleave**
+  (§2): Holy-flavoured, Holy-school, reads like a Paladin button, feeds zero Paladin-gated procs. It
+  *does* feed wide-intake engines (Judgement of the Three Hammers). Recorded because the owner read
+  this ability's tooltip in-game — **if it is on the bar, it is engine-neutral filler, and §11's
+  "press Judgement and Holy Shock" priority is unaffected by it.** Not proc-tested on this character.
+- 🚨 **The catalog carries the wrong rank for ~half of all multi-rank cards, and Holy Supernova is a
+  live example.** `spell-export.json` holds Rank 1 (61–69 damage); a level-60 character casts **Rank 6
+  (595–714)** — a ~9.7× gap — and Rank 6 has *zero* rows in `spell_scaling` because the catalog does
+  not contain it. **Consequence for every magnitude in this document: a flat value read off the
+  catalog may be an order of magnitude low.** Coefficients are safer — measured identical across ranks
+  on this line. Rank is level-gated (highest rank with `SpellLevel` ≤ 60); use `dbc_spell_rank`.
+- Also corrected: `Fel Infused Weapon`'s `class_origin` row previously read **"Duality"**, which is a
+  *Path*, not a class — a data-entry error. Now flagged `conflict` pending a proc test. Its school
+  question resolved too: the card is a Fire *enchant* spell that deals no damage; the Shadowflame
+  damage comes from a separate sub-spell. Neither changes anything in this build.
+
+---
 
 **Location:** `builds/my-builds/build_paladin-hammerdin.md` (renamed from `Ascension_Paladin_Handoff.md` in the v12 restructure).
 
-**Purpose:** Continue work on my Ascension (WoW private server) Paladin character. **Classless server, Season 10, Wildcard mode.** Pair this with `primer/Ascension_Context_Primer.md` (v12) and `index/ascension_index.db` (queryable spell/card index — see primer §2a).
+**Purpose:** Continue work on my Ascension (WoW private server) Paladin character. **Classless server, Season 10, Wildcard mode.** Pair this with `primer/Ascension_Context_Primer.md` (v19) and `index/ascension_index.db` (queryable spell/card index — see primer §2a).
 
 **Realm:** Darkmoon (classless seasonal wildcard).
 

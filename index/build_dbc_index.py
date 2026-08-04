@@ -283,7 +283,72 @@ SUPPORT_TABLES = {
     'Talent.dbc': (14, [('ID', 'u32', 1), ('TabID', 'u32', 1), ('TierID', 'u32', 1), ('ColumnIndex', 'u32', 1),
                          ('SpellRank', 'u32', 5), ('PrereqTalent', 'u32', 1), ('PrereqRank', 'u32', 1)]),
     'TalentTab.dbc': (23, [('ID', 'u32', 1), ('ClassMask', 'u32', 1), ('PetTalentMask', 'u32', 1), ('OrderIndex', 'u32', 1)]),
+    # Added session 0a (Phase 0 Task 4a). Layout is stock 3.3.5a
+    # (TrinityCore SkillLineAbilityEntry); Ascension has not changed the shape,
+    # only the *contents* of SkillLine.dbc (see extract_skill_lines).
+    'SkillLineAbility.dbc': (14, [('ID', 'u32', 1), ('SkillLine', 'u32', 1), ('Spell', 'u32', 1),
+                                   ('RaceMask', 'u32', 1), ('ClassMask', 'u32', 1),
+                                   ('ExcludeRace', 'u32', 1), ('ExcludeClass', 'u32', 1),
+                                   ('MinSkillLineRank', 'u32', 1), ('SupercededBySpell', 'u32', 1),
+                                   ('AcquireMethod', 'u32', 1), ('TrivialSkillLineRankHigh', 'u32', 1),
+                                   ('TrivialSkillLineRankLow', 'u32', 1)]),
 }
+
+
+# ---------------------------------------------------------------------------
+# CharacterAdvancement.dbc - Ascension's OWN card catalog (Phase 0 session 0a).
+#
+# Not a Blizzard table: no TrinityCore struct exists for it, so the layout below
+# was reverse-engineered against known anchors and is recorded here rather than
+# cited. Method and evidence: RECON_FINDINGS.md Task 5.
+#
+#   * The record ID is the `entry_id` that ascensionlogs.gg armory captures and
+#     the in-game tooltip's "CharacterAdvancement ID" both use. It is NOT a
+#     spellId and must never be joined to one directly.
+#   * Slots 5..9 are a SpellRank[5] array: the spellId per card rank. Talents
+#     fill 2/3/5 of them; ability cards fill only slot 5 (the game resolves an
+#     ability's spell *rank* by character level instead - see resolve_rank_lines).
+#
+# Confidence: slots 0/1/2/3/5-9/16/20/24/47/64/65 are anchored on 10,231 records
+# and cross-checked against 1,054 crawled entry_ids (100% resolved, 660/660 name
+# agreement). The remaining int slots are stored verbatim in `raw_ints_json`
+# rather than guessed at.
+# ---------------------------------------------------------------------------
+# Slot 121 is a packed 4-byte availability field (decoded session 0a). Byte 2
+# ((v >> 8) & 0xFF) separates the currently-playable card pool from everything else.
+# Evidence, four independent lines - none of them documentation, so treat this as a
+# strong empirical rule rather than a certainty:
+#   1. all 1,054 entry_ids observed on live Darkmoon characters have byte2 == 1;
+#      not one of the 5,705 byte2==0 records has ever been seen
+#   2. it keeps 3,129 records, within 3.0% of BisBeard's independently-maintained
+#      S10 card count (3,226) and close to the catalog export's 3,061
+#   3. semantics: the kept set contains all five Paths by name; the excluded set is
+#      full of retail WotLK class abilities (Ferocious Bite, Lava Burst, Ignite,
+#      Improved Fireball) that are not part of the classless card pool
+#   4. it resolves the duplicate-name trap structurally - "Holy Power" and
+#      "Titan's Grip" each appear three times in this table, once per byte2 group,
+#      and exactly one of each is byte2 == 1
+# ⚠ Do NOT read byte2 as meaning "Darkmoon" specifically. Only Darkmoon data exists
+# to test against; it could equally mean current-season, or classless mode. The
+# honest label is "the currently-playable pool". 97 cards of BisBeard's count are
+# unaccounted for and that gap is unexplained.
+CA_POOL_SLOT = 121
+
+CA_SLOTS = {
+    'ca_type': 1, 'prereq_1': 2, 'prereq_2': 3,
+    'rarity_a': 16, 'rarity_b': 20, 'rarity_c': 24,
+    'rarity_a_n': 17, 'rarity_b_n': 21, 'rarity_c_n': 25,
+    'req_level_a': 26, 'req_level_b': 27, 'req_level_c': 28,
+    'category_a': 32, 'category_b': 33,
+    'name': 47, 'icon': 64, 'description': 65,
+}
+CA_STRING_SLOTS = {1, 16, 20, 24, 47, 64, 65}
+CA_RANK_SLOTS = (5, 6, 7, 8, 9)
+# Class names Ascension uses as SkillLine.dbc names (verified session 0a: the
+# client's skill lines are renamed to classes, e.g. line 26 is "Warrior", not
+# retail's "Arcane"). 'Conquest of Azeroth' is a real line but not a class.
+CLASS_SKILL_LINES = {'Warrior', 'Paladin', 'Hunter', 'Rogue', 'Priest',
+                     'Death Knight', 'Shaman', 'Mage', 'Warlock', 'Druid'}
 
 
 def parse_simple_record(record_bytes, string_block, fields, expected_slots, actual_field_count):
@@ -388,11 +453,30 @@ def ensure_spell_scaling_source_column(cur):
 
 def resolve_hidden_formula_spells(cur):
     ensure_spell_scaling_source_column(cur)
-    # idempotent: only this step's own rows get cleared/re-derived on re-run
+
+    # ⚠ Idempotency (fixed session 0a). This step clears its own rows and then
+    # re-derives them - but it ALSO clears has_hidden_formula on every spell it
+    # resolves (below), so on a second run those spells no longer appear in the
+    # `has_hidden_formula=1` target set. The delete therefore threw away all 113
+    # previously-resolved rows and re-derived none: running this script twice in
+    # a row silently emptied spell_scaling of every dbc_hidden_formula row.
+    # (INDEX_GUIDE v3's claim that "the resolver already runs the full list every
+    # invocation, not incremental" was wrong, and this is how.)
+    # Fix: re-target anything that either is still flagged OR already has rows
+    # from a previous run, so the delete is always followed by a re-derive.
+    cur.execute("SELECT DISTINCT spell_id FROM spell_scaling WHERE source='dbc_hidden_formula'")
+    previously_resolved = [r[0] for r in cur.fetchall()]
     cur.execute("DELETE FROM spell_scaling WHERE source='dbc_hidden_formula'")
 
     cur.execute('SELECT id, hidden_refs FROM spells WHERE has_hidden_formula=1')
     targets = cur.fetchall()
+    if previously_resolved:
+        ph = ','.join('?' * len(previously_resolved))
+        cur.execute(f'SELECT id, hidden_refs FROM spells WHERE id IN ({ph})', previously_resolved)
+        seen = {t[0] for t in targets}
+        targets += [t for t in cur.fetchall() if t[0] not in seen]
+        print(f'(re-targeting {len(previously_resolved)} spells resolved on a previous run '
+              f'so re-running stays idempotent)')
     cur.execute('SELECT id, description, effect_json FROM spell_dbc_raw')
     dbc_rows = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
 
@@ -434,8 +518,13 @@ def resolve_hidden_formula_spells(cur):
                 cur.execute('SELECT name FROM spell_dbc_raw WHERE id=?', (rid,))
                 sub_row = cur.fetchone()
                 sub_name = sub_row[0] if sub_row else str(rid)
+                # ⚠ Word-boundary, not substring (tightened session 0a). A bare
+                # `sub_name in fact` on a short name like "Mutilate" matched dozens
+                # of unrelated facts, printing a spell x fact cross-product that
+                # buried anything genuinely surprising.
+                name_re = re.compile(r'\b' + re.escape(sub_name) + r'\b') if sub_name else None
                 for fact in all_facts:
-                    if sub_name and sub_name in fact and ('%' in fact or 'assumed' in fact.lower()):
+                    if name_re and name_re.search(fact) and ('%' in fact or 'assumed' in fact.lower()):
                         surprises.append({
                             'spell_id': sid, 'spell_name': name,
                             'hidden_ref_id': rid, 'hidden_ref_name': sub_name,
@@ -454,11 +543,23 @@ def resolve_hidden_formula_spells(cur):
     print(f'\nhas_hidden_formula spells resolved into spell_scaling: {resolved_count} / {len(targets)}')
     print(f'left flagged (no SP/AP/RAP/weapon term found in hidden sub-spell text): {len(unresolved)}')
     if surprises:
+        seen_pairs = set()
         print(f'\nSURPRISING resolutions (conflict with an existing confirmed_facts entry):')
+        shown = 0
         for s in surprises:
+            key = (s['spell_id'], s['hidden_ref_id'])
+            if key in seen_pairs:
+                continue
+            seen_pairs.add(key)
+            if shown >= 15:
+                continue
+            shown += 1
             print(f"  - spell {s['spell_id']} ({s['spell_name']}) -> hidden ref {s['hidden_ref_id']} "
                   f"({s['hidden_ref_name']}): resolved {s['resolved_term']}={s['resolved_coefficient']}")
-            print(f"    existing fact: {s['conflicting_fact'][:300]}")
+            print(f"    existing fact: {s['conflicting_fact'][:200]}")
+        if len(seen_pairs) > shown:
+            print(f'  ... and {len(seen_pairs) - shown} more spell/ref pairs '
+                  f'({len(surprises)} fact matches total)')
     return resolved_count, unresolved, surprises
 
 
@@ -498,6 +599,310 @@ def export_dbc_extract_json(cur):
     print(f'\nExported {len(spell_dbc_raw)} spell_dbc_raw rows + '
           f'{sum(len(v) for v in support_tables.values())} support-table rows + '
           f'{len(hidden_formula_scaling)} hidden-formula scaling rows to {DBC_EXTRACT_JSON}')
+
+
+def spell_slot_index(field_name):
+    """Slot offset of a named Spell.dbc field, derived from SPELL_FIELDS itself so
+    it can't drift out of sync with parse_spell_record."""
+    pos = 0
+    for name, kind, count in SPELL_FIELDS:
+        if name == field_name:
+            return pos
+        pos += 17 if kind == 'strblock' else count
+    raise KeyError(field_name)
+
+
+def scan_spell_rank_index(dbc):
+    """Cheap pre-pass over the FULL Spell.dbc (209k records): just the fields needed
+    to group rank lines. Avoids parse_spell_record's full 234-slot unpack per row."""
+    i_id = spell_slot_index('ID')
+    i_name = spell_slot_index('Name')
+    i_sub = spell_slot_index('NameSubtext')
+    i_level = spell_slot_index('SpellLevel')
+    i_school = spell_slot_index('SchoolMask')
+    i_cd = spell_slot_index('RecoveryTime')
+    i_cast = spell_slot_index('CastingTimeIndex')
+    i_radius = spell_slot_index('EffectRadiusIndex')
+    i_effect = spell_slot_index('Effect')
+    sb = dbc['string_block']
+    out = {}
+    n = dbc['record_size'] // 4
+    for rec in dbc['records']:
+        u = struct.unpack_from(f'<{n}I', rec, 0)
+        sub = read_cstr(sb, u[i_sub])
+        rank = None
+        if sub.startswith('Rank '):
+            tail = sub.split()[-1]
+            rank = int(tail) if tail.isdigit() else None
+        out[u[i_id]] = {
+            'name': read_cstr(sb, u[i_name]),
+            'rank_text': sub,
+            'rank': rank,
+            'spell_level': u[i_level],
+            # mechanical fingerprint - PHASE_0 1d's hard rule: never relate two
+            # ids by name alone.
+            'fingerprint': (u[i_school], u[i_cd], u[i_radius], u[i_cast],
+                            u[i_effect], u[i_effect + 1], u[i_effect + 2]),
+        }
+    return out
+
+
+def build_rank_lines(rank_index, skill_of):
+    """Group rank-numbered spells into lines keyed by (name, skill lines, fingerprint).
+
+    Returns {line_key: [spell_id, ...]}. A line with one member is still a line.
+    """
+    lines = {}
+    for sid, info in rank_index.items():
+        if info['rank'] is None or not info['name']:
+            continue
+        key = (info['name'], tuple(sorted(skill_of.get(sid, ()))), info['fingerprint'])
+        lines.setdefault(key, []).append(sid)
+    return lines
+
+
+def load_skill_line_map(mpqs, dll_path):
+    """{spell_id: {skill_line_id, ...}} straight from SkillLineAbility.dbc.
+
+    Read directly (rather than from the dbc_skilllineability table) because rank
+    grouping has to happen before spell_dbc_raw is scoped, which is before the
+    support tables are written.
+    """
+    internal = 'DBFilesClient\\SkillLineAbility.dbc'
+    archive = pick_final_archive(find_owning_archive(mpqs, internal, dll_path),
+                                'SkillLineAbility.dbc')
+    if archive is None:
+        print('SkillLineAbility.dbc: not found; rank lines will group on name alone',
+              file=sys.stderr)
+        return {}
+    with MpqArchive(archive, dll_path) as mpq:
+        dbc = load_dbc(mpq.read_file(internal))
+    n = dbc['record_size'] // 4
+    out = {}
+    for rec in dbc['records']:
+        u = struct.unpack_from(f'<{n}I', rec, 0)
+        out.setdefault(u[2], set()).add(u[1])
+    return out
+
+
+def extract_skill_lines(cur, mpqs, dll_path):
+    """SkillLine.dbc -> dbc_skill_line, and the derived per-spell class resolution.
+
+    ⚠ Ascension has RENAMED the skill lines to class names (line 26 is "Warrior",
+    not retail's "Arcane"), and sets ClassMask to 512 (its own classless "Hero"
+    class) on ~10k rows, which makes ClassMask useless for this. The skill line's
+    NAME is what carries the class. Verified session 0a against 387 existing
+    class_origin rows (382 agree) and 7/7 of primer §4's proof cases.
+    """
+    internal = 'DBFilesClient\\SkillLine.dbc'
+    archive = pick_final_archive(find_owning_archive(mpqs, internal, dll_path), 'SkillLine.dbc')
+    if archive is None:
+        print('SkillLine.dbc: not found in any archive, skipping', file=sys.stderr)
+        return {}
+    with MpqArchive(archive, dll_path) as mpq:
+        dbc = load_dbc(mpq.read_file(internal))
+    sb = dbc['string_block']
+    n = dbc['record_size'] // 4
+    names, cats = {}, {}
+    for rec in dbc['records']:
+        u = struct.unpack_from(f'<{n}I', rec, 0)
+        cats[u[0]] = u[1]
+        # The name is the first slot after the category that reads back as a
+        # printable string; the display-name column moves between builds, so it
+        # is discovered rather than hardcoded.
+        for idx in range(2, n):
+            s = read_cstr(sb, u[idx])
+            if s and len(s) > 1 and s.isprintable():
+                names[u[0]] = s
+                break
+    cur.execute('DROP TABLE IF EXISTS dbc_skill_line')
+    cur.execute('CREATE TABLE dbc_skill_line (id INTEGER PRIMARY KEY, name TEXT, '
+                'category INTEGER, is_class_line INTEGER, source_archive TEXT)')
+    cur.executemany('INSERT INTO dbc_skill_line VALUES (?,?,?,?,?)',
+                    [(k, names.get(k), cats.get(k),
+                      1 if names.get(k) in CLASS_SKILL_LINES else 0,
+                      os.path.basename(archive)) for k in cats])
+    print(f'dbc_skill_line: {len(cats)} rows from {os.path.basename(archive)} '
+          f'({sum(1 for k in cats if names.get(k) in CLASS_SKILL_LINES)} class lines)')
+    return names
+
+
+def extract_spell_class(cur, skill_names):
+    """Derive dbc_spell_class from dbc_skilllineability x dbc_skill_line."""
+    cur.execute('SELECT spell, skillline FROM dbc_skilllineability')
+    per_spell = {}
+    for spell, line in cur.fetchall():
+        nm = skill_names.get(line)
+        if nm in CLASS_SKILL_LINES:
+            per_spell.setdefault(spell, set()).add(nm)
+    cur.execute('DROP TABLE IF EXISTS dbc_spell_class')
+    cur.execute('CREATE TABLE dbc_spell_class (spell_id INTEGER PRIMARY KEY, class_name TEXT, '
+                'ambiguous INTEGER, all_classes TEXT)')
+    rows = [(sid, sorted(c)[0] if len(c) == 1 else None, 0 if len(c) == 1 else 1,
+             ','.join(sorted(c))) for sid, c in per_spell.items()]
+    cur.executemany('INSERT INTO dbc_spell_class VALUES (?,?,?,?)', rows)
+    single = sum(1 for r in rows if not r[2])
+    cur.execute('SELECT count(*) FROM spells s JOIN dbc_spell_class c ON c.spell_id=s.id '
+                'WHERE c.ambiguous=0')
+    print(f'dbc_spell_class: {len(rows)} spells ({single} unambiguous); '
+          f'{cur.fetchone()[0]} of them are catalog entries')
+
+
+def extract_character_advancement(cur, mpqs, dll_path):
+    """CharacterAdvancement.dbc -> dbc_character_advancement. See CA_SLOTS above."""
+    internal = 'DBFilesClient\\CharacterAdvancement.dbc'
+    archive = pick_final_archive(find_owning_archive(mpqs, internal, dll_path),
+                                'CharacterAdvancement.dbc')
+    if archive is None:
+        print('CharacterAdvancement.dbc: not found in any archive, skipping', file=sys.stderr)
+        return
+    with MpqArchive(archive, dll_path) as mpq:
+        dbc = load_dbc(mpq.read_file(internal))
+    sb = dbc['string_block']
+    n = dbc['record_size'] // 4
+    cur.execute('DROP TABLE IF EXISTS dbc_character_advancement')
+    cols = ', '.join(f'{k} TEXT' if v in CA_STRING_SLOTS else f'{k} INTEGER'
+                     for k, v in CA_SLOTS.items())
+    cur.execute(f'CREATE TABLE dbc_character_advancement (ca_id INTEGER PRIMARY KEY, {cols}, '
+                'spell_rank_1 INTEGER, spell_rank_2 INTEGER, spell_rank_3 INTEGER, '
+                'spell_rank_4 INTEGER, spell_rank_5 INTEGER, max_rank INTEGER, '
+                'pool_flags_raw INTEGER, in_current_pool INTEGER, '
+                'raw_ints_json TEXT, source_archive TEXT)')
+    rows = []
+    for rec in dbc['records']:
+        u = struct.unpack_from(f'<{n}I', rec, 0)
+        vals = [u[0]]
+        for _k, slot in CA_SLOTS.items():
+            vals.append(read_cstr(sb, u[slot]) if slot in CA_STRING_SLOTS else u[slot])
+        ranks = [u[s] for s in CA_RANK_SLOTS]
+        vals.extend(ranks)
+        vals.append(sum(1 for r in ranks if r))
+        pool_raw = u[CA_POOL_SLOT]
+        vals.append(pool_raw)
+        vals.append(1 if ((pool_raw >> 8) & 0xFF) == 1 else 0)
+        # every remaining non-zero int slot, so nothing is lost to a wrong guess
+        known = set(CA_SLOTS.values()) | set(CA_RANK_SLOTS) | {0, CA_POOL_SLOT}
+        vals.append(json.dumps({str(i): u[i] for i in range(n)
+                                if i not in known and u[i] not in (0, 0xFFFFFFFF)}))
+        vals.append(os.path.basename(archive))
+        rows.append(tuple(vals))
+    ph = ','.join('?' * len(rows[0]))
+    cur.executemany(f'INSERT INTO dbc_character_advancement VALUES ({ph})', rows)
+    cur.execute('SELECT count(*) FROM dbc_character_advancement WHERE spell_rank_1 IN '
+                '(SELECT id FROM spells)')
+    in_cat = cur.fetchone()[0]
+    cur.execute('SELECT count(*) FROM dbc_character_advancement WHERE in_current_pool=1')
+    print(f'dbc_character_advancement: {len(rows)} rows from {os.path.basename(archive)} '
+          f'({in_cat} whose rank-1 spell is a catalog entry; '
+          f'{cur.fetchone()[0]} flagged in_current_pool)')
+
+
+def extract_gt_tables(cur, mpqs, dll_path):
+    """The gt* combat-rating conversion tables Phase 2's engine needs.
+
+    These have no ID column - the ROW INDEX is the key (class-major, level-minor
+    for the per-class tables). Stored raw; interpretation belongs to Phase 2.
+    """
+    gt_files = ['gtCombatRatings.dbc', 'gtChanceToMeleeCrit.dbc', 'gtChanceToMeleeCritBase.dbc',
+                'gtChanceToSpellCrit.dbc', 'gtChanceToSpellCritBase.dbc',
+                'gtRegenMPPerSpt.dbc', 'gtRegenHPPerSpt.dbc', 'gtOCTRegenMP.dbc',
+                'gtOCTRegenHP.dbc', 'gtNPCManaCostScaler.dbc']
+    cur.execute('DROP TABLE IF EXISTS dbc_gt_tables')
+    cur.execute('CREATE TABLE dbc_gt_tables (table_name TEXT, row_index INTEGER, '
+                'value REAL, source_archive TEXT, PRIMARY KEY (table_name, row_index))')
+    total = 0
+    for filename in gt_files:
+        internal = f'DBFilesClient\\{filename}'
+        archive = pick_final_archive(find_owning_archive(mpqs, internal, dll_path), filename)
+        if archive is None:
+            print(f'{filename}: not found, skipping', file=sys.stderr)
+            continue
+        with MpqArchive(archive, dll_path) as mpq:
+            dbc = load_dbc(mpq.read_file(internal))
+        name = filename[:-4]
+        rows = []
+        for idx, rec in enumerate(dbc['records']):
+            # single-column float tables; some builds carry a leading id column
+            vals = struct.unpack_from(f'<{dbc["record_size"] // 4}f', rec, 0)
+            rows.append((name, idx, vals[-1], os.path.basename(archive)))
+        cur.executemany('INSERT INTO dbc_gt_tables VALUES (?,?,?,?)', rows)
+        total += len(rows)
+    print(f'dbc_gt_tables: {total} rows across {len(gt_files)} tables')
+
+
+def extract_rank_lines(cur, rank_index, rank_lines):
+    """dbc_spell_rank: which spell ids form a rank line, and each one's level gate.
+
+    This is what makes "which rank does a level-60 character actually cast" a query
+    instead of a guess: the answer is the highest rank in the line whose spell_level
+    is <= the character's level.
+    """
+    cur.execute('DROP TABLE IF EXISTS dbc_spell_rank')
+    cur.execute('CREATE TABLE dbc_spell_rank (spell_id INTEGER PRIMARY KEY, line_id INTEGER, '
+                'name TEXT, rank INTEGER, rank_text TEXT, spell_level INTEGER, line_size INTEGER)')
+    rows = []
+    for line_id, (key, ids) in enumerate(sorted(rank_lines.items(), key=lambda kv: kv[0][0])):
+        for sid in ids:
+            info = rank_index[sid]
+            rows.append((sid, line_id, info['name'], info['rank'], info['rank_text'],
+                         info['spell_level'], len(ids)))
+    cur.executemany('INSERT INTO dbc_spell_rank VALUES (?,?,?,?,?,?,?)', rows)
+    multi = sum(1 for k, v in rank_lines.items() if len(v) > 1)
+    print(f'dbc_spell_rank: {len(rows)} ranked spells in {len(rank_lines)} lines '
+          f'({multi} multi-rank)')
+
+
+def report_level_rank_gap(cur, rank_index, rank_lines, level=60):
+    """How many catalog entries are stored at a rank a level-`level` character does
+    not hold? (PHASE_0 Task 1's "report how many" ask.)"""
+    line_of = {sid: key for key, ids in rank_lines.items() for sid in ids}
+    cur.execute('SELECT id FROM spells')
+    cat_ids = [r[0] for r in cur.fetchall()]
+    cat_set = set(cat_ids)
+    same = wrong = wrong_absent = 0
+    for sid in cat_ids:
+        key = line_of.get(sid)
+        if key is None:
+            continue
+        sibs = [i for i in rank_lines[key] if rank_index[i]['spell_level'] <= level]
+        if not sibs:
+            continue
+        best = max(sibs, key=lambda i: rank_index[i]['rank'])
+        if best == sid:
+            same += 1
+        else:
+            wrong += 1
+            if best not in cat_set:
+                wrong_absent += 1
+    print(f'\nlevel-{level} rank check: {same + wrong} catalog entries sit in a rank line; '
+          f'{same} are already the level-{level} id, {wrong} are NOT '
+          f'({wrong_absent} of those level-{level} ids are absent from the catalog entirely)')
+
+
+def export_ascension_extract_json(cur):
+    """Ascension-specific DBC tables -> their own committed JSON.
+
+    Separate from dbc-extract.json on purpose: that file is already ~14 MB and is
+    rewritten wholesale each run, and these tables answer a different question
+    (crosswalk / class / rank / rating conversion rather than raw spell text).
+    Committed because they cannot be reproduced without the game client, which a
+    future session may not have - same reasoning as the crawler's tier-1 split.
+    """
+    payload = {}
+    for table in ('dbc_character_advancement', 'dbc_skill_line', 'dbc_skilllineability',
+                  'dbc_spell_class', 'dbc_spell_rank', 'dbc_gt_tables'):
+        try:
+            cur.execute(f'SELECT * FROM {table}')
+        except sqlite3.OperationalError:
+            print(f'  (skipping {table}: not built this run)', file=sys.stderr)
+            continue
+        cols = [d[0] for d in cur.description]
+        payload[table] = {'columns': cols, 'rows': cur.fetchall()}
+    path = INDEX_DIR / 'dbc-ascension-extract.json'
+    path.write_text(json.dumps(payload), encoding='utf-8')
+    total = sum(len(v['rows']) for v in payload.values())
+    print(f'Exported {total} rows across {len(payload)} Ascension tables to {path} '
+          f'({path.stat().st_size / 1e6:.1f} MB)')
 
 
 def main():
@@ -564,16 +969,35 @@ def main():
     # from the client is always one script run away.
     cur.execute('SELECT id FROM spells')
     catalog_ids = {r[0] for r in cur.fetchall()}
-    cur.execute("SELECT hidden_refs FROM spells WHERE has_hidden_formula=1")
+    # NB: keyed on hidden_refs being present, NOT on has_hidden_formula=1. The
+    # flag is cleared once a spell resolves, so filtering on it dropped every
+    # already-resolved spell's sub-spells out of scope on the next run - which
+    # then un-resolved them. Same idempotency bug as resolve_hidden_formula_spells.
+    cur.execute("SELECT hidden_refs FROM spells WHERE hidden_refs IS NOT NULL AND hidden_refs != ''")
     hidden_ref_ids = set()
     for (refs,) in cur.fetchall():
         hidden_ref_ids.update(int(x) for x in refs.split(',') if x.strip())
     neighbor_ids = set()
     for sid in catalog_ids:
         neighbor_ids.update(range(sid - 3, sid + 4))
-    relevant_ids = catalog_ids | hidden_ref_ids | neighbor_ids
+
+    # Rank siblings (session 0a). The +/-3 neighbour buffer above is NOT enough:
+    # rank ids are frequently non-contiguous (Winds of Winter R1 274121 -> R2
+    # 274129), so the spell a level-60 character actually casts was being scoped
+    # out of spell_dbc_raw entirely. That is how 274132 came to be recorded as
+    # "absent from the client" - it never was.
+    rank_index = scan_spell_rank_index(dbc)
+    skill_of = load_skill_line_map(mpqs, args.stormlib_dll)
+    rank_lines = build_rank_lines(rank_index, skill_of)
+    sibling_ids = set()
+    for ids in rank_lines.values():
+        if catalog_ids.intersection(ids):
+            sibling_ids.update(ids)
+
+    relevant_ids = catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids
     print(f'Scoping spell_dbc_raw to {len(relevant_ids)} relevant IDs '
-          f'({len(catalog_ids)} catalog + {len(hidden_ref_ids)} hidden_refs + neighbor buffer)')
+          f'({len(catalog_ids)} catalog + {len(hidden_ref_ids)} hidden_refs + '
+          f'{len(sibling_ids)} rank siblings + neighbor buffer)')
 
     spell_rows = []
     id_struct = struct.Struct('<I')
@@ -634,6 +1058,16 @@ def main():
 
     conn.commit()
 
+    # --- Ascension-specific tables (session 0a, Phase 0 Tasks 4a + 5) --------
+    skill_names = extract_skill_lines(cur, mpqs, args.stormlib_dll)
+    if skill_names:
+        extract_spell_class(cur, skill_names)
+    extract_character_advancement(cur, mpqs, args.stormlib_dll)
+    extract_gt_tables(cur, mpqs, args.stormlib_dll)
+    extract_rank_lines(cur, rank_index, rank_lines)
+    report_level_rank_gap(cur, rank_index, rank_lines)
+    conn.commit()
+
     # --- validate before trusting any of the above further -------------------
     validate_known_spells(cur)
 
@@ -659,6 +1093,7 @@ def main():
     conn.commit()
 
     export_dbc_extract_json(cur)
+    export_ascension_extract_json(cur)
 
     conn.close()
 
