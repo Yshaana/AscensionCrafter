@@ -1,0 +1,2246 @@
+{
+  "scouted_at": "2026-08-03T23:15:23.599568+00:00",
+  "name": "Tdoctor",
+  "character": {
+    "id": 42800,
+    "name": "Tdoctor",
+    "realm": "Unknown",
+    "region": "US",
+    "class": "Hero",
+    "spec": "Hero",
+    "level": null,
+    "guild_id": null,
+    "race": "Draenei",
+    "guild_name": "404"
+  },
+  "captured_for_boss": "Hakkar",
+  "gear": [
+    {
+      "slot": 1,
+      "item_id": 212604,
+      "name": "Starfire Tiara",
+      "quality": 4,
+      "enchant_id": 22700,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 79,
+        "spirit": 23,
+        "stamina": 4,
+        "hitRating": 6,
+        "intellect": 12,
+        "spellPower": 27,
+        "spellPenetration": 12
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - Jed Runewatcher",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 2,
+      "item_id": 261054,
+      "name": "Diana's Pearl Necklace",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 6,
+        "hitRating": 8,
+        "intellect": 12,
+        "spellPower": 12,
+        "spellPenetration": 7
+      },
+      "damage": null,
+      "source": "Stratholme - Cannon Master Willey",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 3,
+      "item_id": 227627,
+      "name": "Necropile Mantle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 74,
+        "spirit": 13,
+        "stamina": 12,
+        "hitRating": 6,
+        "intellect": 6,
+        "critRating": 6,
+        "spellPower": 14
+      },
+      "damage": null,
+      "source": "Scholomance - Lady Illucia Barov",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 5,
+      "item_id": 227578,
+      "name": "Necropile Robe",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 94,
+        "spirit": 15,
+        "stamina": 18,
+        "critRating": 9,
+        "spellPower": 18,
+        "hasteRating": 9
+      },
+      "damage": null,
+      "source": "Scholomance - Lady Illucia Barov",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 6,
+      "item_id": 221058,
+      "name": "Grimgore Noose",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 55,
+        "spirit": 7,
+        "intellect": 10,
+        "spellPower": 22,
+        "hasteRating": 18
+      },
+      "damage": null,
+      "source": "Stratholme - Timmy the Cruel",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 7,
+      "item_id": 212965,
+      "name": "Spiritshroud Leggings",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 86,
+        "spirit": 29,
+        "stamina": 12,
+        "intellect": 15,
+        "spellPower": 30
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - The Beast",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 8,
+      "item_id": 220648,
+      "name": "Fire Striders",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 68,
+        "spirit": 20,
+        "stamina": 9,
+        "intellect": 7,
+        "critRating": 9,
+        "fireResist": 13,
+        "spellPower": 13,
+        "spellPenetration": 11
+      },
+      "damage": null,
+      "source": "Stratholme - Balnazzar",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 9,
+      "item_id": 248430,
+      "name": "Sublime Wristguards",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 41,
+        "spirit": 8,
+        "hitRating": 7,
+        "spellPower": 14,
+        "spellPenetration": 10
+      },
+      "damage": null,
+      "source": "Dire Maul North - Guard Slip'kik",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 10,
+      "item_id": 217974,
+      "name": "Hands of the Exalted Herald",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 59,
+        "spirit": 11,
+        "stamina": 5,
+        "intellect": 8,
+        "spellPower": 18,
+        "hasteRating": 8,
+        "spellPenetration": 7
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Princess Moira Bronzebeard",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 11,
+      "item_id": 214721,
+      "name": "Cyclopean Band",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "spirit": 11,
+        "hitRating": 7,
+        "intellect": 6,
+        "spellPower": 16
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Ring of Law",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 12,
+      "item_id": 223077,
+      "name": "Kibble",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "spirit": 7,
+        "critRating": 7,
+        "spellPower": 10,
+        "hasteRating": 7
+      },
+      "damage": null,
+      "source": "Blackrock Caverns - Beauty",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 13,
+      "item_id": 1414516,
+      "name": "Spellbound Demonic Rune",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "hitRating": 24
+      },
+      "damage": null,
+      "source": "Unknown",
+      "source_category": "vendor",
+      "tier": null
+    },
+    {
+      "slot": 14,
+      "item_id": 1388594,
+      "name": "Three Corner Carp",
+      "quality": 3,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "hitRating": 15,
+        "spellPenetration": 20
+      },
+      "damage": null,
+      "source": "Worldforged",
+      "source_category": "worldforged",
+      "tier": null
+    },
+    {
+      "slot": 15,
+      "item_id": 19870,
+      "name": "Hakkari Loa Cloak",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 48,
+        "spirit": 9,
+        "stamina": 6,
+        "intellect": 9,
+        "spellPower": 14,
+        "spellPenetration": 7
+      },
+      "damage": null,
+      "source": "Zul'Gurub - Bloodlord Mandokir",
+      "source_category": "raid",
+      "tier": null
+    },
+    {
+      "slot": 16,
+      "item_id": 218048,
+      "name": "Mastersmith's Hammer",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "mp5": 7,
+        "stamina": 20,
+        "intellect": 27,
+        "spellPower": 50,
+        "feralAttackPower": 18
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - Goraluk Anvilcrack",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 17,
+      "item_id": 246398,
+      "name": "Hurley's Tankard",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "mp5": 32,
+        "stamina": 8,
+        "critRating": 15,
+        "hasteRating": 10,
+        "feralAttackPower": 140
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Hurley Blackbreath",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 18,
+      "item_id": 1667717,
+      "name": "Megashot Rifle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "hitRating": 4,
+        "attackPower": 22
+      },
+      "damage": null,
+      "source": "Dungeon",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    }
+  ],
+  "build": {
+    "abilities": [
+      {
+        "entry_id": 40876,
+        "name": "Titan's Grip",
+        "icon": "Ability_Warrior_TitansGrip",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Allows you to wield a Two-Handed Axe, Mace, or Sword in each hand. \r\n\r\nAlso allows for a weapon or shield to be held in the off-hand while a Staff is equipped.\r\n\r\nPhysical damage dealt is reduced by 10%."
+        ]
+      },
+      {
+        "entry_id": 42044,
+        "name": "Mage Armor",
+        "icon": "Spell_MageArmor",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases your resistance to all magic by 5 and allows 50% of your mana regeneration to continue while casting. In addition, the duration of all harmful Magic effects used against you is reduced by 30%. @ext:Only one type of Mage Armor spell can be active at any time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40122,
+        "name": "Blink",
+        "icon": "Spell_Arcane_Blink",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Teleports the caster 20 yards forward, unless something is in the way. Also frees the caster from stuns and bonds."
+        ]
+      },
+      {
+        "entry_id": 41007,
+        "name": "Focus Magic",
+        "icon": "Spell_Arcane_StudentOfMagic",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the target's chance to critically hit with spells by 3%. \r\n\r\nWhen the target critically hits the caster's chance to critically hit with spells is increased by 3% for 10 sec. \r\n\r\n@ext:Cannot be cast on self.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40806,
+        "name": "Vampiric Touch",
+        "icon": "Spell_Holy_Stoicism",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Causes 340 Shadow damage over 15 sec to your target. \r\n\r\nWhen you deal damage with Mind Blast to a target afflicted by your Vampiric Touch, you gain |cFFFFFFFFReplenishment|r.\r\n\r\nIf Vampiric Touch is dispelled it will cause 544 damage to the afflicted target.\n\r\n@s:57669:0@"
+        ]
+      },
+      {
+        "entry_id": 41914,
+        "name": "Mind Sear",
+        "icon": "Spell_Shadow_MindShear",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Causes an explosion of shadow magic around the enemy target, causing 50 to 57 Shadow damage every 1 sec for 5 sec to all enemies within 10 yards around the target."
+        ]
+      },
+      {
+        "entry_id": 40033,
+        "name": "Dispel Magic",
+        "icon": "Spell_Holy_DispelMagic",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Dispels magic on the target, removing 1 harmful spells from a friend or 1 beneficial spells from an enemy."
+        ]
+      },
+      {
+        "entry_id": 40461,
+        "name": "Vampiric Embrace",
+        "icon": "Spell_Shadow_UnsummonBuilding",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Fills you with the embrace of Shadow energy, causing you to be healed for 15% and other party members to be healed for $/5;15286s1% of any single-target Priest Shadow spell damage you deal. \r\n\r\n@ext:Either heal cannot exceed 5% of the maximum health of the caster.:ext@\r\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40151,
+        "name": "Devouring Plague",
+        "icon": "Spell_Shadow_DevouringPlague",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Afflicts the target with a disease that causes 152 Shadow damage over 24 sec. 15% of damage caused by the Devouring Plague heals the caster. This spell can only affect one target at a time."
+        ]
+      },
+      {
+        "entry_id": 40204,
+        "name": "Mind Blast",
+        "icon": "Spell_Shadow_UnholyFrenzy",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Blasts the target for 39 to 43 Shadow damage."
+        ]
+      },
+      {
+        "entry_id": 40462,
+        "name": "Mind Flay",
+        "icon": "Spell_Shadow_SiphonMana",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Assault the target's mind with Shadow energy, causing 45 Shadow damage over 3 sec and slowing their movement speed by 50%."
+        ]
+      },
+      {
+        "entry_id": 40463,
+        "name": "Shadowform",
+        "icon": "Spell_Shadow_Shadowform",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Assume a Shadowform, increasing your Shadow damage by 15%$?s102217[ and reduces all damage taken by 0%][].\r\n\r\nYou may not cast Healing or Priest Holy spells while in this form except for Cure Disease and Abolish Disease.\r\n\r\nGrants the periodic damage from your Shadow Word: Pain, Devouring Plague, and Vampiric Touch spells the ability to critically hit and benefit from haste."
+        ]
+      },
+      {
+        "entry_id": 40912,
+        "name": "Dispersion",
+        "icon": "Spell_Shadow_Dispersion",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "You disperse into pure Shadow energy, reducing all damage taken by 90%. You are unable to attack or cast spells, but you regenerate 6% mana every 1 sec for 6 sec. Dispersion can be cast while stunned, feared or silenced and clears all snare and movement impairing effects when cast."
+        ]
+      },
+      {
+        "entry_id": 40093,
+        "name": "Life Tap",
+        "icon": "Spell_Shadow_BurningSpirit",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Converts 15 health into mana. Spell power increases the amount of mana returned."
+        ]
+      },
+      {
+        "entry_id": 42076,
+        "name": "Create Spellstone",
+        "icon": "INV_Misc_Gem_Sapphire_01",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "While applied to target weapon it increases damage dealt by periodic spells by 2% and spell haste rating by 7. This effect lasts for 2 hours.\r\n\r\nYou can only benefit from one Warlock weapon enchant at a time."
+        ]
+      },
+      {
+        "entry_id": 42061,
+        "name": "Fel Armor",
+        "icon": "Spell_Shadow_FelArmour",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Surrounds you with fel energy, increasing spell damage by 40 plus 30% of your Spirit. \r\nRestores 2% of your max health every 5 sec. \r\n\r\n@ext:Only one Armor spell can be active at a time. :ext@"
+        ]
+      },
+      {
+        "entry_id": 40238,
+        "name": "Rebirth",
+        "icon": "Spell_Nature_Reincarnation",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Returns the spirit to the body, restoring a dead target to life with 400 health and 700 mana."
+        ]
+      },
+      {
+        "entry_id": 42032,
+        "name": "Tether Elemental",
+        "icon": "Spell_Nature_ElementalPrecision_1",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Teaches you the necessary abilities to tether an Elemental companion.\r\n\r\nTeaches you Tether Elemental, Raise Elemental, Dismiss Elemental, Revive Elemental and Elemental Lore.\r\n\r\n@ext:@s:93569:0@:ext@"
+        ]
+      },
+      {
+        "entry_id": 40303,
+        "name": "Call of the Elements",
+        "icon": "Spell_Shaman_Dropall_01",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Simultaneously places up to 4 totems specified in the Totem Bar."
+        ]
+      },
+      {
+        "entry_id": 42080,
+        "name": "Wrath of Air Totem",
+        "icon": "Spell_Nature_SlowingTotem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Wrath of Air Totem with 5 health at the feet of the caster. The totem provides 5% spell haste to all party and raid members within 50 yards. Lasts 5 min.\n\r\n@ext:Does not stack with other similar effects.:ext@\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42093,
+        "name": "Flametongue Totem",
+        "icon": "Spell_Nature_GuardianWard",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Flametongue Totem with 5 health at the feet of the caster. Party and raid members within 50 yards of the totem have their Intellect increased by 2 and spell power increased by 2. Lasts 5 min.\n\r\n@ext:Does not stack with other similar effects.:ext@\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40296,
+        "name": "Wind Shear",
+        "icon": "Spell_Nature_Cyclone",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Instantly blasts the target with a gust of wind, causing no damage but interrupting spellcasting and preventing spells of that school of magic from being cast for 2 sec. \n\n@ext:This ability shares a cooldown with other interrupts.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40207,
+        "name": "Tremor Totem",
+        "icon": "Spell_Nature_TremorTotem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Tremor Totem with 5 health at the feet of the caster that shakes the ground around it, removing Fear, Charm and Sleep effects from party members within 30 yards. Lasts 5 min.\r\r@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40208,
+        "name": "Cleansing Totem",
+        "icon": "Spell_Nature_DiseaseCleansingTotem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Cleansing Totem with 5 health at the feet of the caster that attempts to remove 1 disease and 1 poison effect from party members within 30 yards every 3 seconds. Lasts 5 min.\r\r@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36926,
+        "name": "Beacon of Shadow",
+        "icon": "nhi_shadowsrising_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "@req:84867@\r\nDealing damage with |cFFFFFFFFMind Flay|r or healing another target with |cFFFFFFFFShadow Mend|r now triggers a heal on your |cFFFFFFFFBeacon of Shadow|r ally.\r\n\r\n@ext:Only one target can be the Beacon of Shadow at a time. Cannot be cast on self. Lasts 30 min.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37567,
+        "name": "Shadow Word: Gore",
+        "icon": "ability_deathwing_bloodcorruption_death",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A word of gory darkness that causes your target to bleed for 6 Shadow damage, increased by 8% (up to 40%) per bleed you have applied to the target. Lasts 18 sec.\r\n\r\n@ext:This uses Shadow Word: Pain modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37576,
+        "name": "Devour Mind",
+        "icon": "_SoulsDevourer_Purple",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Afflicts a target with a disease that deals Shadow damage every 2 sec and heals you for 15% of the damage done. Continuing to channel increases Devour Mind's duration by $/1000;285134s1 every 0.5 sec.\r\n\r\n@ext:This uses Devouring Plague modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 220,
+        "name": "Shadow Mend",
+        "icon": "Spell_Shadow_ShadowMend",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Wraps an ally in shadows, healing them for 34 health every 0.999 sec over 3 sec.\r\n\r\n@ext:Usable while in Shadowform.:ext@"
+        ]
+      },
+      {
+        "entry_id": 137862,
+        "name": "Roll Back",
+        "icon": "epic_rpg_icon_pack_general_icon_0003s_0000_clock_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFF2E699Chronomancer|r\r\n\r\nRoll back time, dispelling the last harmful effect placed on an ally.\r\n\r\nSubsequent uses increases the mana cost of this ability by 50% for 5 sec."
+        ]
+      },
+      {
+        "entry_id": 138206,
+        "name": "Moonwell",
+        "icon": "ability_shawaterelemental_swirl",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFB5FFFFStarcaller|r\r\n@req:84867@\r\n\r\nCreate a zone blessed by moonwell waters for 15 sec at the target location.\r\n\r\nAll allied players standing within the well receive 25% more healing, and their mana regeneration is increased by 100%."
+        ]
+      }
+    ],
+    "talents": [
+      {
+        "entry_id": 40748,
+        "name": "Enveloping Shadows",
+        "icon": "Ability_Rogue_EnvelopingShadows",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Reduces the damage taken from area of effect attacks by 10%.\r\n\r\n@ext:This does not stack with other similar effects.:ext@",
+          "Reduces the damage taken from area of effect attacks by 20%.\r\n\r\n@ext:This does not stack with other similar effects.:ext@",
+          "Reduces the damage taken from area of effect attacks by 30%.\r\n\r\n@ext:This does not stack with other similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40856,
+        "name": "Netherwind Presence",
+        "icon": "Ability_Mage_NetherWindPresence",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases spell haste by 3%.",
+          "Increases spell haste by 6%.",
+          "Increases spell haste by 9%."
+        ]
+      },
+      {
+        "entry_id": 40443,
+        "name": "Spiritual Guidance",
+        "icon": "Spell_Holy_SpiritualGuidence",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases spell power by 5% of your total Spirit.",
+          "Increases spell power by 10% of your total Spirit.",
+          "Increases spell power by 15% of your total Spirit.",
+          "Increases spell power by 20% of your total Spirit.",
+          "Increases spell power by 25% of your total Spirit."
+        ]
+      },
+      {
+        "entry_id": 40445,
+        "name": "Spiritual Healing",
+        "icon": "Spell_Nature_MoonGlow",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases the amount healed by your spells by 2%.",
+          "Increases the amount healed by your spells by 4%.",
+          "Increases the amount healed by your spells by 6%.",
+          "Increases the amount healed by your spells by 8%.",
+          "Increases the amount healed by your spells by 10%."
+        ]
+      },
+      {
+        "entry_id": 40458,
+        "name": "Improved Mind Blast",
+        "icon": "Spell_Shadow_UnholyFrenzy",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Reduces the cooldown of your Mind Blast spell by 0.5 sec.\r\n\r\nMind Blast also has a $h% chance to reduce all healing done to the target by 20% for 10 sec.",
+          "Reduces the cooldown of your Mind Blast spell by 1 sec.\r\n\r\nMind Blast also has a $h% chance to reduce all healing done to the target by 20% for 10 sec.",
+          "Reduces the cooldown of your Mind Blast spell by 1.5 sec.\r\n\r\nMind Blast also has a $h% chance to reduce all healing done to the target by 20% for 10 sec.",
+          "Reduces the cooldown of your Mind Blast spell by 2 sec.\r\n\r\nMind Blast also has a $h% chance to reduce all healing done to the target by 20% for 10 sec.",
+          "Reduces the cooldown of your Mind Blast spell by 2.5 sec.\r\n\r\nMind Blast also has a $h% chance to reduce all healing done to the target by 20% for 10 sec."
+        ]
+      },
+      {
+        "entry_id": 40449,
+        "name": "Spell Warding",
+        "icon": "Spell_Holy_SpellWarding",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Reduces all magic damage taken by 2%.",
+          "Reduces all magic damage taken by 4%.",
+          "Reduces all magic damage taken by 6%.",
+          "Reduces all magic damage taken by 8%.",
+          "Reduces all magic damage taken by 10%."
+        ]
+      },
+      {
+        "entry_id": 40805,
+        "name": "Shadow Power",
+        "icon": "Spell_Shadow_ShadowPower",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your spell critical strikes now deal 180% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Shadow and Holy periodic damage effects have a chance to make the target vulnerable to your power, increasing their Magic damage taken from you by 4% for 4 seconds.|r",
+          "Your spell critical strikes now deal 185% damage.\r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Shadow and Holy periodic damage effects have a chance to make the target vulnerable to your power, increasing their Magic damage taken from you by 4% for 4 seconds.|r",
+          "Your spell critical strikes now deal 190% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Shadow and Holy periodic damage effects have a chance to make the target vulnerable to your power, increasing their Magic damage taken from you by 4% for 4 seconds.|r",
+          "Your spell critical strikes now deal 195% damage.\r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Your Shadow and Holy periodic damage effects have a chance to make the target vulnerable to your power, increasing their Magic damage taken from you by 4% for 4 seconds.|r",
+          "Your spell critical strikes now deal 200% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\r\n\nCapstone Bonus: Your Shadow and Holy periodic damage effects have a chance to make the target vulnerable to your power, increasing their Magic damage taken from you by 4% for 4 seconds."
+        ]
+      },
+      {
+        "entry_id": 40841,
+        "name": "Misery",
+        "icon": "Spell_Shadow_Misery",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your Mind Blast, Mind Flay and Mind Sear gain an additional 5% of your bonus spell damage effects.\r\n\r\nYour Shadow Word: Pain, Mind Flay and Vampiric Touch spells increase the chance for harmful spells to hit by 1% lasting 24 sec.",
+          "Your Mind Blast, Mind Flay and Mind Sear gain an additional 10% of your bonus spell damage effects.\r\n\r\nYour Shadow Word: Pain, Mind Flay and Vampiric Touch spells increase the chance for harmful spells to hit by 2% lasting 24 sec.",
+          "Your Mind Blast, Mind Flay and Mind Sear gain an additional 15% of your bonus spell damage effects.\r\n\r\nYour Shadow Word: Pain, Mind Flay and Vampiric Touch spells increase the chance for harmful spells to hit by 3% lasting 24 sec."
+        ]
+      },
+      {
+        "entry_id": 40909,
+        "name": "Twisted Faith",
+        "icon": "Spell_Shadow_MindTwisting",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your spell power by 7% of your total Spirit.\r\n\r\nIncreases the damage done by your Mind Flay and Mind Blast is increased by 4% if your target is afflicted by your Shadow Word: Pain.",
+          "Increases your spell power by 14% of your total Spirit.\r\n\r\nIncreases the damage done by your Mind Flay and Mind Blast is increased by 7% if your target is afflicted by your Shadow Word: Pain.",
+          "Increases your spell power by 20% of your total Spirit.\r\n\r\nIncreases the damage done by your Mind Flay and Mind Blast is increased by 10% if your target is afflicted by your Shadow Word: Pain."
+        ]
+      },
+      {
+        "entry_id": 40911,
+        "name": "Pain and Suffering",
+        "icon": "Spell_Shadow_PainAndSuffering",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Shadow channeled spells and Mind Blast casts have a $h% chance to refresh the duration of your Shadow Word: Pain on the target.\r\n\r\nReduces the damage you take from your own Shadow Word: Death by 10%.",
+          "Shadow channeled spells and Mind Blast casts have a $h% chance to refresh the duration of your Shadow Word: Pain on the target.\r\n\r\nReduces the damage you take from your own Shadow Word: Death by 20%.",
+          "Shadow channeled spells and Mind Blast casts have a $h% chance to refresh the duration of your Shadow Word: Pain on the target.\r\n\r\nReduces the damage you take from your own Shadow Word: Death by 30%."
+        ]
+      },
+      {
+        "entry_id": 40456,
+        "name": "Spirit Tap",
+        "icon": "Spell_Shadow_Requiem",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Gives you a $h% chance to gain a 10% bonus to your Spirit after killing a target that yields experience or honor. Lasts 15 sec.\r\n\r\nFor the duration, your mana will regenerate at 25% rate while casting.\r\n\r\n@ext:This does not stack with similar effects.:ext@",
+          "You have a $h% chance to gain Spirit Tap after killing a target that yields experience or honor. \r\n\r\nYour Spirit is increased by 20% and your mana will regenerate at 50% rate while casting. \r\nLasts 15 sec. \r\n@ext:This does not stack with similar effects.:ext@",
+          "You have a $h% chance to gain Spirit Tap after killing a target that yields experience or honor. \r\n\r\nYour Spirit is increased by 30% and your mana will regenerate at 75% rate while casting. \r\nLasts 15 sec.\r\n@ext:This does not stack with similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40908,
+        "name": "Improved Shadowform",
+        "icon": "Spell_Shadow_SummonVoidWalker",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "Your Fade has a 50% chance to clear all movement impairing effects when used in Shadowform.\n\nWhile in Shadowform, you also take 8% less damage and lose 35% less casting or channeling time when hit while casting Shadow spells",
+          "Your Fade has a 100% chance to clear all movement impairing effects when used in Shadowform.\n\nWhile in Shadowform, you also take 15% less damage and lose 70% less casting or channeling time when hit while casting Shadow spells"
+        ]
+      },
+      {
+        "entry_id": 40691,
+        "name": "Improved Vampiric Embrace",
+        "icon": "Spell_Shadow_ImprovedVampiricEmbrace",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "Increases the healing received from Vampiric Embrace by 33%.",
+          "Increases the healing received from Vampiric Embrace by 67%."
+        ]
+      },
+      {
+        "entry_id": 40933,
+        "name": "Improved Spirit Tap",
+        "icon": "Spell_Shadow_Requiem",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "Your Spirit Tap also triggers from your critical strikes with direct damage Shadow spells and Mind Flay, and also increases critical strike rating by 5% of your Spirit.",
+          "Your Spirit Tap now also triggers from your critical strikes with direct damage Shadow spells and Mind Flay and now also increases critical strike rating by 10% of your Spirit."
+        ]
+      },
+      {
+        "entry_id": 40793,
+        "name": "Shadow Embrace",
+        "icon": "Spell_Shadow_ShadowEmbrace",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Direct damaging Shadow spells and abilities, Drain Life and Drain Soul apply Shadow Embrace, increasing all periodic Shadow damage you deal to the target by 1% and reducing all periodic healing and absorbs on the target by 1%. Lasts for 15 sec. Stacks up to 3 times.",
+          "Direct damaging Shadow spells and abilities, Drain Life and Drain Soul apply Shadow Embrace. \r\n\r\nIncreasing all periodic Shadow damage you deal to the target by 2%, and reduces all periodic healing and absorbs on the target by 2%. Lasts for 15 sec. Stacks up to 3 times.",
+          "Direct damaging Shadow spells and abilities, Drain Life and Drain Soul apply Shadow Embrace. \r\n\r\nIncreasing all periodic Shadow damage you deal to the target by 3%, and reduces all periodic healing and absorbs on the target by 3%. Lasts for 15 sec. Stacks up to 3 times.",
+          "Direct damaging Shadow spells and abilities, Drain Life and Drain Soul apply Shadow Embrace. \r\n\r\nIncreasing all periodic Shadow damage you deal to the target by 4%, and reduces all periodic healing and absorbs on the target by 4%. Lasts for 15 sec. Stacks up to 3 times.",
+          "Direct damaging Shadow spells and abilities, Drain Life and Drain Soul apply Shadow Embrace. \r\n\r\nIncreasing all periodic Shadow damage you deal to the target by 5%, and reduces all periodic healing and absorbs on the target by 5%. Lasts for 15 sec. Stacks up to 3 times."
+        ]
+      },
+      {
+        "entry_id": 40721,
+        "name": "Demonic Tactics",
+        "icon": "Spell_Shadow_DemonicTactics",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 2%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 4%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 6%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 8%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 10%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40893,
+        "name": "Backdraft",
+        "icon": "Ability_Warlock_Backdraft",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "When you cast Conflagrate, Mind Blast, Shadowfury or Shadowburn, the cast or channel time of your next $54274n Shadow or Fire spells is reduced by 10%. Lasts 15 sec. \r\n\r\nIncreases the damage of your Shadowburn by 7%.",
+          "When you cast Conflagrate, Mind Blast, Shadowfury or Shadowburn, the cast or channel time of your next $54276n Shadow or Fire spells is reduced by 20%. Lasts 15 sec. \r\n\r\nIncreases the damage of your Shadowburn by 14%.",
+          "When you cast Conflagrate, Mind Blast, Shadowfury or Shadowburn, the cast or channel time of your next $54277n Shadow or Fire spells is reduced by 30%. Lasts 15 sec. \r\n\r\nIncreases the damage of your Shadowburn by 20%."
+        ]
+      },
+      {
+        "entry_id": 40810,
+        "name": "Dreamstate",
+        "icon": "Ability_Druid_Dreamstate",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Regenerate mana equal to 4% of your Intellect every 5 sec, even while casting.",
+          "Regenerate mana equal to 7% of your Intellect every 5 sec, even while casting.",
+          "Regenerate mana equal to 10% of your Intellect every 5 sec, even while casting."
+        ]
+      },
+      {
+        "entry_id": 40918,
+        "name": "Gift of the Earthmother",
+        "icon": "Ability_Druid_ManaTree",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your spell haste by 4%.\r\n\r\nReduces the global cooldown of your Lifebloom spell by -3.33333%.",
+          "Increases your spell haste by 7%.\r\n\r\nReduces the global cooldown of your Lifebloom spell by -6.66667%.",
+          "Increases your spell haste by 10%.\r\n\r\nReduces the global cooldown of your Lifebloom spell by -10%."
+        ]
+      },
+      {
+        "entry_id": 40538,
+        "name": "Natural Shapeshifter",
+        "icon": "Spell_Nature_WispSplode",
+        "rank": 1,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Reduces the mana cost of all shapeshifting by 10%.",
+          "Reduces the mana cost of all shapeshifting by 20%.",
+          "Reduces the mana cost of all shapeshifting by 30%."
+        ]
+      },
+      {
+        "entry_id": 40487,
+        "name": "Totemic Focus",
+        "icon": "Spell_Nature_MoonGlow",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Reduces the mana cost of your totems by 10% and for every totem active, you gain 1 Haste and Critical Strike Rating.\n\nThis effect can stack up to 4 times and is increased per totem active.",
+          "Reduces the mana cost of your totems by 20% and for every totem active, you gain 1 Haste and Critical Strike Rating. \n\nThis effect can stack up to 4 times and is increased per totem active.",
+          "Reduces the mana cost of your totems by 30% and for every totem active, you gain 1 Haste and Critical Strike Rating.\n\nThis effect can stack up to 4 times and is increased per totem active.",
+          "Reduces the mana cost of your totems by 40% and for every totem active, you gain 1 Haste and Critical Strike Rating.\n\nThis effect can stack up to 4 times and is increased per totem active.",
+          "Reduces the mana cost of your totems by 50% and for every totem active, you gain 1 Haste and Critical Strike Rating.\n\nThis effect can stack up to 4 times and is increased per totem active."
+        ]
+      },
+      {
+        "entry_id": 40484,
+        "name": "Purification",
+        "icon": "Spell_Frost_WizardMark",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases the amount healed by your spells by 2%.",
+          "Increases the amount healed by your spells by 4%.",
+          "Increases the amount healed by your spells by 6%.",
+          "Increases the amount healed by your spells by 8%.",
+          "Increases the amount healed by your spells by 10%."
+        ]
+      },
+      {
+        "entry_id": 41870,
+        "name": "Power of the Elements",
+        "icon": "_HearthStone_Necklace_Shaman",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Grants you and your tethered elemental an effect based on its active element.\n\nFire: Increases critical strike chance and hit chance for you and your elemental by 1%.\n\nWater: Increases healing done for you and your elemental and reduces the mana cost of all spells by 1%.\n\nAir: Increases haste for you and your elemental and reduces magical damage taken by 1%.\n\nEarth: Reduces damage taken by you and your elemental by 1% and increases Stamina by 1%.\n\nOther Elementals: Increases all damage done by 1% and decreases all damage taken by 1%.",
+          "Grants you and your tethered elemental an effect based on its active element.\n\nFire: Increases critical strike chance and hit chance for you and your elemental by 2%.\n\nWater: Increases healing done for you and your elemental and reduces the mana cost of all spells by 2%.\n\nAir: Increases haste for you and your elemental and reduces magical damage taken by 2%.\n\nEarth: Reduces damage taken by you and your elemental by 2% and increases stamina by 2%.\n\nOther Elementals: Increases all damage done by 2% and decreases all damage taken by 2%.",
+          "Grants you and your tethered elemental an effect based on its active element.\n\nFire: Increases critical strike chance and hit chance for you and your elemental by 3%.\n\nWater: Increases healing done for you and your elemental and reduces the mana cost of all spells by 3%.\n\nAir: Increases haste for you and your elemental and reduces magical damage taken by 3%.\n\nEarth: Reduces damage taken by you and your elemental by 3% and increases stamina by 3%.\n\nOther Elementals: Increases all damage done by 3% and decreases all damage taken by 3%.",
+          "Grants you and your tethered elemental an effect based on its active element.\n\nFire: Increases critical strike chance and hit chance for you and your elemental by 4%.\n\nWater: Increases healing done for you and your elemental and reduces the mana cost of all spells by 4%.\n\nAir: Increases haste for you and your elemental and reduces magical damage taken by 4%.\n\nEarth: Reduces damage taken by you and your elemental by 4% and increases stamina by 4%.\n\nOther Elementals: Increases all damage done by 4% and decreases all damage taken by 4%.",
+          "Grants you and your tethered elemental an effect based on its active element.\n\nFire: Increases critical strike chance and hit chance for you and your elemental by 5%.\n\nWater: Increases healing done for you and your elemental and reduces the mana cost of all spells by 5%.\n\nAir: Increases haste for you and your elemental and reduces magical damage taken by 5%.\n\nEarth: Reduces damage taken by you and your elemental by 5% and increases stamina by 5%.\n\nOther Elementals: Increases all damage done by 5% and decreases all damage taken by 5%."
+        ]
+      },
+      {
+        "entry_id": 40784,
+        "name": "Combat Expertise",
+        "icon": "Spell_Holy_WeaponMastery",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your Stamina by 2%.\r\n\r\nIncreases your critical strike chance by 2%.\r\n\r\nIncreases your Expertise by 2.",
+          "Increases your Stamina by 4%.\r\n\r\nIncreases your critical strike chance by 4%.\r\n\r\nIncreases your Expertise by 4.",
+          "Increases your Stamina by 6%.\r\n\r\nIncreases your critical strike chance by 6%.\r\n\r\nIncreases your Expertise by 6."
+        ]
+      },
+      {
+        "entry_id": 36928,
+        "name": "Vampire Lord",
+        "icon": "Spell_Shadow_ImprovedVampiricEmbrace",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "@req:84867@\r\nDealing damage with your Shadow Priest damage over time spells or healing with |cFFFFFFFFShadow Mend|r generates a stack of |cFFFFFFFFVampiric Essence|r. \r\n\r\n|cFFFFFFFFMind Flay|r generates 2 stacks per tick. \r\n\nEach tick of |cFFFFFFFFMind Sear|r can consume 3 |cFFFFFFFFVampiric Essence|r to heal up to 5 allies for health.\r\n\r\n@ext:|cFFFFFFFFVampiric Essence|r can stack up to 30 times.:ext@"
+        ]
+      }
+    ]
+  },
+  "primary_stat": {
+    "id": 4,
+    "token": "spirit"
+  },
+  "rankings": [
+    {
+      "phase": 0,
+      "zone": "Scarlet Monastery",
+      "zone_summary": {
+        "location": "Scarlet Monastery",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 5,
+        "total_bosses": 12,
+        "total_points": 229.4,
+        "rank": 6,
+        "rank_total": 13,
+        "rank_percentile": 53.8,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 66.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Maraudon",
+      "zone_summary": {
+        "location": "Maraudon",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 9,
+        "total_points": 135.61,
+        "rank": 5,
+        "rank_total": 15,
+        "rank_percentile": 66.7,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Wailing Caverns",
+      "zone_summary": {
+        "location": "Wailing Caverns",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 4,
+        "total_bosses": 9,
+        "total_points": 123.61,
+        "rank": 6,
+        "rank_total": 13,
+        "rank_percentile": 53.8,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 66.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Lower Blackrock Spire",
+      "zone_summary": {
+        "location": "Lower Blackrock Spire",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 4,
+        "total_bosses": 18,
+        "total_points": 110.75,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 78.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "All Dungeons",
+      "zone_summary": {
+        "location": "All Dungeons",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 34,
+        "total_bosses": 228,
+        "total_points": 101.15,
+        "rank": 11,
+        "rank_total": 25,
+        "rank_percentile": 56,
+        "best_spec": null,
+        "best_spec_class": null,
+        "best_spec_pct": null,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Stratholme",
+      "zone_summary": {
+        "location": "Stratholme",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 20,
+        "total_points": 71.82,
+        "rank": 12,
+        "rank_total": 15,
+        "rank_percentile": 20,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 62.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Blackrock Depths",
+      "zone_summary": {
+        "location": "Blackrock Depths",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 28,
+        "total_points": 69.58,
+        "rank": 13,
+        "rank_total": 16,
+        "rank_percentile": 18.8,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 73.1,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Razorfen Kraul",
+      "zone_summary": {
+        "location": "Razorfen Kraul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 8,
+        "total_points": 65.14,
+        "rank": 7,
+        "rank_total": 16,
+        "rank_percentile": 56.3,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 40,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "The Deadmines",
+      "zone_summary": {
+        "location": "The Deadmines",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 9,
+        "total_points": 58.43,
+        "rank": 12,
+        "rank_total": 15,
+        "rank_percentile": 20,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 60,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Ragefire Chasm",
+      "zone_summary": {
+        "location": "Ragefire Chasm",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 4,
+        "total_points": 54.41,
+        "rank": 8,
+        "rank_total": 11,
+        "rank_percentile": 27.3,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 50,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Dire Maul",
+      "zone_summary": {
+        "location": "Dire Maul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 18,
+        "total_points": 49.2,
+        "rank": 15,
+        "rank_total": 18,
+        "rank_percentile": 16.7,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 38.2,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Gnomeregan",
+      "zone_summary": {
+        "location": "Gnomeregan",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 6,
+        "total_points": 42.48,
+        "rank": 8,
+        "rank_total": 13,
+        "rank_percentile": 38.5,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 55.6,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Uldaman",
+      "zone_summary": {
+        "location": "Uldaman",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 10,
+        "total_points": 38.83,
+        "rank": 9,
+        "rank_total": 15,
+        "rank_percentile": 40,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 48.4,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Zul'Farrak",
+      "zone_summary": {
+        "location": "Zul'Farrak",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 13,
+        "total_points": 38.74,
+        "rank": 9,
+        "rank_total": 10,
+        "rank_percentile": 10,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 16.7,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Shadowfang Keep",
+      "zone_summary": {
+        "location": "Shadowfang Keep",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 9,
+        "total_points": 35.15,
+        "rank": 8,
+        "rank_total": 10,
+        "rank_percentile": 20,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 50,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "The Stockade",
+      "zone_summary": {
+        "location": "The Stockade",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 6,
+        "total_points": 31.4,
+        "rank": 9,
+        "rank_total": 10,
+        "rank_percentile": 10,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 50,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Razorfen Downs",
+      "zone_summary": {
+        "location": "Razorfen Downs",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 6,
+        "total_points": 28.14,
+        "rank": 6,
+        "rank_total": 10,
+        "rank_percentile": 40,
+        "best_spec": "Agility",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 60,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    }
+  ],
+  "capture_history": [
+    {
+      "capture_id": "1143477",
+      "captured_at": "2026-08-01T17:53:14.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143427",
+      "captured_at": "2026-08-01T17:50:11.000Z",
+      "boss_name": "Son of Hakkar",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143351",
+      "captured_at": "2026-08-01T17:48:16.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143377",
+      "captured_at": "2026-08-01T17:48:16.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143259",
+      "captured_at": "2026-08-01T17:46:09.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 68,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1143225",
+      "captured_at": "2026-08-01T17:43:47.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143175",
+      "captured_at": "2026-08-01T17:43:04.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143070",
+      "captured_at": "2026-08-01T17:40:20.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143059",
+      "captured_at": "2026-08-01T17:39:18.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143012",
+      "captured_at": "2026-08-01T17:36:38.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142856",
+      "captured_at": "2026-08-01T17:32:24.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142881",
+      "captured_at": "2026-08-01T17:32:24.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142931",
+      "captured_at": "2026-08-01T17:32:24.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142823",
+      "captured_at": "2026-08-01T17:30:50.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142785",
+      "captured_at": "2026-08-01T17:29:34.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142769",
+      "captured_at": "2026-08-01T17:28:27.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 68,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1142725",
+      "captured_at": "2026-08-01T17:25:42.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142620",
+      "captured_at": "2026-08-01T17:24:11.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142531",
+      "captured_at": "2026-08-01T17:21:07.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142503",
+      "captured_at": "2026-08-01T17:20:02.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142393",
+      "captured_at": "2026-08-01T17:18:20.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142360",
+      "captured_at": "2026-08-01T17:17:03.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142349",
+      "captured_at": "2026-08-01T17:15:46.000Z",
+      "boss_name": "High Priest Venoxis",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142304",
+      "captured_at": "2026-08-01T17:12:06.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142167",
+      "captured_at": "2026-08-01T17:06:36.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142127",
+      "captured_at": "2026-08-01T17:05:30.000Z",
+      "boss_name": "Zulian Crocolisk",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142050",
+      "captured_at": "2026-08-01T17:03:44.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144479",
+      "captured_at": "2026-07-31T19:57:39.000Z",
+      "boss_name": "Ysondre",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144422",
+      "captured_at": "2026-07-31T19:40:01.000Z",
+      "boss_name": "Lethon",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144399",
+      "captured_at": "2026-07-31T19:39:09.000Z",
+      "boss_name": "Taerar",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144365",
+      "captured_at": "2026-07-31T19:26:45.000Z",
+      "boss_name": "Emeriss",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144343",
+      "captured_at": "2026-07-31T19:17:35.000Z",
+      "boss_name": "The Will of Soggoth",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144322",
+      "captured_at": "2026-07-31T19:17:23.000Z",
+      "boss_name": "Combat Segment",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1144301",
+      "captured_at": "2026-07-31T19:10:56.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144269",
+      "captured_at": "2026-07-31T19:09:34.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144257",
+      "captured_at": "2026-07-31T19:07:32.000Z",
+      "boss_name": "High Priest Venoxis",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144236",
+      "captured_at": "2026-07-31T19:07:27.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144205",
+      "captured_at": "2026-07-31T19:05:08.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144183",
+      "captured_at": "2026-07-31T19:04:08.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144138",
+      "captured_at": "2026-07-31T18:58:30.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144123",
+      "captured_at": "2026-07-31T18:58:08.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144066",
+      "captured_at": "2026-07-31T18:57:10.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144033",
+      "captured_at": "2026-07-31T18:54:11.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144024",
+      "captured_at": "2026-07-31T18:52:29.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144002",
+      "captured_at": "2026-07-31T18:51:15.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143962",
+      "captured_at": "2026-07-31T18:50:10.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143935",
+      "captured_at": "2026-07-31T18:48:10.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143896",
+      "captured_at": "2026-07-31T18:45:36.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143854",
+      "captured_at": "2026-07-31T18:39:29.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1143862",
+      "captured_at": "2026-07-31T18:39:29.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143807",
+      "captured_at": "2026-07-31T18:35:11.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1143791",
+      "captured_at": "2026-07-31T18:30:40.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143637",
+      "captured_at": "2026-07-31T18:12:24.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143677",
+      "captured_at": "2026-07-31T18:12:24.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143699",
+      "captured_at": "2026-07-31T18:12:24.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143720",
+      "captured_at": "2026-07-31T18:12:24.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143746",
+      "captured_at": "2026-07-31T18:12:24.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143610",
+      "captured_at": "2026-07-31T17:44:17.000Z",
+      "boss_name": "Kaldros Depthbreaker",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143576",
+      "captured_at": "2026-07-31T17:34:15.000Z",
+      "boss_name": "Azuregos",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143561",
+      "captured_at": "2026-07-31T17:26:27.000Z",
+      "boss_name": "Snowgrave",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143512",
+      "captured_at": "2026-07-31T17:18:22.000Z",
+      "boss_name": "Lord Kazzak",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1143491",
+      "captured_at": "2026-07-31T17:11:35.000Z",
+      "boss_name": "Setis",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "843121",
+      "captured_at": "2026-07-27T02:18:58.000Z",
+      "boss_name": "Dextren Ward",
+      "report_id": 32,
+      "location": "The Stockade",
+      "success": true
+    },
+    {
+      "capture_id": "843107",
+      "captured_at": "2026-07-27T02:18:06.000Z",
+      "boss_name": "Galgann Firehammer",
+      "report_id": 32,
+      "location": "Uldaman",
+      "success": true
+    },
+    {
+      "capture_id": "843089",
+      "captured_at": "2026-07-27T02:17:08.000Z",
+      "boss_name": "Ambassador Flamelash",
+      "report_id": 32,
+      "location": "Blackrock Depths",
+      "success": true
+    },
+    {
+      "capture_id": "843074",
+      "captured_at": "2026-07-27T02:16:33.000Z",
+      "boss_name": "Quartermaster Zigris",
+      "report_id": 32,
+      "location": "Lower Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "843068",
+      "captured_at": "2026-07-27T02:15:26.000Z",
+      "boss_name": "Quartermaster Zigris",
+      "report_id": 32,
+      "location": "Lower Blackrock Spire",
+      "success": false
+    },
+    {
+      "capture_id": "843052",
+      "captured_at": "2026-07-27T02:14:18.000Z",
+      "boss_name": "Halycon",
+      "report_id": 32,
+      "location": "Lower Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "843061",
+      "captured_at": "2026-07-27T02:14:18.000Z",
+      "boss_name": "Gizrul the Slavener",
+      "report_id": 32,
+      "location": "Lower Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "843042",
+      "captured_at": "2026-07-27T02:10:56.000Z",
+      "boss_name": "Guard Fengus",
+      "report_id": 32,
+      "location": "Dire Maul",
+      "success": true
+    },
+    {
+      "capture_id": "843032",
+      "captured_at": "2026-07-27T02:09:57.000Z",
+      "boss_name": "Guard Fengus",
+      "report_id": 32,
+      "location": "Dire Maul",
+      "success": false
+    },
+    {
+      "capture_id": "843015",
+      "captured_at": "2026-07-27T02:08:56.000Z",
+      "boss_name": "Balnazzar",
+      "report_id": 32,
+      "location": "Stratholme",
+      "success": true
+    },
+    {
+      "capture_id": "843021",
+      "captured_at": "2026-07-27T02:08:56.000Z",
+      "boss_name": "Archivist Galford",
+      "report_id": 32,
+      "location": "Stratholme",
+      "success": true
+    },
+    {
+      "capture_id": "843006",
+      "captured_at": "2026-07-27T02:06:42.000Z",
+      "boss_name": "Grand Crusader Dathrohan",
+      "report_id": 32,
+      "location": "Stratholme",
+      "success": false
+    },
+    {
+      "capture_id": "842998",
+      "captured_at": "2026-07-27T02:06:36.000Z",
+      "boss_name": "Crimson Gallant",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842970",
+      "captured_at": "2026-07-27T02:04:28.000Z",
+      "boss_name": "Raging Rot Hide",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842977",
+      "captured_at": "2026-07-27T02:04:28.000Z",
+      "boss_name": "Noxxion",
+      "report_id": 32,
+      "location": "Maraudon",
+      "success": true
+    },
+    {
+      "capture_id": "842947",
+      "captured_at": "2026-07-27T02:03:02.000Z",
+      "boss_name": "Lord Pythas",
+      "report_id": 32,
+      "location": "Wailing Caverns",
+      "success": true
+    },
+    {
+      "capture_id": "842954",
+      "captured_at": "2026-07-27T02:03:02.000Z",
+      "boss_name": "Amnennar the Coldbringer",
+      "report_id": 32,
+      "location": "Razorfen Downs",
+      "success": false
+    },
+    {
+      "capture_id": "842924",
+      "captured_at": "2026-07-27T02:01:29.000Z",
+      "boss_name": "Chop'gog the Butcher",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842932",
+      "captured_at": "2026-07-27T02:01:29.000Z",
+      "boss_name": "Odo the Blindwatcher",
+      "report_id": 32,
+      "location": "Shadowfang Keep",
+      "success": true
+    },
+    {
+      "capture_id": "842906",
+      "captured_at": "2026-07-27T02:00:24.000Z",
+      "boss_name": "Chief Ukorz Sandscalp",
+      "report_id": 32,
+      "location": "Zul'Farrak",
+      "success": true
+    },
+    {
+      "capture_id": "842891",
+      "captured_at": "2026-07-27T01:59:21.000Z",
+      "boss_name": "Mr. Smite",
+      "report_id": 32,
+      "location": "The Deadmines",
+      "success": true
+    },
+    {
+      "capture_id": "842864",
+      "captured_at": "2026-07-27T01:58:14.000Z",
+      "boss_name": "Kraul Bat",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842878",
+      "captured_at": "2026-07-27T01:58:14.000Z",
+      "boss_name": "Agathelos the Raging",
+      "report_id": 32,
+      "location": "Razorfen Kraul",
+      "success": true
+    },
+    {
+      "capture_id": "842855",
+      "captured_at": "2026-07-27T01:56:05.000Z",
+      "boss_name": "Mr. Smite",
+      "report_id": 32,
+      "location": "The Deadmines",
+      "success": false
+    },
+    {
+      "capture_id": "842846",
+      "captured_at": "2026-07-27T01:54:41.000Z",
+      "boss_name": "Guard Fengus",
+      "report_id": 32,
+      "location": "Dire Maul",
+      "success": true
+    },
+    {
+      "capture_id": "842817",
+      "captured_at": "2026-07-27T01:52:42.000Z",
+      "boss_name": "High Inquisitor Fairbanks",
+      "report_id": 32,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "842826",
+      "captured_at": "2026-07-27T01:52:42.000Z",
+      "boss_name": "Gordok Brute",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842803",
+      "captured_at": "2026-07-27T01:50:39.000Z",
+      "boss_name": "Lord Pythas",
+      "report_id": 32,
+      "location": "Wailing Caverns",
+      "success": true
+    },
+    {
+      "capture_id": "842791",
+      "captured_at": "2026-07-27T01:49:32.000Z",
+      "boss_name": "War Master Voone",
+      "report_id": 32,
+      "location": "Lower Blackrock Spire",
+      "success": true
+    },
+    {
+      "capture_id": "842767",
+      "captured_at": "2026-07-27T01:47:20.000Z",
+      "boss_name": "Combat Segment",
+      "report_id": 32,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "842760",
+      "captured_at": "2026-07-27T01:47:13.000Z",
+      "boss_name": "Ironspine",
+      "report_id": 32,
+      "location": "Scarlet Monastery",
+      "success": true
+    },
+    {
+      "capture_id": "842748",
+      "captured_at": "2026-07-27T01:45:21.000Z",
+      "boss_name": "Lady Anacondra",
+      "report_id": 32,
+      "location": "Wailing Caverns",
+      "success": true
+    },
+    {
+      "capture_id": "842737",
+      "captured_at": "2026-07-27T01:44:33.000Z",
+      "boss_name": "Lady Anacondra",
+      "report_id": 32,
+      "location": "Wailing Caverns",
+      "success": false
+    },
+    {
+      "capture_id": "842722",
+      "captured_at": "2026-07-27T01:43:26.000Z",
+      "boss_name": "Houndmaster Loksey",
+      "report_id": 32,
+      "location": "Scarlet Monastery",
+      "success": false
+    },
+    {
+      "capture_id": "842703",
+      "captured_at": "2026-07-27T01:42:21.000Z",
+      "boss_name": "Bazzalan",
+      "report_id": 32,
+      "location": "Ragefire Chasm",
+      "success": true
+    },
+    {
+      "capture_id": "842712",
+      "captured_at": "2026-07-27T01:42:21.000Z",
+      "boss_name": "Taragaman the Hungerer",
+      "report_id": 32,
+      "location": "Ragefire Chasm",
+      "success": true
+    },
+    {
+      "capture_id": "842687",
+      "captured_at": "2026-07-27T01:41:13.000Z",
+      "boss_name": "Obsidian Sentinel",
+      "report_id": 32,
+      "location": "Uldaman",
+      "success": true
+    },
+    {
+      "capture_id": "842695",
+      "captured_at": "2026-07-27T01:41:13.000Z",
+      "boss_name": "Bazzalan",
+      "report_id": 32,
+      "location": "Ragefire Chasm",
+      "success": false
+    }
+  ]
+}

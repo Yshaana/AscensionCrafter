@@ -1,0 +1,1400 @@
+{
+  "scouted_at": "2026-08-03T23:15:21.293144+00:00",
+  "name": "Gunju",
+  "character": {
+    "id": 10464,
+    "name": "Gunju",
+    "realm": "Unknown",
+    "region": "US",
+    "class": "Hero",
+    "spec": "Hero",
+    "level": null,
+    "guild_id": null,
+    "race": "Orc",
+    "guild_name": null
+  },
+  "captured_for_boss": null,
+  "gear": [
+    {
+      "slot": 1,
+      "item_id": 1657691,
+      "name": "Embalmed Shroud",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 79,
+        "stamina": 18,
+        "intellect": 14,
+        "spellPower": 48
+      },
+      "damage": null,
+      "source": "Scarlet Monastery - Fallen Champion",
+      "source_category": "dungeon",
+      "tier": "@Mythic@"
+    },
+    {
+      "slot": 2,
+      "item_id": 241544,
+      "name": "Carrier Wave Pendant",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "parry": 13,
+        "defense": 7,
+        "stamina": 13,
+        "strength": 9
+      },
+      "damage": null,
+      "source": "Blackrock Caverns - Ascendant Lord Obsidius",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 3,
+      "item_id": 1657684,
+      "name": "Bloodmage Mantle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 74,
+        "spirit": 13,
+        "stamina": 11,
+        "hitRating": 6,
+        "intellect": 13,
+        "spellPower": 21
+      },
+      "damage": null,
+      "source": "Scarlet Monastery - Bloodmage Thalnos",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 5,
+      "item_id": 227454,
+      "name": "Bloodmail Hauberk",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 415,
+        "agility": 21,
+        "stamina": 16,
+        "intellect": 8,
+        "critRating": 11,
+        "spellPower": 24
+      },
+      "damage": null,
+      "source": "Scholomance - Lady Illucia Barov",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 6,
+      "item_id": 243888,
+      "name": "Lightforge Belt",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 407,
+        "stamina": 15,
+        "strength": 18,
+        "hitRating": 6,
+        "intellect": 9,
+        "spellPower": 15
+      },
+      "damage": null,
+      "source": "Stratholme - Trash Mobs",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 7,
+      "item_id": 249700,
+      "name": "Chitinous Plate Legguards",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 633,
+        "stamina": 16,
+        "strength": 20,
+        "expertise": 5,
+        "intellect": 16,
+        "critRating": 8,
+        "spellPower": 20
+      },
+      "damage": null,
+      "source": "Stratholme - Nerub'enkan",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 8,
+      "item_id": 247281,
+      "name": "Odious Greaves",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 288,
+        "agility": 12,
+        "stamina": 16,
+        "expertise": 6,
+        "critRating": 17,
+        "spellPower": 19
+      },
+      "damage": null,
+      "source": "Dire Maul West - Immol'thar",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 9,
+      "item_id": 222109,
+      "name": "Loomguard Armbraces",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 182,
+        "stamina": 8,
+        "hitRating": 14,
+        "intellect": 8,
+        "spellPower": 19
+      },
+      "damage": null,
+      "source": "Scholomance - Kirtonos the Herald",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 10,
+      "item_id": 226773,
+      "name": "Darkshade Gloves",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 62,
+        "stamina": 6,
+        "hitRating": 9,
+        "intellect": 7,
+        "spellPower": 19,
+        "hasteRating": 11,
+        "arcaneResist": 13,
+        "shadowResist": 9
+      },
+      "damage": null,
+      "source": "Dungeon",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 11,
+      "item_id": 260418,
+      "name": "Bloodclot Band",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "defense": 12,
+        "stamina": 13,
+        "hitRating": 7,
+        "spellPower": 12
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Ring of Law",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 12,
+      "item_id": 1651156,
+      "name": "Lavishly Jeweled Ring",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 6,
+        "hitRating": 6,
+        "intellect": 12,
+        "spellPower": 20
+      },
+      "damage": null,
+      "source": "The Deadmines - Gilnid",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 13,
+      "item_id": 13209,
+      "name": "Seal of the Dawn",
+      "quality": 3,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": null,
+      "damage": null,
+      "source": null,
+      "source_category": null,
+      "tier": null
+    },
+    {
+      "slot": 14,
+      "item_id": 214618,
+      "name": "Hand of Justice",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "attackPower": 20
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Emperor Dagran Thaurissan",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 15,
+      "item_id": 247401,
+      "name": "Cloak of the Cosmos",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 48,
+        "intellect": 8,
+        "critRating": 8,
+        "spellPower": 10,
+        "hasteRating": 7
+      },
+      "damage": null,
+      "source": "Dire Maul West - Immol'thar",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 16,
+      "item_id": 221174,
+      "name": "Runeblade of Baron Rivendare",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 17,
+        "attackPower": 68,
+        "hasteRating": 29
+      },
+      "damage": null,
+      "source": "Stratholme - Baron Rivendare",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 17,
+      "item_id": 221174,
+      "name": "Runeblade of Baron Rivendare",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 17,
+        "attackPower": 68,
+        "hasteRating": 29
+      },
+      "damage": null,
+      "source": "Stratholme - Baron Rivendare",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 18,
+      "item_id": 1659483,
+      "name": "Flaming Incinerator",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 5,
+        "intellect": 8,
+        "critRating": 7,
+        "fireResist": 8,
+        "spellPower": 10
+      },
+      "damage": null,
+      "source": "Zul'Farrak - Trash Mobs",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 19,
+      "item_id": 174069,
+      "name": "Artisan's Guild Tabard",
+      "quality": 6,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": null,
+      "damage": null,
+      "source": null,
+      "source_category": null,
+      "tier": null
+    }
+  ],
+  "build": {
+    "abilities": [
+      {
+        "entry_id": 42064,
+        "name": "Aspect of the Viper",
+        "icon": "Ability_Hunter_AspectoftheViper",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "The hunter takes on the aspect of the viper, causing ranged and melee attacks a chance to regenerate mana.\r\n\r\nDamage and healing done reduced by 40%. \r\n\r\nYou gain 4% of maximum mana every 3 sec. \n\n@ext:Only one Aspect can be active at a time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42038,
+        "name": "Charge",
+        "icon": "Ability_Warrior_Charge",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Charge an enemy, generate 12 rage, and root it for 1.5 sec.\n\nThis ability is usable while shapeshifted."
+        ]
+      },
+      {
+        "entry_id": 40876,
+        "name": "Titan's Grip",
+        "icon": "Ability_Warrior_TitansGrip",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Allows you to wield a Two-Handed Axe, Mace, or Sword in each hand. \r\n\r\nAlso allows for a weapon or shield to be held in the off-hand while a Staff is equipped.\r\n\r\nPhysical damage dealt is reduced by 10%."
+        ]
+      },
+      {
+        "entry_id": 42070,
+        "name": "Commanding Shout",
+        "icon": "Ability_Warrior_RallyingCry",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases maximum health of all party and raid members within 30 yards by 266. Lasts 30 min.\r\n\n@ext:Does not stack with other similar effects.:ext@\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42027,
+        "name": "Crimson Tempest",
+        "icon": "inv_knife_1h_cataclysm_c_05",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Finishing move that slashes at the flesh of all enemies within 8 yards, dealing Physical damage and causing them to bleed per combo point:\r\n 1 point: 2 damage and 8 damage over 8 sec\r\n 2 points: 2 damage and 8 damage over 8 sec\r\n 3 points: 2 damage and 8 damage over 8 sec\r\n 4 points: 2 damage and 8 damage over 8 sec\r\n 5 points: 2 damage and 8 damage over 8 sec"
+        ]
+      },
+      {
+        "entry_id": 41290,
+        "name": "Roll the Bones",
+        "icon": "ability_rogue_rollthebones",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Roll the dice of fate, providing a random lesser or great combat enhancement for 10 sec. Only one enhancement can be active at the same time.\r\n\r\nThis ability is usable while shapeshifted."
+        ]
+      },
+      {
+        "entry_id": 41953,
+        "name": "Tame Dragonkin",
+        "icon": "ability_mount_drake_red",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Teaches you the necessary abilities to tame a Dragonkin companion.\n\nTeaches you Tame Dragonkin, Call Dragonkin, Dismiss Dragonkin, Revive Dragonkin and Dragonkin Lore.\r\n\r\n@ext:@s:93558:0@:ext@"
+        ]
+      },
+      {
+        "entry_id": 40008,
+        "name": "Frostbolt",
+        "icon": "Spell_Frost_FrostBolt02",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Launches a bolt of frost at the enemy, causing ${12*} to ${15*} Frost damage and slowing movement speed by 40% for 5 sec."
+        ]
+      },
+      {
+        "entry_id": 40053,
+        "name": "Create Soulstone",
+        "icon": "Spell_Shadow_SoulGem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Creates a Minor Soulstone. The Soulstone can be used to store one target's soul. If the target dies while his soul is stored, he will be able to resurrect with 400 health and $3026q1 mana.\n\nConjured items disappear if logged out for more than 15 minutes."
+        ]
+      },
+      {
+        "entry_id": 40093,
+        "name": "Life Tap",
+        "icon": "Spell_Shadow_BurningSpirit",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Converts 15 health into mana. Spell power increases the amount of mana returned."
+        ]
+      },
+      {
+        "entry_id": 42086,
+        "name": "Create Firestone",
+        "icon": "INV_Ammo_FireTar",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "While applied to target weapon it increases damage dealt by spells by 1% and spell critical strike rating by 7. This effect lasts for 2 hours. \r\n\r\nYou can only benefit from one Warlock weapon enchant at a time."
+        ]
+      },
+      {
+        "entry_id": 40734,
+        "name": "Shamanistic Rage",
+        "icon": "Spell_Nature_ShamanRage",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Reduces all damage taken by 30% and gives your successful melee and ranged attacks a chance to regenerate mana equal to 15% of your attack power. This spell is usable while stunned. Lasts 15 sec.\r\n\r\n@ext:This ability is usable while Shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42088,
+        "name": "Stoneskin Totem",
+        "icon": "Spell_Nature_StoneSkinTotem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Stoneskin Totem with 5 health at the feet of the caster. The totem protects party and raid members within 50 yards, increasing armor by 95. Lasts 5 min.\n\r\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42084,
+        "name": "Mana Spring Totem",
+        "icon": "Spell_Nature_ManaRegenTotem",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Mana Spring Totem with 5 health at the feet of the caster for 5 min that restores 16 mana every 5 seconds to all party and raid members within 30 yards.\r\n\n@ext:Does not stack with other similar effects.:ext@\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42049,
+        "name": "Frostbrand Weapon",
+        "icon": "Spell_Frost_FrostBrand",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Imbue your weapon with frost. Each hit has a chance of causing 31 additional Frost damage and slowing the target's movement speed by 50% for 8 sec. This effect lasts for 2 hours."
+        ]
+      },
+      {
+        "entry_id": 41911,
+        "name": "Hammer of Wrath",
+        "icon": "Ability_ThunderClap",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Hurls a hammer that strikes an enemy for 351 to 387 Holy damage. Only usable on enemies that have 20% or less health."
+        ]
+      },
+      {
+        "entry_id": 42102,
+        "name": "Seal of Wisdom",
+        "icon": "Spell_Holy_RighteousnessAura",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Fills you with divine wisdom for $20166d, giving each melee auto attack a chance to restore 4% of your total mana. Only one Seal can be active at any one time.\r\n\r\nUnleashing this Seal's energy will deal 1 Holy damage to an enemy."
+        ]
+      },
+      {
+        "entry_id": 42104,
+        "name": "Seal of Righteousness",
+        "icon": "Ability_ThunderBolt",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Fills you with holy spirit for $21084d, granting each main hand auto attack and Paladin melee ability 1 additional Holy damage. Only one Seal can be active at any one time.\n\nUnleashing this Seal's energy will cause 1 Holy damage to an enemy."
+        ]
+      },
+      {
+        "entry_id": 42040,
+        "name": "Devotion Aura",
+        "icon": "Spell_Holy_DevotionAura",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Gives 40 additional armor to party and raid members within 40 yards. \r\n\r\n@ext:Players may only have one Aura on them per Paladin at any one time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 41932,
+        "name": "Blood Presence",
+        "icon": "Spell_Deathknight_BloodPresence",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Strengthens you with the presence of blood, increasing damage by 2% and heals you for 1% of your damage dealt.\r\n\r\n@ext:Only one Presence may be active at a time.:ext@\r\n\r\n@ext:Heals up to a maximum of 5% of your health per hit.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36503,
+        "name": "Titanic Mutilate",
+        "icon": "_CrossingSwords_ColorsRed",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Instantly attacks with both weapons for 70% weapon damage. Damage is increased by 20% against bleeding targets. Awards 2 combo points.\r\n\r\n@ext:This uses Mutilate modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 50068,
+        "name": "Stormbound Cleave",
+        "icon": "Cleave_Storm",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A sweeping attack that does your weapon damage plus 9 as Stormstrike damage to the target and his $?s58366[two nearest allies][nearest ally].\r\n\r\n@ext:This uses Cleave modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36680,
+        "name": "Winds of Winter",
+        "icon": "Spell_Shadow_DarkRitual",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Finishing move that deals Frost damage per combo point to enemies in a cone in front of the caster:\r\n 1 point : 2-23 damage\r\n 2 points: 2-23 damage\r\n 3 points: 2-23 damage\r\n 4 points: 2-23 damage\r\n 5 points: 2-23 damage\r\n\r\n@ext:This uses Cone of Cold modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36731,
+        "name": "Ice Shock",
+        "icon": "custom_T_IceWhirl_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Finishing move that instantly shocks the target with Frost damage, increasing per combo point:\r\n 1 point : 16-30 damage \r\n 2 points: 16-30 damage\r\n 3 points: 16-30 damage\r\n 4 points: 16-30 damage\r\n 5 points: 16-30 damage\r\n\r\n@ext:This uses Frost Shock modifiers.:ext@\r\n"
+        ]
+      },
+      {
+        "entry_id": 36913,
+        "name": "Arctis",
+        "icon": "custom_T_IceSpikes_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Unleash pure frost that deals 131 Frost damage and an additional 64 Frost damage over 12 seconds.\r\n\r\n@ext:This uses Pyroblast modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37463,
+        "name": "Glacial Spike",
+        "icon": "custom_T_IceSpikes_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons a Glacial Spike, dealing 67 Frost damage, slows enemies by 56 to 60% for 4 sec and infects targets with Frost Fever.\r\n\r\n@ext:This uses Cone of Cold modifiers. Damage is split when hitting more than 3 enemies.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37497,
+        "name": "Twisted Mind",
+        "icon": "_D3archon",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your mind becomes twisted, increasing your spell power by and your hit chance by 3%, but reduces your healing and absorbs by 5%.\r\n\r\n@ext:This cannot be used together with other bar-changing abilities such as Stances or Forms.:ext@"
+        ]
+      },
+      {
+        "entry_id": 137847,
+        "name": "Rocket Boots",
+        "icon": "INV_Gizmo_RocketBootExtreme",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFA3A3A3Tinker|r\r\n\r\n|cffffffff3 Charges, 30 sec recharge|r\r\nActivate your |cffffffffRocket Boots|r launching you forwards."
+        ]
+      },
+      {
+        "entry_id": 37546,
+        "name": "Hydricles",
+        "icon": "uico_frost_spell_01_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Launches a bolt of frost that jumps to 5 nearby enemies, dealing 10 Frost damage and slowing their movement speed by 15% for 3 sec.\r\n\r\nEach jump reduces the damage by ${($284854f2-1)*100*-1}%.\r\n\r\nMax 3 charges. 8 second recharge timer. Gaining Fingers of Frost restores a charge.\r\n\r\n@ext:This uses Frostbolt modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 50059,
+        "name": "Holy Slash",
+        "icon": "HeroicStrike_Holy",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A strong attack that increases melee damage by 11 as Holystrike damage and causes a high amount of threat.\r\n\r\n@ext:This uses Heroic Strike modifiers.:ext@"
+        ]
+      }
+    ],
+    "talents": [
+      {
+        "entry_id": 40381,
+        "name": "Cruelty",
+        "icon": "Ability_Rogue_Eviscerate",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your melee and ranged critical strike chance by 1%.\r\n\r\nIncreases your total Strength by 1%.",
+          "Increases your melee and ranged critical strike chance by 2%.\r\n\r\nIncreases your total Strength by 2%.",
+          "Increases your melee and ranged critical strike chance by 3%.\r\n\r\nIncreases your total Strength by 3%.",
+          "Increases your melee and ranged critical strike chance by 4%.\r\n\r\nIncreases your total Strength by 4%.",
+          "Increases your melee and ranged critical strike chance by 5%.\r\n\r\nIncreases your total Strength by 5%."
+        ]
+      },
+      {
+        "entry_id": 40413,
+        "name": "Malice",
+        "icon": "Ability_Racial_BloodRage",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your critical strike chance by 1%.\n \n|cFFAAAAAACapstone Bonus: You gain 5 Energy when your Garrote, Rupture or Crimson Tempest deal damage.|r",
+          "Increases your critical strike chance by 2%.\n\n|cFFAAAAAACapstone Bonus: You gain 5 Energy when your Garrote, Rupture or Crimson Tempest deal damage.|r",
+          "Increases your critical strike chance by 3%.\r\n\n|cFFAAAAAACapstone Bonus: You gain 5 Energy when your Garrote, Rupture or Crimson Tempest deal damage.|r",
+          "Increases your chance to get a critical strike with all spells and attacks by 4%.\n\n|cFFAAAAAACapstone Bonus: You gain 5 Energy when your Garrote, Rupture or Crimson Tempest deal damage.|r",
+          "Increases your chance to get a critical strike with all spells and attacks by 5%.\n\nCapstone Bonus: You gain 5 Energy when your Garrote, Rupture or Crimson Tempest deal damage."
+        ]
+      },
+      {
+        "entry_id": 40388,
+        "name": "Accuracy",
+        "icon": "Ability_Marksmanship",
+        "rank": 4,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your hit chance by 1%.",
+          "Increases your hit chance by 2%.",
+          "Increases your hit chance by 3%.",
+          "Increases your chance to hit with all spells and attacks by 4%.",
+          "Increases your chance to hit with all spells and attacks by 5%."
+        ]
+      },
+      {
+        "entry_id": 40850,
+        "name": "Combat Potency",
+        "icon": "INV_Weapon_Shortblade_38",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Gives your successful off-hand melee attacks a $h% chance to generate 5 Energy.",
+          "Gives your successful off-hand melee attacks a $h% chance to generate 5 Energy.",
+          "Gives your successful off-hand melee attacks a $h% chance to generate 5 Energy."
+        ]
+      },
+      {
+        "entry_id": 40744,
+        "name": "Vitality",
+        "icon": "Ability_Warrior_Revenge",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your Energy regeneration rate by 13%.",
+          "Increases your Energy regeneration rate by 26%.",
+          "Increases your Energy regeneration rate by 40%."
+        ]
+      },
+      {
+        "entry_id": 40963,
+        "name": "Honor Among Thieves",
+        "icon": "Ability_Rogue_HonorAmongstThieves",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 33% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds.",
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 66% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds.",
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 100% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds."
+        ]
+      },
+      {
+        "entry_id": 41025,
+        "name": "Relentless Strikes",
+        "icon": "Ability_Warrior_DecisiveStrike",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your finishing moves have a 7% chance per combo point to restore 25 energy.",
+          "Your finishing moves have a 14% chance per combo point to restore 25 energy.",
+          "Your finishing moves have a 20% chance per combo point to restore 25 energy."
+        ]
+      },
+      {
+        "entry_id": 40338,
+        "name": "Ice Shards",
+        "icon": "Spell_Frost_IceShard",
+        "rank": 4,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your spell critical strikes now deal 180% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: The final rank of this talent increases damage against frozen targets by 6%.|r",
+          "Your spell critical strikes now deal 185% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: The final rank of this talent increases damage against frozen targets by 6%.|r",
+          "Your spell critical strikes now deal 190% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: The final rank of this talent increases damage against frozen targets by 6%.|r",
+          "Your spell critical strikes now deal 195% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: The final rank of this talent increases damage against frozen targets by 6%.|r",
+          "Your spell critical strikes now deal 200% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\nCapstone Bonus: Increases damage against frozen targets by 6%."
+        ]
+      },
+      {
+        "entry_id": 40329,
+        "name": "Improved Cone of Cold",
+        "icon": "Spell_Frost_Glacier",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage dealt by your Cone of Cold spell by 15%. ",
+          "Increases the damage dealt by your Cone of Cold spell by 30%. ",
+          "Increases the damage dealt by your Cone of Cold spell by 45%. "
+        ]
+      },
+      {
+        "entry_id": 40692,
+        "name": "Master of Elements",
+        "icon": "Spell_Fire_MasterOfElements",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your spell criticals will refund 10% of their base mana cost.",
+          "Your spell criticals will refund 20% of their base mana cost.",
+          "Your spell criticals will refund 30% of their base mana cost."
+        ]
+      },
+      {
+        "entry_id": 40327,
+        "name": "Ice Floes",
+        "icon": "Spell_Frost_IceFloes",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 11%.",
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 22%.",
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 33%."
+        ]
+      },
+      {
+        "entry_id": 40326,
+        "name": "Piercing Ice",
+        "icon": "Spell_Frost_Frostbolt",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases all Frost damage you deal by 2%.",
+          "Increases all Frost damage you deal by 4%.",
+          "Increases all Frost damage you deal by 6%."
+        ]
+      },
+      {
+        "entry_id": 40772,
+        "name": "Arctic Winds",
+        "icon": "Spell_Frost_ArcticWinds",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases all damage done by 1%\r\n\r\nIncreases Frost damage done by 1%.\r\n\r\nIncreases the duration of Deep Freeze by 0.33 sec.\n\n|cFFAAAAAACapstone Bonus: Your Deep Freeze casts apply up to 5 frozen enemies within 8 yards of your target. If used with Fingers of Frost, it will consume only one charge.|r",
+          "Increases all damage done by 2%\r\n\r\nIncreases Frost damage done by 2%.\r\n\r\nIncreases the duration of Deep Freeze by 0.66 sec.\n\n|cFFAAAAAACapstone Bonus: Your Deep Freeze casts apply up to 5 frozen enemies within 8 yards of your target. If used with Fingers of Frost, it will consume only one charge.|r",
+          "Increases all damage done by 3%\r\n\r\nIncreases Frost damage done by 3%.\r\n\r\nIncreases the duration of Deep Freeze by 1 sec.\n\nCapstone Bonus: Your Deep Freeze casts apply up to 5 frozen enemies within 8 yards of your target. If used with Fingers of Frost, it will consume only one charge."
+        ]
+      },
+      {
+        "entry_id": 40507,
+        "name": "Arctic Reach",
+        "icon": "Spell_Shadow_DarkRitual",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "Increases the range of your damaging spells by 3 yards and the radius of your Frost Nova and Cone of Cold spells by 10%.\r\n\r\n@ext:This does not stack with other similar effects.:ext@",
+          "Increases the range of your damaging spells by 6 yards and the radius of your Frost Nova and Cone of Cold spells by 20%.\r\n\r\n@ext:This does not stack with other similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40343,
+        "name": "Spell Impact",
+        "icon": "Spell_Nature_WispSplode",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage of your Arcane Explosion, Arcane Blast, Arcane Barrage, Arcane Orb, Blast Wave, Fire Blast, Scorch, Pyroblast, Ice Lance and Cone of Cold spells by 2%.",
+          "Increases the damage of your Arcane Explosion, Arcane Blast, Arcane Barrage, Arcane Orb, Blast Wave, Fire Blast, Scorch, Pyroblast, Ice Lance and Cone of Cold spells by 4%.",
+          "Increases the damage of your Arcane Explosion, Arcane Blast, Arcane Barrage, Arcane Orb, Blast Wave, Fire Blast, Scorch, Pyroblast, Ice Lance and Cone of Cold spells by 6%."
+        ]
+      },
+      {
+        "entry_id": 41849,
+        "name": "Spellblade",
+        "icon": "Achievement_GarrisonFollower_Epic",
+        "rank": 1,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your melee attacks have a $h% chance to restore 7% of your base mana.",
+          "Your melee attacks have a $h% chance to restore 14% of your base mana.",
+          "Your melee attacks have a $h% chance to restore 20% of your base mana."
+        ]
+      },
+      {
+        "entry_id": 40721,
+        "name": "Demonic Tactics",
+        "icon": "Spell_Shadow_DemonicTactics",
+        "rank": 3,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 2%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 4%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 6%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 8%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 10%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40596,
+        "name": "Master Demonologist",
+        "icon": "Spell_Shadow_ShadowPact",
+        "rank": 3,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 1%, and increases the critical effect chance of your Fire spells by 1%.\n\nVoidwalker - Reduces Physical damage taken by 2%.\n\nSuccubus - Increases your Shadow damage by 1%, and increases the critical effect chance of your Shadow spells by 1%.\n\nFelhunter - Reduces all spell damage taken by 2%.\n\nFelguard - Increases all damage done by 1%, and reduces all damage taken by 1%.\n\nEnslaved Demons - Increases all damage done by 1%, and reduces all damage taken by 1%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 2%, and increases the critical effect chance of your Fire spells by 2%.\n\nVoidwalker - Reduces Physical damage taken by 4%.\n\nSuccubus - Increases your Shadow damage by 2%, and increases the critical effect chance of your Shadow spells by 2%.\n\nFelhunter - Reduces all spell damage taken by 4%.\n\nFelguard - Increases all damage done by 2%, and reduces all damage taken by 2%.\n\nEnslaved Demons - Increases all damage done by 2%, and reduces all damage taken by 2%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 3%, and increases the critical effect chance of your Fire spells by 3%.\n\nVoidwalker - Reduces Physical damage taken by 6%.\n\nSuccubus - Increases your Shadow damage by 3%, and increases the critical effect chance of your Shadow spells by 3%.\n\nFelhunter - Reduces all spell damage taken by 6%.\n\nFelguard - Increases all damage done by 3%, and reduces all damage taken by 3%.\n\nEnslaved Demons - Increases all damage done by 3%, and reduces all damage taken by 3%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 4%, and increases the critical effect chance of your Fire spells by 4%.\n\nVoidwalker - Reduces Physical damage taken by 8%.\n\nSuccubus - Increases your Shadow damage by 4%, and increases the critical effect chance of your Shadow spells by 4%.\n\nFelhunter - Reduces all spell damage taken by 8%.\n\nFelguard - Increases all damage done by 4%, and reduces all damage taken by 4%.\n\nEnslaved Demons - Increases all damage done by 4%, and reduces all damage taken by 4%.",
+          "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases your Fire damage by 5%, and increases the critical effect chance of your Fire spells by 5%.\n\nVoidwalker - Reduces Physical damage taken by 10%.\n\nSuccubus - Increases your Shadow damage by 5%, and increases the critical effect chance of your Shadow spells by 5%.\n\nFelhunter - Reduces all spell damage taken by 10%.\n\nFelguard - Increases all damage done by 5%, and reduces all damage taken by 5%.\n\nEnslaved Demons - Increases all damage done by 5%, and reduces all damage taken by 5%."
+        ]
+      },
+      {
+        "entry_id": 40733,
+        "name": "Dual Wield Specialization",
+        "icon": "Ability_DualWieldSpecialization",
+        "rank": 2,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your hit chance while dual wielding by 1%. \r\n\r\nYour off-hand auto attacks have a chance to increase your Fire, Frost, and Nature damage dealt by 2% for 8 sec.",
+          "Increases your hit chance while dual wielding by 2%. \r\n\r\nYour off-hand auto attacks have a chance to increase your Fire, Frost, and Nature damage dealt by 4% for 8 sec.",
+          "Increases your hit chance while dual wielding by 3%. \r\n\r\nYour off-hand auto attacks have a chance to increase your Fire, Frost, and Nature damage dealt by 6% for 8 sec."
+        ]
+      },
+      {
+        "entry_id": 41103,
+        "name": "Killing Machine",
+        "icon": "INV_Sword_122",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike.",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 1).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 2).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 3).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 4)."
+        ]
+      },
+      {
+        "entry_id": 41091,
+        "name": "Nerves of Cold Steel",
+        "icon": "Ability_DualWield",
+        "rank": 4,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your chance to hit by 1%.\r\n\r\nIncreases the damage done by your off-hand weapon by 7%.\r\n\r\n@ext:Does not stack with Dual Wield Mastery:ext@",
+          "Increases your chance to hit by 2%.\r\n\r\nIncreases the damage done by your off-hand weapon by 14%.\r\n\r\n@ext:Does not stack with Dual Wield Mastery:ext@",
+          "Increases your chance to hit by 3%.\r\n\r\nIncreases the damage done by your off-hand weapon by 20%.\r\n\r\n@ext:Does not stack with Dual Wield Mastery:ext@",
+          "Increases your chance to hit by 4%.\r\n\r\nIncreases the damage done by your off-hand weapon by 26%.\r\n\r\n@ext:Does not stack with Dual Wield Mastery:ext@",
+          "Increases your chance to hit by 5%.\r\n\r\nIncreases the damage done by your off-hand weapon by 33%.\r\n\r\n@ext:Does not stack with Dual Wield Mastery:ext@"
+        ]
+      },
+      {
+        "entry_id": 41053,
+        "name": "Improved Blood Presence",
+        "icon": "Spell_Deathknight_BloodPresence",
+        "rank": 3,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Healing done to you is increased by 2% while in Blood Presence.\r\n\r\nThreat caused decreased by 4% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 4% while in Blood Presence.\r\n\r\nThreat caused decreased by 8% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 6% while in Blood Presence.\r\n\r\nThreat caused decreased by 12% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 8% while in Blood Presence.\r\n\r\nThreat caused decreased by 16% while in Blood Presence. \r\n\r\n|cFFAAAAAACapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence.|r",
+          "Healing done to you is increased by 10% in Blood Presence.\r\n\r\nThreat caused decreased by 20% while in Blood Presence. \r\n\r\nCapstone Bonus: Increases the healing from your Blood Presence by an additional 3%.\r\n\r\nIncreases the damage done while in Blood Presence by an additional 8%.\r\n\r\nWhile in Frost Presence or Unholy Presence, you retain 2% healing from Blood Presence."
+        ]
+      },
+      {
+        "entry_id": 41102,
+        "name": "Ebon Plaguebringer",
+        "icon": "Ability_Creature_Cursed_03",
+        "rank": 1,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your critical strike chance by 1%.\r\n\r\nYour Crypt Fever morphs into Ebon Plague, which increases magic damage taken by 4% in addition to increasing disease damage taken. ",
+          "Increases your critical strike chance by 2%.\r\n\r\nYour Crypt Fever morphs into Ebon Plague, which increases magic damage taken by 9% in addition to increasing disease damage taken. ",
+          "Increases your critical strike chance by 3%.\r\n\r\nYour Crypt Fever morphs into Ebon Plague, which increases magic damage taken by 13% in addition to increasing disease damage taken. "
+        ]
+      },
+      {
+        "entry_id": 36570,
+        "name": "Natural Energy",
+        "icon": "nhi_natureunity_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your Mutilate critical strikes restore 5 energy and an additional 10 energy over 3 sec."
+        ]
+      },
+      {
+        "entry_id": 37583,
+        "name": "Creeping Frost",
+        "icon": "uico_frost_spell_03_nobg_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your Deep Freeze now spawns creeping frost beneath the target that grows in size every second and reduces enemy movement speed by 40%."
+        ]
+      }
+    ]
+  },
+  "primary_stat": {
+    "id": 6,
+    "token": "duality"
+  },
+  "rankings": [],
+  "capture_history": [
+    {
+      "capture_id": "1136982",
+      "captured_at": "2026-07-31T19:17:04.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136999",
+      "captured_at": "2026-07-31T19:17:04.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136930",
+      "captured_at": "2026-07-31T19:12:07.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136951",
+      "captured_at": "2026-07-31T19:12:07.000Z",
+      "boss_name": "Gurubashi Axe Thrower",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136967",
+      "captured_at": "2026-07-31T19:12:07.000Z",
+      "boss_name": "Son of Hakkar",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136898",
+      "captured_at": "2026-07-31T19:09:07.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136860",
+      "captured_at": "2026-07-31T19:05:15.000Z",
+      "boss_name": "Atal'ai Mistress",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136729",
+      "captured_at": "2026-07-31T18:59:10.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136762",
+      "captured_at": "2026-07-31T18:59:10.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 49,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1136797",
+      "captured_at": "2026-07-31T18:59:10.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 49,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1136813",
+      "captured_at": "2026-07-31T18:59:10.000Z",
+      "boss_name": "Hakkari Priest",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136713",
+      "captured_at": "2026-07-31T18:58:55.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136629",
+      "captured_at": "2026-07-31T18:55:06.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136594",
+      "captured_at": "2026-07-31T18:52:43.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136534",
+      "captured_at": "2026-07-31T18:49:57.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136467",
+      "captured_at": "2026-07-31T18:47:09.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136502",
+      "captured_at": "2026-07-31T18:47:09.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136518",
+      "captured_at": "2026-07-31T18:47:09.000Z",
+      "boss_name": "Gurubashi Axe Thrower",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136414",
+      "captured_at": "2026-07-31T18:44:14.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136367",
+      "captured_at": "2026-07-31T18:39:56.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136350",
+      "captured_at": "2026-07-31T18:38:23.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136295",
+      "captured_at": "2026-07-31T18:35:32.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 49,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1136194",
+      "captured_at": "2026-07-31T18:29:27.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1136232",
+      "captured_at": "2026-07-31T18:29:27.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136175",
+      "captured_at": "2026-07-31T18:26:45.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136143",
+      "captured_at": "2026-07-31T18:25:09.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136094",
+      "captured_at": "2026-07-31T18:23:48.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1136045",
+      "captured_at": "2026-07-31T18:21:10.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1135968",
+      "captured_at": "2026-07-31T18:19:50.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135922",
+      "captured_at": "2026-07-31T18:17:51.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135890",
+      "captured_at": "2026-07-31T18:16:11.000Z",
+      "boss_name": "High Priest Venoxis",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1135906",
+      "captured_at": "2026-07-31T18:16:11.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135798",
+      "captured_at": "2026-07-31T18:13:05.000Z",
+      "boss_name": "Hakkari Priest",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135814",
+      "captured_at": "2026-07-31T18:13:05.000Z",
+      "boss_name": "Hakkari Priest",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135830",
+      "captured_at": "2026-07-31T18:13:05.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135750",
+      "captured_at": "2026-07-31T18:09:40.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1135768",
+      "captured_at": "2026-07-31T18:09:40.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135674",
+      "captured_at": "2026-07-31T18:03:30.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135703",
+      "captured_at": "2026-07-31T18:03:30.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1135625",
+      "captured_at": "2026-07-31T18:00:50.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 49,
+      "location": "Zul'Gurub",
+      "success": false
+    }
+  ]
+}
