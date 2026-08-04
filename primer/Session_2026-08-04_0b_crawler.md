@@ -236,6 +236,22 @@ in-game work. Not pursued this session; flagged, not assumed.
 
 ---
 
+## Owner decisions taken this session
+
+Asked at the end of 0b; all four answered. Recorded in `PROGRESS.md` too — **don't re-litigate.**
+
+| Question | Decision |
+|---|---|
+| Tier-2 bulk local-only on one disk — acceptable? | **Accepted.** Re-fetchable by report id; manifest records what existed. No off-machine sync |
+| Capture Dawnrise too? | **Darkmoon only.** `REALM` stays hardcoded |
+| Watchlist for own characters? | **Yes, implemented** — `tools/scrapers/watchlist.txt`, seeded with **Elric** → character_id **39772** (resolved live). Captured every run, prioritised ahead of `--max-armory` |
+| Contact db.ascension.gg / BisBeard authors? | **No outreach.** Stay inside robots.txt; inspect BisBeard read-only in 0a T9 |
+
+Also flagged, not blocking: **`SEASON = 10` is hardcoded** and cannot be derived from the API (it
+exposes phases, not seasons). Must be bumped manually when S11 starts.
+
+---
+
 ## Open items / carried forward
 
 | Item | Note |

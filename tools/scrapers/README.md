@@ -144,6 +144,14 @@ transparently — and it keeps the property that a Ctrl+C costs at most the reco
 - **Armory records are content-hash deduped** over `ci_resolved` + `stats_summary`, so unchanged
   builds aren't rewritten daily. `capture`/`captures` are excluded from the hash — they carry ids
   and timestamps that churn without the build changing.
+- **`watchlist.txt` characters are always captured**, with priority over `--max-armory`. Leaderboard
+  and report discovery only finds characters who parsed that day, so without this a personal
+  character goes uncaptured on any day it doesn't raid — leaving holes in the gear/build timeline
+  the build docs depend on. Names are resolved once and cached in `scan_log.watchlist_ids`; a name
+  that doesn't resolve is reported loudly, never silently dropped. Currently: **Elric** (39772).
+- **Realm is Darkmoon-only and season is hardcoded to 10** (owner decision, 2026-08-04). Dawnrise is
+  deliberately not captured. ⚠ `SEASON` cannot be derived from the API — bump it when S11 starts or
+  every record is mis-stamped.
 - **Roles are `dps` / `tank` / `support`.** `support` is the healer role — the endpoint's own 400
   body enumerates the allowed values. `healer` is rejected.
 - **Every record is stamped** with `captured_at`, `realm`, `season`, `patch_date`. `patch_date`

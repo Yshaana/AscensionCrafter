@@ -71,13 +71,26 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done · ⏸️ blocked
 Anything waiting on a 🛑 stop-point or a decision only the project owner can make. Clear entries as
 they're answered.
 
-| Item | Blocking | Asked on |
-|---|---|---|
 | `WoWCombatLog` file naming/location convention | 3b | — |
 | Whether `ReloadUI()` is restricted on this server | 3b | — |
 
+**Note:** `SEASON = 10` is also hardcoded in the crawler. It must be bumped when S11 starts — the
+API exposes phases, not seasons, so this can't be derived. Not blocking; flagged so it isn't missed.
+
 **Resolved:** crawler scheduling → **manual-first on Windows** (2026-08-04). No scheduler set up
 initially; Windows Task Scheduler added later once the crawler is proven. `0b` is no longer blocked.
+
+**Resolved 2026-08-04 (owner decisions, session 0b) — do not re-litigate these:**
+
+| Question | Decision |
+|---|---|
+| Tier-2 bulk data is local-only on one disk — acceptable? | **Yes, accepted.** Re-fetchable by report id while ascensionlogs retains history, and the committed manifest records what existed. No off-machine sync |
+| Capture Dawnrise as well as Darkmoon? | **Darkmoon only.** `REALM` stays hardcoded. Cross-realm facts are unsafe to mix anyway |
+| Watchlist for own characters? | **Yes — implemented.** `tools/scrapers/watchlist.txt`, seeded with **Elric** (resolves to character_id 39772). Watched characters are captured every run with priority over `--max-armory` |
+| Contact db.ascension.gg's operator / BisBeard's author? | **No outreach for now.** Stay inside robots.txt (targeted manual lookups only) and inspect BisBeard read-only in 0a Task 9 |
+
+⚠ **`SEASON = 10` is hardcoded** in the crawler and cannot be derived (the API exposes phases, not
+seasons). Bump it when S11 starts, or every record will be mis-stamped.
 
 ---
 

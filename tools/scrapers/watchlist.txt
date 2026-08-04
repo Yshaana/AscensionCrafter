@@ -1,0 +1,17 @@
+# Characters the crawler ALWAYS captures, regardless of whether they appear on a
+# leaderboard or in a crawled report that day.
+#
+# Purpose: guarantee a continuous gear/build timeline for your own characters.
+# Leaderboard discovery only finds people who parse well on a given day, so
+# without this a personal character goes uncaptured on any day it doesn't raid.
+#
+# One character name per line. Blank lines and #-comments are ignored.
+# Names are resolved via /api/armory/by-name/{name} - a name that doesn't
+# resolve is reported loudly in the run summary, never silently skipped.
+#
+# Armory records are content-hash deduped, so listing a character here does NOT
+# mean a new record every day - only when their gear, build or stats change.
+
+Elric
+
+# Add any other characters of yours below.

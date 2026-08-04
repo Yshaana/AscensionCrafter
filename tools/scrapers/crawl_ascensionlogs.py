@@ -74,6 +74,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CRAWL_ROOT = REPO_ROOT / "data" / "source" / "crawl"
 SCAN_LOG_PATH = CRAWL_ROOT / "scan_log.json"
 PATCH_DATE_FILE = REPO_ROOT / "data" / "source" / "changelog" / "latest_patch_date.txt"
+WATCHLIST_PATH = Path(__file__).resolve().parent / "watchlist.txt"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -232,6 +233,41 @@ def save_scan_log(log):
 
 
 # --- crawl stages ----------------------------------------------------------
+
+def crawl_watchlist(seen_characters, scan_log):
+    """Resolve watchlist.txt names to character ids and force them into this run's
+    capture set. Leaderboard/report discovery only finds characters who parsed that
+    day, so without this a personal character goes uncaptured on any day it doesn't
+    raid — leaving holes in exactly the gear/build timeline the build docs rely on.
+
+    Resolved ids are cached in scan_log so a later run doesn't re-resolve, and an
+    unresolvable name is reported loudly rather than silently dropped."""
+    if not WATCHLIST_PATH.exists():
+        return 0
+    names = [ln.strip() for ln in WATCHLIST_PATH.read_text(encoding="utf-8").splitlines()]
+    names = [n for n in names if n and not n.startswith("#")]
+    if not names:
+        return 0
+
+    cache = scan_log.setdefault("watchlist_ids", {})
+    added = 0
+    for name in names:
+        cid = cache.get(name)
+        if cid is None:
+            _, d = api_get(f"/api/armory/by-name/{urllib.parse.quote(name)}")
+            if not d or not d.get("success") or not (d.get("character") or {}).get("id"):
+                msg = (f"watchlist name '{name}' did not resolve "
+                       f"(no armory record, or name mismatch)")
+                print(f"[watchlist] ⚠ {msg}")
+                ERRORS.append(("watchlist", msg))
+                continue
+            cid = d["character"]["id"]
+            cache[name] = cid
+        seen_characters[str(cid)] = name
+        added += 1
+    print(f"[watchlist] {added}/{len(names)} watched character(s) queued for capture")
+    return added
+
 
 def crawl_phases(writers):
     """Snapshot /api/phases daily — phase timeline + active flags are load-bearing
@@ -422,6 +458,10 @@ def crawl_characters(writers, scan_log, seen_characters, max_armory):
     (plus anything deferred by --max-armory on a previous run)."""
     queue = dict(scan_log.get("pending_characters", {}))
     queue.update(seen_characters)
+    # Watched characters go first so --max-armory can never starve them.
+    watched = {str(cid): name
+               for name, cid in (scan_log.get("watchlist_ids") or {}).items()}
+    queue = {**watched, **{k: v for k, v in queue.items() if k not in watched}}
     pulled = 0
     unchanged = 0
     deferred = {}
@@ -636,6 +676,7 @@ def main():
         return 0 if not ERRORS else 1
 
     active_phases = crawl_phases(writers)
+    crawl_watchlist(seen_characters, scan_log)
     crawl_leaderboards(writers, active_phases, seen_characters)
     reports_before = set(scan_log.get("reports", {}))
     new_reports = crawl_reports(writers, scan_log, seen_characters, args.max_reports)
