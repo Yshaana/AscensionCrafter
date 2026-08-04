@@ -4,7 +4,7 @@
  "last_page": 353,
  "from": 101,
  "to": 200,
- "total": 35238,
+ "total": 35247,
  "links": [
   {
    "url": "https://api.ascension.gg/api/v3/article/changelog?realm_type=1&page=1",
@@ -1787,6 +1787,114 @@
   "2026/07/31": {
    "1": [
     {
+     "id": 69381,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - Knight of the Eclipse can now also be triggered by Slam and Whirlwind, in addition to Sinister Strike.",
+     "created_at": "2026-07-31T10:27:48",
+     "updated_at": "2026-07-31T10:27:54"
+    },
+    {
+     "id": 69380,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Arcane Vanguard]: Direct Arcane Blast damage marks the target with Arcane Breach for 12 seconds. Charge or Intercept consumes the mark, triggers your highest rank of Arcane Explosion 0.75 seconds later, and reduces Blink's remaining cooldown by 5 seconds.",
+     "created_at": "2026-07-31T10:27:46",
+     "updated_at": "2026-07-31T10:27:54"
+    },
+    {
+     "id": 69379,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Furnace Rhythm]: Direct Pyroblast damage grants Furnace Rhythm for 8 seconds. Your next Bloodthirst gains 30% increased critical strike chance; consuming Furnace Rhythm grants 15% haste for 10 seconds.",
+     "created_at": "2026-07-31T10:26:32",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69378,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Storm of Darkness]: Each target damaged by Shadowfury reduces Bladestorm's remaining cooldown by 4 seconds.",
+     "created_at": "2026-07-31T10:26:30",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69377,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Umbral Wounds]: While in Shadowform, your Deep Wounds deal Shadowstrike damage but are no longer a bleed.",
+     "created_at": "2026-07-31T10:26:27",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69376,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Elemental Conviction]: While Improved Judgements is active, Lightning Bolt, Chain Lightning, Lava Burst, and Elemental Blast can trigger your active Seal of Righteousness or Seal of Vengeance.",
+     "created_at": "2026-07-31T10:26:26",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69375,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Twilight Eruption]: Mind Blast and Haunt reduce Lava Burst's remaining cooldown by 1 second. Lava Burst extends Unstable Affliction and Vampiric Touch on the target by 1 second.",
+     "created_at": "2026-07-31T10:26:25",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69374,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Surging Shadows]: Shadow periodic damage has a chance to increase your Lightning Overload chance by 40% for 10 seconds.",
+     "created_at": "2026-07-31T10:26:24",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
+     "id": 69373,
+     "label": 1,
+     "category": 1,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/07/31",
+     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Conductive Affliction]: Lightning Bolt and Chain Lightning grant Conductive Affliction for 15 seconds, holding up to 10 charges. Unstable Affliction and Vampiric Touch consume a charge to deal 35% increased damage.",
+     "created_at": "2026-07-31T10:26:23",
+     "updated_at": "2026-07-31T10:26:54"
+    },
+    {
      "id": 69372,
      "label": 1,
      "category": 1,
@@ -2890,114 +2998,6 @@
      "group_key": "2026/07/28",
      "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Cower now requires Level 10 from Level 28.",
      "created_at": "2026-07-28T20:10:37",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69275,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Abolish Poison now requires Level 18 from Level 26.",
-     "created_at": "2026-07-28T20:10:36",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69274,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Solar Beam now requires Level 32 from Level 34.",
-     "created_at": "2026-07-28T20:10:35",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69273,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Starsurge now requires Level 24 from Level 28.",
-     "created_at": "2026-07-28T20:10:34",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69272,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Nature Ward now requires Level 12 from Level 20.",
-     "created_at": "2026-07-28T20:10:33",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69271,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Track Humanoids (Cat Form) now requires Level 20 from Level 32.",
-     "created_at": "2026-07-28T20:10:33",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69270,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Nourish now requires Level 40 from Level 44.",
-     "created_at": "2026-07-28T20:10:32",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69269,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Maim now requires Level 40 from Level 44.",
-     "created_at": "2026-07-28T20:10:30",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69268,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Efflorescence now requires Level 40 from Level 44.",
-     "created_at": "2026-07-28T20:10:30",
-     "updated_at": "2026-07-28T20:10:48"
-    },
-    {
-     "id": 69267,
-     "label": 0,
-     "category": 0,
-     "realm_type": 1,
-     "user_id": 1191187,
-     "author": null,
-     "group_key": "2026/07/28",
-     "description": "[Pending Restart] - [Classless - Dawnrise] - [Free Pick] - Cyclone now requires Level 40 from Level 50.",
-     "created_at": "2026-07-28T20:10:29",
      "updated_at": "2026-07-28T20:10:48"
     }
    ]

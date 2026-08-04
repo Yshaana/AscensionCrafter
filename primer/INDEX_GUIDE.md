@@ -1,3 +1,50 @@
+# Ascension Spell/Card Index — Guide (v9)
+
+**v9 changelog (2026-08-04, session `1a` — Phase 1 Tasks 1–3).** The repo was
+restructured and three new table groups landed. Everything below this section still
+describes the tables correctly; **the paths and the rebuild command changed.**
+
+- 🆕 **One command rebuilds everything:** `py cli/rebuild.py` (13 steps, ~32s from
+  empty). Add `--with-dbc` **only** after a client patch — that step needs the client
+  plus StormLib and rewrites the committed extracts. The nine-script chain documented
+  below is superseded; the scripts still exist, in new homes.
+- 🆕 **The database moved and was renamed:** `index/ascension_index.db` →
+  **`data/derived/ascension.db`**. `scouted_builds.db` → `data/derived/`. All of
+  `data/derived/` is gitignored. Source data moved to `data/source/{export,dbc,scouted}`.
+- 🆕 **`core/` is a pure-logic layer** — no `print()`, no `argparse`, no paths, takes a
+  connection as a parameter, and may not import `config.py`. Enforced by
+  `tools/audit/check_core_purity.py` (AST-based, currently 0 violations).
+  `core/spells/` now owns text extraction, rank resolution, fingerprinting, the
+  crosswalk and class resolution.
+- 🆕 **New tables — Phase 1 T2:** `seasons`, `server_phases`, `patches`,
+  `patch_entries`, `patch_entry_spells`. ⚠ `server_phases.phase_number` is the
+  **server's** label; `api_phase_number` is the logs API's own field, and the two
+  disagree — never join on the wrong one.
+- 🆕 **New table — Phase 1 T3: `spell_id_crosswalk`.** Four external ID spaces
+  (`character_advancement`, `catalog_vs_live`, `logs_gg.entry_id`, `card_id`).
+  **This replaces every ad-hoc ID join in this guide.** Use `cli/crosswalk.py
+  --resolve <entry_id>` or `core.spells.crosswalk.resolve_entry_id()`.
+- 🆕 **New column `spells.class_conflict_json`** — holds BOTH values when the skill-line
+  class disagrees with an existing one. Class coverage is now **1,794 / 3,061 (58.6%)**,
+  up from 394.
+- 🆕 **`spell_dbc_raw` gained 17 scalar columns** (`recovery_time`, `casting_time_index`,
+  `power_type`, `spell_level`, `start_recovery_time`, proc fields…) so the
+  fingerprint rule is implementable. The extract exporter now `SELECT *` — it was a
+  hardcoded column list, which would have hidden these from every client-less session.
+- 🔬 **Two Phase 0 numbers refined**, both because the original reporter used `max()`
+  and silently took the first of a tie:
+  **697 wrong-rank catalog entries is a lower bound — the real figure is 711**, of
+  which **25 are genuinely ambiguous** (several spells tie for the top rank at 60).
+  And the fingerprint rule needed **two field sets**: the strict one answers "same
+  ability?", but rank legitimately changes radius/cooldown/power_type and higher ranks
+  *fill effect slots* the lower rank leaves empty, so rank comparisons use
+  `school_mask` + effect-structure compatibility only.
+- ⚠ **`owned_cards` lost its foreign key, deliberately.** 47 of the owner's 4,465
+  owned-card rows name a card absent from `spell-export.json`; all 39 distinct
+  spellIds resolve in `CharacterAdvancement.dbc`. Real cards, stale export.
+
+---
+
 # Ascension Spell/Card Index — Guide (v8)
 
 **v8 changelog (2026-08-04, session `0a`):** Phase 0 recon landed four new client-derived tables and
@@ -83,7 +130,12 @@ the index-mechanics consequences are here.
 
 `ascension_index.db` (SQLite) built from `spell-export.json` (3061 spells) + `Cards.txt` (owned cards). All of this lives in `index/` as of the v12 repo reorg — the db itself is gitignored/ephemeral (rebuild each session, see primer v10/v12).
 
-Rebuild anytime with, from `index/`:
+⚠ **v9: superseded — the whole chain is now `py cli/rebuild.py`** (add `--with-dbc`
+after a client patch). The historical command is kept below because the *order* it
+encodes is still the order `rebuild.py` runs, and the script names are unchanged;
+only their directories are. Do not run it as written — the paths no longer exist.
+
+~~Rebuild anytime with, from `index/`:~~
 ```
 python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_confirmed.py && python3 seed_synergies.py && python3 seed_exclusivity.py && python3 seed_modifier_links.py && python3 seed_talent_amplifiers.py && python3 seed_spell_flags.py && python3 seed_cp_scaling.py
 ```

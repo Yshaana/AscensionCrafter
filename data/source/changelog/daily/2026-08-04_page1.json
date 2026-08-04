@@ -4,7 +4,7 @@
  "last_page": 353,
  "from": 1,
  "to": 100,
- "total": 35238,
+ "total": 35247,
  "links": [
   {
    "url": null,
@@ -1787,6 +1787,114 @@
   "2026/08/04": {
    "0": [
     {
+     "id": 70074,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Eclipse Blast now deals 30% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:03:00",
+     "updated_at": "2026-08-04T21:03:55"
+    },
+    {
+     "id": 70073,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Drakhacrisp now deals 20% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:59",
+     "updated_at": "2026-08-04T21:03:55"
+    },
+    {
+     "id": 70072,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Ray of Frost now deals 20% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:57",
+     "updated_at": "2026-08-04T21:03:55"
+    },
+    {
+     "id": 70071,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Winds of Winter now deals 30% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:56",
+     "updated_at": "2026-08-04T21:03:55"
+    },
+    {
+     "id": 70070,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Glacial Burst now deals 20% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:55",
+     "updated_at": "2026-08-04T21:02:55"
+    },
+    {
+     "id": 70069,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Pyroblast now deals 25% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:54",
+     "updated_at": "2026-08-04T21:02:55"
+    },
+    {
+     "id": 70068,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Ambush now deals 30% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:53",
+     "updated_at": "2026-08-04T21:02:55"
+    },
+    {
+     "id": 70067,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] - Shadow Crash now deals 20% reduced damage in PvP combat.",
+     "created_at": "2026-08-04T21:02:51",
+     "updated_at": "2026-08-04T21:02:55"
+    },
+    {
+     "id": 70066,
+     "label": 1,
+     "category": 0,
+     "realm_type": 1,
+     "user_id": 1864697,
+     "author": null,
+     "group_key": "2026/08/04",
+     "description": "[Darkmoon] [Dawnrise] - Fixed a bug where Improved Devouring Plague was bypassing Resilient Constitution.",
+     "created_at": "2026-08-04T21:02:50",
+     "updated_at": "2026-08-04T21:02:55"
+    },
+    {
      "id": 70026,
      "label": 1,
      "category": 0,
@@ -2893,114 +3001,6 @@
      "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Conquest of Azeroth Talent/Mystic Enchant is now available! [Cataclysmic Power]: Fireball and Incinerate deal 2% increased damage for each of your Fire periodic effects on the target.",
      "created_at": "2026-07-31T10:27:49",
      "updated_at": "2026-07-31T10:27:54"
-    },
-    {
-     "id": 69381,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - Knight of the Eclipse can now also be triggered by Slam and Whirlwind, in addition to Sinister Strike.",
-     "created_at": "2026-07-31T10:27:48",
-     "updated_at": "2026-07-31T10:27:54"
-    },
-    {
-     "id": 69380,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Arcane Vanguard]: Direct Arcane Blast damage marks the target with Arcane Breach for 12 seconds. Charge or Intercept consumes the mark, triggers your highest rank of Arcane Explosion 0.75 seconds later, and reduces Blink's remaining cooldown by 5 seconds.",
-     "created_at": "2026-07-31T10:27:46",
-     "updated_at": "2026-07-31T10:27:54"
-    },
-    {
-     "id": 69379,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Furnace Rhythm]: Direct Pyroblast damage grants Furnace Rhythm for 8 seconds. Your next Bloodthirst gains 30% increased critical strike chance; consuming Furnace Rhythm grants 15% haste for 10 seconds.",
-     "created_at": "2026-07-31T10:26:32",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69378,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Storm of Darkness]: Each target damaged by Shadowfury reduces Bladestorm's remaining cooldown by 4 seconds.",
-     "created_at": "2026-07-31T10:26:30",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69377,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Umbral Wounds]: While in Shadowform, your Deep Wounds deal Shadowstrike damage but are no longer a bleed.",
-     "created_at": "2026-07-31T10:26:27",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69376,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Elemental Conviction]: While Improved Judgements is active, Lightning Bolt, Chain Lightning, Lava Burst, and Elemental Blast can trigger your active Seal of Righteousness or Seal of Vengeance.",
-     "created_at": "2026-07-31T10:26:26",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69375,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Twilight Eruption]: Mind Blast and Haunt reduce Lava Burst's remaining cooldown by 1 second. Lava Burst extends Unstable Affliction and Vampiric Touch on the target by 1 second.",
-     "created_at": "2026-07-31T10:26:25",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69374,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Surging Shadows]: Shadow periodic damage has a chance to increase your Lightning Overload chance by 40% for 10 seconds.",
-     "created_at": "2026-07-31T10:26:24",
-     "updated_at": "2026-07-31T10:26:54"
-    },
-    {
-     "id": 69373,
-     "label": 1,
-     "category": 1,
-     "realm_type": 1,
-     "user_id": 1864697,
-     "author": null,
-     "group_key": "2026/07/31",
-     "description": "[Pending Restart] [Darkmoon] [Dawnrise] - A new Talent/Mystic Enchant is now available! [Conductive Affliction]: Lightning Bolt and Chain Lightning grant Conductive Affliction for 15 seconds, holding up to 10 charges. Unstable Affliction and Vampiric Touch consume a charge to deal 35% increased damage.",
-     "created_at": "2026-07-31T10:26:23",
-     "updated_at": "2026-07-31T10:26:54"
     }
    ]
   }

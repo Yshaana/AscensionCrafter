@@ -9,27 +9,42 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `1a` — repo restructure (T1) + patch/realm/season tracking (T2) + crosswalk (T3).**
+**Next session: `1b` — `spell_mechanics` (T4) + the relationship graph (T5). The schema core.**
 
-**🎉 PHASE 0 IS COMPLETE (2026-08-04).** Both sessions done: `0b` (crawler) and `0a` (recon).
-Verdicts: **`primer/RECON_FINDINGS.md`** — read that, not the phase doc. Session record:
-`primer/Session_2026-08-04_0a_recon.md`.
+**✅ SESSION `1a` IS DONE (2026-08-04).** Repo restructured to ARCHITECTURE §4, patch/realm/season
+tracking built, ID crosswalk built. Session record:
+`primer/Session_2026-08-04_1a_restructure_crosswalk.md`.
 
-**Task 5's 🛑 gate is OPEN.** `entry_id` is the **CharacterAdvancement ID**, never `spells.id`
-(0 of 1,054 match). `CharacterAdvancement.dbc` is in the client and is now extracted — the crosswalk
-is a real table. `1a` starts from a confirmed mapping, and `RECON_FINDINGS.md` Task 5 names the
-primary key.
+**What 1b inherits, and should not re-derive:**
 
-⚠ **Carry into Phase 1 planning, it is not currently a named task:** a **numeric-field DBC
+- **One command rebuilds everything: `py cli/rebuild.py`** (13 steps, ~32s from empty). Add
+  `--with-dbc` only after a client patch. The database is now `data/derived/ascension.db`.
+- **`core/` is pure** — no `print()`, no `argparse`, no paths, connection passed in, and it may not
+  import `config.py`. `tools/audit/check_core_purity.py` enforces it; run it after touching `core/`.
+  **T4's `resolve_spell_mechanics()` goes in `core/spells/mechanics.py` and obeys this.**
+- **The crosswalk is live.** Never join `entry_id` to `spells.id`; call
+  `core.spells.crosswalk.resolve_entry_id()` or `py cli/crosswalk.py --resolve <id>`.
+- **Rank resolution is a function**, `core.spells.ranks.rank_for_level()`. T4's third resolver rule
+  ("never serve a lower-rank value for a higher-rank query") should call it rather than re-derive it.
+- **Fingerprinting is a function**, `core/spells/fingerprint.py`, with **two field sets** — see the
+  plan-changes table. T4's fourth rule is already implemented; wire to it.
+
+⚠ **Still not a named task, still the highest-value item Phase 0 found:** a **numeric-field DBC
 extractor** would resolve **788 of the 803 (98%)** hidden-formula spells the text resolver can't
-crack. It is the highest-value item Phase 0 found. It belongs in T4's scope or immediately after.
-**Numeric fields only — never the `description` string** (the Titanic Mutilate trap).
+crack. It belongs in T4's scope or immediately after. **Numeric fields only — never the
+`description` string** (the Titanic Mutilate trap). `spell_dbc_raw` now carries 17 more numeric
+columns than it did, which makes this cheaper than it was.
 
-### 🔁 Standing daily action for the project owner (not a session task)
+### 🔁 Daily capture — now AUTOMATED (2026-08-04)
 
-**Double-click `run_crawler.bat` once a day.** Changelog snapshot + a crawl capped at 25 new
-reports, then auto-commit and push. Bounded to ~30–60 min worst case. Manual-first by design — no
-scheduler until a few runs prove out.
+**Nothing to remember. The daily crawl runs itself at logon**, 5 minutes in, at most once a day.
+Task: `AscensionCrafter Daily Crawl`; script:
+`tools/scheduling/register_daily_crawler.ps1`; full documentation: **`SCHEDULING.md`**.
+Double-clicking `run_crawler.bat` still works and deliberately bypasses the once-a-day guard.
+
+**🛑 `catchup_crawler.bat` is deliberately NOT scheduled and must stay that way.** It is uncapped,
+runs for hours against a third-party public API, and automating it risks getting the IP blocked.
+Manual action, started before bed, no deadline — reports persist on ascensionlogs after a phase flip.
 
 **Separately, `catchup_crawler.bat`** is the uncapped historical backfill — run it when the machine
 can stay on for hours (overnight). Grind reports take ~10 min each, so a full backfill is long.
@@ -57,8 +72,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 |---|---|---|---|---|
 | **0b** | Crawler + changelog fetcher (T6) | ✅ done | `Session_2026-08-04_0b_crawler.md` | Shipped 2026-08-04. Changelog backfilled (353 pages, back to 2016). Baseline captured |
 | **0a** | Recon T1–5, 7, 8, 9 | ✅ done | `Session_2026-08-04_0a_recon.md` | **Phase 0 complete.** `RECON_FINDINGS.md` written. Crosswalk resolved; class coverage 13%→58%; rank resolution solved; 2 pipeline bugs fixed |
-| 1a | Restructure, patches/realms/seasons, crosswalk | ⬜ | — | ▶ **NEXT.** No longer gated — crosswalk is confirmed, see `RECON_FINDINGS.md` Task 5 |
-| 1b | `spell_mechanics` + relationship graph | ⬜ | — | |
+| **1a** | Restructure, patches/realms/seasons, crosswalk | ✅ done | `Session_2026-08-04_1a_restructure_crosswalk.md` | `core/api/cli` split + purity check; `cli/rebuild.py`; 5 patch tables; `spell_id_crosswalk` (4 ID spaces); class coverage 394→1,794. Crawler scheduling automated in the same session |
+| 1b | `spell_mechanics` + relationship graph | ⬜ | — | ▶ **NEXT.** Read `PHASE_1_spell_database.md` T4+T5. Put the resolver in `core/spells/mechanics.py`; reuse `ranks.py`, `fingerprint.py`, `crosswalk.py` rather than re-deriving them |
 | 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | |
 | 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | |
 | 2b | Three sim tiers + uncertainty | ⬜ | — | |
@@ -125,6 +140,12 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-04 (1a) | 🔬 **REFINED: "697 wrong-rank catalog entries" is a LOWER BOUND. The real figure is 711, and 25 of them are genuinely AMBIGUOUS** | Phase 0's reporter used `max()`, which silently returns the first of a tie. Two real causes of ties: a rank line whose members *all* read "Rank 1" (`Desolation`, 5 members), and a line pulling in an other-realm 11-prefix variant (`Arcane Focus` → 912840 **and** 1212840). Now recorded as `confidence='conflict'` in `spell_id_crosswalk`, never tie-broken. `resolve_entry_id()` returns `level_spell_id=None` plus a candidate list when ambiguous |
+| 2026-08-04 (1a) | 🆕 **The fingerprint rule needs TWO field sets, not one** | The strict set (school, cooldown, cast, power type, radius, effects) answers *"are these the same ability?"* — the hard rule's case. It is the **wrong test** for *"are these two ranks of one ability?"*: rank legitimately changes radius, cooldown and `power_type`, and higher ranks **fill effect slots** the lower rank leaves empty (Malice `[6,0,0]`→`[6,0,6]`→`[6,6,6]`). Strict comparison flagged 106 rank "conflicts", almost all ordinary talents. `RANK_FINGERPRINT_FIELDS` = school + effect-structure compatibility leaves **8 rows on 2 cards**, both `Necrosis`, whose school genuinely changes across ranks (0 → 32 Shadow → 1 Physical). That one is real |
+| 2026-08-04 (1a) | ⚠ **`owned_cards` must NOT have a foreign key to `spells`** | Turning on the `foreign_keys` pragma rejected **47 of the owner's own 4,465 owned-card rows** (39 distinct spellIds). Not bad data: **all 39 resolve in `CharacterAdvancement.dbc`** and are simply absent from `spell-export.json`. Phase 0 finding #5 (the export goes stale within days) reproduced from his own collection. FK dropped; `build_index.py` reports the count every run |
+| 2026-08-04 (1a) | 🆕 **The `entry_id` never-join rule got STRONGER with more data** | Phase 0 saw 1 numeric collision in 1,054 entry_ids. With 1,487 observed there are **4** (`1152`, `36936`, `50029`, `50043`) and **still 0 real matches** — e.g. `1152` is `Path of Healing` in the crawl and `Purify` in the catalog. 1,487/1,487 resolve through CharacterAdvancement; 3,061/3,061 catalog ids are reachable from a CA rank slot |
+| 2026-08-04 (1a) | ⚠ **`build_dbc_index.py`'s extract exporter was a hardcoded column list** | It is the **only** way a session without the game client sees `spell_dbc_raw`, so the 17 fingerprint columns added this session were invisible everywhere except this machine. Now `SELECT *`. Any column added to that table and forgotten in the exporter has the same failure mode — silent, and only visible to whoever has the client |
+| 2026-08-04 (1a) | ✅ **Daily crawler is AUTOMATED; catchup stays manual** | The manual-first condition from Phase 0 T6 is satisfied. Trigger is **at logon** (owner's stated pattern is "when I turn on the computer"), not a clock time — which also makes missed-run catch-up moot. Once-per-day guard lives in `run_crawler_scheduled.bat`, not the trigger, since logging on twice a day is normal. Registered by a committed script, documented in `SCHEDULING.md`. **`catchup_crawler.bat` is deliberately never scheduled** |
 | 2026-08-04 | 🎯 **RESOLVED (was the Phase 1 gate): `entry_id` = CharacterAdvancement ID, and `CharacterAdvancement.dbc` is extractable** | 0 of 1,054 crawled entry_ids equal a catalog `spells.id`; the one numeric collision is two unrelated cards. `entry_id` is rank-independent, `spellId` is rank-specific. The client ships the mapping as a DBC (10,231 rows; slots 5–9 = `SpellRank[5]`). 1,054/1,054 resolve, 660/660 names agree. Corroborated independently by BisBeard, which keys on `entryId` and carries no spellId at all |
 | 2026-08-04 | ❌ **RETRACTED: the contiguous rank rule** — replaced by a level gate | 4,791 non-contiguous rank lines vs 1,908 contiguous. Winds of Winter R1 `274121` → R2 `274129`. The rule that *does* hold: highest rank with `SpellLevel <= level`, verified against both captured in-game tooltips. **Primer §5's "check ±1–3" heuristic is unsafe in general** |
 | 2026-08-04 | 🚨 **≈50% of the multi-rank catalog carries the wrong rank's magnitudes** | 697 of 1,409 catalog entries in a rank line are stored at a rank a level-60 character doesn't hold, and in all 697 the correct id is absent from the export entirely. Sensitivity-checked: 697–794 across four grouping strictnesses |
