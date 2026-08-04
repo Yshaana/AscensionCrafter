@@ -41,6 +41,8 @@ Both diseases self-applied via **Icy Touch** (Frost Fever) and **Plague Strike**
 
 **Not yet tested on our own build.**
 
+**Update (2026-08-04, from `wip_winds-of-winter-frostblade.md` v9 session):** found a build-specific route to the Frost Fever half that doesn't require Icy Touch — **Glacial Spike** (284177, owned) applies Frost Fever itself while also being a real SP+AP-scaling Frost nuke in the Cone of Cold family (same borrowed-modifier class as Winds of Winter). Checked whether any of the 5 scouted Winds of Winter players (Gunju/Titanus/Kcdq/Blasted/Tdoctor) had actually combined a Frost Fever source with Tundra Stalker: **nobody has.** Gunju runs Glacial Spike but not Tundra Stalker; Kcdq runs Tundra Stalker but no Frost Fever source at all (likely dead weight on his own board). This package remains a real, tooltip-grounded prediction, not an empirically-observed pattern — see `seed_confirmed.py`'s `frost_fever_synergy_not_actually_combined_by_anyone`.
+
 ---
 
 ## Package 3: Blessing of Kings
