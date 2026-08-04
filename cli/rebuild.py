@@ -35,6 +35,9 @@ CHAIN = [
     ("ingest/export/build_index.py", "catalog + owned cards; DROPS and recreates the db"),
     # early, because seed_class_from_skill_line and the crosswalk both read dbc_*
     ("ingest/dbc/load_extract.py", "dbc_* tables from the committed extract (no client needed)"),
+    # needs spell_dbc_raw (above) and spells.hidden_refs (build_index)
+    ("ingest/dbc/resolve_numeric_formulas.py",
+     "spell_effect_values - magnitudes from NUMERIC dbc fields, never description text"),
     ("ingest/export/seed_borrowed_modifiers.py", "class_origin from 'uses X modifiers' clauses"),
     # after the weaker tooltip tier above, so disagreements are detectable
     ("ingest/export/seed_class_from_skill_line.py", "class_origin from the client's skill lines"),

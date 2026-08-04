@@ -66,6 +66,14 @@ Schema in `INDEX_GUIDE.md`.
 - **Never relate two spell IDs by name.** Fingerprint on mechanics (school, cooldown, radius, cast
   type, effect structure) first. Two spells named "Holy Supernova" are unrelated abilities.
 - **Never read a magnitude from a DBC `description` string** — numeric fields only.
+- **Never read an SP/AP coefficient from `EffectBonusCoefficient`.** It is stock 3.3.5's
+  `EffectBonusMultiplier` — a multiplier on the default, whose neutral value is **1.0**.
+  7,647 of 9,211 non-zero values are exactly 1.0, and it matches a spell's own stated
+  `$SP*x`/`$AP*x` in 4 of 98 cases. **Ascension keeps applied coefficients in tooltip
+  text.** Use `spell_effect_values` for flats; the column there is `bonus_multiplier`.
+- **Coefficients scale with rank, so check the rank before trusting one too** — not just
+  flats. Catalog entries are stored at Rank 1, which is where retail's low-rank penalty
+  is deepest (Sun Down SP 0.4 vs 1.3 at level 60).
 - **Check the rank before trusting a magnitude.** The catalog stores the wrong rank for ~half of all
   multi-rank cards (697 of 1,409), usually Rank 1 — up to a 10× error on flat values. Rank is
   level-gated: highest rank in the line with `SpellLevel` ≤ character level. Use `dbc_spell_rank`.
@@ -90,3 +98,9 @@ Schema in `INDEX_GUIDE.md`.
 - Whenever a verdict changes (retraction, new resolution, updated stat
   weight), update `seed_confirmed.py` in the same session so the next index
   rebuild picks it up — don't just note it in prose.
+- **Spotted a game bug or a tooltip-vs-log discrepancy? Log it in `bugs/`.** The owner
+  submits these to Ascension when he has time, so they must survive the session. Add a
+  row to `bugs/README.md`; write the full field-by-field report only once the evidence
+  holds, otherwise file it `needs verification` and name the missing check. ⚠ **The
+  in-game form's title field caps at 50 characters** — put spell ids and figures in the
+  Issue body. House style and the full form spec are in `bugs/README.md`.

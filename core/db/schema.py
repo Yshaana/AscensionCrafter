@@ -170,7 +170,67 @@ CREATE INDEX IF NOT EXISTS idx_crosswalk_spell
     ON spell_id_crosswalk(spell_id);
 """
 
-PHASE1_DDL = PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL
+# --------------------------------------------------------------------------
+# Session 1x — decoded numeric effect values
+# --------------------------------------------------------------------------
+# The client's Spell.dbc carries every magnitude as a numeric field, and 853 of the
+# 887 spells whose export tooltip hides its formula behind a sub-spell reference
+# have one. Until now the only resolver was a regex over the sub-spell's
+# *description text*, which found a coefficient in 84 of them and nothing in 803.
+#
+# 🛑 Numeric fields only. Never the `description` string — the Titanic Mutilate trap
+# (text said 115%, field said 70%, text was stale). Decoding lives in
+# `core/spells/dbc_numeric.py`; this table is where it lands.
+#
+# Keyed on (spell_id, source_spell_id, effect_index) because a catalog spell's real
+# magnitude frequently lives in a *different* spell record: `spell_id` is the card
+# the value is attributed to, `source_spell_id` is the DBC record actually read, and
+# `via` says which. Keeping both means a value can always be traced back to the row
+# it was decoded from rather than to "the DBC" in general.
+PHASE1_NUMERIC_DDL = """
+CREATE TABLE IF NOT EXISTS spell_effect_values (
+    spell_id         INTEGER NOT NULL,  -- catalog card this value is attributed to
+    source_spell_id  INTEGER NOT NULL,  -- the Spell.dbc record actually decoded
+    effect_index     INTEGER NOT NULL,  -- 0..2
+    via              TEXT NOT NULL,     -- 'self' | 'hidden_ref'
+
+    effect_type      INTEGER,
+    effect_aura      INTEGER,
+    base_points      INTEGER,           -- raw field, kept so decoding is auditable
+    die_sides        INTEGER,
+    flat_min         REAL,              -- base_points + 1
+    flat_max         REAL,              -- base_points + die_sides
+    per_level        REAL,              -- EffectRealPointsPerLevel
+    per_combo        REAL,              -- EffectPointsPerCombo
+    -- ⚠ NOT an SP/AP coefficient. Stock 3.3.5 EffectBonusMultiplier, default 1.0
+    -- (7,647 of 9,211 non-zero values). NULL here means "default or unset", and
+    -- the column is deliberately not named `coefficient` so nothing downstream
+    -- mistakes it for one. See core/spells/dbc_numeric.py.
+    bonus_multiplier REAL,
+    trigger_spell    INTEGER,
+    misc_value       INTEGER,
+    misc_value_b     INTEGER,
+    radius_index     INTEGER,
+    aura_period      INTEGER,
+    chain_targets    INTEGER,
+
+    -- provenance (§2.1) — no value without a source
+    source_tier      TEXT NOT NULL,     -- always 'dbc_numeric_field' (tier 4)
+    evidence_ref     TEXT NOT NULL,     -- dbc:Spell.dbc:<id>:effect<N>@<archive>
+    confidence       TEXT NOT NULL,
+    realm            TEXT NOT NULL,
+    season           TEXT NOT NULL,
+    verified_at_patch INTEGER,
+    extracted_at     TEXT NOT NULL,
+
+    PRIMARY KEY (spell_id, source_spell_id, effect_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_effect_values_spell ON spell_effect_values(spell_id);
+CREATE INDEX IF NOT EXISTS idx_effect_values_source ON spell_effect_values(source_spell_id);
+"""
+
+PHASE1_DDL = PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL + PHASE1_NUMERIC_DDL
 
 
 def create_catalog_schema(conn) -> None:

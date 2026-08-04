@@ -4,6 +4,47 @@ This file explains how **Project Ascension** works so you can reason about build
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
 
+**v21 changelog (2026-08-04, Phase 1 session `1x`).** The numeric-field DBC extractor landed, and
+in the process **two claims this document inherited from Phase 0 turned out to be wrong.** Full
+evidence in `primer/Session_2026-08-04_1x_numeric_extractor.md`; only the rule changes are here.
+
+- 🚨 **§5's rank practice gets a second half: CHECK THE RANK BEFORE TRUSTING A COEFFICIENT TOO,
+  not just a flat.** v19 said *"reading an SP/AP coefficient off a Rank-1 entry is probably safe;
+  reading a flat is catastrophic"* — measured on one line. **The coefficient half is RETRACTED.**
+  Across all 1,580 multi-rank lines: the numeric coefficient varies on **169**, the tooltip
+  coefficient on **34**, in retail's *ramp-then-plateau* shape (110 of the 169) — and the catalog
+  stores **Rank 1**, which is the deepest point of that ramp. Seven catalog entries are measurably
+  wrong today: **Sun Down SP 0.4 → 1.3 (3.25×)**, **Grasp of Darkness SP 0.5 → 1.4 (2.8×)**, Spore,
+  Fulmination, Seismic Tremor, Bone Spear, and **Spirit Charge, whose term type changes from SP to
+  AP.** Seven is a floor — 547 more state no coefficient in either rank's text.
+- 🚨 **NEW TRAP, and it nearly became a 311-spell fabrication: `EffectBonusCoefficient` is not the
+  SP/AP coefficient.** It is stock 3.3.5's `EffectBonusMultiplier` — a multiplier on the
+  cast-time-derived default, neutral value **1.0**. **7,647 of 9,211** non-zero values are exactly
+  1.0; the recurring non-defaults are retail's cast-time formula (`0.429 = 1.5/3.5`); and against 98
+  spells stating their own `$SP*x`/`$AP*x` it agrees in **4**. **Ascension keeps the coefficients its
+  server actually applies in the TOOLTIP TEXT**, not in this field. This is §2's "the export is
+  incomplete" problem inverted — here the *client numeric field* is the incomplete one and the text
+  is right, which is the opposite of the usual tier ordering. It does not weaken §2a's
+  numeric-fields-only rule for **flats**, where the DBC remains authoritative.
+- 🆕 **A card's damage can live two hops away, reached by `EffectTriggerSpell` rather than by a
+  tooltip reference.** 529 such links across 519 spells. The live example is **Hammer from the
+  Heavens** (`282987`) — reached only as *Hour of Judgement* → it. Same family as §4's
+  trigger-vs-modifier trap, but about *where the number is* rather than *whose modifiers apply*.
+- ✅ **Hammer from the Heavens is fully resolved** — the largest single unknown in the Paladin
+  build's stat weights. At level 60: **74–97 Holy, +9.1% SP, +9.1% AP** per hit. Three sources
+  agree (client numeric fields, db.ascension.gg's `Value: 2 to 25, plus 2.4 per level` plus its two
+  Scaling rows, and the live tooltip). **Its level scaling caps at level 40**, so the bonus is
+  `(40−10)×2.4 = 72`, not the uncapped 120. The build doc's assumed 30/30/40 SP/AP/flat split is
+  **confirmed** (real split 26/26/46), not overturned.
+- 🚨 **A live tooltip can render an INVERTED damage range, and it is a bug in the tooltip text, not
+  a reading error.** Hammer from the Heavens displays *"dealing 194 to 147 Holy damage"* in-game.
+  Cause: the description **double-applies level scaling** — once inside `$m1`/`$M1`, then again as
+  explicit `($PL-10)*2.4` (minimum) and `($PL-10)*1` (maximum) terms. The mismatched rates mean the
+  minimum overtakes the maximum above ~level 29. **The engine computes from the numeric fields and
+  never evaluates those text terms**, confirmed against 17,972 pooled hits whose implied non-crit
+  damage sits below the tooltip's own stated *minimum*. **A displayed tooltip number can be
+  arithmetically impossible — treat the rendered range as text, not as a measurement.**
+
 **v20 changelog (2026-08-04, Phase 1 session `1a`).** The repo was restructured and three schema tasks
 landed. **The `index/` folder no longer exists, so every path in this document was rewritten.** Full
 detail in `INDEX_GUIDE.md` v9 and `primer/Session_2026-08-04_1a_restructure_crosswalk.md`; only the
@@ -427,4 +468,21 @@ Abilities worded *"while under this effect you cannot perform any other abilitie
 - **Check for ICDs before dismissing a per-hit proc as diluted by fast weapons.** A per-hit effect with no stated internal cooldown (Fel Infused Weapon, v6) scales UP with attack frequency rather than down — the opposite of the usual "more, smaller hits average out" intuition. Confirm ICD presence/absence from the live tooltip before valuing these against weapon speed.
 - **When hunting multipliers for a specific effect, prefer talents that name it verbatim over talents matched by generic school wording (v7).** Shadow and Flame and Bane both list "Shadowflame" explicitly in their tooltips — ground truth, no test needed. Emberstorm only says "Fire and Shadow spells" — a prediction under the hybrid double-dip rule, not a confirmed hit, even though it reads like it should apply. Named lists outrank generic wording until proc-tested. This is the same discipline as the class-tag rule (§4) applied to damage-multiplier talents instead of proc-engine tags — and proof case #2 above (Elemental Fusion/Lava Flows vs. Molten Earth) is what happens when it's skipped: a spawned effect was assumed to inherit its trigger's modifiers by proximity, without checking its own `uses X modifiers` line first.
 - **When decoding a live in-game spell ID export (WeakAura, inspect addon, etc.) against the catalog, an unresolved ID is very likely a different rank of a known card, not missing content (v7).** Multi-rank talents get a distinct spellID per rank in-game, while the catalog export only stores one canonical ID per card. ❌ **The "check ±1-3 of the unresolved ID" half of this practice is RETRACTED as a general rule (v19).** Measured across the client's full `Spell.dbc`: only **1,908** rank lines are id-contiguous while **4,791 are not** — Winds of Winter runs R1 `274121` then R2–R8 at `274129`–`274135`. The 5/5 hit rate that justified it came from lines that happen to be contiguous. **Use `dbc_spell_rank` instead** (`INDEX_GUIDE` v8): it groups rank lines on name + skill line + mechanical fingerprint, and the rank a character holds is the highest in the line whose `SpellLevel` ≤ their level. The *conclusion* the practice reached is still right — an unresolved ID is usually a rank sibling, not missing content — only the ±1-3 search method is unsafe.
+- **⚠ Check a tooltip's ARITHMETIC before trusting its numbers (v21).** A displayed range can be
+  internally impossible: Hammer from the Heavens renders *"dealing 194 to 147 Holy damage"* in-game
+  — a minimum larger than its maximum. Cause was a description that **double-applies level scaling**
+  at two different per-level rates, so the minimum outgrows the maximum past ~level 29. **The engine
+  computed correctly from the numeric fields the whole time; only the text was wrong.** Before
+  building anything on a tooltip figure, sanity-check that min < max, that the range width is
+  plausible, and that the value is consistent with what parses actually show. This is the mirror
+  image of §2's "export tooltips are incomplete" — here the tooltip is *present, precise, and
+  wrong*, which is harder to notice.
+- **🐛 Log game bugs in `bugs/` — don't let them die in a session transcript (v21).** When a tooltip
+  contradicts a log, a parse, or itself, add a row to `bugs/README.md`; the owner submits these to
+  Ascension when he has time. Write the full field-by-field report only once the evidence stands on
+  its own, otherwise file it `needs verification` **and name the missing check**. 🛑 Never submit a
+  discrepancy that could be *our* resolution error — several candidates come from comparing a
+  catalog entry against a level-60 entry, and the catalog stores Rank 1. House style, the in-game
+  form spec, and its **50-character title limit** are in `bugs/README.md`. First submitted report:
+  [tracker #199929](https://ascension.gg/bugtracker/view/199929).
 - **A tooltip-diff report finds candidates, it doesn't confirm novelty (v11).** The DBC-vs-export tooltip diff flagged Exorcism's stun as DBC-only; the export tooltip had the same fact in different words, and a fuzzy-match similarity score missed it. Same discipline as everything else in this doc: **check the actual export tooltip yourself before writing a diff hit into `seed_confirmed.py`** — the tool surfaces what to look at, not a confirmed fact.

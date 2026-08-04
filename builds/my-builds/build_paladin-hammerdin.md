@@ -368,7 +368,15 @@ An earlier v5 draft told the player to cap spell hit and expertise first. **That
 **Off-hand hit rating is worth 0 regardless** — 57/220 is unreachable at this tier; treat off-hand white swings as nonexistent.
 
 **Two caveats:**
-- **Hammer from the Heavens is 22.1% of damage with unknown coefficients** (hidden sub-spell). Its composition is assumed 30% SP / 30% AP / 40% flat. If it's mostly flat, SP and AP weights drop and spell crit's dominance grows further.
+- ~~**Hammer from the Heavens is 22.1% of damage with unknown coefficients**~~ ✅ **RESOLVED
+  2026-08-04 (session `1x`) — and the assumption held, so these weights stand.** The formula is
+  **74–97 Holy + 9.1% SP + 9.1% AP** at level 60 (level scaling caps at 40; three independent
+  sources agree — see §12 item 2). The assumed **30% SP / 30% AP / 40% flat** composition was
+  right in shape: SP and AP really are equal, and at your stats the actual split is
+  **26 / 26 / 46**. Slightly more flat-weighted than assumed, so if anything spell crit's
+  dominance is marginally *understated* here — but not enough to move the gearing order.
+  ⚠ Being flat-heavy at 46%, this ability's share **decays as gear scales** (§5's flat-vs-scaling
+  rule), so re-derive it after a tier jump rather than assuming 22.1% is permanent.
 - **SP ≈ AP at 1.01 vs 1.00 only because the ×1.75 amp isn't applying.** Restore it and SP becomes the clear best non-crit stat.
 
 ### 10a. Extrapolated ceiling from the remaining chase list (v10, 2026-08-03 snapshot)
@@ -457,7 +465,33 @@ This matters because Hammerdin keys on **Paladin-tagged** abilities and its cool
 
 **Still open:**
 1. **Is Path of Duality actually active?** *(highest priority)* — **new data point, v10, not a resolution:** a fresh character-panel screenshot shows Bonus Damage 474 vs Bonus Healing 248, a 1.91x gap — much larger than v5's 400/379 (1.06x) and closer to the retracted v3 "x1.75 amp" figure than the "no amp" reading v4 settled on. Could mean the amp is now live (gear/patch change since v5?), or could just mean new gear itemises more flat SP than Int this time. **Still needs the gold-standard test** (crit-source breakdown tooltip, §5 method) before treating this as anything but a prompt to re-check.
-2. Hammer from the Heavens' coefficients (hidden sub-spell 282987) — 22.1% of damage
+2. ~~Hammer from the Heavens' coefficients (hidden sub-spell 282987) — 22.1% of damage~~
+   ✅ **RESOLVED 2026-08-04 (session `1x`).** At level 60:
+
+   > **74 to 97 Holy damage, + 9.1% of Spell Power, + 9.1% of Attack Power**, per hit.
+   > Radius 8 yards, instant. **For your stats (AP 584 / SP 533): 176–199 per non-crit hit.**
+
+   Three independent sources agree. The client DBC's numeric fields give an unscaled roll of
+   2–25 plus 2.4/level; **db.ascension.gg** renders *"School Damage: Value: 2 to 25, plus 2.4
+   per level"* — matching exactly — and exposes *"Scaling #1: +9.10% of spell power"* and
+   *"Scaling #2: +9.10% of attack power"*; and the live in-game tooltip pins the level cap.
+   **The level scaling stops at level 40**, so the bonus is `(40−10)×2.4 = 72` and the roll is
+   `2+72` to `25+72`, not the uncapped 122–145.
+
+   ✅ **§10's assumed 30% SP / 30% AP / 40% flat composition is CONFIRMED, not overturned** —
+   it already had SP and AP equal, which is exactly what the scaling fields show. At your stats
+   the real split is **26 / 26 / 46**. So the §10 stat weights built on that assumption stand.
+
+   ⚠ **This spell is the project's cleanest proof that `EffectBonusCoefficient` is not the SP/AP
+   coefficient:** the field is **all zero** on `282987`, yet the ability plainly scales at 9.1%
+   from both stats. A numeric-fields-only reading would have concluded it has no stat scaling.
+
+   **Free verification available:** 176–199 per non-crit hit is checkable against any combat log
+   you already have, via `tools/log_parser/parse_log.py` — no in-game testing needed.
+
+   Structural note: `282987` is reached **only** via `EffectTriggerSpell` — db shows Hour of
+   Judgement (`282986`) Effect #1 as *"Trigger Spell: Hammer from the Heavens"*, radius 10 yards —
+   never by a tooltip reference, which is why it took a trigger-chain walk to find.
 3. Whether the Titan's Grip tax applies to Holystrike's weapon half
 4. ~~Answered Prayers' all-damage % (decides Enhanced Weapon Mastery)~~ — **moot as of v6**, Enhanced Weapon Mastery is no longer slotted
 5. "Brutal Crusader" on Light's Hope

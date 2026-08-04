@@ -11,16 +11,23 @@
 | **T1** repo restructure + core/api/cli split | ✅ **done** (`1a`) |
 | **T2** patch, realm, season tracking | ✅ **done** (`1a`) |
 | **T3** the ID crosswalk | ✅ **done** (`1a`) |
-| **T4** `spell_mechanics` | ⬜ session `1b`, after `1x` |
+| **1x** numeric-field DBC extractor | ✅ **done** (`1x`) |
+| **T4** `spell_mechanics` | ⬜ session `1b`, next |
 | **T5** relationship graph | ⬜ session `1b` |
 | T6–T10 | ⬜ session `1c` |
 
-**🆕 A task this doc never named was inserted: session `1x`, the numeric-field DBC extractor**, and it
-runs **before** T4. Phase 0 measured that **788 of the 803 (98%)** blocked hidden-formula spells
-would resolve from numeric DBC fields — 311 carry a non-zero `EffectBonusCoefficient`, 770 carry
-usable `EffectBasePoints`/`DieSides`, only 15 are genuinely empty. T4 is meant to be the *resolved*
-truth table, so populating it while 98% of the hidden formulas are unresolved means building it
-twice. 🛑 **Numeric fields only — never the `description` string** (the Titanic Mutilate trap).
+**🆕 A task this doc never named was inserted and has now run: session `1x`, the numeric-field DBC
+extractor**, before T4. It resolved **794 of the 887** blocked hidden-formula spells from
+`EffectBasePoints`/`EffectDieSides`/`EffectRealPointsPerLevel` into the new `spell_effect_values`
+table (the remaining 93 carry no magnitude anywhere — debuff/immunity markers). 🛑 **Numeric fields
+only — never the `description` string** (the Titanic Mutilate trap).
+
+⚠ **It also corrected the premise it was given.** Phase 0's *"311 carry a non-zero
+`EffectBonusCoefficient` (SP/AP scaling)"* counted right and read the field wrong: it is stock
+`EffectBonusMultiplier`, default 1.0, and **270 of the 343** blocked spells with any coefficient
+carry only 1.0. The coefficient win was ≤73 spells, not 311 — the **flat** win was the real one all
+along. Full detail in `Session_2026-08-04_1x_numeric_extractor.md`; consequences for T4 are folded
+into the task text below.
 
 ### What `1a` built that T4 and T5 must reuse rather than re-derive
 
@@ -400,20 +407,71 @@ session. Implement the fingerprint check inside the crosswalk resolver.
 > damage school genuinely changes across its own ranks. Use the right set for the question being
 > asked.
 
-### Does `spell_scaling` need rank keying? — OPEN, do not assume
+### Does `spell_scaling` need rank keying? — ✅ **YES. Settled in session `1x`.**
 
-An earlier draft of this doc asserted that coefficients scale with rank and mandated re-keying
-`spell_scaling` to `(spell_id, term_type, rank, ...)`. **That was withdrawn** — the evidence was a
-comparison between two different abilities that share a name (Phase 0 Task 1d).
+> **The history matters, because this has now been answered wrongly twice.** An early draft
+> asserted coefficients scale with rank — **withdrawn**, because the evidence compared two
+> different abilities sharing a name (Phase 0 Task 1d). Phase 0 then answered "probably not"
+> from a **single** line and concluded *"reading a coefficient off the catalog's Rank-1 entry
+> is probably safe"* — **also retracted**, in `1x`: one line is not a law, and that line
+> happened to be one of the constant ones.
 
-**It remains plausible and unresolved.** Base damage, radius, and cooldown demonstrably vary by rank
-on other abilities, so coefficients varying too would not be surprising. **Settle it before deciding
-the schema:** read the in-game tooltip of one ability at two confirmed ranks of the *same* line, and
-compare the SP/AP terms. File as an open question; do not migrate the table on a guess.
+Measured across all **1,580** multi-rank lines with 2+ members in `spell_dbc_raw`:
 
-Regardless of the outcome: **every coefficient currently in the index was extracted from a Rank 1
-catalog tooltip.** Report how many rows that is and which of the owner's active abilities are
-affected — if coefficients do scale, those are all lower bounds.
+| evidence | constant | varies | no data |
+|---|---|---|---|
+| numeric `EffectBonusCoefficient` (tier 4) | 696 | **169** | 715 |
+| tooltip `$SP*`/`$AP*` literals (tier 6) | 132 | **34** | 1,414 |
+
+The variation is retail's **low-rank penalty — ramps then plateaus** (110 of the 169), and the
+catalog stores **Rank 1**, the deepest point of that penalty. Seven catalog entries are
+measurably wrong today; worst are **Sun Down SP 0.4 → 1.3 (3.25×)** and **Grasp of Darkness
+SP 0.5 → 1.4 (2.8×)**, and **Spirit Charge changes term type** (SP → AP). Seven is a **floor** —
+547 more state no coefficient in either rank's text, so nothing can be compared for them.
+
+**So: key `spell_scaling` as `(spell_id, term_type, rank, ...)`.** Owner decision 2026-08-04:
+`1x` records and flags, **T4 performs the migration**, since this task rebuilds the table
+anyway. Resolve with `core.spells.ranks.rank_for_level()`; the study is reusable in
+`core/spells/rank_scaling.py`.
+
+🛑 **Do not read the coefficient from `EffectBonusCoefficient`.** Session `1x` established it
+is stock `EffectBonusMultiplier` — default 1.0, with **7,647 of 9,211** non-zero values exactly
+1.0, and agreement with a spell's own stated `$SP*x`/`$AP*x` in **4 of 98** calibration cases.
+Ascension keeps the coefficients it applies in **tooltip text**. The field is stored as
+`spell_effect_values.bonus_multiplier` and must never be emitted as an SP or AP term.
+
+Standing caveat, unchanged: **every coefficient currently in the index was extracted from a
+Rank 1 catalog tooltip**, so those rows are lower bounds wherever the line ramps.
+
+### 🛑 T4 PREREQUISITE: run `py cli/rebuild.py --with-dbc` first
+
+`spell_effect_values` stores flats **unscaled**, because a level-60 value needs
+`min(level, max_level)` — and **`max_level` does not exist in the database yet.** The column was
+added to `build_dbc_index.py` in `1x`, but only the game client has the field, so it stays NULL
+until a client re-extraction (client + StormLib required).
+
+**This is not cosmetic.** 354 catalog spells carry a per-level term, 342 of them cards the owner
+owns. Hammer from the Heavens proved the cap is real and material — its scaling stops at level 40,
+worth 48 points, ~39% of its flat term. And **Consecrated Weapon** — 17.8–22.4% of the owner's
+damage — is base 411 **+19/level**, so a wrong cap corrupts a headline number in his own build.
+
+Without it T4 must either assume uncapped scaling (demonstrably wrong at least sometimes) or leave
+level-scaled flats unresolved. Get the field first, then build the truth table on top of it.
+
+⚠ That run **rewrites the two committed extracts** in `data/source/dbc/`, so it belongs in a commit
+of its own.
+
+### 🆕 T4 consumes `spell_effect_values` (built in `1x`)
+
+Flat, per-level and per-combo terms are already decoded from numeric fields for 2,981 catalog
+spells — **794 of the 887 blocked hidden-formula spells included**. Keyed
+`(spell_id, source_spell_id, effect_index)`, with `via` distinguishing a value read from the
+card's own record from one read through a hidden sub-spell. `resolve_spell_mechanics()` should
+read that table rather than re-deriving from `effect_json`.
+
+Convention (validated against 7 independently-established magnitudes, re-checked every run):
+`min = base_points + 1`, `max = base_points + die_sides`. `base_points = -1` with
+`die_sides <= 1` is the **"no value" sentinel** and decodes to `None`, never `0.0`.
 
 ---
 
@@ -471,6 +529,30 @@ discovery. So:
 B --amplifies--> A       condition: {requires_talent: X}
 Y --resets_cooldown--> B
 ```
+
+### 🆕 `triggers` has a second job, found in `1x`: it unlocks ~519 spells' magnitudes
+
+`EffectTriggerSpell` is not just a relationship — it is an **attribution path for
+numeric values**. Session `1x` resolved magnitudes for spells reachable from a card by
+tooltip `hidden_refs`, but a card also reaches spells by *triggering* them, and those
+were never attributed: **529 catalog → out-of-catalog trigger links across 519 distinct
+targets**, every one of them a spell whose numeric fields are already extracted and
+sitting unused in `spell_dbc_raw`.
+
+The case that surfaced it is the owner's own biggest unknown. **Hammer from the
+Heavens** (`282987`, 22.1% of his damage, `build_paladin-hammerdin.md` §12 item 2) has a
+complete DBC record — and is reached only as *Hour of Judgement* (`282986`) → `282987`,
+**two hops** from any card, via `EffectTriggerSpell` rather than a tooltip reference.
+
+Two decisions this needs before it becomes a resolver input, which is exactly why `1x`
+left it alone rather than half-building it:
+
+- **multi-hop attribution semantics** — is a 2-hop triggered spell's magnitude "the
+  card's damage"? For Hammer from the Heavens, yes. It will not always be
+- **cycle handling** — trigger graphs contain loops; a naive walk does not terminate
+
+Build the edges first, then decide attribution. Do not let a magnitude reach
+`spell_mechanics` through an unbounded trigger walk.
 
 **Migrate and retire.** `modifier_links`, `talent_amplifiers`, `borrows_from`, and
 `exclusivity_buckets` become rows here. Exclusivity buckets are N-way clusters — represent as
@@ -686,8 +768,8 @@ weigh heavily.
 
 ```
 ✅ 1 (restructure) → ✅ 2 (patches/realms/seasons) → ✅ 3 (crosswalk)        [session 1a, done]
-  → 1x (numeric-field DBC extractor + settle rank-vs-coefficient)          [session 1x, NEXT]
-    → 4 (mechanics)                                                        [session 1b]
+  → ✅ 1x (numeric-field DBC extractor + rank-vs-coefficient SETTLED)      [session 1x, done]
+    → 4 (mechanics)                                                        [session 1b, NEXT]
       → 5 (relationships) ─┐                                               [session 1b]
       → 6 (facts)         ─┤ independent of each other                     [session 1c]
       → 10 (volatility)   ─┤

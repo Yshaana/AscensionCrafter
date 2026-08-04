@@ -105,6 +105,9 @@ to remember which session number is up.
    - Update `PROGRESS.md`: mark this session's status, set the next session, record any plan changes
    - Amend the phase doc if reality differed from it, noting what changed and why
    - Add any new facts to the seed scripts
+   - **Log any game bug or tooltip-vs-log discrepancy found along the way in `bugs/`** — the owner
+     submits these to Ascension when he has time, so they must outlive the transcript. File it
+     `needs verification` and name the missing check unless the evidence already stands alone
    - Write `primer/Session_<date>_<topic>.md`
 
 **Drift between these docs and reality is the most expensive failure mode in this project.** A doc

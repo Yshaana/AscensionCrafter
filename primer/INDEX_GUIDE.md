@@ -1,3 +1,41 @@
+# Ascension Spell/Card Index — Guide (v10)
+
+**v10 changelog (2026-08-04, session `1x` — the numeric-field DBC extractor).** One new
+table, one new rebuild step, and **two corrections to claims this guide and
+`RECON_FINDINGS` were carrying**.
+
+- 🆕 **New table `spell_effect_values`** — magnitudes decoded from the client's **numeric**
+  DBC fields, for 2,981 catalog spells, including **794 of the 887** whose export tooltip
+  hides its formula behind a sub-spell reference. Keyed
+  `(spell_id, source_spell_id, effect_index)`; schema below.
+- 🆕 **New rebuild step**, `ingest/dbc/resolve_numeric_formulas.py`, after
+  `load_extract.py`. Runs **without the game client** (it reads the committed extract) and
+  is idempotent. `py cli/rebuild.py` is now **14 steps**.
+- 🚨 **CORRECTION — `EffectBonusCoefficient` is NOT the SP/AP coefficient.** It is stock
+  3.3.5's `EffectBonusMultiplier`, a multiplier on the cast-time-derived *default*, whose
+  neutral value is **1.0**: **7,647 of 9,211** non-zero values are exactly 1.0, the
+  recurring non-defaults are retail's cast-time formula (`0.429 = 1.5/3.5`,
+  `0.714 = 2.5/3.5`), and calibrated against 98 spells stating their own `$SP*x`/`$AP*x`
+  it agrees **4 times**. `RECON_FINDINGS` Task 4's *"311 carry a non-zero
+  `EffectBonusCoefficient` (SP/AP scaling)"* counted correctly and interpreted wrongly —
+  **270 of the 343** blocked spells with any coefficient carry only 1.0. Stored as
+  `bonus_multiplier`, never as SP/AP. **Ascension keeps applied coefficients in tooltip
+  text.**
+- 🚨 **CORRECTION — coefficients DO scale with rank**, retracting Phase 0's *"reading a
+  coefficient off a Rank-1 entry is probably safe"* (derived from one line). Across 1,580
+  multi-rank lines: numeric constant 696 / **varies 169**; text constant 132 /
+  **varies 34**, in a ramp-then-plateau shape. Seven catalog entries measurably wrong,
+  worst **Sun Down SP 0.4 → 1.3**. **`spell_scaling` needs rank keying** — migration is
+  T4's (session `1b`).
+- 🆕 **`EffectTriggerSpell` is an unexploited attribution path**: 529 catalog →
+  out-of-catalog links across **519 distinct targets**, including Hammer from the Heavens
+  (`282987`). Belongs to T5's `triggers` relation.
+- ⚠ **`py cli/rebuild.py` crashes when its output is piped or redirected** —
+  `build_index.py` prints `⚠` and Python selects cp1252 for a non-console stdout. Works in
+  a terminal; workaround `PYTHONIOENCODING=utf-8`. Not fixed in `1x`.
+
+---
+
 # Ascension Spell/Card Index — Guide (v9)
 
 **v9 changelog (2026-08-04, session `1a` — Phase 1 Tasks 1–3).** The repo was
@@ -234,6 +272,38 @@ Seeded with the 4 known buckets from the primer (Enhanced Weapon Mastery/Unendin
 | notes | classification rationale; `'needs manual review'` on ambiguous bulk-scan extractions rather than a guessed classification |
 
 Hand-seeded with the 3 primer §5 cases, then bulk-scanned across all `type='talent'` tooltips for amplifier language (`increases ... by $sN%` patterns). The bulk pass is intentionally conservative — anything that doesn't cleanly resolve to either a known ability/hybrid-school name or a bare pure-school name gets `match_type='school_generic'` with a `'needs manual review'` note rather than a forced classification (~70% of bulk hits landed here, since the pattern also catches non-damage amplifiers like crit/dodge/block chance).
+
+**spell_effect_values** (v10, `ingest/dbc/resolve_numeric_formulas.py`) — magnitudes decoded
+from **numeric** DBC fields only. This is the table to read for a flat value; `spell_scaling`
+remains the table for SP/AP coefficients (which live in tooltip text, not numeric fields).
+
+| Column | Meaning |
+|---|---|
+| `spell_id` | the **catalog card** the value is attributed to |
+| `source_spell_id` | the Spell.dbc record actually decoded — often a *different* spell |
+| `effect_index` | 0–2 |
+| `via` | `self` (the card's own record) or `hidden_ref` (a sub-spell its tooltip names) |
+| `flat_min` / `flat_max` | `base_points + 1` and `base_points + die_sides` |
+| `base_points` / `die_sides` | raw fields, kept so the decode stays auditable |
+| `per_level` | `EffectRealPointsPerLevel` |
+| `per_combo` | `EffectPointsPerCombo` — the combo-point finisher term |
+| `bonus_multiplier` | ⚠ `EffectBonusCoefficient`. **NOT an SP/AP coefficient** — stock `EffectBonusMultiplier`, default 1.0. NULL when default/unset. Deliberately not named `coefficient` |
+| `effect_type` / `effect_aura` / `trigger_spell` / `misc_value` / `radius_index` / `aura_period` / `chain_targets` | structural fields T4 needs |
+| `source_tier` / `evidence_ref` / `confidence` / `realm` / `season` / `verified_at_patch` / `extracted_at` | provenance (§2.1). `evidence_ref` cites `dbc:Spell.dbc:<id>:effect<N>@<archive>` |
+
+Empty slots are **not** stored — a row exists only where a magnitude does.
+`base_points = -1` with `die_sides <= 1` is the DBC's **"no value" sentinel** and decodes to
+NULL, never 0.0, so "unset" can never be misread as "measured zero".
+
+```sql
+-- what is this card's flat magnitude, and where did the number come from?
+SELECT spell_id, source_spell_id, via, effect_index, flat_min, flat_max, per_level, evidence_ref
+FROM spell_effect_values WHERE spell_id = ? ORDER BY via, effect_index;
+
+-- combo-point finishers, by the size of their per-point term
+SELECT s.name, v.per_combo FROM spell_effect_values v JOIN spells s ON s.id = v.spell_id
+WHERE v.per_combo IS NOT NULL ORDER BY v.per_combo DESC;
+```
 
 ### Client-derived tables (v8, `build_dbc_index.py`)
 

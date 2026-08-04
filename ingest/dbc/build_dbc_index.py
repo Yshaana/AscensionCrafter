@@ -965,6 +965,13 @@ def main():
         -- Phase 1 T4's spell_mechanics needs every one of them anyway.
         spell_level INTEGER,
         base_level INTEGER,
+        -- Added session 1x. A flat magnitude scales as
+        --   base_points + (min(level, max_level) - base_level) * per_level
+        -- so WITHOUT max_level a level-scaled magnitude cannot be computed at all.
+        -- Found the hard way on Hammer from the Heavens (282987): its live tooltip
+        -- renders an INVERTED range (194 to 147), and that range is reproduced
+        -- exactly only when the level bonus stops at 40 rather than 60.
+        max_level INTEGER,
         recovery_time INTEGER,           -- cooldown, ms
         category_recovery_time INTEGER,  -- shared-category cooldown, ms
         casting_time_index INTEGER,
@@ -1046,7 +1053,7 @@ def main():
         })
         spell_rows.append((p['ID'], p['Name'], p['NameSubtext'], p['Description'], p['AuraDescription'],
                             p['Attributes'], p['AttributesEx'], p['SchoolMask'], effect_json,
-                            p['SpellLevel'], p['BaseLevel'], p['RecoveryTime'],
+                            p['SpellLevel'], p['BaseLevel'], p['MaxLevel'], p['RecoveryTime'],
                             p['CategoryRecoveryTime'], p['CastingTimeIndex'], p['DurationIndex'],
                             p['RangeIndex'], p['PowerType'], p['ManaCost'], p['ManaCostPct'],
                             p['ProcTypeMask'], p['ProcChance'], p['ProcCharges'],
@@ -1054,7 +1061,7 @@ def main():
                             p['StartRecoveryCategory'],
                             os.path.basename(spell_archive)))
     cur.executemany('INSERT OR REPLACE INTO spell_dbc_raw VALUES '
-                    '(' + ','.join('?' * 27) + ')', spell_rows)
+                    '(' + ','.join('?' * 28) + ')', spell_rows)
     print(f'spell_dbc_raw: {len(spell_rows)} rows (of {dbc["record_count"]} total in the client) '
           f'from {os.path.basename(spell_archive)}')
 
