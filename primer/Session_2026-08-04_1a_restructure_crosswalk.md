@@ -4,8 +4,12 @@
 mid-session, independent of the schema work).
 
 **Status: complete.** `py cli/rebuild.py` runs 13 steps clean in ~32s from an empty
-`data/derived/`. Next session is **`1b`** — `spell_mechanics` (T4) + the relationship
-graph (T5).
+`data/derived/`.
+
+**Next session is `1x`** — the numeric-field DBC extractor (788 of 803 blocked
+hidden-formula spells), inserted by owner decision after this session closed, because
+T4 is meant to be the *resolved* truth table and building it first would mean building
+it twice. **`1b`** (`spell_mechanics` T4 + relationship graph T5) follows.
 
 Two owner decisions taken at the start, not to be re-litigated:
 

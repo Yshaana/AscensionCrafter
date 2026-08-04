@@ -1,7 +1,7 @@
 # Scouted build: David (Demonology Warlock core)
 
 **Source:** darkmoon.ascensionlogs.gg, captured 2026-08-02, character_id 22640
-**Raw data:** `index/scouted/scouted_David_2026-08-03.json`
+**Raw data:** `data/source/scouted/scouted_David_2026-08-03.json`
 **Confidence:** `external_sighting`
 **Path:** Intelligence (91% of recent fights), Duality (9%)
 

@@ -1,27 +1,41 @@
 # tools/scrapers — daily capture
 
 Built in session 0b (Phase 0 Task 6). Raw capture only: **no spell-ID resolution, no
-normalisation, no analysis.** Those belong to Phase 3, and keeping them out of capture is
-deliberate — the `entry_id ↔ spells.id` crosswalk is still unresolved (Phase 0 Task 5), so
-resolving at capture time would bake today's guess into data that cannot be re-collected.
+normalisation, no analysis.** Those belong to Phase 3, and keeping capture free of them is
+deliberate — resolving at capture time bakes today's interpretation into data that cannot be
+re-collected. (The crosswalk has since been *resolved* and built — `spell_id_crosswalk`, Phase 1
+T3 — but it is applied at rebuild time, never at capture time. That separation is the point.)
 
 ---
 
 ## Daily routine
 
-**Double-click `run_crawler.bat`** in the repo root. That's it. It runs, in order:
+**Nothing to do — it runs itself.** Since 2026-08-04 the daily capture is a scheduled task
+(`AscensionCrafter Daily Crawl`) that fires **at logon**, 5 minutes in, at most once a day.
+See **`SCHEDULING.md`** in the repo root for how to change, disable or force it.
+
+It runs, in order:
 
 1. `fetch_changelog.py` — changelog snapshot (also refreshes the patch-date stamp)
 2. `crawl_ascensionlogs.py --max-reports 25` — the crawl, then auto-commits and pushes
 
-Read the summary it prints. Manual-first by design: no scheduler until a few runs prove out.
+**Double-clicking `run_crawler.bat` still works** and deliberately ignores the once-a-day guard —
+a manual run is an explicit act. The scheduled path uses
+`tools/scheduling/run_crawler_scheduled.bat` instead, which has no `pause` (Task Scheduler has
+nobody to press a key) and carries the guard.
 
 ### Two launchers, on purpose
 
 | Launcher | Cap | When |
 |---|---|---|
 | `run_crawler.bat` | 25 new reports | **Daily.** Bounded and predictable, ~30–60 min worst case |
-| `catchup_crawler.bat` | uncapped | The historical backfill. Run when the machine can stay on for hours — overnight is ideal |
+| `catchup_crawler.bat` | uncapped | The historical backfill. Run when the machine can stay on for hours — overnight is ideal. 🛑 **Never schedule this one** — see below |
+
+🛑 **Only the capped daily run is scheduled. Do not automate `catchup_crawler.bat`** — an unbounded
+unattended job hammering a third-party public API is exactly what this crawler's sequential,
+rate-limited design exists to avoid, and the likeliest outcome of getting it wrong is the IP being
+blocked. It stays a deliberate manual action. There is no deadline on it: reports persist on
+ascensionlogs after a phase flips.
 
 The cap exists because grind reports take ~10 minutes each (report #2 has 658 encounters), so an
 uncapped run can take many hours. That is fine for a deliberate backfill and wrong for a daily

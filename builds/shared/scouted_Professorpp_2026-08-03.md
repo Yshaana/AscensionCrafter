@@ -1,7 +1,7 @@
 # Scouted build: Professorpp (Duality Hammerdin — direct comparison to our own build)
 
 **Source:** darkmoon.ascensionlogs.gg, captured 2026-08-02 (Hakkar), character_id 30915
-**Raw data:** `index/scouted/scouted_Professorpp_2026-08-03.json`
+**Raw data:** `data/source/scouted/scouted_Professorpp_2026-08-03.json`
 **Confidence:** `external_sighting` — observed via public armory/rankings data, not proc-tested by us
 **Path:** Duality (matches our own build's path)
 

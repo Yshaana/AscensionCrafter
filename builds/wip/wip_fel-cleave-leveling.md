@@ -13,5 +13,5 @@ Same shape as Lightbound Cleave (also Warrior-tagged, also Cleave-borrowing) but
 
 ## Open questions
 - No proc-test yet — Warrior tag is `confirmed_class_tag_rule` (stated as fact from the DBC read), not `confirmed_proc_test`. Confirm with a dummy parse before relying on it for engine-gating decisions (primer §4).
-- No scaling coefficients pulled yet from `spell_dbc_raw`/`index/dbc-extract.json` — `EffectBasePoints`/`EffectBonusCoefficient` for this spell haven't been reviewed.
+- No scaling coefficients pulled yet from `spell_dbc_raw`/`data/source/dbc/dbc-extract.json` — `EffectBasePoints`/`EffectBonusCoefficient` for this spell haven't been reviewed.
 - No talent/gear plan — this file is a placeholder for "worth investigating," not a build.

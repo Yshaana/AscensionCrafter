@@ -1,7 +1,7 @@
 # Scouted build: Mcflurry (Shadow Priest / plague-DoT core)
 
 **Source:** darkmoon.ascensionlogs.gg, captured 2026-08-02, character_id 465
-**Raw data:** `index/scouted/scouted_Mcflurry_2026-08-03.json`
+**Raw data:** `data/source/scouted/scouted_Mcflurry_2026-08-03.json`
 **Confidence:** `external_sighting`
 **Path:** Intelligence
 

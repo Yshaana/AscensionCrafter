@@ -13,6 +13,30 @@ client build then installed. The server patches daily. Anything marked CONFIRMED
 
 ---
 
+## ⚠ Refined by session `1a` (2026-08-04) — read before quoting a number from this file
+
+Two figures below were **measured again in `1a` against the same data and came out different**. The
+verdicts stand; the numbers were understated, both for the same reason — **the Phase 0 reporter used
+`max()`, which silently returns the first of a tie.** Recorded here rather than edited in place, so
+the correction is visible instead of retroactive.
+
+| This file says | Actually | Why |
+|---|---|---|
+| **697** catalog entries carry the wrong rank | **711**, of which **25 are genuinely ambiguous** | Several spells can tie for the top rank available at level 60, and `max()` hid it. Real causes: a line whose members *all* read "Rank 1" (`Desolation`, 5 members); a line pulling in an other-realm 11-prefix variant (`Arcane Focus` → `912840` **and** `1212840`). Ambiguous lines are now recorded as `confidence='conflict'` and **never tie-broken** |
+| the fingerprint rule, as one field set | it needs **two** | The strict set answers *"same ability?"* and is the **wrong test** for *"two ranks of one ability?"* — rank legitimately changes radius, cooldown and resource type, and higher ranks *fill* effect slots the lower rank leaves empty. Strict comparison flagged **106** rank conflicts, almost all ordinary talents; the rank-aware set leaves **8 rows on 2 cards** |
+
+Two claims below got **stronger** with more data, not weaker:
+
+- **"0 of 1,054 entry_ids match a catalog `spells.id`"** → at 1,487 observed entry_ids there are now
+  **4** numeric collisions (`1152`, `36936`, `50029`, `50043`) and **still 0 real matches**. `1152` is
+  `Path of Healing` in a crawl and `Purify` in the catalog. **Never join `entry_id` to `spells.id`.**
+- **"3,061/3,061 catalog ids reachable from a CA rank slot"** — reproduced exactly.
+
+🆕 **One finding this file does not contain:** `Necrosis` (in the current pool) **changes damage
+school across its own ranks** — 0 → 32 (Shadow) → 1 (Physical). Unexplained; recorded as a conflict.
+
+---
+
 ## Headline results
 
 Seven things changed the plan. Everything else is detail.
@@ -190,9 +214,11 @@ knowing before designing a per-character hit-table test.
 **Verdict: CONFIRMED as a change-history source; DISPROVEN as a new-card discovery source;
 DISPROVEN as a phase-timeline source.**
 
-Parser shipped: **`tools/scrapers/parse_changelog.py`** (offline, re-runnable over the committed
-corpus; will move to `ingest/changelog/` in the Phase 1 T1 restructure). It extracts date, realm(s),
-live-status, category, change type, raw text, and ability-name candidates tagged by detection method.
+Parser shipped: **`ingest/changelog/parse_changelog.py`** (offline, re-runnable over the committed
+corpus; ✅ moved here from `tools/scrapers/` in the Phase 1 T1 restructure as predicted, and its
+classification logic now lives in `core/changelog/parse.py` with `ingest/changelog/ingest_changelog.py`
+writing the `patches` tables). It extracts date, realm(s), live-status, category, change type, raw
+text, and ability-name candidates tagged by detection method.
 
 ### Corpus shape — the important caveat
 35,238 entries back to 2016/07/23, but **it is mostly not about this realm**:

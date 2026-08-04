@@ -1,6 +1,6 @@
 # PHASE 0 — Recon & Start Capturing (v3)
 
-**Read `00_ARCHITECTURE.md` first.**
+**Read `ARCHITECTURE.md` first.**
 
 ---
 
@@ -8,6 +8,16 @@
 
 Read that file, not this one, for what was actually found. This document is the **brief**; it is kept
 for its reasoning, and amended in place where reality contradicted it.
+
+> ⚠ **Two numbers in here and in `RECON_FINDINGS.md` were refined by session `1a`** — the wrong-rank
+> catalog count is **711, not 697** (with 25 lines genuinely ambiguous), and the fingerprint rule
+> needs **two** field sets, not one. Both because the original reporter used `max()`, which silently
+> takes the first of a tie. See the correction block at the top of `RECON_FINDINGS.md`.
+>
+> ⚠ **Paths here are pre-restructure.** `index/` no longer exists — see the v20 changelog in
+> `Ascension_Context_Primer.md` for the old→new map. Task 6's crawler is now **scheduled** (at logon,
+> once a day, `SCHEDULING.md`); the "manual-first" posture this doc specifies was satisfied and
+> retired on 2026-08-04.
 
 | Task | Verdict | Session |
 |---|---|---|

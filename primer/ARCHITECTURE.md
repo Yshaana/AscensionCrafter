@@ -189,30 +189,45 @@ Phase 1 is the long one. Phases 2 and 3 partially overlap once Phase 1's schema 
 
 ---
 
-## 4. Repo layout (target)
+## 4. Repo layout
+
+✅ **Realised 2026-08-04 in Phase 1 T1 — this is the actual layout, no longer a target.** `index/`
+is gone. Directories not yet needed (`core/sim/`, `core/legos/`, `core/theory/`, `core/builds/`,
+`ingest/ascension_db/`) are created by the phase that first needs them rather than sitting empty.
 
 ```
+config.py        ← the ONE place a filesystem layout is written down. core/ may NOT import it
 primer/          Ascension_Context_Primer.md, INDEX_GUIDE.md, ARCHITECTURE.md, RECON_FINDINGS.md,
-                 Session_*.md handoffs
+                 START_HERE_FOR_CODE.md, PROGRESS.md, PHASE_*.md, Session_*.md handoffs
 core/            ← pure logic. No I/O side effects, no CLI, no hardcoded paths
   db/            schema, migrations, connection management
-  spells/        mechanics resolution, profile, relationships, graph
+  spells/        text extraction, ranks, fingerprint, crosswalk, class resolution
+                 (+ mechanics, profile, graph as Phase 1 adds them)
+  changelog/     patch-entry parsing and classification
   builds/        build spec, stats, repo queries, inference, gear
   sim/           combat_engine, fast/medium/slow, uncertainty, weights, calibration
   legos/         discovery, validation, composition
   theory/        principles, brief, acquisition, guide
 api/             ← service layer; thin functions a web API wraps 1:1
-cli/             ← thin CLI wrappers over api/
+cli/             ← thin CLI wrappers. rebuild.py runs the whole ingest chain
 ingest/          dbc/  ascension_db/  changelog/  logs_gg/  addon/  export/
 tools/
-  scrapers/      scheduled runners
-  audit/         auto-debugger + test protocol generator
+  scrapers/      acquisition runners (crawler, changelog fetcher, scouting)
+  scheduling/    Task Scheduler registration — see SCHEDULING.md
+  audit/         auto-debugger + test protocol generator + check_core_purity.py
+  log_parser/    WoWCombatLog.txt parsing
 addons/          in-game Lua addons
 data/
-  source/        committed raw captures — source of truth
-  derived/       gitignored .db files — always rebuildable
+  source/        committed raw captures — source of truth. export/ dbc/ scouted/ changelog/ crawl/
+  derived/       gitignored .db files and reports — always rebuildable
 builds/          my-builds/  wip/  shared/
 ```
+
+**§2.7 rule 1 is enforced, not just documented.** `tools/audit/check_core_purity.py` walks the AST of
+every file in `core/` and fails on `print()`, `argparse`, `sys.argv`, a self-opened connection, or an
+import of `config`/`cli`/`ingest`/`tools`/`api`. One named exemption:
+`core/db/connection.py`, whose job is opening connections and which still takes the path as a
+parameter. Run it after touching `core/`.
 
 ---
 

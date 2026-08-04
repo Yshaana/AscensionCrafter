@@ -1,7 +1,7 @@
 # Scouted build: Pumprat (dual-wield Voidbound Cleave / Fel Infused Weapon hybrid)
 
 **Source:** live in-game inspect via inspects.nie.one (spec decode) + a real combat log the player captured (Uldaman, ALC-logged), both 2026-08-03
-**Raw data:** inspect fragment decoded inline this session (not saved to `index/scouted/`, no JSON export tool was used — this predates the ascensionlogs.gg scouting pipeline); combat log at `E:\Ascension Launcher\resources\ascension-live\Logs\2026-08-03-21.18.43 WoWCombatLog.txt` (player's local machine, not in this repo)
+**Raw data:** inspect fragment decoded inline this session (not saved to `data/source/scouted/`, no JSON export tool was used — this predates the ascensionlogs.gg scouting pipeline); combat log at `E:\Ascension Launcher\resources\ascension-live\Logs\2026-08-03-21.18.43 WoWCombatLog.txt` (player's local machine, not in this repo)
 **Confidence:** `internal_test` — this is real parsed combat-log data, not a public-API sighting, but Pumprat's own character sheet (AP/SP/crit) was never captured, so any stat back-solving below is inference, not a live-tooltip read
 **Path:** Not captured — no character-sheet screenshot, no `primary_stat` on the relevant ALC snapshot
 

@@ -1,8 +1,56 @@
-# Project Ascension — Systems Primer v19 (Context for Claude)
+# Project Ascension — Systems Primer v20 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
-> **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `index/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+> **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v20 changelog (2026-08-04, Phase 1 session `1a`).** The repo was restructured and three schema tasks
+landed. **The `index/` folder no longer exists, so every path in this document was rewritten.** Full
+detail in `INDEX_GUIDE.md` v9 and `primer/Session_2026-08-04_1a_restructure_crosswalk.md`; only the
+consequences for this document's own rules are recorded here.
+
+- 🆕 **The rebuild command is now one line: `py cli/rebuild.py`** (13 steps, ~32s). Add `--with-dbc`
+  only after a client patch. The database moved to **`data/derived/ascension.db`**. §2a's nine-script
+  chain is superseded.
+- 🆕 **Where things went**, for reading any older doc or session record that still says `index/...`:
+
+  | Was | Is now |
+  |---|---|
+  | the export + `Cards.txt` | `data/source/export/` |
+  | the two `dbc-*.json` extracts | `data/source/dbc/` |
+  | scouted capture JSON | `data/source/scouted/` |
+  | `seed_*.py`, `build_index.py` | `ingest/export/` |
+  | `build_dbc_index.py` | `ingest/dbc/` |
+  | `decode_inspect_export.py` | `ingest/addon/` |
+  | the scouting CLI + JS | `tools/scrapers/` |
+  | the in-game addon | `addons/` |
+  | both `.db` files | `data/derived/` — **gitignored, rebuildable** |
+- 🔬 **§5's rank practice sharpens: "≈50% of the multi-rank catalog is stored at the wrong rank" is
+  a LOWER BOUND.** The measured figure is **711, not 697**, and **25 rank lines are genuinely
+  ambiguous** — several spells tie for the top rank available at 60. Phase 0's reporter used `max()`,
+  which silently returns the first of a tie. Two real causes: a line whose members *all* read
+  "Rank 1" (`Desolation`, 5 members), and a line pulling in an other-realm 11-prefix variant
+  (`Arcane Focus` → `912840` **and** `1212840`). **Practical rule: when a rank line is ambiguous, do
+  not pick one — the crosswalk returns the candidate list and no answer.**
+- 🆕 **§4's fingerprint rule needs TWO field sets, and using the wrong one is a real error.** The
+  strict set (school, cooldown, cast, resource, radius, effects) answers *"are these the same
+  ability?"* — the Holy Supernova case. It is the **wrong test** for *"are these two ranks of one
+  ability?"*, because **rank legitimately changes radius, cooldown and resource type**, and higher
+  ranks **fill effect slots the lower rank leaves empty** (Malice `[6,0,0]`→`[6,0,6]`→`[6,6,6]`).
+  Rank comparisons use school + effect-structure compatibility only.
+- 🆕 **One card genuinely changes damage school across its own ranks: `Necrosis`** (school 0 → 32
+  Shadow → 1 Physical), and it is in the current pool. Nothing in this document explains that.
+  Recorded as a conflict, unresolved. **Do not assume a card's school is rank-invariant.**
+- ⚠ **§2's "export tooltips can be incomplete" gets a harder edge: the export is also just MISSING
+  CARDS.** 47 of the owner's own 4,465 owned-card rows name a card absent from `spell-export.json`;
+  **all 39 distinct ids resolve in `CharacterAdvancement.dbc`.** Look an unknown card up in the DBC
+  before concluding it doesn't exist.
+- 🆕 **Never join `entry_id` to `spells.id` — now enforced by a table**, `spell_id_crosswalk`. Use
+  `py cli/crosswalk.py --resolve <entry_id>`. Validated at 1,487/1,487 resolving, with **4 numeric
+  collisions and 0 real matches** (e.g. `1152` is `Path of Healing` in a crawl and `Purify` in the
+  catalog) — more data made the never-join rule *stronger*, not weaker.
+- 🆕 **Daily data capture is automated** (at logon, once a day) — see `SCHEDULING.md`. The uncapped
+  `catchup_crawler.bat` is deliberately **not** scheduled.
 
 **v19 changelog (2026-08-04, Phase 0 recon session `0a`):** The client's own DBC files turned out to
 answer several questions this document had been treating as open or heuristic. Full evidence in
@@ -48,9 +96,9 @@ consequences for the rules in this document are recorded here.**
 - **Righteous Vengeance's 0%-crit verdict now spans 9 characters / 4 Paths / 303 hits**, up from a handful of parses. Effectively settled.
 - New scouting methodology discovered this session, worth keeping in mind for future test design: **searching combat logs directly for an ability name across many reports finds who's actually playing a build far more reliably than browsing leaderboards or individual talent trees** — see `INDEX_GUIDE.md`'s scouting section (v7) for the technique. This is how the 11 Hammer-from-the-Heavens players were found after leaderboard-browsing and random-profile-clicking both came up empty.
 
-**v16 changelog (2026-08-03):** Amendment to v15's scouting tooling — scouted-build data split out of `ascension_index.db` into its own `index/scouted_builds.db` (separate, optional, rebuildable), and the primary scouting path is now the browser-free `index/scout_ascensionlogs_cli.py` rather than the browser-console script (which stays as a fallback). Detail in `INDEX_GUIDE.md` v5, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as v15.
+**v16 changelog (2026-08-03):** Amendment to v15's scouting tooling — scouted-build data split out of `ascension_index.db` into its own `data/derived/scouted_builds.db` (separate, optional, rebuildable), and the primary scouting path is now the browser-free `tools/scrapers/scout_ascensionlogs_cli.py` rather than the browser-console script (which stays as a fallback). Detail in `INDEX_GUIDE.md` v5, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as v15.
 
-**v15 changelog (2026-08-03):** New outlier-build scouting tooling added to `index/` (`scout_ascensionlogs.js` + `ingest_scouted_build.py`), pulling opponent/top-player builds from `darkmoon.ascensionlogs.gg`'s live REST API into five new `scouted_*` tables (characters, gear, build entries, rankings, capture history) — purely additive, no existing table touched. Full endpoint map, workflow, and open items (entry_id↔`spells.id` correspondence unconfirmed; fight-level damage-breakdown endpoint not yet found) live in `INDEX_GUIDE.md` v4, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as every prior index change.
+**v15 changelog (2026-08-03):** New outlier-build scouting tooling added (`scout_ascensionlogs.js` + `ingest_scouted_build.py` — the latter since deleted, see v16), pulling opponent/top-player builds from `darkmoon.ascensionlogs.gg`'s live REST API into five new `scouted_*` tables (characters, gear, build entries, rankings, capture history) — purely additive, no existing table touched. Full endpoint map, workflow, and open items (entry_id↔`spells.id` correspondence unconfirmed; fight-level damage-breakdown endpoint not yet found) live in `INDEX_GUIDE.md` v4, not duplicated here — same "this file points to INDEX_GUIDE.md for index mechanics" pattern as every prior index change.
 
 **v14 changelog (2026-08-03):** Index improvement batch v1 — landed three new queryable tables and two new column sets, closing gaps between prose-only rules and the database. Full schema/query detail lives in `INDEX_GUIDE.md` v3; only the build-fact-relevant findings are noted here:
 - **`exclusivity_buckets`, `modifier_links`, `talent_amplifiers` tables added.** The first operationalizes §2's "does not stack" buckets (auto-detects chase-list conflicts by query instead of manual cross-checking); the third operationalizes §5's "named lists outrank generic wording" rule the same way. `modifier_links` was meant to also ingest the catalog's `sharesModifiersWith` field (§2's cross-class talent-chase surface) but **that field does not exist anywhere in the current `spell-export.json`** — verified against the full key set (every entry is just `{id, type, name, rank, tooltip}`). Only the existing `borrows_from` class-tag data is in the table for now; re-check if a future export pull adds the field.
@@ -59,7 +107,7 @@ consequences for the rules in this document are recorded here.**
 - **`build_dbc_index.py` batch-run against the full `has_hidden_formula=1` list**: 84/887 resolved, 803 blocked — same split as before, since the resolver already runs the full list every invocation (not incremental, despite the task brief's framing). The 803 aren't missing from `spell_dbc_raw` (100% of hidden_refs resolve against DBC) — their raw description text just has no SP/AP/RAP/weapon-damage pattern to extract; these are largely flat/utility/CC effects (Blizzard, Power Word: Shield, Charge) whose real coefficients live in numeric DBC fields (`EffectBonusCoefficient`) that the current text-regex resolver doesn't decode. Re-ran `tooltip_diff_report.py` against the fresh pull specifically to check for a new class-tag proof case (§4) — found exactly one "uses X modifiers" line missing from an export tooltip, and it's Fel Cleave, already on record since v11. **No new class-tag proof case this batch.**
 - **Full per-session rebuild command updated** (5 new scripts added to the chain, `build_dbc_index.py` still separate/optional — see §2a and `INDEX_GUIDE.md` v3 for the current command).
 
-**v13 changelog (2026-08-03):** **Correction to v11: `build_dbc_index.py` lives in `index/`, not a separate `AscensionCrafter` repo.** v11 documented it as external tooling in a standalone repo; that was wrong (or has since changed) — it's part of this project's own `index/` folder alongside `build_index.py` and the seed scripts, per the v12 file-layout block below. Both v11 references corrected in place (§v11 changelog above, §2a). No build-fact changes — `spell_dbc_raw`, the Fel Cleave proof case, and the tooltip-diff methodology lesson from v11 all stand; only the pipeline's *location* was wrong. Full rebuild command, run from `index/`:
+**v13 changelog (2026-08-03):** **Correction to v11: `build_dbc_index.py` lives in `ingest/` + `data/source/`, not a separate `AscensionCrafter` repo.** v11 documented it as external tooling in a standalone repo; that was wrong (or has since changed) — it's part of this project's own `ingest/` + `data/source/` folder alongside `build_index.py` and the seed scripts, per the v12 file-layout block below. Both v11 references corrected in place (§v11 changelog above, §2a). No build-fact changes — `spell_dbc_raw`, the Fel Cleave proof case, and the tooltip-diff methodology lesson from v11 all stand; only the pipeline's *location* was wrong. Full rebuild command, run from `ingest/` + `data/source/`:
 ```
 python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_confirmed.py && python3 seed_synergies.py && python3 seed_exclusivity.py && python3 seed_modifier_links.py && python3 seed_talent_amplifiers.py && python3 seed_spell_flags.py && python3 seed_cp_scaling.py
 ```
@@ -77,19 +125,21 @@ python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_con
 
   A `wip_` build gets renamed and promoted to `build_*` in `my-builds/` once guarantee slots are spent and prestige rerolls are done — the same "locked" threshold already used for the Paladin build. A `synergy_*` file never gets promoted; it's reference material for someone else's build, kept only for the engine/scaling pattern.
 
-- **File layout** (paths referenced throughout this doc and `INDEX_GUIDE.md` now assume this root):
+- **File layout.** ⚠ **v20: superseded.** The v12 layout below described an `index/` folder that no
+  longer exists; the current layout is `README.md`'s, and the v20 changelog at the top of this file
+  has the old→new mapping. Kept only so an older reference to `index/…` is still decodable:
   ```
   primer/    → this file + INDEX_GUIDE.md
-  index/     → build_index.py, seed_confirmed.py, seed_borrowed_modifiers.py,
+  index/     → build_index.py, seed_confirmed.py, seed_borrowed_modifiers.py,      [GONE — v20]
                seed_synergies.py, build_dbc_index.py, spell-export.json, Cards.txt
                (ascension_index.db is NOT stored here — see §2a, rebuilt each session)
-  builds/
+  builds/                                                                          [unchanged]
     my-builds/  → build_paladin-hammerdin.md
     wip/        → wip_fel-cleave-leveling.md
     shared/     → synergy_winds-of-winter.md, synergy_fel-infused-dagger.md
   ```
 
-- **New `index/seed_synergies.py`** adds a `shared_synergies` table to the index — same append-only, confidence-tiered pattern as `confirmed_facts` (§2a, `INDEX_GUIDE.md`). It's the queryable counterpart to the `builds/shared/synergy_*.md` files: one row per external engine/mechanic, tagged and linked back to its source file. Query it before treating an external build's mechanic as a new discovery — it may already be logged.
+- **New `ingest/export/seed_synergies.py`** adds a `shared_synergies` table to the index — same append-only, confidence-tiered pattern as `confirmed_facts` (§2a, `INDEX_GUIDE.md`). It's the queryable counterpart to the `builds/shared/synergy_*.md` files: one row per external engine/mechanic, tagged and linked back to its source file. Query it before treating an external build's mechanic as a new discovery — it may already be logged.
 
 - **First populated `shared_synergies` entries (2026-08-03):**
   - **Winds of Winter** (`synergy_winds-of-winter.md`) — a dungeon-encountered Titan's Grip Int/AP dual-scaling nuke build. Core finisher scales `n²` with combo points spent (`flat×n + SP×0.0096×n² + AP×0.00624×n²`), which is the entire reason it dominates its own parse (47–56% of total damage from one ability). **Worth flagging against our own kit:** Holy Finish already uses the same quadratic-CP shape (`(AP+SP) × CP² × 0.02`, handoff §11) — same mechanic, different card. Also carries an **open, unresolved question**: observed Winds of Winter crit rate (91.7–100%) isn't fully explained by the one confirmed crit source (Killing Machine, 9 procs measured against 11–12 crits) — logged as `external_sighting`, not confirmed, pending a trinket-proc check the player would have to do themselves if they ever chase this build. Not a suggested pivot for our own SP-lane build — different stat posture entirely, kept for comparison only.
@@ -99,11 +149,11 @@ python3 build_index.py && python3 seed_borrowed_modifiers.py && python3 seed_con
 
 - **§5 also gains a `shared_synergies` lookup practice** — see the bulleted list below.
 
-**v11 changelog (2026-08-03):** Claude Code built a client-side DBC extraction pipeline (`index/build_dbc_index.py`, StormLib against the local client's MPQ archives — *location corrected in v13; originally documented as a separate `AscensionCrafter` repo, which was wrong*). Two results worth recording:
+**v11 changelog (2026-08-03):** Claude Code built a client-side DBC extraction pipeline (`ingest/dbc/build_dbc_index.py`, StormLib against the local client's MPQ archives — *location corrected in v13; originally documented as a separate `AscensionCrafter` repo, which was wrong*). Two results worth recording:
 - **New class-tag proof case: Fel Cleave.** Same shape as Lightbound Cleave (§4) — export tooltip omits the class-tag clause entirely; the raw client tooltip reveals `"This uses Cleave modifiers."` → **Warrior**-tagged, same pattern as Enhanced Weapon Mastery's missing exclusivity clause (§2). Added to §4's table.
 - **Methodology lesson, not a build fact:** the pipeline's automated tooltip-diff report flagged Exorcism's stun as "DBC-only, no export-tooltip match" — checked before writing it up, and it was a **false positive**: the export tooltip already has the same fact, just reworded (*"Using Exorcism on an Undead or Demon will stun the target..."* vs. the DBC's *"It also stuns them for..."*). A fuzzy-match diff can flag reworded-but-known facts as new. **New practice, §5: always check the export tooltip directly before writing up a diff-report hit — the report finds candidates, it doesn't confirm novelty.**
 
-**v10 changelog (2026-08-03):** **`ascension_index.db` binary uploads are unreliable — diagnosed and worked around.** Re-uploaded copies of the `.db` repeatedly failed to open (`sqlite3.DatabaseError: file is not a database`); byte inspection showed the SQLite header's null terminator arriving as `\x10` instead of `\x00` — a null-byte mangling in the upload/mount pipeline, reproduced on a fresh re-upload, so it's not a bad export on the player's end. **Fix: stop treating the `.db` as a source to upload/maintain at all.** `build_index.py` → `seed_borrowed_modifiers.py` → `seed_confirmed.py` all read plain-text sources (`spell-export.json`, `Cards.txt`, `class_dictionary.py`, the seed scripts themselves) that mount cleanly with no corruption — running this pipeline reconstructs the full index **including all seeded `confirmed_facts` and `class_origin` rows** from scratch, verified byte-for-byte equivalent (3,061 spells / 393 class_origin rows / 41 confirmed_facts, matching pre-corruption counts). §2a and §5 updated accordingly. **(v12 note: this pipeline now runs from `index/`, not the repo root — see the v12 changelog file-layout block above.)**
+**v10 changelog (2026-08-03):** **`ascension_index.db` binary uploads are unreliable — diagnosed and worked around.** Re-uploaded copies of the `.db` repeatedly failed to open (`sqlite3.DatabaseError: file is not a database`); byte inspection showed the SQLite header's null terminator arriving as `\x10` instead of `\x00` — a null-byte mangling in the upload/mount pipeline, reproduced on a fresh re-upload, so it's not a bad export on the player's end. **Fix: stop treating the `.db` as a source to upload/maintain at all.** `build_index.py` → `seed_borrowed_modifiers.py` → `seed_confirmed.py` all read plain-text sources (`spell-export.json`, `Cards.txt`, `class_dictionary.py`, the seed scripts themselves) that mount cleanly with no corruption — running this pipeline reconstructs the full index **including all seeded `confirmed_facts` and `class_origin` rows** from scratch, verified byte-for-byte equivalent (3,061 spells / 393 class_origin rows / 41 confirmed_facts, matching pre-corruption counts). §2a and §5 updated accordingly. **(v12 note: this pipeline now runs from `ingest/` + `data/source/`, not the repo root — see the v12 changelog file-layout block above.)**
 
 **v9 changelog (2026-08-02, late night):** Formalized `decode_inspect_export.py` and its format spec into `INDEX_GUIDE.md` — a third-party site (inspects.nie.one) exposes a live in-game inspect as a URL fragment (base-36 spec data + hex-encoded gear), now fully decodable for any character, not just your own. Full format spec, known gaps, and usage live in `INDEX_GUIDE.md`; this is a live external data source, separate from the offline `ascension_index.db`.
 
@@ -170,15 +220,15 @@ Everything slottable is a **card**. Axes: rarity tier, grade (Normal/Golden), ra
 
 > ⚠ **Export tooltips can be INCOMPLETE, not merely unresolved.** Beyond the known `$s1` magnitude problem, exports have been observed **omitting entire clauses**. Enhanced Weapon Mastery's export text reads only *"Increases all damage done by $s1%"*; the live tooltip adds *"does not stack with Enhanced Weapon Mastery, Unending Fury, Answered Prayers or Blessed Weapons. Only the highest increase applies."* — which changes the card from a top-tier multiplier to a dead slot. **As of the 2026-08-03 Darkmoon patch this exclusivity is now a codified server rule, not just a live-tooltip clause** (see the daily-changelog practice in §5) — the underlying verdict doesn't change, but it's worth noting the source moved from "tooltip-only" to "patch-note-confirmed." **Before committing to any card verdict, ask for a live tooltip screenshot.**
 
-### 2a. The index (`ascension_index.db`)
+### 2a. The index (`data/derived/ascension.db`)
 
 Both exports are parsed into a queryable SQLite database — check it before re-parsing raw JSON. Full schema and query cheat-sheet in `primer/INDEX_GUIDE.md`.
 
-**⚠ v10: the `.db` is rebuilt from source each session, not uploaded as a binary.** Uploaded binary copies were repeatedly arriving corrupted (mount-pipeline null-byte mangling — see v10 changelog). The `.db` is now purely an **ephemeral local artifact**: at the start of any session that needs it, run `build_index.py` → `seed_borrowed_modifiers.py` → `seed_confirmed.py` → `seed_synergies.py` in sequence from `index/`, against the plain-text project mounts. This reconstructs the identical database, seeded facts included, with no corruption risk since every input file is text. **Do not re-upload the `.db` to project knowledge — it's redundant and the upload path is the thing that's broken.** The real sources of truth are `seed_confirmed.py` (build facts) and `seed_synergies.py` (external engine references) — both append-only, plain text; keep them current and the index follows automatically.
+**⚠ v10: the `.db` is rebuilt from source each session, not uploaded as a binary.** Uploaded binary copies were repeatedly arriving corrupted (mount-pipeline null-byte mangling — see v10 changelog). The `.db` is now purely an **ephemeral local artifact**: at the start of any session that needs it, run **`py cli/rebuild.py`** (v20 — one command; it runs the whole chain in order against the plain-text sources, in ~32s, and lands `data/derived/ascension.db`). Add `--with-dbc` only after a client patch. This reconstructs the identical database, seeded facts included, with no corruption risk since every input file is text. **Do not re-upload the `.db` to project knowledge — it's redundant and the upload path is the thing that's broken.** The real sources of truth are `seed_confirmed.py` (build facts) and `seed_synergies.py` (external engine references) — both append-only, plain text; keep them current and the index follows automatically.
 
 **Related but separate:** `primer/INDEX_GUIDE.md` also documents `decode_inspect_export.py`, which decodes a **live** in-game inspect (via the third-party site inspects.nie.one) into readable spec/gear data for any character. This is a live external capture, not part of the offline index — useful for pulling another player's build for comparison, or re-syncing this project's own docs against a character's actual current state (see `build_paladin-hammerdin.md` v6 case study).
 
-**`spell_dbc_raw` + support tables (v11).** A separate pipeline (`index/build_dbc_index.py` — *corrected in v13, see above*) pulls `Spell.dbc` and friends directly from the client's own MPQ archives via StormLib — the complete internal catalog, not just addon-reachable spells. This is what `spell-export.json` was missing: 887 spells were flagged `has_hidden_formula=1` because they reference sub-spell IDs no addon-based export ever saw. As of v11, 84 of those 887 have real `spell_scaling` rows now, computed from the DBC data. **Still authoritative-over-derived, same rule as everything else in this section** — a DBC read beats a stale export, but a `confirmed_*` proc-test still beats a DBC read if they ever disagree (tooltip text describes intent; a proc test describes what the server actually does).
+**`spell_dbc_raw` + support tables (v11).** A separate pipeline (`ingest/dbc/build_dbc_index.py` — *corrected in v13, see above*) pulls `Spell.dbc` and friends directly from the client's own MPQ archives via StormLib — the complete internal catalog, not just addon-reachable spells. This is what `spell-export.json` was missing: 887 spells were flagged `has_hidden_formula=1` because they reference sub-spell IDs no addon-based export ever saw. As of v11, 84 of those 887 have real `spell_scaling` rows now, computed from the DBC data. **Still authoritative-over-derived, same rule as everything else in this section** — a DBC read beats a stale export, but a `confirmed_*` proc-test still beats a DBC read if they ever disagree (tooltip text describes intent; a proc test describes what the server actually does).
 
 **`shared_synergies` (v12).** New table, populated by `seed_synergies.py`, mirroring `builds/shared/synergy_*.md` files one row per external engine/mechanic (name, source, engine description, scaling formula, tags, confidence tier, link back to the source file). Same confidence-tier discipline as `class_origin`: `external_sighting` (observed via someone else's parse/tooltip, not tested by us) is the default and weakest tier here, `internal_test` if we've verified it ourselves, `confirmed_proc_test` if fully proc-tested. Full schema in `INDEX_GUIDE.md`.
 
@@ -351,8 +401,8 @@ Abilities worded *"while under this effect you cannot perform any other abilitie
 ## 5. How to help the player reason
 
 - **Check the daily patch notes at the start of any build-theorycrafting session (v12).** Source: `https://ascension.gg/en/changelog/1`, filtered mentally for **Darkmoon** (the player's realm — ignore Dawnrise/Bronzebeard-only entries unless they reveal a shared-engine mechanic change). Flag anything that: (a) touches a card/talent/ability already in a `build_*` or `wip_*` file, (b) changes an exclusivity bucket, proc-trigger mechanic, or scaling coefficient already recorded in `seed_confirmed.py`, or (c) suggests the spell export itself is stale (new abilities, reworked tooltips) and needs a fresh `spell-export.json`/`Cards.txt` pull before the next index rebuild. Report findings even when nothing is actionable — a patch that merely confirms an existing verdict (e.g. codifying a tooltip-only exclusivity rule) is still worth one line, since it upgrades the fact's confidence tier.
-- **Check `shared_synergies` before treating an external build's mechanic as novel (v12).** Query `index/seed_synergies.py`'s table (or `builds/shared/synergy_*.md` directly) — a pattern like "no-ICD scaling with attack speed" or "quadratic combo-point finisher" may already be logged from a previous encounter, with a confidence tier and a linked file, rather than something to re-derive from scratch.
-- **Rebuild `ascension_index.db` from source at the start of any session that needs it** (`build_index.py` → `seed_borrowed_modifiers.py` → `seed_confirmed.py` → `seed_synergies.py` → `seed_exclusivity.py` → `seed_modifier_links.py` → `seed_talent_amplifiers.py` → `seed_spell_flags.py` → `seed_cp_scaling.py`, run from `index/`, §2a, v14) — don't rely on a re-uploaded binary. Use the rebuilt index for cross-referencing and formula comparisons; fall back to raw `spell-export.json` only for something it doesn't capture.
+- **Check `shared_synergies` before treating an external build's mechanic as novel (v12).** Query `ingest/export/seed_synergies.py`'s table (or `builds/shared/synergy_*.md` directly) — a pattern like "no-ICD scaling with attack speed" or "quadratic combo-point finisher" may already be logged from a previous encounter, with a confidence tier and a linked file, rather than something to re-derive from scratch.
+- **Rebuild the index from source at the start of any session that needs it — `py cli/rebuild.py`** (v20: one command, ~32s, into `data/derived/ascension.db`; replaces the nine-script chain. Add `--with-dbc` only after a client patch). Don't rely on a re-uploaded binary. Use the rebuilt index for cross-referencing and formula comparisons; fall back to raw `spell-export.json` only for something it doesn't capture — and remember the export is **missing cards** as well as magnitudes (v20), so check `dbc_character_advancement` before concluding a card doesn't exist.
 - **Keep `seed_confirmed.py` and `seed_synergies.py` in sync with this doc and the build files.** Whenever a verdict here or in a `build_*`/`wip_*` file changes (a retraction, a new resolution, an updated stat weight), add the matching fact to `seed_confirmed.py` in the same session — the next rebuild picks it up automatically. Whenever a new external engine gets written up in `builds/shared/`, add its row to `seed_synergies.py` the same way. This replaces directly editing rows in a persisted `.db`.
 - **Cross-reference against the exports** — but treat exports as *incomplete*, not authoritative. Request live tooltip screenshots before final verdicts.
 - **Coefficients over intuition** — pull real tooltip scaling; when magnitudes are unresolved (`$s1`) or sub-spells are hidden, say so and name the test.

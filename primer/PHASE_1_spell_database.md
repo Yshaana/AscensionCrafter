@@ -1,7 +1,58 @@
 # PHASE 1 — The Spell & Mechanics Database (Layer 1) — v2
 
-**Read `00_ARCHITECTURE.md` and `primer/RECON_FINDINGS.md` first. Do not start before Phase 0 Task 5
-has a verdict.**
+**Read `ARCHITECTURE.md` and `primer/RECON_FINDINGS.md` first. Phase 0 Task 5 has its verdict.**
+
+---
+
+## ✅ Progress — amended 2026-08-04 after session `1a`
+
+| Task | Status |
+|---|---|
+| **T1** repo restructure + core/api/cli split | ✅ **done** (`1a`) |
+| **T2** patch, realm, season tracking | ✅ **done** (`1a`) |
+| **T3** the ID crosswalk | ✅ **done** (`1a`) |
+| **T4** `spell_mechanics` | ⬜ session `1b`, after `1x` |
+| **T5** relationship graph | ⬜ session `1b` |
+| T6–T10 | ⬜ session `1c` |
+
+**🆕 A task this doc never named was inserted: session `1x`, the numeric-field DBC extractor**, and it
+runs **before** T4. Phase 0 measured that **788 of the 803 (98%)** blocked hidden-formula spells
+would resolve from numeric DBC fields — 311 carry a non-zero `EffectBonusCoefficient`, 770 carry
+usable `EffectBasePoints`/`DieSides`, only 15 are genuinely empty. T4 is meant to be the *resolved*
+truth table, so populating it while 98% of the hidden formulas are unresolved means building it
+twice. 🛑 **Numeric fields only — never the `description` string** (the Titanic Mutilate trap).
+
+### What `1a` built that T4 and T5 must reuse rather than re-derive
+
+- **`core/spells/ranks.py :: rank_for_level()`** — T4's third resolver rule ("never serve a
+  lower-rank value for a higher-rank query") is this function. Call it.
+- **`core/spells/fingerprint.py`** — T4's fourth rule (🛑 fingerprint before relating two IDs) is
+  **already implemented**, and it needs **two field sets**; see the amendment in T4 below.
+- **`core/spells/crosswalk.py`** — `resolve_entry_id()` is the sanctioned `entry_id` → spell path.
+- **`core/db/schema.py`, `core/db/connection.py`** — DDL and connections. `core/` purity is enforced
+  by `tools/audit/check_core_purity.py`; **`resolve_spell_mechanics()` goes in
+  `core/spells/mechanics.py` and takes a connection as a parameter.**
+- **`py cli/rebuild.py`** — add new ingesters to its `CHAIN`, in dependency order.
+
+### Amendments to the task text below
+
+- **T3 — two sub-tasks were deliberately NOT built**, and should not be added later in the belief
+  they were forgotten: a separate **`wotlk_rank`** ID space (superseded — `dbc_spell_rank` is the one
+  home for rank lines; duplicating 42,606 rows creates a second home for the same fact), and the
+  **`id_proximity` ±1–3 resolver** (the contiguous-rank rule was *retracted* in Phase 0 — 4,791
+  non-contiguous lines vs 1,908 — so adding it back at `inferred` confidence would reintroduce a
+  disproven heuristic, which is worse than not answering).
+- **T3 — class resolution landed at tier `confirmed_skill_line`**, not `confirmed_wotlk_id_identity`:
+  the mechanism turned out to be Ascension's *renamed skill lines*, not WotLK ID identity. Coverage
+  394 → 1,794 of 3,061 (58.6%), against the doc's "potentially ~1,200+" estimate. The name-match
+  guardrail passed with **0** mismatches.
+- **T4's "does `spell_scaling` need rank keying?" no longer needs an in-game tooltip.** The doc says
+  to settle it by reading one ability at two ranks in-game. `dbc_spell_rank` now gives confirmed
+  same-line rank pairs, so it can be tested across **every** multi-rank line at once, offline —
+  scheduled into `1x`.
+- **T4's primary key**: measured, not assumed — **0** CA cards reuse a spell_id across rank slots and
+  **0** in-pool spell_ids are shared across cards, so `spell_id` already identifies a card-rank
+  uniquely in the playable pool. Key as specified anyway; just know `rank` is a label there.
 
 The heart of the project. Everything downstream inherits its correctness. The goal is not "a database
 of spells" — it's **a database that cannot quietly hold a wrong number.**
@@ -339,6 +390,16 @@ Supernova" (`270182` and `81193`) differ in radius, cooldown, and cast type and 
 assuming otherwise produced a retracted conclusion and a nearly-adopted schema change in a single
 session. Implement the fingerprint check inside the crosswalk resolver.
 
+> ✅ **Done in `1a` — `core/spells/fingerprint.py`. But it needed TWO field sets, and this doc's
+> single-set framing is what made the first attempt wrong.** The strict set above answers *"are these
+> the same ability?"*. It is the **wrong test** for *"are these two ranks of one ability?"*, because
+> rank legitimately changes radius, cooldown and resource type, and higher ranks **fill effect slots
+> the lower rank leaves empty** (Malice `[6,0,0]`→`[6,0,6]`→`[6,6,6]`). Applied to rank chains, the
+> strict set flagged **106 conflicts, almost all ordinary talents**. `RANK_FINGERPRINT_FIELDS`
+> (school + effect-structure compatibility) leaves **8 rows on 2 cards**, both `Necrosis` — whose
+> damage school genuinely changes across its own ranks. Use the right set for the question being
+> asked.
+
 ### Does `spell_scaling` need rank keying? — OPEN, do not assume
 
 An earlier draft of this doc asserted that coefficients scale with rank and mandated re-keying
@@ -624,14 +685,19 @@ weigh heavily.
 ## Execution order
 
 ```
-1 (restructure) → 2 (patches/realms/seasons) → 3 (crosswalk) [gated on Phase 0 T5]
-  → 4 (mechanics)
-    → 5 (relationships) ─┐
-    → 6 (facts)         ─┤ independent of each other
-    → 10 (volatility)   ─┤
-      → 7 (spell_profile) ←┘
-        → 8 (auto-debugger + protocols) → 9 (browsing)
+✅ 1 (restructure) → ✅ 2 (patches/realms/seasons) → ✅ 3 (crosswalk)        [session 1a, done]
+  → 1x (numeric-field DBC extractor + settle rank-vs-coefficient)          [session 1x, NEXT]
+    → 4 (mechanics)                                                        [session 1b]
+      → 5 (relationships) ─┐                                               [session 1b]
+      → 6 (facts)         ─┤ independent of each other                     [session 1c]
+      → 10 (volatility)   ─┤
+        → 7 (spell_profile) ←┘
+          → 8 (auto-debugger + protocols) → 9 (browsing)
 ```
+
+**`1x` is not in the numbered task list above** — Phase 0 discovered it after this doc was written.
+It sits between 3 and 4 because T4 is the *resolved* truth table and 803 spells currently have no
+coefficient at all. See the progress block at the top of this file.
 
 ## Exit criteria
 

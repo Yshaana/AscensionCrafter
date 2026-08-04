@@ -1,7 +1,7 @@
 # Scouted build: <CharacterName> (<archetype label>)
 
 **Source:** darkmoon.ascensionlogs.gg, captured <YYYY-MM-DD>, character_id <N>
-**Raw data:** `index/scouted/scouted_<CharacterName>_<YYYY-MM-DD>.json`
+**Raw data:** `data/source/scouted/scouted_<CharacterName>_<YYYY-MM-DD>.json`
 **Confidence:** `external_sighting` — observed via public armory/rankings data, not proc-tested by us
 **Path:** <Strength / Agility / Duality / Intelligence / Healing>
 

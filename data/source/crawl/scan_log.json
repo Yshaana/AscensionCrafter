@@ -1,5 +1,5 @@
 {
- "next_report_id": 9,
+ "next_report_id": 20,
  "reports": {
   "2": {
    "crawled_at": "2026-08-04T18:00:59.900800+00:00",
@@ -35,6 +35,61 @@
    "crawled_at": "2026-08-04T21:20:47.711361+00:00",
    "encounters": 26,
    "bosses": 6
+  },
+  "9": {
+   "crawled_at": "2026-08-04T21:21:34.477661+00:00",
+   "encounters": 61,
+   "bosses": 12
+  },
+  "10": {
+   "crawled_at": "2026-08-04T21:22:06.615835+00:00",
+   "encounters": 11,
+   "bosses": 7
+  },
+  "11": {
+   "crawled_at": "2026-08-04T21:22:46.783429+00:00",
+   "encounters": 29,
+   "bosses": 10
+  },
+  "12": {
+   "crawled_at": "2026-08-04T21:23:26.779328+00:00",
+   "encounters": 37,
+   "bosses": 10
+  },
+  "13": {
+   "crawled_at": "2026-08-04T21:23:41.847438+00:00",
+   "encounters": 14,
+   "bosses": 3
+  },
+  "14": {
+   "crawled_at": "2026-08-04T21:24:11.075046+00:00",
+   "encounters": 34,
+   "bosses": 7
+  },
+  "15": {
+   "crawled_at": "2026-08-04T21:24:22.498915+00:00",
+   "encounters": 4,
+   "bosses": 2
+  },
+  "16": {
+   "crawled_at": "2026-08-04T21:24:27.253583+00:00",
+   "encounters": 1,
+   "bosses": 1
+  },
+  "17": {
+   "crawled_at": "2026-08-04T21:24:28.124289+00:00",
+   "encounters": 0,
+   "bosses": 0
+  },
+  "18": {
+   "crawled_at": "2026-08-04T21:25:02.281252+00:00",
+   "encounters": 14,
+   "bosses": 8
+  },
+  "19": {
+   "crawled_at": "2026-08-04T21:29:42.248732+00:00",
+   "encounters": 206,
+   "bosses": 150
   }
  },
  "missing_reports": [
