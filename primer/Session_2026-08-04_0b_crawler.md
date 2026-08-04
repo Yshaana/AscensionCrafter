@@ -267,9 +267,46 @@ explicitly flagged), it satisfies §2.2's tier-1 "capture stats alongside the me
 automatically, it is the only source of *measured* gear-scaling curves for §2.10, and it makes the
 owner the calibration anchor for Phase 2's "reproduce ≥3 real parses" gate.
 
-**Knock-on:** this raises the priority of the two long-standing 3b blockers — `ReloadUI()`
+**Knock-on:** this raised the priority of the two long-standing 3b blockers — `ReloadUI()`
 availability and the `WoWCombatLog` naming convention. A self-snapshot that never flushes, or that
-can't be tied to a log file, delivers none of the above. Noted in the blocked table.
+can't be tied to a log file, delivers none of the above.
+
+### ✅ …and both of those blockers were then closed, same session
+
+The owner answered both immediately. **Phase 3 is no longer gated on him for anything.**
+
+**`ReloadUI()` works** — not sandboxed. An addon can force a SavedVariables flush on demand instead
+of waiting for logout, which is exactly what makes mid-session self-snapshot capture practical.
+Consistent with prior knowledge rather than contradicting it: the sandboxing this project hit before
+was WeakAuras' custom-code editor specifically, not addons generally. Seeded as
+`confirmed_facts.client_reloadui_available`. *Not* established (and not needed for the intended
+out-of-combat flow): whether it's callable in combat, or whether taint applies.
+
+**Combat log naming + location + correlation rule** — owner supplied the path, verified here against
+3 real logs on his machine:
+
+```
+<launcher>\resources\ascension-live\Logs\YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt
+```
+
+T6's caution was justified — this is **not** retail's `WoWCombatLog-<date>_<time>.txt`; timestamp is
+a prefix, dots for time, space before the name. A retail-derived glob matches nothing.
+
+**The correlation problem came out solved as a bonus**, which T6 had scoped as separate work:
+filename timestamp = window **start** (verified exact to the second vs the first in-file event),
+file mtime = window **end** (same, vs the last event). Three observed windows are non-overlapping
+with gaps, independently confirming "one file per run." So a capture at local time *T* maps to the
+log whose window contains *T*, with no file reads needed to shortlist.
+
+Three traps recorded in T6 rather than left to be discovered: **in-file timestamps have no year**
+(`M/D HH:MM:SS.mmm` — the filename is the only year source); **everything is local time** while the
+crawler stamps UTC; and the log directory is **shared with unrelated client logs** plus the log
+parser's own `.summary.json` output. Seeded as `confirmed_facts.combat_log_naming_and_correlation`.
+
+Also logged as a *lead, not a finding*: the first log line carries spell id `9931032` ("PvE Mode"),
+far outside the four known ID spaces, while the ascensionlogs API returns catalog-range ids
+(`287865`, `907284`). Relevant to PROGRESS's open "which ID space do combat logs use?" question —
+but it is n=1 and the standing rule forbids relating IDs without fingerprinting.
 
 ---
 

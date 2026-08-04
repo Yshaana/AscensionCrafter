@@ -352,10 +352,59 @@ capture to *a specific file*, not slicing a window from a giant log.
 same run fall inside the same file. Group by matched file, parse each **once**, extract every matched
 character from that pass.
 
-🛑 **STOP before writing correlation logic: the exact `WoWCombatLog` naming and location convention
-on this client is unknown. Ask the user.** Don't assume retail's `WoWCombatLog-<date>_<time>.txt`. A
-guessed-wrong pattern silently correlates captures with the wrong log — worse than not correlating.
-Same class of assumption as 274121-vs-274132 and Titanic Mutilate's 115%-vs-70%.
+### ✅ RESOLVED 2026-08-04 — naming, location, AND the correlation rule
+
+Owner supplied the path; verified directly against 3 real logs on his machine. The caution above was
+justified — **it is not retail's pattern.**
+
+```
+Directory: <launcher>\resources\ascension-live\Logs
+           (owner's machine: E:\Ascension Launcher\resources\ascension-live\Logs)
+Filename:  YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt
+Example:   2026-08-03-21.18.43 WoWCombatLog.txt
+```
+
+Note the differences from retail (`WoWCombatLog-<date>_<time>.txt`): the timestamp is a **prefix**
+not a suffix, time uses **dots** not colons, and there is a **space** before `WoWCombatLog.txt`.
+A pattern guessed from retail would have matched nothing.
+
+**The correlation rule falls straight out, and it's better than expected — no need to open a file to
+place it in time:**
+
+| Boundary | Source | Verified |
+|---|---|---|
+| Window **start** | the filename timestamp | `2026-08-03-21.18.43` ↔ first event `8/3 21:18:43.238` — exact to the second |
+| Window **end** | the file's mtime | mtime `21:31:49` ↔ last event `8/3 21:31:49.838` — exact to the second |
+
+So: a capture at local time *T* belongs to the log whose `[start, end]` window contains *T*. The
+three observed windows (20:41:34–20:43:55, 20:51:45–21:08:17, 21:18:43–21:31:49) are
+**non-overlapping with gaps**, independently confirming "one file per run" and making the match
+unambiguous.
+
+⚠ **Three traps to encode, not discover later:**
+
+1. **In-file timestamps carry NO YEAR** — the format is `M/D HH:MM:SS.mmm` (e.g. `8/3 21:18:43.238`).
+   The **filename is the only source of the year.** A parser reading timestamps from file contents
+   alone cannot date a log, and will mis-order anything spanning a year boundary.
+2. **Everything here is LOCAL time** — filename, in-file timestamps, and mtime all agree with each
+   other and with local wall-clock. **The crawler stamps UTC** (`captured_at`). Any correlation
+   between log data and crawl data must convert; comparing them raw silently mismatches by the
+   UTC offset.
+3. **The directory is shared with unrelated client logs** (`Trace.txt`, `gx.log`, `Error.txt`,
+   `FrameXML.log`, …), and `tools/log_parser/` drops `<logname>.summary.json` beside its input.
+   Glob on `* WoWCombatLog.txt` specifically — and make sure it does not also match
+   `* WoWCombatLog.summary.json`.
+
+**mtime caveat, stated honestly:** mtime is a *cheap proxy* for the window end and matched the last
+event exactly in all observed cases, but it is filesystem metadata — a backup tool, sync client, or
+file copy can rewrite it. The authoritative end is the last event timestamp inside the file. Use
+mtime to shortlist candidate logs, then confirm from contents before committing a correlation.
+
+*(Incidental observation, n=1, do NOT generalise: the first log line carries spell id `9931032`
+("PvE Mode"), far outside the four known ID spaces, while the ascensionlogs API reports
+catalog-range ids like `287865` / `907284`. This is a lead for PROGRESS's open "which ID space do
+combat logs use?" question — it is not an answer, and per the standing rule two IDs are never
+related without fingerprinting.)*
 
 **What logs give that the API doesn't:** full per-second detail — proc timing (ICD detection), buff
 uptime, exact sequence ordering, resource flow. That makes logs the strongest source for Task 2's

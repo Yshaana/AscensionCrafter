@@ -71,17 +71,28 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done · ⏸️ blocked
 Anything waiting on a 🛑 stop-point or a decision only the project owner can make. Clear entries as
 they're answered.
 
-| `WoWCombatLog` file naming/location convention | 3b | — |
+| Item | Blocking | Asked on |
+|---|---|---|
+| *(nothing currently open)* | — | — |
 
-⚠ **This one went up in importance on 2026-08-04.** The Phase 3 T5 addon is now required to
-self-snapshot first (see Plan changes), and a self-snapshot is worthless if it can't be correlated
-to a specific log file. Ask early in 3b, not late.
+**🎉 Both long-standing 3b blockers were resolved on 2026-08-04 — Phase 3 is no longer gated on the
+owner for anything.**
 
-**✅ RESOLVED 2026-08-04: `ReloadUI()` works** — confirmed in-game by the owner. Not sandboxed, so an
-addon can force a SavedVariables flush on demand instead of waiting for logout. This makes mid-session
-self-snapshot capture practical and unblocks the main design risk in Phase 3 T5. Seeded as
-`confirmed_facts.client_reloadui_available`; T5's 🛑 stop-point updated. Still unestablished (and not
-needed for the intended out-of-combat flow): whether it's callable *in combat*.
+**✅ `ReloadUI()` works** — confirmed in-game by the owner. Not sandboxed, so an addon can force a
+SavedVariables flush on demand instead of waiting for logout. Makes mid-session self-snapshot capture
+practical and removes the main design risk in Phase 3 T5. Seeded as
+`confirmed_facts.client_reloadui_available`. Still unestablished (and not needed for the intended
+out-of-combat flow): whether it's callable *in combat*.
+
+**✅ Combat log naming, location — and the correlation rule** — owner supplied the path; verified
+against 3 real logs. `<launcher>\resources\ascension-live\Logs`, filename
+`YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt`. **Not** retail's pattern, exactly as T6 feared — a
+retail-derived glob matches nothing. Bonus: correlation is solved too. Filename timestamp = window
+**start**, file mtime = window **end**, both verified exact to the second against the first/last
+in-file events, so a log is placeable in time without opening it. Seeded as
+`confirmed_facts.combat_log_naming_and_correlation`; full detail and three traps in `PHASE_3` T6.
+⚠ Chief traps: in-file timestamps carry **no year** (filename is the only source), and everything is
+**local** time while the crawler stamps **UTC**.
 
 **Note:** `SEASON = 10` is also hardcoded in the crawler. It must be bumped when S11 starts — the
 API exposes phases, not seasons, so this can't be derived. Not blocking; flagged so it isn't missed.
