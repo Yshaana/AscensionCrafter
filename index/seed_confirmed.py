@@ -42,6 +42,7 @@ for sid, path, note in BEST_FIT_PATH:
                 (path, ' | PATH: ' + note, sid))
 
 FACTS = [
+    ('client_reloadui_available', 'CONFIRMED 2026-08-04 by the project owner in-game: ReloadUI() / "/reload" WORKS on this server - it is NOT sandboxed. Resolves a 🛑 stop-point open since the Phase 3 planning docs, which warned "this server has already sandboxed at least one standard API, don\'t assume." Consequence: a Lua addon CAN force a SavedVariables flush on demand rather than waiting for logout, which makes the Phase 3 Task 5 capture addon practical mid-session (capture -> optional reload -> data on disk). The known sandboxing is specific to WeakAuras\' custom-code editor, not addons generally - consistent with AscensionCrafterExport working as a full custom addon. NOT established: whether ReloadUI() is callable during combat, or whether protected-function taint applies; irrelevant for the intended post-inspect, out-of-combat use.', 'PHASE_3_builds_repo', 'Task 5 (owner in-game test)'),
     ('crit_conversion', 'Crit rating: 14.0 rating per 1%, identical melee and spell (measured: 393->28.07%, 164->11.71%).', 'Primer', '§1'),
     ('hit_cap', 'Special-attack (yellow) hit cap vs raid boss: 8%. Dual-wield white attacks carry +19% miss on top - DW auto-attacks can be near-worthless (measured 4.2% of damage).', 'Primer', '§1'),
     ('expertise_cap', 'Expertise dodge cap: 26.', 'Primer', '§1'),

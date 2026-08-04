@@ -320,8 +320,20 @@ fires and *where* it writes, not inventing the capture itself.
 - **SavedVariables only flush on logout or `/reload`** — a Lua addon has no other write path. Add an
   optional "reload after capture" toggle, **off by default**
 
-🛑 **Confirm `ReloadUI()` isn't restricted on this server before relying on it.** This server has
-already sandboxed at least one standard API. Don't assume.
+✅ **RESOLVED 2026-08-04 — `ReloadUI()` works on this server.** Confirmed in-game by the project
+owner (tier-1 evidence). The stop-point that stood here is closed: a Lua addon **can** force a
+SavedVariables flush on demand rather than waiting for logout, which is what makes self-snapshot
+capture practical *mid-session* (capture → optional reload → data on disk) instead of only at the
+end of a play session.
+
+Consistent with what was already known: the sandboxing this project hit before was specific to
+**WeakAuras' custom-code editor**, not addons generally — which is why `AscensionCrafterExport` works
+as a full custom addon. The "don't assume, this server sandboxes things" caution was right to make;
+the answer just came back favourable.
+
+*Not established, and not needed for the intended use:* whether `ReloadUI()` is callable **during
+combat**, or whether protected-function taint applies. The intended flow is post-inspect and
+out-of-combat. Establish before relying on an in-combat reload.
 
 Decoder: extend `decode_inspect_export.py` with the new format, versioned so existing
 `inspects.nie.one` fragments still decode.

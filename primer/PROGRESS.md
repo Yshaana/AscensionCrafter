@@ -72,12 +72,16 @@ Anything waiting on a 🛑 stop-point or a decision only the project owner can m
 they're answered.
 
 | `WoWCombatLog` file naming/location convention | 3b | — |
-| Whether `ReloadUI()` is restricted on this server | 3b | — |
 
-⚠ **Both of the above went up in importance on 2026-08-04.** The Phase 3 T5 addon is now required to
-self-snapshot first (see Plan changes), and a self-snapshot is worthless if SavedVariables never
-flush (`ReloadUI()`) or can't be correlated to a specific log file (naming convention). Ask early in
-3b, not late.
+⚠ **This one went up in importance on 2026-08-04.** The Phase 3 T5 addon is now required to
+self-snapshot first (see Plan changes), and a self-snapshot is worthless if it can't be correlated
+to a specific log file. Ask early in 3b, not late.
+
+**✅ RESOLVED 2026-08-04: `ReloadUI()` works** — confirmed in-game by the owner. Not sandboxed, so an
+addon can force a SavedVariables flush on demand instead of waiting for logout. This makes mid-session
+self-snapshot capture practical and unblocks the main design risk in Phase 3 T5. Seeded as
+`confirmed_facts.client_reloadui_available`; T5's 🛑 stop-point updated. Still unestablished (and not
+needed for the intended out-of-combat flow): whether it's callable *in combat*.
 
 **Note:** `SEASON = 10` is also hardcoded in the crawler. It must be bumped when S11 starts — the
 API exposes phases, not seasons, so this can't be derived. Not blocking; flagged so it isn't missed.
