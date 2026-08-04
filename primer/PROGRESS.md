@@ -74,6 +74,11 @@ they're answered.
 | `WoWCombatLog` file naming/location convention | 3b | — |
 | Whether `ReloadUI()` is restricted on this server | 3b | — |
 
+⚠ **Both of the above went up in importance on 2026-08-04.** The Phase 3 T5 addon is now required to
+self-snapshot first (see Plan changes), and a self-snapshot is worthless if SavedVariables never
+flush (`ReloadUI()`) or can't be correlated to a specific log file (naming convention). Ask early in
+3b, not late.
+
 **Note:** `SEASON = 10` is also hardcoded in the crawler. It must be bumped when S11 starts — the
 API exposes phases, not seasons, so this can't be derived. Not blocking; flagged so it isn't missed.
 
@@ -100,6 +105,7 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-04 | 🆕 **Phase 3 T5 addon must self-snapshot FIRST, at the top of every capture list** | Owner is in the logs he collects, so it's near-free. Closes Phase 0 T2's flagged *per-parse character stats* risk for at least one character (exact, not approximated from nearest capture); satisfies §2.2's tier-1 "capture stats alongside" rule automatically; is the **only** source of *measured* gear-scaling curves for §2.10; makes him Phase 2's calibration anchor. **Deferred deliberately** — no interim script, do it properly in Phase 3. Full reasoning in `PHASE_3_builds_repo.md` T5 — don't re-derive it, and don't drop it |
 | 2026-08-04 | 🆕 **Two-tier crawl storage: tier 1 committed, tier 2 gitignored + local** | Volume and irreplaceability are anti-correlated. Armory/leaderboard state (1.4 MB) can never be re-fetched; per-ability bulk (6.0 MB) is re-fetchable by report id. A **committed `manifest.json`** lists every file incl. gitignored ones (records, sha256, report ids), so git knows what exists without holding it. Recovery: `--recrawl-report <id>`. Risk accepted: "reports stay fetchable" is evidenced, not guaranteed |
 | 2026-08-04 | 🆕 **Armory records deduped by content hash** | Was rewriting ~90 KB per character per run (~37 MB/day at 400 chars). Now written only on change, hashed over `ci_resolved`+`stats_summary`. Also yields the gear/build timeline INDEX_GUIDE wants |
 | 2026-08-04 | ❌ **REJECTED: delete raw data after normalising** | Normalisation encodes today's interpretation and the crosswalk is still unresolved (T5 gates Phase 1). Phase 0 T6 already forbids the adjacent version ("resolve at rebuild, so a crosswalk fix never requires re-crawling"). Derived DBs are the disposable layer; raw capture is not |

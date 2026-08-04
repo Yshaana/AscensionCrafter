@@ -268,6 +268,50 @@ mode the auto-debugger exists to catch.
 Extends `AscensionCrafterExport` (proof full custom addons are permitted even though WeakAura
 custom-function triggers are sandboxed).
 
+### 🆕 REQUIREMENT — self-snapshot goes FIRST in every capture list
+
+**Owner request, 2026-08-04. Deliberately deferred to this phase rather than hacked in early —
+"we can wait and do it properly."**
+
+**The requirement:** whenever the addon captures inspected players, it **first appends a snapshot of
+the owner's own character** — active spec's gear, talents/abilities with ranks, and resolved stats —
+at the **top of the pending list**, before any inspected player. Every capture batch is therefore
+self-stamped: "here is what *I* looked like when I met these people."
+
+The owner is in the logs he collects. That single fact is what makes this cheap and valuable at the
+same time — no extra play session, no separate workflow, just an entry the addon writes anyway.
+
+**Why — do not lose this reasoning, it is the whole justification:**
+
+1. **It closes an open risk this plan already named.** Phase 0 Task 2 flags *per-parse character
+   stats* as load-bearing: if stats exist only on an armory snapshot and not per parse, Task 2's
+   pooled inference (regressing observed crit% against each character's real crit rating) must
+   approximate from the nearest-in-time capture. For other players we are stuck with that
+   approximation. For the owner, self-capture makes it **exact** — stats as they were at the moment
+   of the fight.
+2. **§2.2's tier-1 rule demands it regardless.** *"A tooltip is a measurement of the character, not
+   the spell … always capture the character's stats alongside, or the number can't be interpreted
+   later."* This is that rule automated instead of remembered. Holy Supernova's 2.00s base reading
+   as 1.61s in-game is the standing example of what goes wrong without it.
+3. **It is the only source of *measured* gear-scaling curves.** §2.10 requires builds be evaluated as
+   curves across gear tiers "derived per server phase from the builds repo, not hardcoded." A
+   season-long series of self-snapshots is the same build observed at many gear levels — real
+   scaling, not a model. Nothing else in this stack produces it, and it is what catches
+   "great now, dead later."
+4. **It makes the owner the calibration anchor for Phase 2's gate** ("reproduces ≥3 real parses
+   within stated tolerance"). His are the only parses where exact stats, the complete log, *and*
+   control over what he does all coexist — tier-1 and tier-2 evidence on one subject.
+
+**Consequence for sequencing:** the two 🛑 stop-points below (`ReloadUI()` availability, combat-log
+naming) become **more** important, not less. A self-snapshot is worthless if the write never flushes,
+or if it can't be correlated to a specific log file. Both are cheap for the owner to answer in-game
+and both sit in `PROGRESS.md`'s blocked table.
+
+**Precedent that this is feasible:** `AscensionCrafterExport`'s manual `/acexport` already gathers
+exactly these fields — stats, per-slot gear, crit by school — and produced the Path of Duality
+three-way test (`wip_winds-of-winter-frostblade.md` §4). The addon work is automating *when* it
+fires and *where* it writes, not inventing the capture itself.
+
 - On inspect: active spec's talents/abilities with ranks, full per-slot gear with enchants and gems,
   resolved stats, spec index, zone/instance, timestamp
 - **Appends to a growing SavedVariables list, never overwrites.** Six players met in one raid = six

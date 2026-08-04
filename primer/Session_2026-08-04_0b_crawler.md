@@ -250,6 +250,27 @@ Asked at the end of 0b; all four answered. Recorded in `PROGRESS.md` too — **d
 Also flagged, not blocking: **`SEASON = 10` is hardcoded** and cannot be derived from the API (it
 exposes phases, not seasons). Must be bumped manually when S11 starts.
 
+### 🆕 Design requirement raised for Phase 3 T5 — self-snapshot first
+
+Owner raised this at the end of the session: the planned capture addon should **snapshot his own
+character at the top of the pending list every time he inspects others**. He is in the logs he
+collects, so it costs nothing extra to record.
+
+**Deliberately deferred** — he declined an interim manual script ("we can wait and do it properly"),
+so nothing was built for it this session and no `self_snapshots/` directory exists. The requirement
+and its full reasoning are written into `PHASE_3_builds_repo.md` Task 5, with a pointer from
+`PROGRESS.md`'s plan-changes table.
+
+Short version of *why*, since the reasoning is the part worth preserving: it makes per-parse
+character stats **exact** for one character rather than approximated (closing a risk Phase 0 Task 2
+explicitly flagged), it satisfies §2.2's tier-1 "capture stats alongside the measurement" rule
+automatically, it is the only source of *measured* gear-scaling curves for §2.10, and it makes the
+owner the calibration anchor for Phase 2's "reproduce ≥3 real parses" gate.
+
+**Knock-on:** this raises the priority of the two long-standing 3b blockers — `ReloadUI()`
+availability and the `WoWCombatLog` naming convention. A self-snapshot that never flushes, or that
+can't be tied to a log file, delivers none of the above. Noted in the blocked table.
+
 ---
 
 ## Open items / carried forward
