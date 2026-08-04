@@ -3,12 +3,14 @@ __pycache__/
 .DS_Store
 *.summary.json
 
-# ascension_index.db is a rebuilt-each-session derived cache (primer v10 / v12),
-# never a source of truth - rebuild via index/build_index.py etc, don't commit it.
-index/ascension_index.db
+# --- Derived layer (ARCHITECTURE §2.12) ------------------------------------
+# EVERYTHING under data/derived/ is rebuildable from committed source data and is
+# never a source of truth. Rebuild the lot with:  py cli/rebuild.py
+# (add --with-dbc after a client patch; that step needs the client + StormLib).
+data/derived/
 
-# scouted_builds.db is the same "derived cache, not source of truth" rule -
-# rebuild via index/build_scouted_builds_db.py from index/scouted/*.json (committed).
+# Pre-Phase-1 locations, kept so an old checkout doesn't accidentally commit one.
+index/ascension_index.db
 index/scouted_builds.db
 
 # --- Crawl storage tiers (session 0b, 2026-08-04) --------------------------

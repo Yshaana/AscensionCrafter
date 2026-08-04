@@ -1,0 +1,2701 @@
+{
+  "scouted_at": "2026-08-03T18:05:10.007811+00:00",
+  "name": "Titanus",
+  "character": {
+    "id": 10266,
+    "name": "Titanus",
+    "realm": "Unknown",
+    "region": "US",
+    "class": "Hero",
+    "spec": "Hero",
+    "level": null,
+    "guild_id": null,
+    "race": "Orc",
+    "guild_name": "404"
+  },
+  "captured_for_boss": "Hakkar",
+  "gear": [
+    {
+      "slot": 1,
+      "item_id": 1657691,
+      "name": "Embalmed Shroud",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 79,
+        "stamina": 18,
+        "intellect": 14,
+        "spellPower": 48
+      },
+      "damage": null,
+      "source": "Scarlet Monastery - Fallen Champion",
+      "source_category": "dungeon",
+      "tier": "@Mythic@"
+    },
+    {
+      "slot": 2,
+      "item_id": 1660769,
+      "name": "Glowing Eye of Mordresh",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "critRating": 13,
+        "spellPower": 19
+      },
+      "damage": null,
+      "source": "Razorfen Downs - Mordresh Fire Eye",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 3,
+      "item_id": 219845,
+      "name": "Zandalar Illusionist's Mantle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 82,
+        "stamina": 16,
+        "intellect": 19,
+        "critRating": 11,
+        "spellPower": 21
+      },
+      "damage": null,
+      "source": "ZG Sets - Priest, Mage",
+      "source_category": "raid",
+      "tier": "@Ascended Zul'Gurub@"
+    },
+    {
+      "slot": 4,
+      "item_id": 2062476,
+      "name": "Cannoneer's Ragged Vest",
+      "quality": 2,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": null,
+      "damage": null,
+      "source": null,
+      "source_category": null,
+      "tier": null
+    },
+    {
+      "slot": 5,
+      "item_id": 320034,
+      "name": "Zandalar Illusionist's Robe",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 101,
+        "stamina": 25,
+        "hitRating": 9,
+        "intellect": 28,
+        "spellPower": 29
+      },
+      "damage": null,
+      "source": "ZG Sets - Priest, Mage",
+      "source_category": "raid",
+      "tier": "@Heroic Zul'Gurub@"
+    },
+    {
+      "slot": 6,
+      "item_id": 218104,
+      "name": "Feralsurge Girdle",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "mp5": 18,
+        "armor": 236,
+        "stamina": 17,
+        "intellect": 23,
+        "spellPower": 24
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - Warchief Rend Blackhand",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 7,
+      "item_id": 219899,
+      "name": "Ritualistic Legguards",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 96,
+        "stamina": 16,
+        "hitRating": 10,
+        "intellect": 15,
+        "critRating": 21,
+        "spellPower": 27
+      },
+      "damage": null,
+      "source": "Zul'Gurub - High Priest Thekal",
+      "source_category": "raid",
+      "tier": "@Ascended Zul'Gurub@"
+    },
+    {
+      "slot": 8,
+      "item_id": 249652,
+      "name": "Maleki's Footwraps",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 68,
+        "stamina": 8,
+        "hitRating": 10,
+        "intellect": 12,
+        "critRating": 19,
+        "spellPower": 15
+      },
+      "damage": null,
+      "source": "Stratholme - Maleki the Pallid",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 9,
+      "item_id": 1319848,
+      "name": "Zandalar Demoniac's Wraps",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 47,
+        "stamina": 17,
+        "hitRating": 8,
+        "intellect": 9,
+        "spellPower": 19
+      },
+      "damage": null,
+      "source": "ZG Sets - Warlock",
+      "source_category": "raid",
+      "tier": "@Mythic Zul'Gurub@"
+    },
+    {
+      "slot": 10,
+      "item_id": 1320264,
+      "name": "Peacekeeper Gauntlets",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "mp5": 9,
+        "armor": 511,
+        "stamina": 8,
+        "intellect": 15,
+        "spellPower": 44
+      },
+      "damage": null,
+      "source": "Zul'Gurub - Hakkar",
+      "source_category": "raid",
+      "tier": "@Mythic Zul'Gurub@"
+    },
+    {
+      "slot": 11,
+      "item_id": 260670,
+      "name": "Amalgam's Band",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 9,
+        "hitRating": 10,
+        "spellPower": 14,
+        "spellPenetration": 13
+      },
+      "damage": null,
+      "source": "Scholomance - Kormok",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 12,
+      "item_id": 248087,
+      "name": "Gordok Nose Ring",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 12,
+        "strength": 7,
+        "expertise": 12,
+        "spellPower": 12
+      },
+      "damage": null,
+      "source": "Dire Maul North - Guard Slip'kik",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 13,
+      "item_id": 127391,
+      "name": "Smolderweb's Eye",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "hitRating": 18,
+        "critRating": 10
+      },
+      "damage": null,
+      "source": "Lower Blackrock Spire - Mother Smolderweb",
+      "source_category": "dungeon",
+      "tier": "@Heroic Dungeon@"
+    },
+    {
+      "slot": 14,
+      "item_id": 1414516,
+      "name": "Spellbound Demonic Rune",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "hitRating": 24
+      },
+      "damage": null,
+      "source": "Unknown",
+      "source_category": "vendor",
+      "tier": null
+    },
+    {
+      "slot": 15,
+      "item_id": 222711,
+      "name": "Cloak of the Hakkari Worshippers",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "armor": 54,
+        "stamina": 11,
+        "intellect": 17,
+        "spellPower": 20
+      },
+      "damage": null,
+      "source": "Zul'Gurub - High Priestess Mar'li",
+      "source_category": "raid",
+      "tier": "@Ascended Zul'Gurub@"
+    },
+    {
+      "slot": 16,
+      "item_id": 212969,
+      "name": "Seeping Willow",
+      "quality": 4,
+      "enchant_id": 5127,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "strength": 17,
+        "intellect": 18,
+        "spellPower": 32,
+        "feralAttackPower": 303
+      },
+      "damage": null,
+      "source": "Upper Blackrock Spire - The Beast",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 17,
+      "item_id": 249462,
+      "name": "Hammer of the Grand Crusader",
+      "quality": 4,
+      "enchant_id": 1792,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "stamina": 13,
+        "intellect": 17,
+        "spellPower": 40,
+        "hasteRating": 14,
+        "feralAttackPower": 303
+      },
+      "damage": null,
+      "source": "Stratholme - Balnazzar",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 18,
+      "item_id": 214312,
+      "name": "Pyric Caduceus",
+      "quality": 4,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": {
+        "critRating": 8,
+        "spellPower": 13
+      },
+      "damage": null,
+      "source": "Blackrock Depths - Pyromancer Loregrain",
+      "source_category": "dungeon",
+      "tier": "@Mythic Dungeon@"
+    },
+    {
+      "slot": 19,
+      "item_id": 1311455,
+      "name": "Adaptive Tabard",
+      "quality": 6,
+      "enchant_id": 0,
+      "enchant_name": null,
+      "gems": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "stats": null,
+      "damage": null,
+      "source": null,
+      "source_category": null,
+      "tier": null
+    }
+  ],
+  "build": {
+    "abilities": [
+      {
+        "entry_id": 40272,
+        "name": "Misdirection",
+        "icon": "Ability_Hunter_Misdirection",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "The current party or raid member targeted will receive the threat caused by your spells and attacks for 4 sec afterwards. "
+        ]
+      },
+      {
+        "entry_id": 41947,
+        "name": "Heroic Leap",
+        "icon": "Ability_HeroicLeap",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Leap through the air toward a target location, slamming down with destructive force to deal Physical damage and slow all enemies within 8 yards by 50% for 2 sec. While in the air you are immune to crowd control effects.\n\n@ext:Usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42038,
+        "name": "Charge",
+        "icon": "Ability_Warrior_Charge",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Charge an enemy, generate 12 rage, and root it for 1.5 sec.\n\nThis ability is usable while shapeshifted."
+        ]
+      },
+      {
+        "entry_id": 40006,
+        "name": "Heroic Strike",
+        "icon": "Ability_Rogue_Ambush",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A strong attack that increases melee damage by 11 and causes a high amount of threat."
+        ]
+      },
+      {
+        "entry_id": 40876,
+        "name": "Titan's Grip",
+        "icon": "Ability_Warrior_TitansGrip",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Allows you to wield a Two-Handed Axe, Mace, or Sword in each hand. \r\n\r\nAlso allows for a weapon or shield to be held in the off-hand while a Staff is equipped.\r\n\r\nPhysical damage dealt is reduced by 10%."
+        ]
+      },
+      {
+        "entry_id": 40110,
+        "name": "Kick",
+        "icon": "Ability_Kick",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "A quick kick that interrupts spellcasting and prevents any spell in that school from being cast for 4 sec. \r\n\r\n@ext:This ability shares a cooldown with other interrupts.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40123,
+        "name": "Feint",
+        "icon": "Ability_Rogue_Feint",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Performs a feint, causing no damage but lowering your threat by a large amount, making the enemy less likely to attack you. In addition, reduces the damage you take from area of effect attacks by 20% for 6 sec."
+        ]
+      },
+      {
+        "entry_id": 40277,
+        "name": "Ice Block",
+        "icon": "Spell_Frost_Frost",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "You become encased in a block of ice, protecting you from all attacks for 10 sec, but during that time you cannot attack, move or cast spells. \r\n\r\n@ext:Causes Hypothermia, preventing you from recasting Ice Block for 30 sec.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40347,
+        "name": "Arcane Power",
+        "icon": "Spell_Nature_Lightning",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "When activated, your spells and abilities deal 20% more magic damage while costing 20% more mana to cast. This effect lasts 15 sec.\r\n\n@ext:Does not stack with other similar effects.:ext@\n\n@ext:This ability can be used while in Cat, Bear, Moonkin or Tree of Life Shapeshifts.:ext@"
+        ]
+      },
+      {
+        "entry_id": 41007,
+        "name": "Focus Magic",
+        "icon": "Spell_Arcane_StudentOfMagic",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases the target's chance to critically hit with spells by 3%. \r\n\r\nWhen the target critically hits the caster's chance to critically hit with spells is increased by 3% for 10 sec. \r\n\r\n@ext:Cannot be cast on self.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40093,
+        "name": "Life Tap",
+        "icon": "Spell_Shadow_BurningSpirit",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Converts 15 health into mana. Spell power increases the amount of mana returned."
+        ]
+      },
+      {
+        "entry_id": 40051,
+        "name": "Summon Imp",
+        "icon": "Spell_Shadow_SummonImp",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Summons an Imp under the command of the Warlock."
+        ]
+      },
+      {
+        "entry_id": 42048,
+        "name": "Flametongue Weapon",
+        "icon": "Spell_Fire_FlameTounge",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Imbue your weapon with fire, increasing total Spell power by 7$?s118150[ and increasing Spell critical strike chance by 2%.][.] Each auto attack and melee ability causes $/77;8026m1 to $/25;8026M1 additional fire damage, based on the speed of the weapon. Slower weapons cause more fire damage per swing. This effect lasts for 2 hours."
+        ]
+      },
+      {
+        "entry_id": 40476,
+        "name": "Tidal Force",
+        "icon": "Spell_Frost_Frostbolt",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Call upon the power of the Tides to empower your heals for 10 sec.\n\nHealing Wave: Heals the target again for 30% of the original amount healed after 1 second.\n\nLesser Healing Wave: Increases your healing on the target by 5% for 8 seconds, stacks up to 3 times.\n\nChain Heal: No longer diminishes in healing with each jump.\n\nHealing Rain: Duration is increased by 50%."
+        ]
+      },
+      {
+        "entry_id": 40734,
+        "name": "Shamanistic Rage",
+        "icon": "Spell_Nature_ShamanRage",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Reduces all damage taken by 30% and gives your successful melee and ranged attacks a chance to regenerate mana equal to 15% of your attack power. This spell is usable while stunned. Lasts 15 sec.\r\n\r\n@ext:This ability is usable while Shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 42060,
+        "name": "Judgement of Light",
+        "icon": "Spell_Holy_RighteousFury",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Unleashes the energy of a Seal spell to judge an enemy for 20 sec, granting auto attacks and auto shots made against the judged enemy a chance of healing the attacker for 2% of their base health. \r\n\r\n@ext:Refer to individual Seals for additional Judgement effect.:ext@\r\n\r\n@ext:Only one Judgement per Paladin can be active at any one time.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40031,
+        "name": "Divine Protection",
+        "icon": "Spell_Holy_Restoration",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Reduces all damage taken by 50% for 12 sec.\r\n\r\nCannot be used within 30 sec of using Avenging Wrath.\n\n@ext:This ability is usable while shapeshifted.:ext@"
+        ]
+      },
+      {
+        "entry_id": 41988,
+        "name": "Anti-Magic Zone",
+        "icon": "Spell_DeathKnight_AntiMagicZone",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Places a large, stationary Anti-Magic Zone that reduces spell damage done to party or raid members inside it by 75%. The Anti-Magic Zone lasts for 10 sec or until it absorbs 10000 spell damage."
+        ]
+      },
+      {
+        "entry_id": 36503,
+        "name": "Titanic Mutilate",
+        "icon": "_CrossingSwords_ColorsRed",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Instantly attacks with both weapons for 70% weapon damage. Damage is increased by 20% against bleeding targets. Awards 2 combo points.\r\n\r\n@ext:This uses Mutilate modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 137876,
+        "name": "Judgement of The Three Hammers",
+        "icon": "inv_mace_1h_artifactdoomhammer_d_01",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFF0D2ED6Primalist|r\r\n\r\nWhile active, dealing direct damage with spells and abilities has a $h% chance to hurl 3 hammers over 2 sec, each dealing 100 Physical damage. Lasts for 15 sec."
+        ]
+      },
+      {
+        "entry_id": 138203,
+        "name": "Guarding Rune",
+        "icon": "ever_probe_sprite_296_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFFF2E699Runemaster|r\r\n\r\nInscribe a defensive rune beneath you in a 10 yd radius, summoning a barrier that causes allies within the radius to take 40% reduced Magic damage. Lasts 15 sec."
+        ]
+      },
+      {
+        "entry_id": 36593,
+        "name": "Warcry",
+        "icon": "Ability_Warrior_IntensifyRage",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Increases your melee and ranged critical strike chance by 15% for 15 sec."
+        ]
+      },
+      {
+        "entry_id": 138224,
+        "name": "Lich Form",
+        "icon": "Achievement_Boss_Amnennar_the_Coldbringer",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "|cFFFFFFFFThis spell belongs to |r|cFF8787EDNecromancer|r\r\n\r\nTransform into a lich for 30 sec, increasing Frost damage you deal by 10%."
+        ]
+      },
+      {
+        "entry_id": 36680,
+        "name": "Winds of Winter",
+        "icon": "Spell_Shadow_DarkRitual",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Finishing move that deals Frost damage per combo point to enemies in a cone in front of the caster:\r\n 1 point : 2-23 damage\r\n 2 points: 2-23 damage\r\n 3 points: 2-23 damage\r\n 4 points: 2-23 damage\r\n 5 points: 2-23 damage\r\n\r\n@ext:This uses Cone of Cold modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36774,
+        "name": "Unchained Blink",
+        "icon": "ability_socererking_arcanewrath",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Teleports the caster 20 yards forward.\r\n\r\nThis ability can be used while casting, but not channeling, and does not trigger a global cooldown.\r\n\r\n@ext:This uses Blink modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37497,
+        "name": "Twisted Mind",
+        "icon": "_D3archon",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your mind becomes twisted, increasing your spell power by and your hit chance by 3%, but reduces your healing and absorbs by 5%.\r\n\r\n@ext:This cannot be used together with other bar-changing abilities such as Stances or Forms.:ext@"
+        ]
+      },
+      {
+        "entry_id": 37718,
+        "name": "Divine Infusion",
+        "icon": "nhi_corruptionpower_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Causes a friendly target to grow with divine power, reducing their damage taken by 40% and granting them 60% resistance to enemy dispels for 8 sec. Knocks up players and reduces the movement speed of nearby enemies by 40% for 2 sec.\r\n\r\n@ext:This uses Pain Suppression modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36713,
+        "name": "Explosive Charges",
+        "icon": "custom_T_Nhance_RPG_Icons_FireBomb_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "While active, this toggled ability causes your Lava Lash to plant an Explosive Charge on your target that detonates after 3 sec, dealing -120 Fire damage to the target and nearby enemies.\r\n\r\n@ext:This uses Explosive Shot modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 36483,
+        "name": "Lava Sweep",
+        "icon": "spell_shaman_lavasurge",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Unleash fiery sweep of lava in front of you, dealing 75% main-hand weapon damage as Fire damage. If your weapon is enchanted with Flametongue, damage dealt by Lava Sweep to your primary target is increased by 25%.\r\n\r\n@ext:This uses Lava Lash modifiers.:ext@"
+        ]
+      },
+      {
+        "entry_id": 43025,
+        "name": "Ray of Frost",
+        "icon": "ability_mage_rayoffrost",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Channel an icy beam at the target for 5 sec, dealing Frost damage every 1 sec, slowing the target by 23%.\r\n\r\nEach time Ray of Frost deals damage, its damage and snare is increased by 20%."
+        ]
+      }
+    ],
+    "talents": [
+      {
+        "entry_id": 41014,
+        "name": "Wrecking Crew",
+        "icon": "Ability_Warrior_Trauma",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your melee critical hits enrage you, increasing all damage caused by 3% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects..",
+          "Your melee critical hits enrage you, increasing all damage caused by 6% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects..",
+          "Your melee critical hits enrage you, increasing all damage caused by 10% for 12 sec. This effect does not stack with Enrage or trigger Enrage effects."
+        ]
+      },
+      {
+        "entry_id": 40963,
+        "name": "Honor Among Thieves",
+        "icon": "Ability_Rogue_HonorAmongstThieves",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 33% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds.",
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 66% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds.",
+          "When anyone in your group critically hits with a damage or healing spell or ability, you have a 100% chance to gain a combo point.\r\n\r\nThis effect cannot occur more than once every 3 seconds."
+        ]
+      },
+      {
+        "entry_id": 41025,
+        "name": "Relentless Strikes",
+        "icon": "Ability_Warrior_DecisiveStrike",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Your finishing moves have a 7% chance per combo point to restore 25 energy.",
+          "Your finishing moves have a 14% chance per combo point to restore 25 energy.",
+          "Your finishing moves have a 20% chance per combo point to restore 25 energy."
+        ]
+      },
+      {
+        "entry_id": 40744,
+        "name": "Vitality",
+        "icon": "Ability_Warrior_Revenge",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your Energy regeneration rate by 13%.",
+          "Increases your Energy regeneration rate by 26%.",
+          "Increases your Energy regeneration rate by 40%."
+        ]
+      },
+      {
+        "entry_id": 40753,
+        "name": "Find Weakness",
+        "icon": "Ability_Rogue_FindWeakness",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your critical strike chance by 2%.\r\n\r\n|cFFAAAAAACapstone Bonus: The periodic damage of your Garrote will be able to critically hit.|r",
+          "Increases your critical strike chance by 4%.\r\n\r\n|cFFAAAAAACapstone Bonus: The periodic damage of your Garrote will be able to critically hit.|r",
+          "Increases your critical strike chance by 6%.\r\n\r\nCapstone Bonus: The periodic damage of your Garrote is able to critically hit."
+        ]
+      },
+      {
+        "entry_id": 40861,
+        "name": "Burnout",
+        "icon": "Ability_Mage_Burnout",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your spell critical strikes now deal 180% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Dealing direct Fire damage on targets afflicted by your Ignite increases your spell damage by 3% for 8 seconds. Dealing direct magic non-Fire damage to targets affected by your Ignite causes an explosion, dealing damage to all nearby enemies. Both effects require the final rank of Ignite.|r",
+          "Your spell critical strikes now deal 185% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Dealing direct Fire damage on targets afflicted by your Ignite increases your spell damage by 3% for 8 seconds. Dealing direct magic non-Fire damage to targets affected by your Ignite causes an explosion, dealing damage to all nearby enemies. Both effects require the final rank of Ignite.|r",
+          "Your spell critical strikes now deal 190% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\r\n\n|cFFAAAAAACapstone Bonus: Dealing direct Fire damage on targets afflicted by your Ignite increases your spell damage by 3% for 8 seconds. Dealing direct magic non-Fire damage to targets affected by your Ignite causes an explosion, dealing damage to all nearby enemies. Both effects require the final rank of Ignite.|r",
+          "Your spell critical strikes now deal 195% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\n|cFFAAAAAACapstone Bonus: Dealing direct Fire damage on targets afflicted by your Ignite increases your spell damage by 3% for 8 seconds. Dealing direct magic non-Fire damage to targets affected by your Ignite causes an explosion, dealing damage to all nearby enemies. Both effects require the final rank of Ignite.|r",
+          "Your spell critical strikes now deal 200% damage. \r\n\r\n@ext:This does not stack with other similar effects.:ext@\n\nCapstone Bonus: Dealing direct Fire damage on targets afflicted by your Ignite increases your spell damage by 3% for 8 seconds. Dealing direct magic non-Fire damage to targets affected by your Ignite causes an explosion, dealing damage to all nearby enemies. Both effects require the final rank of Ignite."
+        ]
+      },
+      {
+        "entry_id": 40329,
+        "name": "Improved Cone of Cold",
+        "icon": "Spell_Frost_Glacier",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage dealt by your Cone of Cold spell by 15%. ",
+          "Increases the damage dealt by your Cone of Cold spell by 30%. ",
+          "Increases the damage dealt by your Cone of Cold spell by 45%. "
+        ]
+      },
+      {
+        "entry_id": 40327,
+        "name": "Ice Floes",
+        "icon": "Spell_Frost_IceFloes",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 11%.",
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 22%.",
+          "Reduces the cooldown of your Frost Nova, Cone of Cold, Ice Block and Icy Veins spells by 33%."
+        ]
+      },
+      {
+        "entry_id": 41847,
+        "name": "Answered Prayers",
+        "icon": "ability_priest_savinggrace",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases all damage and healing done by 2%.\r\n\r\nIncreases Holy damage by an additional 1%.",
+          "Increases all damage and healing done by 4%.\r\n\r\nIncreases Holy damage by an additional 2%.",
+          "Increases all damage and healing done by 6%.\r\n\r\nIncreases Holy damage by an additional 3%.",
+          "Increases all damage and healing done by 8%.\r\n\r\nIncreases Holy damage by an additional 4%.",
+          "Increases all damage and healing done by 10%.\r\n\r\nIncreases Holy damage by an additional 5%."
+        ]
+      },
+      {
+        "entry_id": 40890,
+        "name": "Demonic Pact",
+        "icon": "Spell_Shadow_DemonicPact",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your spell damage done by 2%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 1% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 4%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 2% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 6%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 3% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 8%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 4% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons.",
+          "Increases your spell damage done by 10%.\r\n\r\nYour Summoned Demon's spell criticals increase spell power of yourself, party and raid members by 5% of your Spell Damage for 45 sec.\r\n\r\nThis effect has a 20 sec cooldown. Does not work on Enslaved demons."
+        ]
+      },
+      {
+        "entry_id": 40721,
+        "name": "Demonic Tactics",
+        "icon": "Spell_Shadow_DemonicTactics",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 2%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 4%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases critical strike chance for you, your tamed pet, and your Wild Imps by 6%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 8%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@",
+          "Increases melee and spell critical strike chance for you, your tamed pet, and your Wild Imps by 10%.\r\n\r\n@ext:Tamed Pet includes Summoned Demon, Enslave Demon, Dominate Undead, Tame Dragonkin, Tether Elemental, Summoned Ghoul, and Tame Beast.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40916,
+        "name": "Primal Precision",
+        "icon": "Ability_Druid_PrimalPrecision",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "Increases your energy regeneration rate by 10%.\r\n\r\nIncreases your Expertise by 5.\r\n\r\nCat Form finishing moves that fail to land are refunded 40% of the energy cost.\n\n|cFFAAAAAACapstone Bonus: Your Cat Form finishing moves reduce the cooldown of Berserk by $/1000;48414S2 sec. and Tiger's Fury by $/1000;48414S1 sec.|r",
+          "Increases your energy regeneration rate by 20%.\r\n\r\nIncreases your Expertise by 10.\r\n\r\nCat Form finishing moves that fail to land are refunded 80% of the energy cost.\n\nCapstone Bonus: Your Cat Form finishing moves reduce the cooldown of Berserk by $/1000;48414S2 sec. and Tiger's Fury by $/1000;48414S1 sec."
+        ]
+      },
+      {
+        "entry_id": 40732,
+        "name": "Mental Quickness",
+        "icon": "Spell_Nature_MentalQuickness",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Dealing direct physical damage increases your magic damage done by 2% for 6 sec.\n\nDealing direct magic damage increases your physical damage done by 2% for 6 sec.\n\nOnly one damage bonus can be active at a time.",
+          "Dealing direct physical damage increases your magic damage done by 4% for 6 sec.\n\nDealing direct magic damage increases your physical damage done by 4% for 6 sec.\n\nOnly one damage bonus can be active at a time.",
+          "Dealing direct physical damage increases your magic damage done by 6% for 6 sec.\n\nDealing direct magic damage increases your physical damage done by 6% for 6 sec.\n\nOnly one damage bonus can be active at a time.",
+          "Dealing direct physical damage increases your magic damage done by 8% for 6 sec.\n\nDealing direct magic damage increases your physical damage done by 8% for 6 sec.\n\nOnly one damage bonus can be active at a time.",
+          "Dealing direct physical damage increases your magic damage done by 10% for 6 sec.\n\nDealing direct magic damage increases your physical damage done by 10% for 6 sec.\n\nOnly one damage bonus can be active at a time."
+        ]
+      },
+      {
+        "entry_id": 40495,
+        "name": "Thundering Strikes",
+        "icon": "Ability_ThunderBolt",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your critical strike chance by 1%.\n\n|cFFAAAAAACapstone Bonus: Dealing damage with spells has a chance to increase your Agility by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@",
+          "Increases your critical strike chance by 2%.\n\n|cFFAAAAAACapstone Bonus: Dealing damage with spell have a chance to increases your Agility by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@",
+          "Increases your critical strike chance by 3%.\n\n|cFFAAAAAACapstone Bonus: Dealing damage with spell have a chance to increases your Agility by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@",
+          "Increases your chance to get a critical strike with all spells and attacks by 4%.\n\n|cFFAAAAAACapstone Bonus: Dealing damage with spell have a chance to increases your Agility by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@",
+          "Increases your chance to get a critical strike with all spells and attacks by 5%.\n\nCapstone Bonus: Dealing damage with spell have a chance to increases your Agility by (based on your level) for 12 seconds. @ext:This effect can only trigger once every 6 seconds.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40494,
+        "name": "Elemental Weapons",
+        "icon": "Spell_Fire_FlameTounge",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases the damage caused by your Windfury Weapon effect by 10%.\r\n\r\nIncreases the spell damage on your Flametongue Weapon by 20%.\r\n\r\nIncreases the Frost spell damage granted on your Frostbrand Weapon by 33%.\r\n\r\nIncreases the bonus healing on your Earthliving Weapon by 33%.",
+          "Increases the damage caused by your Windfury Weapon effect by 20%.\r\n\r\nIncreases the spell damage on your Flametongue Weapon by 40%.\r\n\r\nIncreases the Frost spell damage granted on your Frostbrand Weapon by 66%.\r\n\r\nIncreases the bonus healing on your Earthliving Weapon by 66%.",
+          "Increases the damage caused by your Windfury Weapon effect by 30%.\r\n\r\nIncreases the spell damage on your Flametongue Weapon by 60%.\r\n\r\nIncreases the Frost spell damage granted on your Frostbrand Weapon by 100%.\r\n\r\nIncreases the bonus healing on your Earthliving Weapon by 100%."
+        ]
+      },
+      {
+        "entry_id": 40936,
+        "name": "Elemental Oath",
+        "icon": "Spell_Shaman_ElementalOath",
+        "rank": 2,
+        "max_ranks": 2,
+        "per_rank_text": [
+          "While Clearcasting from Elemental Focus is active, you deal 5% more spell damage. In addition, party and raid members within 100 yards receive a 3% bonus to their spell critical strike chance.\n\r\n@ext:Does not stack with other similar effects.:ext@",
+          "While Clearcasting from Elemental Focus is active, you deal 10% more spell damage. In addition, party and raid members within 100 yards receive a 5% bonus to their spell critical strike chance.\n\r\n@ext:Does not stack with other similar effects.:ext@"
+        ]
+      },
+      {
+        "entry_id": 40473,
+        "name": "Elemental Focus",
+        "icon": "Spell_Shadow_ManaBurn",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "After landing a critical strike with a Fire, Frost, or Nature damage spell you have a $h% chance to enter a Clearcasting state. \r\n\r\nThe Clearcasting state reduces the resource cost of your next $16246n Magic spells by 40%."
+        ]
+      },
+      {
+        "entry_id": 40988,
+        "name": "Righteous Vengeance",
+        "icon": "Ability_Paladin_RighteousVengeance",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Direct critical strikes with spells and abilities make your target take 10% additional damage over 8 seconds as Holy damage.",
+          "Direct critical strikes with spells and abilities make your target take 20% additional damage over 8 seconds as Holy damage.",
+          "Direct critical strikes with spells and abilities make your target take 30% additional damage over 8 seconds as Holy damage."
+        ]
+      },
+      {
+        "entry_id": 40784,
+        "name": "Combat Expertise",
+        "icon": "Spell_Holy_WeaponMastery",
+        "rank": 3,
+        "max_ranks": 3,
+        "per_rank_text": [
+          "Increases your Stamina by 2%.\r\n\r\nIncreases your critical strike chance by 2%.\r\n\r\nIncreases your Expertise by 2.",
+          "Increases your Stamina by 4%.\r\n\r\nIncreases your critical strike chance by 4%.\r\n\r\nIncreases your Expertise by 4.",
+          "Increases your Stamina by 6%.\r\n\r\nIncreases your critical strike chance by 6%.\r\n\r\nIncreases your Expertise by 6."
+        ]
+      },
+      {
+        "entry_id": 41096,
+        "name": "Blood Gorged",
+        "icon": "Spell_Nature_Reincarnation",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "When you are above 75% health, you deal 2% more damage. In addition, your attacks ignore up to 2% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 4% more damage. In addition, your attacks ignore up to 4% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 6% more damage. In addition, your attacks ignore up to 6% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 8% more damage. In addition, your attacks ignore up to 8% of your opponent's armor at all times.",
+          "When you are above 75% health, you deal 10% more damage. In addition, your attacks ignore up to 10% of your opponent's armor at all times."
+        ]
+      },
+      {
+        "entry_id": 41103,
+        "name": "Killing Machine",
+        "icon": "INV_Sword_122",
+        "rank": 5,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike.",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 1).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 2).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 3).",
+          "Your melee abilities have a chance to make your next Frost spell or ability guaranteed to critically strike. Effect occurs more often than Killing Machine (Rank 4)."
+        ]
+      },
+      {
+        "entry_id": 41054,
+        "name": "Bladed Armor",
+        "icon": "INV_Shoulder_36",
+        "rank": 1,
+        "max_ranks": 5,
+        "per_rank_text": [
+          "Increases your melee attack power by 1 for every 250 armor value you have.",
+          "Increases your melee attack power by 2 for every 250 armor value you have.",
+          "Increases your melee attack power by 3 for every 249 armor value you have.",
+          "Increases your melee attack power by 4 for every 248 armor value you have.",
+          "Increases your melee attack power by 5 for every 250 armor value you have."
+        ]
+      },
+      {
+        "entry_id": 36570,
+        "name": "Natural Energy",
+        "icon": "nhi_natureunity_Border",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your Mutilate critical strikes restore 5 energy and an additional 10 energy over 3 sec."
+        ]
+      },
+      {
+        "entry_id": 36575,
+        "name": "Molten Earth",
+        "icon": "Spell_Fire_MoltenBlood",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Your Lava Lash releases |cFFFFFFFFMolten Earth|r on the ground.\n\n@s:272624:0@"
+        ]
+      },
+      {
+        "entry_id": 36636,
+        "name": "Lava Freeze",
+        "icon": "spell_shaman_unleashweapon_frost",
+        "rank": 1,
+        "max_ranks": 1,
+        "per_rank_text": [
+          "Dealing damage with |cFFFFFFFFLava Lash|r now grants you |cFFFFFFFFSolid Ice|r. \r\n@s:273562:0@"
+        ]
+      }
+    ]
+  },
+  "primary_stat": {
+    "id": 3,
+    "token": "intellect"
+  },
+  "rankings": [
+    {
+      "phase": 0,
+      "zone": "Blackrock Depths",
+      "zone_summary": {
+        "location": "Blackrock Depths",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 9,
+        "total_bosses": 28,
+        "total_points": 573.5,
+        "rank": 1,
+        "rank_total": 99,
+        "rank_percentile": 99,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Dire Maul",
+      "zone_summary": {
+        "location": "Dire Maul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 6,
+        "total_bosses": 18,
+        "total_points": 395.15,
+        "rank": 3,
+        "rank_total": 113,
+        "rank_percentile": 97.3,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "All Dungeons",
+      "zone_summary": {
+        "location": "All Dungeons",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 62,
+        "total_bosses": 228,
+        "total_points": 346.21,
+        "rank": 2,
+        "rank_total": 194,
+        "rank_percentile": 99,
+        "best_spec": null,
+        "best_spec_class": null,
+        "best_spec_pct": null,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Stratholme",
+      "zone_summary": {
+        "location": "Stratholme",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 6,
+        "total_bosses": 20,
+        "total_points": 329.5,
+        "rank": 6,
+        "rank_total": 126,
+        "rank_percentile": 95.2,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Uldaman",
+      "zone_summary": {
+        "location": "Uldaman",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 4,
+        "total_bosses": 10,
+        "total_points": 301.21,
+        "rank": 1,
+        "rank_total": 100,
+        "rank_percentile": 99,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Shadowfang Keep",
+      "zone_summary": {
+        "location": "Shadowfang Keep",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 9,
+        "total_points": 295.97,
+        "rank": 1,
+        "rank_total": 95,
+        "rank_percentile": 98.9,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Razorfen Kraul",
+      "zone_summary": {
+        "location": "Razorfen Kraul",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 6,
+        "total_bosses": 8,
+        "total_points": 281.51,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Maraudon",
+      "zone_summary": {
+        "location": "Maraudon",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 5,
+        "total_bosses": 9,
+        "total_points": 241.33,
+        "rank": 1,
+        "rank_total": 0,
+        "rank_percentile": 0,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Lower Blackrock Spire",
+      "zone_summary": {
+        "location": "Lower Blackrock Spire",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 6,
+        "total_bosses": 18,
+        "total_points": 227.29,
+        "rank": 5,
+        "rank_total": 100,
+        "rank_percentile": 95,
+        "best_spec": "Duality",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Wailing Caverns",
+      "zone_summary": {
+        "location": "Wailing Caverns",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 9,
+        "total_points": 214.36,
+        "rank": 1,
+        "rank_total": 13,
+        "rank_percentile": 92.3,
+        "best_spec": "Duality",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "The Deadmines",
+      "zone_summary": {
+        "location": "The Deadmines",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 4,
+        "total_bosses": 9,
+        "total_points": 180.3,
+        "rank": 7,
+        "rank_total": 100,
+        "rank_percentile": 93,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 95.1,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Gnomeregan",
+      "zone_summary": {
+        "location": "Gnomeregan",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 6,
+        "total_points": 152.22,
+        "rank": 5,
+        "rank_total": 95,
+        "rank_percentile": 94.7,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Scholomance",
+      "zone_summary": {
+        "location": "Scholomance",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 14,
+        "total_points": 150.9,
+        "rank": 8,
+        "rank_total": 106,
+        "rank_percentile": 92.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 96.2,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Blackfathom Deeps",
+      "zone_summary": {
+        "location": "Blackfathom Deeps",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 3,
+        "total_bosses": 8,
+        "total_points": 144.48,
+        "rank": 13,
+        "rank_total": 81,
+        "rank_percentile": 84,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Zul'Farrak",
+      "zone_summary": {
+        "location": "Zul'Farrak",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 2,
+        "total_bosses": 13,
+        "total_points": 117.75,
+        "rank": 5,
+        "rank_total": 77,
+        "rank_percentile": 93.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Scarlet Monastery",
+      "zone_summary": {
+        "location": "Scarlet Monastery",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 12,
+        "total_points": 100,
+        "rank": 14,
+        "rank_total": 53,
+        "rank_percentile": 73.6,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Sunken Temple",
+      "zone_summary": {
+        "location": "Sunken Temple",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 11,
+        "total_points": 100,
+        "rank": 7,
+        "rank_total": 47,
+        "rank_percentile": 85.1,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Upper Blackrock Spire",
+      "zone_summary": {
+        "location": "Upper Blackrock Spire",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 10,
+        "total_points": 100,
+        "rank": 3,
+        "rank_total": 23,
+        "rank_percentile": 87,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 100,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "The Stockade",
+      "zone_summary": {
+        "location": "The Stockade",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 6,
+        "total_points": 61.62,
+        "rank": 10,
+        "rank_total": 43,
+        "rank_percentile": 76.7,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 95.2,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 0,
+      "zone": "Razorfen Downs",
+      "zone_summary": {
+        "location": "Razorfen Downs",
+        "difficulty": "normal",
+        "phase_number": 0,
+        "character_class": "Hero",
+        "bosses_killed": 1,
+        "total_bosses": 6,
+        "total_points": 25.2,
+        "rank": 30,
+        "rank_total": 55,
+        "rank_percentile": 45.5,
+        "best_spec": "Hero",
+        "best_spec_class": "Hero",
+        "best_spec_pct": 64.1,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": []
+    },
+    {
+      "phase": 1,
+      "zone": "Zul'Gurub",
+      "zone_summary": {
+        "location": "Zul'Gurub",
+        "difficulty": "ascended",
+        "phase_number": 1,
+        "character_class": "Hero",
+        "bosses_killed": 10,
+        "total_bosses": 10,
+        "total_points": 312.58,
+        "rank": 7,
+        "rank_total": 9,
+        "rank_percentile": 22.2,
+        "best_spec": "Intelligence",
+        "best_spec_class": "Hero",
+        "best_spec_pct": null,
+        "metric": "avg_dps",
+        "realm": null
+      },
+      "boss_rows": [
+        {
+          "boss_id": 1001,
+          "boss_name": "High Priest Venoxis",
+          "boss_icon": "Achievement_ZG_Veno",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 27941.1,
+          "best_hps": 0,
+          "best_rank_dps": 12,
+          "best_rank_dps_total": 25,
+          "best_rank_dps_percentile": 56,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 30187,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 25.21998967066215,
+          "all_star_rank": 12,
+          "all_star_total": 25,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1002,
+          "boss_name": "High Priestess Jeklik",
+          "boss_icon": "Achievement_ZG_Jeklik",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 26070.83,
+          "best_hps": 0,
+          "best_rank_dps": 10,
+          "best_rank_dps_total": 24,
+          "best_rank_dps_percentile": 62.5,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 35266,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 41.955602303948176,
+          "all_star_rank": 10,
+          "all_star_total": 24,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1003,
+          "boss_name": "High Priestess Mar'li",
+          "boss_icon": "Achievement_ZG_Marli",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 18942.48,
+          "best_hps": 0,
+          "best_rank_dps": 14,
+          "best_rank_dps_total": 24,
+          "best_rank_dps_percentile": 45.8,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 29068,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 18.03589123998525,
+          "all_star_rank": 14,
+          "all_star_total": 24,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1004,
+          "boss_name": "Bloodlord Mandokir",
+          "boss_icon": "Achievement_ZG_Mando",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 10760.95,
+          "best_hps": 0,
+          "best_rank_dps": 15,
+          "best_rank_dps_total": 22,
+          "best_rank_dps_percentile": 36.4,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 76131,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 18.772037440837043,
+          "all_star_rank": 15,
+          "all_star_total": 22,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1010,
+          "boss_name": "Edge of Madness",
+          "boss_icon": "Achievement_ZG_Grilek",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 25770.79,
+          "best_hps": 0,
+          "best_rank_dps": 11,
+          "best_rank_dps_total": 25,
+          "best_rank_dps_percentile": 60,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 49277,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 42.02528800953211,
+          "all_star_rank": 11,
+          "all_star_total": 25,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1005,
+          "boss_name": "High Priest Thekal",
+          "boss_icon": "Achievement_ZG_Thekal",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 32360.7,
+          "best_hps": 0,
+          "best_rank_dps": 10,
+          "best_rank_dps_total": 24,
+          "best_rank_dps_percentile": 62.5,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 24486,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 32.13664553645389,
+          "all_star_rank": 10,
+          "all_star_total": 24,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1013,
+          "boss_name": "Gahz'ranka",
+          "boss_icon": "Achievement_ZG_Gahz",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 15777.96,
+          "best_hps": 0,
+          "best_rank_dps": 10,
+          "best_rank_dps_total": 23,
+          "best_rank_dps_percentile": 60.9,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 78115,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 37.88565711398913,
+          "all_star_rank": 10,
+          "all_star_total": 23,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1006,
+          "boss_name": "High Priestess Arlokk",
+          "boss_icon": "Achievement_ZG_Arlokk",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 19195.47,
+          "best_hps": 0,
+          "best_rank_dps": 11,
+          "best_rank_dps_total": 24,
+          "best_rank_dps_percentile": 58.3,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 52463,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 43.053472457449864,
+          "all_star_rank": 11,
+          "all_star_total": 24,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1007,
+          "boss_name": "Jin'do the Hexxer",
+          "boss_icon": "achievement_zulgurub_jindo",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 939.86,
+          "best_hps": 0,
+          "best_rank_dps": 24,
+          "best_rank_dps_total": 24,
+          "best_rank_dps_percentile": 4.2,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 37715,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 1.1358261193577643,
+          "all_star_rank": 24,
+          "all_star_total": 24,
+          "all_star_is_tank": false
+        },
+        {
+          "boss_id": 1008,
+          "boss_name": "Hakkar",
+          "boss_icon": "achievement_boss_hakkar",
+          "location": "Zul'Gurub",
+          "spec": "Intelligence",
+          "character_class": "Hero",
+          "difficulty": "ascended",
+          "bracket": "25-man",
+          "best_dps": 25182.69,
+          "best_hps": 0,
+          "best_rank_dps": 10,
+          "best_rank_dps_total": 25,
+          "best_rank_dps_percentile": 64,
+          "best_rank_dps_provisional": true,
+          "best_rank_hps": null,
+          "best_rank_hps_total": null,
+          "best_rank_hps_percentile": null,
+          "best_rank_hps_provisional": false,
+          "current_rank_dps": null,
+          "current_rank_dps_total": null,
+          "current_rank_dps_percentile": null,
+          "current_rank_hps": null,
+          "current_rank_hps_total": null,
+          "current_rank_hps_percentile": null,
+          "median_dps_pct": null,
+          "median_hps_pct": null,
+          "fastest_duration_ms": 68674,
+          "kills": 1,
+          "locked_kills": 0,
+          "all_star_points": 42.51292621840999,
+          "all_star_rank": 10,
+          "all_star_total": 25,
+          "all_star_is_tank": false
+        }
+      ]
+    }
+  ],
+  "capture_history": [
+    {
+      "capture_id": "1153365",
+      "captured_at": "2026-08-02T17:59:18.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154839",
+      "captured_at": "2026-08-02T17:59:18.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153294",
+      "captured_at": "2026-08-02T17:55:18.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154768",
+      "captured_at": "2026-08-02T17:55:18.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153218",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153245",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Hakkari Shadowcaster",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153270",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154692",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154719",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Hakkari Shadowcaster",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154744",
+      "captured_at": "2026-08-02T17:50:02.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153172",
+      "captured_at": "2026-08-02T17:48:29.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154646",
+      "captured_at": "2026-08-02T17:48:29.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153148",
+      "captured_at": "2026-08-02T17:47:58.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154622",
+      "captured_at": "2026-08-02T17:47:58.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153069",
+      "captured_at": "2026-08-02T17:44:23.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 74,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1154543",
+      "captured_at": "2026-08-02T17:44:23.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 75,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1153043",
+      "captured_at": "2026-08-02T17:43:18.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154517",
+      "captured_at": "2026-08-02T17:43:18.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152989",
+      "captured_at": "2026-08-02T17:41:42.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154463",
+      "captured_at": "2026-08-02T17:41:42.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152947",
+      "captured_at": "2026-08-02T17:40:20.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154421",
+      "captured_at": "2026-08-02T17:40:20.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152900",
+      "captured_at": "2026-08-02T17:38:29.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154374",
+      "captured_at": "2026-08-02T17:38:29.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152819",
+      "captured_at": "2026-08-02T17:35:45.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152844",
+      "captured_at": "2026-08-02T17:35:45.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154293",
+      "captured_at": "2026-08-02T17:35:45.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154318",
+      "captured_at": "2026-08-02T17:35:45.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152792",
+      "captured_at": "2026-08-02T17:34:58.000Z",
+      "boss_name": "Zealot Zath",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154266",
+      "captured_at": "2026-08-02T17:34:58.000Z",
+      "boss_name": "Zealot Zath",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152767",
+      "captured_at": "2026-08-02T17:33:44.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154241",
+      "captured_at": "2026-08-02T17:33:44.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152680",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152689",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152715",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154154",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154163",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1154189",
+      "captured_at": "2026-08-02T17:30:47.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152634",
+      "captured_at": "2026-08-02T17:29:05.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1154108",
+      "captured_at": "2026-08-02T17:29:05.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152570",
+      "captured_at": "2026-08-02T17:27:40.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 74,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1154044",
+      "captured_at": "2026-08-02T17:27:40.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 75,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1152516",
+      "captured_at": "2026-08-02T17:24:39.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153990",
+      "captured_at": "2026-08-02T17:24:39.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152468",
+      "captured_at": "2026-08-02T17:22:54.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153942",
+      "captured_at": "2026-08-02T17:22:54.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152442",
+      "captured_at": "2026-08-02T17:20:53.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153916",
+      "captured_at": "2026-08-02T17:20:53.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152426",
+      "captured_at": "2026-08-02T17:20:47.000Z",
+      "boss_name": "Gurubashi Blood Drinker",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153900",
+      "captured_at": "2026-08-02T17:20:47.000Z",
+      "boss_name": "Gurubashi Blood Drinker",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152376",
+      "captured_at": "2026-08-02T17:18:31.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153850",
+      "captured_at": "2026-08-02T17:18:31.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1152361",
+      "captured_at": "2026-08-02T17:18:07.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153835",
+      "captured_at": "2026-08-02T17:18:07.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1152311",
+      "captured_at": "2026-08-02T17:16:40.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 74,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153785",
+      "captured_at": "2026-08-02T17:16:40.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153707",
+      "captured_at": "2026-08-02T17:14:21.000Z",
+      "boss_name": "Gurubashi Berserker",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153695",
+      "captured_at": "2026-08-02T17:13:14.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153688",
+      "captured_at": "2026-08-02T17:12:50.000Z",
+      "boss_name": "High Priest Venoxis",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153638",
+      "captured_at": "2026-08-02T17:09:41.000Z",
+      "boss_name": "Gurubashi Axe Thrower",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153610",
+      "captured_at": "2026-08-02T17:08:10.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153585",
+      "captured_at": "2026-08-02T17:08:04.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153549",
+      "captured_at": "2026-08-02T17:06:16.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1153472",
+      "captured_at": "2026-08-02T17:02:50.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1153405",
+      "captured_at": "2026-08-02T17:00:38.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 75,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143473",
+      "captured_at": "2026-08-01T17:53:10.000Z",
+      "boss_name": "Hakkar",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143398",
+      "captured_at": "2026-08-01T17:49:51.000Z",
+      "boss_name": "Soulflayer",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143423",
+      "captured_at": "2026-08-01T17:49:51.000Z",
+      "boss_name": "Son of Hakkar",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143347",
+      "captured_at": "2026-08-01T17:48:12.000Z",
+      "boss_name": "Jin'do the Hexxer",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143255",
+      "captured_at": "2026-08-01T17:46:00.000Z",
+      "boss_name": "Withered Mistress",
+      "report_id": 68,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1143221",
+      "captured_at": "2026-08-01T17:43:43.000Z",
+      "boss_name": "High Priestess Arlokk",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143171",
+      "captured_at": "2026-08-01T17:42:35.000Z",
+      "boss_name": "Zulian Panther",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143113",
+      "captured_at": "2026-08-01T17:41:16.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1143055",
+      "captured_at": "2026-08-01T17:39:14.000Z",
+      "boss_name": "Gahz'ranka",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1143008",
+      "captured_at": "2026-08-01T17:36:34.000Z",
+      "boss_name": "High Priest Thekal",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142902",
+      "captured_at": "2026-08-01T17:34:04.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142927",
+      "captured_at": "2026-08-01T17:34:04.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142844",
+      "captured_at": "2026-08-01T17:31:51.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142852",
+      "captured_at": "2026-08-01T17:31:51.000Z",
+      "boss_name": "Zulian Tiger",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142781",
+      "captured_at": "2026-08-01T17:30:04.000Z",
+      "boss_name": "Gri'lek",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142746",
+      "captured_at": "2026-08-01T17:26:28.000Z",
+      "boss_name": "Mad Voidwalker",
+      "report_id": 68,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1142721",
+      "captured_at": "2026-08-01T17:26:02.000Z",
+      "boss_name": "Bloodlord Mandokir",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142616",
+      "captured_at": "2026-08-01T17:24:03.000Z",
+      "boss_name": "Razzashi Raptor",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142527",
+      "captured_at": "2026-08-01T17:21:18.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142518",
+      "captured_at": "2026-08-01T17:20:13.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142357",
+      "captured_at": "2026-08-01T17:16:14.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142327",
+      "captured_at": "2026-08-01T17:14:54.000Z",
+      "boss_name": "High Priest Venoxis",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142301",
+      "captured_at": "2026-08-01T17:12:03.000Z",
+      "boss_name": "High Priestess Jeklik",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1142164",
+      "captured_at": "2026-08-01T17:06:21.000Z",
+      "boss_name": "Gurubashi Bat Rider",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142124",
+      "captured_at": "2026-08-01T17:05:06.000Z",
+      "boss_name": "Zulian Crocolisk",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1142088",
+      "captured_at": "2026-08-01T17:04:40.000Z",
+      "boss_name": "Razzashi Serpent",
+      "report_id": 68,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144476",
+      "captured_at": "2026-07-31T19:57:36.000Z",
+      "boss_name": "Ysondre",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144419",
+      "captured_at": "2026-07-31T19:48:40.000Z",
+      "boss_name": "Lethon",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144396",
+      "captured_at": "2026-07-31T19:38:28.000Z",
+      "boss_name": "Taerar",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144382",
+      "captured_at": "2026-07-31T19:28:10.000Z",
+      "boss_name": "Emeriss",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144340",
+      "captured_at": "2026-07-31T19:17:32.000Z",
+      "boss_name": "The Will of Soggoth",
+      "report_id": 69,
+      "location": "World Bosses",
+      "success": true
+    },
+    {
+      "capture_id": "1144319",
+      "captured_at": "2026-07-31T19:16:41.000Z",
+      "boss_name": "Combat Segment",
+      "report_id": 69,
+      "location": null,
+      "success": false
+    },
+    {
+      "capture_id": "1144297",
+      "captured_at": "2026-07-31T19:10:55.000Z",
+      "boss_name": "High Priestess Mar'li",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": true
+    },
+    {
+      "capture_id": "1144266",
+      "captured_at": "2026-07-31T19:09:33.000Z",
+      "boss_name": "Razzashi Venombrood",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    },
+    {
+      "capture_id": "1144233",
+      "captured_at": "2026-07-31T19:07:22.000Z",
+      "boss_name": "Razzashi Adder",
+      "report_id": 69,
+      "location": "Zul'Gurub",
+      "success": false
+    }
+  ]
+}

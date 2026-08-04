@@ -1,7 +1,0 @@
-## Interface: 30300
-## Title: AscensionCrafter Export
-## Notes: Exports gear stats and character sheet numbers for AscensionCrafter theorycrafting. Companion to inspects.nie.one (which covers spec/talent/gear-ID capture) - this covers full per-slot item stats plus live sheet numbers (per-school Spell Power, crit/hit/haste/expertise/armor pen).
-## Author: Yshaana
-## Version: 1.0
-
-AscensionCrafterExport.lua

@@ -1,46 +1,73 @@
 # AscensionCrafter
 
-Theorycrafting tooling for Project Ascension (Season 10, Wildcard, Darkmoon) —
-spell/card index, combat log parsing, and the persistent context docs Claude
-uses across sessions.
+Theorycrafting toolkit for **Project Ascension** (Season 10, Wildcard, realm Darkmoon) —
+a spell/mechanics database with provenance, a corpus of real player builds, and the
+persistent context docs Claude uses across sessions.
+
+**Start here:** [`primer/START_HERE_FOR_CODE.md`](primer/START_HERE_FOR_CODE.md), then
+[`primer/PROGRESS.md`](primer/PROGRESS.md) for what's next. Architecture and the
+non-negotiable data rules live in [`primer/ARCHITECTURE.md`](primer/ARCHITECTURE.md).
 
 ## Structure
 
 ```
-docs/     Ascension_Context_Primer.md, Ascension_Paladin_Handoff.md, INDEX_GUIDE.md
-          Persistent theorycrafting context. Version-bumped on edit.
-data/     spell-export.json, Cards.txt, ascension_index.db
-          Source data + the built SQLite index (regenerate via scripts/, see below).
-scripts/  build_index.py, seed_confirmed.py, seed_borrowed_modifiers.py,
-          class_dictionary.py, decode_inspect_export.py
-          Index build/seed pipeline + inspects.nie.one export decoder.
-tools/log_parser/
-          parse_log.py + friends. Parses WoWCombatLog.txt (with the
-          AscensionLogsCompanion addon installed) into structured JSON:
-          combat events (crit%, avoidance) and decoded player builds.
-          See tools/log_parser/README.md for details + confidence notes.
+primer/     The docs. START_HERE + PROGRESS + ARCHITECTURE + phase docs + session handoffs.
+core/       Pure logic. No print(), no argparse, no paths; takes a connection as a parameter.
+              db/        schema, connections
+              spells/    text extraction, rank resolution, ID crosswalk, fingerprinting
+              changelog/ patch-entry parsing and classification
+api/        Service layer a web API would wrap 1:1. Empty until Phase 1 T7.
+cli/        Thin command-line wrappers. `rebuild.py` runs the whole ingest chain.
+ingest/     Source data -> the derived database.
+              dbc/ export/ changelog/ logs_gg/ addon/
+tools/      scrapers/ (acquisition runners), audit/ (integrity checks), log_parser/
+addons/     In-game Lua addons.
+data/
+  source/   Committed, irreplaceable raw captures: export/ dbc/ scouted/ changelog/ crawl/
+  derived/  Gitignored .db files and reports. Always rebuildable.
+builds/     my-builds/ (locked)  wip/ (theorycraft)  shared/ (scouted + synergy write-ups)
 ```
 
-## Rebuilding the index
+The split that matters: **`data/source/` is committed and can never be regenerated;
+`data/derived/` is disposable.** And `core/` never learns where a file lives — only
+`config.py` knows that (ARCHITECTURE §2.7).
 
-Run in order from `scripts/`:
+## Rebuilding the database
 
+```bash
+py cli/rebuild.py
 ```
-python3 build_index.py              # rebuilds data/ascension_index.db from data/spell-export.json + data/Cards.txt
-python3 seed_borrowed_modifiers.py  # resolves class_origin via "uses X modifiers" tooltip clauses
-python3 seed_confirmed.py           # seeds confirmed_facts from docs/ statements
+
+Runs the full chain into `data/derived/ascension.db` from committed plain-text
+sources. Takes seconds and works in any clone.
+
+After a **client patch**, add the DBC extraction step — it reads the game client's
+own MPQ archives and rewrites the two committed extracts in `data/source/dbc/`:
+
+```bash
+py cli/rebuild.py --with-dbc
 ```
 
-All paths are relative to repo root (resolved via each script's own location),
-so this works from any clone — no environment-specific paths.
+That step needs the client installed plus a locally built StormLib
+(`ASCENSION_STORMLIB_DLL` overrides the DLL path). Nothing else does.
+
+## Daily data capture
+
+```bash
+run_crawler.bat
+```
+
+Snapshots the changelog and crawls `darkmoon.ascensionlogs.gg`, capped at 25 new
+reports. Also runs automatically at logon — see [`SCHEDULING.md`](SCHEDULING.md).
+`catchup_crawler.bat` is the uncapped historical backfill and stays **deliberately
+manual**; don't schedule it.
 
 ## Parsing a combat log
 
-```
-cd tools/log_parser
-python3 parse_log.py /path/to/WoWCombatLog.txt
+```bash
+py tools/log_parser/parse_log.py "<path>/WoWCombatLog.txt"
 ```
 
-Pure stdlib, no installs needed. See `tools/log_parser/README.md` for the
-confidence breakdown (build-decoding is verified against ALC's real source;
-standard combat-event parsing is unverified against a real Ascension log).
+Pure stdlib. See `tools/log_parser/README.md` for the confidence breakdown —
+build-decoding is verified against ALC's real source; standard combat-event parsing
+is still unverified against a real Ascension log.
