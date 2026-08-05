@@ -1,0 +1,22 @@
+# Isolation captures - Elric, 2026-08-05 (session 2e)
+# Owner-supplied. Gear block identical to stat_export_POI_unbuffed.txt except where noted.
+#
+# state                      Str Agi Sta  Int Spi  AP RAP   SP   BH MeleeCrit SpellCrit_H SpellCrit_o CritRtg ExpRtg ArPRtg Armor
+baseline_POI_unbuffed        121  28 264  259  77 141  60  638  229    24.92       41.88       26.88     179     32     14  2953
+baseline_plus_elixir_of_agi  121  43 264  259  77 141  77  638  229    25.38       41.88       26.88     179     32     14  2983
+geared_NO_talents_abilities  121  28 247  259  77 101   0  288  229    15.70       17.67       17.67     162     26      0  2953
+naked_NO_talents_abilities    50  28 113  159  69  30   0  118    0     4.13        4.46        4.46       0      0      0    56
+#
+# Weapon damage:
+#   baseline            MH 543.6-646.3 (3.57)   OH 506.4-587.8 (3.47)
+#   +elixir             MH 543.6-646.3 (3.57)   OH 506.4-587.8 (3.47)   [unchanged]
+#   geared_no_talents   MH 372.4-476.2 (3.57)   OH 34.7-34.7 (0.00)     [no Titan's Grip -> offhand unequipped]
+#   naked               MH  18.4- 19.4 (2.00)   OH 34.7-34.7 (0.00)
+#
+# Haste rating 29 in all geared states (Chest 14 + Waist 6 + MainHand 9), 0 naked.
+#   Reported as melee 3.77% / ranged 2.90% / spell 2.90% -- melee is consistently 1.30x
+#   the other two and nothing identified explains it. Naked reads 0.00% on all three.
+#
+# NOTE: the offhand (Barovian Family Sword) carries crit 17, expertise 6, ArP 14, AP 27,
+# Sta 17 -- it is unequipped in the no-talent states, so those deltas are the ITEM,
+# not the talents.

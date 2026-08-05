@@ -171,3 +171,21 @@ as a finding. **Re-run this comparison once Holy Shock resolves.**
 * **Lightbound Cleave non-crit average** — predicted base 446 before talent
   multipliers; the build doc measured 703, and the ratio is a direct read on how
   much the unmodelled talent stack is worth.
+
+---
+
+## ⚠ Dated annotations (append-only — the text above is the original record)
+
+**2026-08-05 (`2c` G1):** the **1.31 Holy÷Holystrike ratio above is DEMOTED as a
+fit target** — it is confounded by the weapon input (Holystrike is 86–100%
+weapon damage, Holy is 0%, so a stale weapon number passes into the ratio ~1:1).
+The replacement targets are the **weapon-free pairs**: HftH ÷ HoJ-tick 1.718,
+Dawnreaver ÷ Whirling Light 0.769. Recorded here per `2e` T6; the original text
+stands unedited above.
+
+**2026-08-05 (`2e` T3):** the confound is now **demonstrated, not just
+diagnosed**: with a same-session stat block (PoI Window A), the Holystrike
+"residual" vanished entirely — Lightbound Cleave 1.00×, Dawnreaver 0.99×. The
+Dawn Strike anomaly (its 0.79× against peers at ~1.0) **survives the clean
+input** and remains open (`dawn_strike_sim_base_is_systematically_too_high`).
+Full report: `predictions/calib_2026-08-05_2e_poi.md`.

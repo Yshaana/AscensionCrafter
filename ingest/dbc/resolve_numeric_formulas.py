@@ -231,6 +231,58 @@ def collect_rows(conn, patch_id, now, level=60):
                 for rid in ref_ids if rid in raw)
             (stats["blocked_resolved"] if ref_hit else stats["blocked_empty"]).add(spell_id)
 
+    # ------------------------------------------------------------------ 2e
+    # Fourth source class: every REMAINING extracted spell, decoded under its own
+    # id with NO attribution claim (`spell_id == source_spell_id`).
+    #
+    # 🚨 Why this exists. The three classes above are all reached FROM the
+    # catalog — a card, its export hidden_refs, its rank sibling. Anything the
+    # game reaches by a *different* route is extracted and then never read:
+    #   * a seal's proc target      (20375 -> 20424 Seal of Command's damage)
+    #   * a judgement's real spell  (20467, selected by the active seal)
+    #   * an out-of-catalog version (270767/270768, Purification By Light's own)
+    #   * a talent's damage spell   (16459 Sword Specialization, 913445 Blades of Light)
+    #   * an imbue's hidden carrier (200819 Consecrated Holy Weapon Hidden)
+    # `2e` measured 11,417 of 16,566 `spell_dbc_raw` rows in that state, holding
+    # intact numeric fields the resolver simply never looked at. Combat logs name
+    # spell ids directly, so the sim resolves exactly these ids — and got nothing.
+    #
+    # This is the same failure as `2b`'s "rank siblings had NO magnitudes, 686
+    # cards silently simmed as 0" and `1x`'s "98% of blocked hidden-formula
+    # spells resolve from numeric fields": the data was present and in scope the
+    # whole time; the QUERY was narrow.
+    #
+    # 🛑 Attribution discipline is preserved, not relaxed. These rows say "spell
+    # X has magnitude M", never "card C deals M". Card attribution stays with the
+    # bounded trigger walk in core/spells/relationships.py (`via='trigger_hopN'`,
+    # always `inferred`). A consumer that wants only card-owned damage filters
+    # `via IN ('self','hidden_ref')` exactly as before.
+    covered = {r[0] for r in rows}
+    for source_id, entry in sorted(raw.items()):
+        if source_id in covered:
+            continue
+        for decoded in dn.decode_effects(json.loads(entry[0])):
+            key = (source_id, source_id, decoded["effect_index"])
+            if key in seen:
+                continue
+            seen.add(key)
+            stats["dbc_only"] = stats.get("dbc_only", 0) + 1
+            stats.setdefault("dbc_only_covered", set()).add(source_id)
+            rows.append((
+                source_id, source_id, decoded["effect_index"], "dbc_only",
+                decoded["effect_type"], decoded["effect_aura"],
+                decoded["base_points"], decoded["die_sides"],
+                decoded["flat_min"], decoded["flat_max"],
+                decoded["per_level"], decoded["per_combo"],
+                decoded["bonus_multiplier"], decoded["trigger_spell"],
+                decoded["misc_value"], decoded["misc_value_b"],
+                decoded["radius_index"], decoded["aura_period"],
+                decoded["chain_targets"],
+                SOURCE_TIER,
+                dn.evidence_ref(source_id, decoded["effect_index"], entry[1]),
+                "confirmed", REALM, SEASON, patch_id, now,
+            ))
+
     # The G4 rescue set: siblings that have magnitudes ONLY because their own DBC
     # description was followed. Before this, each of these resolved to no events
     # at all, and the sim scored the ability as zero damage.
@@ -255,7 +307,10 @@ def write_rows(conn, rows):
     # the owner's top damage source — among them. Same family as the three
     # idempotency bugs Phase 0 found, inverted: not a script that fails to delete
     # its own output, but one that deletes output it does not own.
-    conn.execute("DELETE FROM spell_effect_values WHERE via IN ('self', 'hidden_ref')")
+    # ⚠ `dbc_only` (session 2e) is a THIRD via this script owns — it must be in
+    # this list or the rows leak across runs and the script stops being idempotent.
+    conn.execute("DELETE FROM spell_effect_values "
+                 "WHERE via IN ('self', 'hidden_ref', 'dbc_only')")
     conn.executemany(
         "INSERT INTO spell_effect_values VALUES (" + ",".join("?" * 26) + ")", rows)
 
@@ -440,7 +495,12 @@ def main():
     print(f"spell_effect_values: {len(rows)} rows "
           f"({stats['self']} from the spell's own record, "
           f"{stats['hidden_ref']} from hidden sub-spells, "
-          f"{stats['rank_sibling']} from rank siblings)")
+          f"{stats['rank_sibling']} from rank siblings, "
+          f"{stats.get('dbc_only', 0)} unattributed dbc_only)")
+    print(f"  unattributed spells now carrying a magnitude (2e): "
+          f"{len(stats.get('dbc_only_covered', ()))} — these are reached by "
+          f"seal/judgement/enchant/talent routes, not from the catalog, and "
+          f"combat logs name them directly")
     print(f"catalog spells with a decoded numeric effect: {len(stats['catalog_covered'])}")
     print(f"rank siblings covered (the id a level-60 character actually casts): "
           f"{len(stats['sibling_covered'])}"

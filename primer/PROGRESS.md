@@ -9,10 +9,68 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `2e` — read `primer/PHASE_2E_buffs_and_carryover.md`.**
-`3a` is deferred behind it: `2d` spent its budget on an owner-in-the-loop testing
-run that produced three premise-invalidating findings, and left every code task
-untouched. `2e` carries them plus what `2d` created.
+**✅ SESSION `2e` IS DONE (2026-08-05, late night).** T1–T4 and T6–T11 complete;
+T5 (bug-DB browser) and T3b's detector half deferred with recorded reasons.
+Session record: `primer/Session_2026-08-05_2e_poi_calibration.md`. Calibration
+report: `predictions/calib_2026-08-05_2e_poi.md`. Rebuild green (20 steps),
+purity 0/41, all engine checks pass (count is run-dependent — stop quoting a
+fixed N).
+
+**Next session: post-restart re-tests, then `3a`.**
+
+### 🔴 FIRST ACTIONS NEXT SESSION
+
+1. **Re-test tracker #200295 after the server restart** — it was FIXED hours
+   after submission (`[Pending Restart]`, owner will test 2026-08-06). Run BOTH:
+   Hammerdin procs from Judgement/Holy Shock (confirms the fix) and the
+   **PBL × Lightbound Cleave discriminator** (a Hammerdin-only fix and a general
+   engine fix look identical if you only re-test Hammerdin). Protocol:
+   `bugs/bug_hammerdin-trigger-set.md`. Build doc §2/§11 revert is conditional
+   on the re-test, not the tracker status.
+2. **Ask for the Consecrated Holy Weapon (200818) live tooltip** — measured at
+   **25.1% of buffed damage** and absent from the DBC extract entirely; the top
+   single ask in the project.
+
+### What `2e` established (headlines — details in the session record)
+
+- ✅ **The Holystrike residual was the weapon input**: LC 1.00× / Dawnreaver
+  0.99× with the first same-session stat block in project history.
+  `holy_holystrike_ratio_weapon_input_confound` demonstrated.
+- 🚨 **The Holy residual is TWO mechanisms** (`holy_residual_two_mechanisms`):
+  out-of-catalog spells whose coefficients CANNOT exist in our data (~2.2×) vs
+  a real ~1.24× on coefficient-bearing spells — plus a component that grows with
+  buffs. Never collapse into one multiplier. D4 gate stays shut.
+- 🚨 **`dbc_only`**: 11,857 extracted-but-never-decoded spells now carry
+  magnitudes. Still missing entirely (~38% of buffed damage): 200818, 20424,
+  954923, 907790, 18652 — extract-scope fix specified in
+  `extract_scope_missing_log_observed_ids`.
+- 🆕 **Buff layer measured to arithmetic** (`core/sim/buffs.py`); **BonusHealing
+  reads undoubled SP** — standing instrument. ❌ Retracted: `2d`'s "seal riders
+  fire on autos only" (isolation-window over-generalisation; ~0.25/melee event
+  measured).
+- 🆕 Glancing vs +3 = **32.6% measured** (retail 24% rejected, 3.1σ); melee crit
+  suppression **consistent with zero** (first constraint, not conclusive).
+- ✅ **1,555 DPS unbuffed / 3,650 buffed** — the owner's ~3,600, finally
+  measured against a known stat block. Calibration gate: 3 of 8 in tolerance
+  (was 1 of 7), all weapon abilities within ±1%, every miss mechanism-named.
+
+### Still blocked on the owner
+
+| Item | Blocking |
+|---|---|
+| `holy_shock_bonus_coefficient_0429` — seed measured ~0.40 or hold for a stating tooltip? | Holy Shock's modelled damage |
+| Commit the ~16 MB of raw combat logs under `data/source/captures/`? | Repo layout; T3b re-runs need them wherever they live |
+| Consecrated Holy Weapon (200818) live tooltip | 25.1% of buffed damage, unmodelled |
+| *(optional)* bug-DB read access via the owner's browser session (`2e` T5, deferred) | Repeatable bug-database lookups |
+
+---
+
+## Superseded: `2e`'s original position
+
+**Was: next session `2e` — read `primer/PHASE_2E_buffs_and_carryover.md`.**
+`3a` was deferred behind it: `2d` spent its budget on an owner-in-the-loop
+testing run that produced three premise-invalidating findings, and left every
+code task untouched. `2e` carried them plus what `2d` created.
 
 **⚠ SESSION `2d` IS PARTIAL (2026-08-05).** T0 (in-game list) and T1 (capture
 bundle) delivered and far exceeded; **T2–T10 not started.** Session record:
@@ -365,8 +423,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **2b** | Three sim tiers, uncertainty, stat weights | ✅ done | `Session_2026-08-05_2b_sim_tiers.md` | T5+T6+T7-cheap-half. **4 data bugs found, all silently zeroing**: trigger coefficients unserved, rank siblings had NO magnitudes (686 cards), weapon-percent read as flat, fast_sim allocation order. 🚨 Structural finding: trigger-reached damage can be delivered by a periodic-trigger aura (HoJ fires HftH 20x/cast, validated 3.81 vs predicted 4.00 over 20,823 pooled hits). 🔴 Improved Cleave reverted to bottom of the chase list |
 | **2c** | Talent modelling, calibration, prediction ledger, cache, diff/report | ✅ done | `Session_2026-08-05_2c_gates_and_talents.md` | Phase 2 complete. Gates G0–G4 + T4b/T8–T11. Holy Shock R4 resolved; the 1.31 ratio demoted; talents modelled |
 | **2d** | Capture bundle, in-game testing, bug findings | ⚠ partial | `Session_2026-08-05_2d_capture_and_bugs.md` | T0+T1 delivered and exceeded; **T2–T10 not started** → carried to `2e`. Three premise-invalidating findings (Duality broken, Hammerdin trigger set, LC engine-inert), 2 bugs filed / 1 submitted (#200295), 3 retractions, Cleave Kit written up |
-| 2e | Buff model, sim gaps, PoI recalibration, bug-fix watch, scorecard spec | ⬜ | — | ▶ **NEXT.** Read `PHASE_2E_buffs_and_carryover.md`. 🛑 Recalibration must run on **Path of Intelligence** — PoD parses are excluded |
-| 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9. Deferred behind `2e` |
+| **2e** | Buff model, sim gaps, PoI recalibration, bug-fix watch, scorecard spec | ✅ done | `Session_2026-08-05_2e_poi_calibration.md` | T1–T4, T6–T11. Holystrike residual closed (weapon input); Holy residual split into 2 mechanisms; `dbc_only` +11,857 spells; buff layer measured; glancing 32.6%; watch sweeps live; kit rename; D3/D4 landed. T5 + detector deferred with reasons. **#200295 FIXED pending restart** |
+| 3a | Crawl normalisation, inference, search, gear | ⬜ | — | ▶ **NEXT** (after the post-restart re-tests). Gear scope gated on 0a Task 9. Inherits the ≥3-character calibration gate from Phase 2 |
 | 3b | Addon, logs, automation, crawler refinement | ⬜ | — | |
 | 4 | Legos + Theorycrafter | ⬜ | — | Chunk as it goes |
 
@@ -435,6 +493,13 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (2e) | 🚨 **`spell_effect_values` decodes EVERY extracted spell** — new `via='dbc_only'` (+19,098 rows / 11,857 spells), attribution untouched (`spell_id == source_spell_id`) | The resolver walked only catalog routes; seal targets, judgement spells, out-of-catalog versions and talent damage spells were extracted-but-never-read. Combat logs name ids directly, so the sim resolved exactly those and got nothing. Third instance of the family "data present, query narrow" (2b's 686 siblings, 1x's 98%). The scoped delete now covers three vias — a fourth writer must scope its own |
+| 2026-08-05 (2e) | ❌ **RETRACTED (2d): "Seal of Command riders fire on autos only"** — measured ~0.25 procs per melee event, autos AND abilities | Generalised from a Lightbound-Cleave-only isolation window, and LC is the one ability that feeds nothing. **An isolation window isolates its subject — it cannot ground a claim about everything outside the isolation.** LC itself still procs nothing; the Cleave Kit costing stands. Mechanism (rate vs PPM) open: two windows at one weapon speed cannot separate them |
+| 2026-08-05 (2e) | ✅ **The Holystrike residual WAS the weapon input** (LC 1.00×, Dawnreaver 0.99×); 🚨 the Holy residual is TWO mechanisms and must never be averaged | First same-session stat block in project history. Missing-coefficient class (out-of-catalog spells have no tooltip to carry one — 2.2×) vs real residual on coefficient-bearing spells (~1.24× post-talent-layer), plus a buff-scaling component. Back-solved coefficients stated in the calib report and deliberately NOT seeded — a coefficient fitted to the parse it checks is not a check |
+| 2026-08-05 (2e) | 🆕 **Buff layer measured to arithmetic; BonusHealing = undoubled SP is a standing instrument** | Owner's incremental capture (one export per buff). Kings ×1.10 applied LAST; imbue **+86 raw per weapon, stacking** — the 2d "+172" was the doubled presentation on a sheet that should not have doubled, flagged for re-measure. Also generalised the read-too-early trap: ANY fresh buff can be absent from an immediate export |
+| 2026-08-05 (2e) | 🆕 **Glancing vs +3 = 32.6% ascension_measured** (95/291; retail 24% rejected at 3.1σ); melee crit suppression consistent with ZERO (66/261) | Both constants named in `combat_engine.py`; measured value served, retail kept for reference. Suppression stays open (3-point effects fit the error bar) but the retail assumption now has evidence against it |
+| 2026-08-05 (2e) | 🆕 **Terminology (D6): "lego" → "kit"; a `chassis` is the shared base** — ARCHITECTURE layer 4, `core/legos/` → `core/kits/` (planned), PHASE_4 annotated not rewritten | Owner decision 2026-08-05. First fully-measured kit: the Cleave Kit (Package 4), now PHASE_4's discovery regression target |
+| 2026-08-05 (2e) | 🆕 **Watch-sweep design: the first keyword per watch row is a required ANCHOR; generic keywords only amplify** | The naive any-keyword scan matched 299 unrelated balance entries (`proc`, `spell power`). Anchor-first cut it to exactly one true positive (the known 2026-07-28 Duality RAP fix — a validation against history). Encoded in `bugs/README.md` |
 | 2026-08-05 (2d) | 🆕 **ARCHITECTURE (owner): model INTENDED behaviour; impairments are a separate, dated layer; "don't recommend" is a policy flag, never a change to the math** | Corrects a same-session over-reach of mine that hardcoded Duality's bugged values as the model. Three reasons, all the owner's: a fix would otherwise require re-deriving the model (a landmine someone must remember to defuse); **other players' parses are full of the broken system**, and only an intended model lets a crawled character read as *impaired* rather than as a *worse build*; and an intermittent bug has no true point value, so `as_measured` must return a **RANGE** with the unmeasured quantity named (`duty_cycle: None` — not guessed). Implemented as `core/builds/stats.py :: SYSTEM_IMPAIRMENTS` + `compute_stats(system_state=...)`, 4 new checks. ✅ **Free detector:** parses that systematically underperform the intended model *are* the bug — and when they stop, that is the fix landing |
 | 2026-08-05 (2d) | 🚨 **Duality's INTENDED behaviour includes a +75% boost to GEAR spell power — which ends a four-version oscillation** | Ascension's own path documentation: AP = highest primary stat, **gear SP boosted 75%**, cross-stat crits, and two named sub-abilities (*Unleashed Force* 2H +6% damage, *Twin Flurry* 1H +10% haste). **This vindicates v3's "×1.75 itemised SP amp", which v4 retracted for not being visible on the sheet — both were right about different things: v3 read the DESIGN, v4 observed the BROKEN DELIVERY.** At gear SP 229, intended ≈ 425 vs 271 observed (~36% shortfall), which is exactly why a bug report says *"a difference of 19 Spellpower"*. ⚠ Scoped to **gear** SP, so the multiplier is order-dependent in `compute_stats` — it must run before Lunar Guidance and other effect SP is added |
 | 2026-08-05 (2d) | 🛑 **PATH OF DUALITY IS BROKEN — its parses are excluded from absolute calibration, and it is not to be recommended** | Community-reported by multiple players and corroborated by our own captures: the AP bonus **cycles on/off every ~10–15 s** (832↔1128 for one player, 174↔307 for us), the SP grant is reduced to a flat **+19** (independently reported as 19), and the weapon-type passives are dead. Every historical calibration log therefore had AP oscillating **mid-parse** — a candidate cause of part of `2b`'s 1.41× between-session spread. `core/builds/stats.py` was applying a 6% all-damage clause the server does not grant; removed. Owner plays **Path of Intelligence** now. Fix-detection watch list in `bugs/README.md` |

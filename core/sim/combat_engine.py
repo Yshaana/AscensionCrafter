@@ -143,10 +143,25 @@ _SPELL_BASE_MISS = {0: 4.0, 1: 5.0, 2: 6.0, 3: 17.0}
 DUAL_WIELD_WHITE_MISS_PENALTY = 19.0
 # retail_hypothesis: expertise reduces target dodge AND parry by 0.25% per point.
 EXPERTISE_REDUCTION_PER_POINT = 0.25
-# retail_hypothesis: glancing blows — white attacks only, vs higher-level targets.
-# 3.3.5: chance 6% + 12% per level of skill-diff bands ≈ 24% vs +3 boss;
+# Glancing blows — white attacks only, vs higher-level targets.
+# retail 3.3.5: chance 6% + 12% per level of skill-diff bands ≈ 24% vs a +3 boss;
 # damage penalty vs +3 ≈ 25% (SimC wotlk branch player_t::glance values).
-GLANCING_CHANCE_VS_BOSS = 24.0
+GLANCING_CHANCE_VS_BOSS_RETAIL = 24.0
+# 🆕 ascension_measured (session `2e`, 2026-08-05): **32.6%**, from the two
+# Path-of-Intelligence dummy windows in
+# data/source/captures/2026-08-05_elric_2e_poi_baseline/ against a level-63 (+3)
+# target — 95 glancing blows in 291 swing attempts (window A 42/137, window B
+# 53/154). That is 3.1σ above retail's 24.0 (1σ = 2.75 points at n=291), so the
+# retail value is NOT usable here. Both are named; the measured one is served.
+GLANCING_CHANCE_VS_BOSS_MEASURED = 32.6
+GLANCING_CHANCE_VS_BOSS = GLANCING_CHANCE_VS_BOSS_MEASURED
+GLANCING_CHANCE_EVIDENCE = (
+    "ascension_measured 2026-08-05 (2e): 95/291 swing attempts vs a level-63 "
+    "dummy = 32.6%; retail 3.3.5 predicts 24.0% (3.1 sigma)"
+)
+# ⚠ Still retail_hypothesis: only the CHANCE was measured. The combat log does
+# not distinguish a glancing hit's damage from a normal one, so the 25% penalty
+# is unvalidated on Ascension.
 GLANCING_DAMAGE_PENALTY = 0.25
 
 
@@ -232,9 +247,16 @@ def white_melee_table(attacker_level, crit_pct, hit_pct, expertise_points,
                                          attack_from_behind)
     glancing = GLANCING_CHANCE_VS_BOSS if delta >= 3 else max(0.0, delta * 6.0)
     if glancing:
-        warnings.append(
-            "glancing chance/penalty are retail_hypothesis values (24%/25% vs "
-            "+3) — not yet validated on Ascension")
+        if delta >= 3:
+            warnings.append(
+                f"glancing CHANCE is ascension_measured ({GLANCING_CHANCE_VS_BOSS}% "
+                f"vs +3) — {GLANCING_CHANCE_EVIDENCE}. The glancing DAMAGE "
+                f"penalty ({GLANCING_DAMAGE_PENALTY:.0%}) is still "
+                "retail_hypothesis and unvalidated")
+        else:
+            warnings.append(
+                f"glancing chance vs +{delta} uses the retail band formula "
+                "(retail_hypothesis) — only the +3 case is measured on Ascension")
     block = max(0.0, target.block_pct)
     # retail_hypothesis: crit suppression vs higher-level targets exists but its
     # magnitude on Ascension is an OPEN QUESTION — the owner's own parse shows

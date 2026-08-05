@@ -94,3 +94,35 @@ trio** (relog between each) before trusting any Duality number again.
 Fix-detection mechanism (2e T-BUGWATCH): the daily changelog capture already
 exists — scan it for `Duality`, `attack power`, `spell power`, `path` and surface
 matches against this file's symptom list.
+
+## 🔬 2e duty-cycle measurement — INCONCLUSIVE-TO-NEGATIVE for combat damage
+
+Session `2e` ran the planned Dawnreaver bimodality test on the four usable `2d`
+PoD dummy logs (113 non-crit hits). Two results, both honest:
+
+1. **The histogram discriminator is UNDERPOWERED at Elric's Strength and cannot
+   run as designed.** Expected cluster separation is ΔAP/14 × speed = 133/14 ×
+   3.57 ≈ **34 damage**, but the weapon roll alone contributes sd ≈ 30 — the two
+   phases overlap almost completely. The `2e` protocol's design missed the
+   weapon-roll variance. (The community reporter who watched 832↔1128 had a Δ
+   near 300, where the same test would work.)
+2. **A sharper time-series test points AGAINST the cycle expressing in damage.**
+   A 10–15 s ON/OFF cycle predicts hits ≤5 s apart share a phase: normalized
+   short-lag correlation ≈ **+0.26**. Measured on the largest single-dummy log
+   (n=61 hits, 555 s): **−0.29** for ≤5 s pairs, −0.02 for 6–9 s pairs — ~2.7σ
+   from the prediction, on only 25 pairs.
+
+**Standing interpretation:** the sheet oscillation is real (directly observed,
+independently corroborated), but these windows show no evidence it reached
+per-hit combat damage. Possible reconciliations: combat snapshots AP on some
+other schedule; the OFF phase did not overlap these windows; or Elric's Δ is too
+small to see. **`duty_cycle` stays `None`** in `SYSTEM_IMPAIRMENTS` — still not
+a guessed point value — and the impairment's *damage-side* magnitude is now
+flagged as possibly smaller than the sheet-side one.
+
+**Detector status:** the per-path underperformance detector (`2e` T3b.2) is
+**deferred with recorded reason**: PoD parses are excluded from absolute
+calibration by owner decision, so a per-path residual mode has no valid PoD
+input until a fix lands — and the duty-cycle input it needs is unmeasurable at
+Elric's Strength. The design stays in `PHASE_2E` §T3b; re-open on a fix, or on
+any capture from a high-Strength Duality character.

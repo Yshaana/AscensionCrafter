@@ -48,6 +48,11 @@ PRED_2B = {
     "sim_tier": "medium",
     "sim_version": "2b",
     "data_version": "ascension.db rebuilt 2026-08-05, 19 steps",
+    # 2e T4 backfill, NOT a stamp refresh: the patch in effect when the
+    # prediction was made. The 2026-08-05 balance pass (patch_id 11) was tagged
+    # [Pending Restart] and not live that evening, so the live state was the
+    # 2026-08-04 Darkmoon patch (patch_id 10).
+    "patch_id": 10,
     "realm": "Darkmoon",
     "season": "S10",
     "created_at": "2026-08-05T00:00:00+00:00",
@@ -87,6 +92,7 @@ PRED_2C = {
     "sim_version": "2c",
     "data_version": "ascension.db rebuilt 2026-08-05 with --with-dbc, 20 steps "
                     "(EffectSpellClassMask + rank-sibling sub-spell refs added)",
+    "patch_id": 10,    # 2e T4 backfill — same reasoning as PRED_2B's stamp
     "realm": "Darkmoon",
     "season": "S10",
     "created_at": "2026-08-05T23:00:00+00:00",

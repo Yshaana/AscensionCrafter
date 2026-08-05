@@ -1,0 +1,24 @@
+# Incremental buff capture - Elric, Path of Intelligence, 2026-08-05
+# Owner added one buff at a time and exported after each. Gear block identical
+# throughout (see stat_export_POI_unbuffed.txt); only the varying fields recorded here.
+# STEP 3 IS STALE: byte-identical to step 2; Kings' effect lands in step 4.
+#
+# step                Str  Agi  Sta  Int  Spi   AP  RAP  SP_Holy SP_other  BH   MeleeCrit SpellCrit_o Armor
+0  baseline           121   28  264  259   77  141   60      638      638  229     24.92       26.88   2953
+1  +AspectOfTheBeast  121   28  264  259   77  155   60      638      638  229     24.92       26.88   2953
+2  +ArcaneBrilliance  121   28  264  290   77  155   60      698      698  256     24.92       27.39   2953
+3  +BlessingOfKings   121   28  264  290   77  155   60      698      698  256     24.92       27.39   2953   # STALE
+4  +ImbueMainHand     133   30  290  319   84  258  143      878      706  342     24.98       27.87   2957
+5  +ImbueOffHand      133   30  290  319   84  346  223     1050      706  428     24.98       27.87   2957
+6  +StrengthOfEarth   201   99  290  319   84  428  299     1050      706  428     27.10       27.87   3095
+#
+# Weapon damage (MainHand min-max, speed 3.57 throughout):
+#   0: 543.6-646.3   1: 547.3-650.0   2: 575.4-678.1   3: 575.4-678.1
+#   4: 641.0-743.7   5: 699.1-801.8   6: 720.7-823.4
+# OffHand (speed 3.47):
+#   0: 506.4-587.8   1: 510.0-591.4   2: 526.6-608.0   3: 526.6-608.0
+#   4: 601.0-682.4   5: 657.4-738.8   6: 678.3-759.7
+#
+# Unchanged in every step: Rating_HitMelee 18, Rating_HitSpell 18, Rating_CritMelee 179,
+# Rating_CritSpell 179, Rating_HasteMelee 29, Rating_Expertise 32, Rating_ArmorPen 14.
+# SpellCrit_Holy is always SpellCrit_other + 15.00 (the Holy talent crit stack).

@@ -1,0 +1,41 @@
+=== Elric - Darkmoon - Season 10 Wildcard ===
+# Owner-stated buffs: Aspect of the Beast, Arcane Brilliance, Greater Blessing of Kings,
+# 2x Consecrated Weapons, Strength of the Earth Totem
+Level: 60
+Strength: 201
+Agility: 99
+Stamina: 290
+Intellect: 319
+Spirit: 84
+AttackPower: 428
+RangedAttackPower: 299
+SpellPower_Holy: 1050
+SpellPower_Fire: 706
+SpellPower_Nature: 706
+SpellPower_Frost: 706
+SpellPower_Shadow: 706
+SpellPower_Arcane: 706
+BonusHealing: 428
+MeleeCrit: 27.10%
+RangedCrit: 27.10%
+SpellCrit_Holy: 42.87%
+SpellCrit_Fire: 27.87%
+SpellCrit_Nature: 27.87%
+SpellCrit_Frost: 27.87%
+SpellCrit_Shadow: 27.87%
+SpellCrit_Arcane: 27.87%
+Rating_HitMelee: 18 (1.80%)
+Rating_HitRanged: 18 (1.80%)
+Rating_HitSpell: 18 (2.25%)
+Rating_CritMelee: 179 (12.79%)
+Rating_CritRanged: 179 (12.79%)
+Rating_CritSpell: 179 (12.79%)
+Rating_HasteMelee: 29 (3.77%)
+Rating_HasteRanged: 29 (2.90%)
+Rating_HasteSpell: 29 (2.90%)
+Rating_Expertise: 32 (12.80%)
+Rating_ArmorPen: 14 (3.67%)
+Armor: 3095
+MainHandDamage: 720.7-823.4 (speed 3.57)
+OffHandDamage: 678.3-759.7 (speed 3.47)
+# Gear block identical to stat_export_POI_unbuffed.txt (verified byte-equal) - see that file.

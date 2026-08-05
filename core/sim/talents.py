@@ -157,31 +157,56 @@ class TalentEffects:
     """Everything a build's talents do, aggregated and queryable."""
     modifiers: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
+    # 2e T10 (D3): talent_spell_id -> (bucket_id, bucket_name) for slotted
+    # talents that share a "does not stack / only the highest applies" bucket.
+    # Populated by resolve_talents from `exclusivity_buckets`.
+    buckets: dict = field(default_factory=dict)
 
     # --- damage ---------------------------------------------------------------
     def damage_multiplier(self, school, spell_family=None, class_mask=None):
         """Multiplicative damage factor for one ability, and what produced it.
 
-        Returns `(factor, [applied_names])`. School amplifiers stack
-        multiplicatively with each other (primer §2's exclusivity buckets are a
-        separate, unmodelled question — see `warnings`).
+        Returns `(factor, [applied_names])`.
+
+        2e T10 (D3): exclusivity buckets are scored **as the game scores them**
+        — when several applicable modifiers share a bucket, only the HIGHEST
+        member enters the math; the suppressed members are named in the applied
+        list so a board carrying dead bucket-mates reads as such rather than as
+        extra damage. Conflicts are allowed and warned, never rejected (the
+        analysis path must be able to model someone else's conflicted board).
         """
         mask = school_to_mask(school)
         factor, applied = 1.0, []
+        candidates = []          # (modifier, pct_value, label)
         for m in self.modifiers:
             if m.value is None:
                 continue
             if m.kind == "damage_pct_school":
                 if mask and (m.scope.get("school_mask", 0) & mask):
-                    factor *= 1.0 + m.value / 100.0
-                    applied.append(f"{m.talent_name} +{m.value:g}%")
+                    candidates.append((m, m.value, f"{m.talent_name} +{m.value:g}%"))
             elif m.kind == "spellmod_pct" and m.scope.get("op") in SPELLMOD_DAMAGE_OPS:
                 if _mask_hits(m.scope.get("class_mask"), class_mask,
                               m.scope.get("family"), spell_family):
-                    factor *= 1.0 + m.value / 100.0
-                    applied.append(
+                    candidates.append((
+                        m, m.value,
                         f"{m.talent_name} +{m.value:g}% "
-                        f"({SPELLMOD_OP_NAMES.get(m.scope['op'], m.scope['op'])})")
+                        f"({SPELLMOD_OP_NAMES.get(m.scope['op'], m.scope['op'])})"))
+
+        best_in_bucket = {}      # bucket_id -> highest pct among applicable members
+        for m, value, _ in candidates:
+            b = self.buckets.get(m.talent_spell_id)
+            if b and value > best_in_bucket.get(b[0], float("-inf")):
+                best_in_bucket[b[0]] = value
+
+        for m, value, label in candidates:
+            b = self.buckets.get(m.talent_spell_id)
+            if b and value < best_in_bucket.get(b[0], value):
+                applied.append(
+                    f"[bucket-suppressed] {label} — {b[1]}: only the highest "
+                    "member applies")
+                continue
+            factor *= 1.0 + value / 100.0
+            applied.append(label)
         return factor, applied
 
     def flat_damage_bonus(self, school, spell_family=None, class_mask=None):
@@ -382,12 +407,29 @@ def resolve_talents(conn, talents):
             "SpellMod effects decoded but NOT applied to damage (they modify "
             "cooldown/cost/duration/crit, which the damage path must not touch): "
             + ", ".join(f"{m.talent_name} {m.scope['op_name']}" for m in non_damage))
-    eff.warnings.append(
-        "exclusivity buckets are NOT enforced here - primer section 2's 'only "
-        "the highest applies' rules (Answered Prayers / Enhanced Weapon Mastery "
-        "/ Unending Fury / Blessed Weapons; Holy Focus) would need a bucket "
-        "check before stacking two members. A build that slots two members of "
-        "one bucket is OVER-VALUED by this model")
+    # 2e T10 (D3): load bucket membership for the slotted talents, so
+    # damage_multiplier can score conflicts as the game does (highest member
+    # only). Allowed + warned, never rejected — the analysis path must be able
+    # to model someone else's conflicted board.
+    slotted = {m.talent_spell_id for m in eff.modifiers}
+    if slotted:
+        placeholders = ",".join("?" * len(slotted))
+        rows = conn.execute(
+            f"SELECT spell_id, bucket_id, bucket_name FROM exclusivity_buckets "
+            f"WHERE spell_id IN ({placeholders})", tuple(slotted)).fetchall()
+        eff.buckets = {r[0]: (r[1], r[2]) for r in rows}
+        by_bucket = {}
+        for sid_, (bid, bname) in eff.buckets.items():
+            by_bucket.setdefault((bid, bname), []).append(sid_)
+        for (bid, bname), members in by_bucket.items():
+            if len(members) > 1:
+                names = sorted({m.talent_name for m in eff.modifiers
+                                if m.talent_spell_id in members})
+                eff.warnings.append(
+                    f"exclusivity bucket '{bname}' has {len(members)} slotted "
+                    f"members ({', '.join(names)}) — only the highest applies "
+                    "per evaluation; the rest are dead weight on this board "
+                    "(allowed and scored as the game scores it, per D3)")
     return eff
 
 

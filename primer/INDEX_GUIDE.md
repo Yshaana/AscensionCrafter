@@ -1,3 +1,60 @@
+# Ascension Spell/Card Index — Guide (v15)
+
+**v15 changelog (2026-08-05, session `2e`).** One widened table, two new audit
+sweeps, two new sim modules, one scoring-rule change. Rebuild stays **20 steps**.
+
+- 🚨 **`spell_effect_values` gained a fourth `via` class: `dbc_only`** —
+  **19,098 rows / 11,857 spells** that are in `spell_dbc_raw` but reached by
+  NO catalog route (seal proc targets, judgement spells, out-of-catalog
+  versions, talent damage spells, imbue carriers). Combat logs name these ids
+  directly, and the sim resolved exactly them and got nothing — same failure
+  family as `2b`'s 686 zero-magnitude rank siblings. **Attribution discipline is
+  unchanged:** a `dbc_only` row has `spell_id == source_spell_id` and says
+  "spell X has magnitude M", never "card C deals M"; filter
+  `via IN ('self','hidden_ref')` for card-owned rows exactly as before.
+  ⚠ `resolve_numeric_formulas.py`'s scoped delete now covers all three vias it
+  owns — add a fourth writer, scope its delete.
+- 🆕 **Two audit sweeps** in `tools/audit/audit_gaps.py` (14 checks now):
+  `bugfix_watch_sweep` scans the daily changelog capture against
+  `bugs/README.md`'s watch list — ⚠ **the FIRST keyword per row is the ANCHOR**
+  (required); generic keywords only amplify, after `proc` alone matched 299
+  unrelated entries. Validated against history: it finds the known 2026-07-28
+  Duality RAP fix and nothing else. `extract_staleness_sweep` compares the DBC
+  extracts' new `_extracted_at` stamp against the latest Darkmoon patch date
+  (both exporters stamp it now; `load_extract` skips `_`-prefixed keys).
+- 🆕 **`core/sim/buffs.py`** — measured buff model (Kings ×1.10 applied LAST,
+  Arcane Brilliance +31 Int/+27 raw SP, Consecrated Weapon **+86 raw SP per
+  weapon, stacking**, Strength of Earth +62 Str AND +62 Agi, Aspect of the
+  Beast +14 AP). Reproduces the 2026-08-05 buffed export to rounding. 🆕 **Bonus
+  Healing reads UNDOUBLED spell power** — use it as the raw-grant instrument.
+- 🆕 **`core/sim/swings.py`** — auto-attacks (white table incl. glancing),
+  seal riders (measured ~0.25 procs per melee event — rate vs PPM undecided),
+  Righteous Vengeance as a derived 30%-of-crit-damage DoT, and the
+  seal→judgement mapping (pressed card ≠ damaging spell 20467). Wired into BOTH
+  fast and medium tiers. ⚠ Glancing chance vs +3 is now **ascension_measured
+  32.6%** (95/291), replacing retail's 24.0 — 3.1σ apart.
+- 🆕 **D3 bucket scoring is IMPLEMENTED** (`talents.py`): when slotted talents
+  share an exclusivity bucket, only the **highest applicable member** enters
+  `damage_multiplier`; suppressed members are named in the applied list, and a
+  multi-member board warns. Conflicts are allowed, never rejected. Verified on
+  Elric's board: single-member buckets only, ×1.155 unchanged.
+- 🆕 **`volatility_score` is decay-weighted** (D7):
+  `direction_mult × 0.5^(age_days/90)`, priors nerf 1.5 / rework 1.25 /
+  buff 0.75 — **stated priors, not fitted**; bands read off the weighted score.
+  Still Darkmoon-strict, report-only, `data_thin`-honest.
+
+```sql
+-- a log-observed spell's magnitude, whatever route reaches it
+SELECT spell_id, via, effect_type, flat_min, flat_max, per_level
+FROM spell_effect_values WHERE spell_id = ?;
+
+-- card-owned rows only (the pre-2e semantics)
+SELECT * FROM spell_effect_values
+WHERE spell_id = ? AND via IN ('self','hidden_ref');
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v14)
 
 **v14 changelog (2026-08-05, session `2c`).** Two new tables, one widened extract,

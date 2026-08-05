@@ -1,3 +1,42 @@
+# Project Ascension — Paladin Build Handoff (v14)
+
+**v14 changelog (2026-08-05, from session `2e` — the Path-of-Intelligence
+calibration, a pending un-nerf of the rotation, and one large new unknown):**
+
+- ✅ **Tracker #200295 IS FIXED, `[Pending Restart]`** — hours after submission.
+  When the restart lands and the in-game re-test confirms it, **§11's "press
+  Judgement and Holy Shock" priority and §2's class-tag table become correct
+  again** (2d had demoted both). 🛑 **The revert is conditional on the re-test,
+  not the tracker status** — and run the **PBL × Lightbound Cleave
+  discriminator** alongside it (`bugs/bug_hammerdin-trigger-set.md`): a
+  Hammerdin-only fix and a general engine fix look identical if only Hammerdin
+  is re-tested.
+- 🚨 **Consecrated Holy Weapon (200818) measured at 25.1% of buffed damage — the
+  build's single largest damage source — and the sim has NO magnitude for it.**
+  405 hits / 46.7% crit in the buffed window. Its live tooltip is now the top
+  single ask in the project (it has no DBC route until `SpellItemEnchantment.dbc`
+  is extracted). §12 item 5's caution (200818 ≠ catalog 200809) stands.
+- ✅ **First fully-attributed DPS measurement: 1,555 unbuffed / 3,650 buffed**
+  (level-63 dummy, same-session stat export). The ~3,600 this doc has quoted
+  from memory since v5 is now a measured number.
+- ✅ **The sim now matches every weapon-damage ability within ±1%** (Lightbound
+  Cleave 1.00×, Dawnreaver 0.99×) — the old "Holystrike ~1.37× residual" was a
+  stale weapon input, closed. The Holy-side residual splits into two named
+  mechanisms (`predictions/calib_2026-08-05_2e_poi.md`); **§10's empirical
+  weights remain the ones to gear by** until that closes and the D4 gate opens.
+- ⚠ **Correction to a `2d` detail: Seal of Command riders proc from autos AND
+  melee abilities** (~0.25 per event, ~8.5% of unbuffed damage) — not "autos
+  only". Lightbound Cleave itself still feeds nothing.
+- 🆕 **Buff table for this build is now measured, per buff** (Kings ×1.10 last;
+  imbue +86 raw Holy SP per weapon, stacking under Titan's Grip; totem +62
+  Str/+62 Agi; Aspect +14 AP): `core/sim/buffs.py`. **Bonus Healing reads
+  undoubled SP** — useful at the character panel, not just in the tooling.
+- 🆕 **Swift Retribution is another player's raid aura**, not part of this
+  build; the persistent "3% haste even naked" is explained. Siphon Health
+  (18652) is a small Shadow periodic, source still unknown.
+
+---
+
 # Project Ascension — Paladin Build Handoff (v13)
 
 **v13 changelog (2026-08-05, from Phase 2 session `2c` — one chase-list entry

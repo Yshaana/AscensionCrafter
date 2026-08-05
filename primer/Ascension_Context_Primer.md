@@ -4,6 +4,75 @@ This file explains how **Project Ascension** works so you can reason about build
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
 
+**v28 changelog (2026-08-05, session `2e`).** The Path-of-Intelligence
+calibration session — the first with a same-session stat block on a non-cycling
+path — plus the buff layer measured to arithmetic and a resolver widening.
+Full detail in `primer/Session_2026-08-05_2e_poi_calibration.md`; only what
+changes *practice* is here.
+
+- 🚨 **NEW §5 PRACTICE, and it closed a planned session's worth of mystery: the
+  ~1.37× Holystrike calibration residual was ENTIRELY the stale weapon input.**
+  With a same-session export, Lightbound Cleave calibrates at **1.00×** and
+  Dawnreaver at **0.99×**. `2c` diagnosed the confound correctly; `2e` proved
+  it. **A stat block from a different session is not a degraded input — for
+  weapon-dominated abilities it is the whole error.**
+- 🚨 **A school residual can be TWO mechanisms, and averaging them makes a
+  number wrong for both.** The Holy residual splits by *whether the spell can
+  carry a coefficient at all*: out-of-catalog spells (Righteous Smite 2.27×,
+  PBL Consecration 2.20×) have **no catalog tooltip, and Ascension keeps
+  applied coefficients in tooltip text — so their SP terms are MISSING, not
+  zero**. Coefficient-bearing spells (HftH 1.45×, HoJ 1.41×) carry a real ~1.24×
+  after the talent layer. 🛑 The back-solved gap sizes are stated in
+  `predictions/calib_2026-08-05_2e_poi.md` and deliberately NOT seeded — a
+  coefficient fitted to the parse it must later check is worthless as a check.
+- 🚨 **`spell_effect_values` now decodes EVERY extracted spell** (`via='dbc_only'`,
+  +19,098 rows / 11,857 spells) — seal proc targets, judgement spells,
+  out-of-catalog versions, talent damage spells were all extracted-but-never-read
+  because the resolver only walked catalog routes. Combat logs name spell ids
+  directly, so the sim resolves exactly these. Attribution unchanged: a
+  `dbc_only` row never credits a card. ⚠ Still absent from the extract entirely,
+  ~38% of buffed damage: **Consecrated Holy Weapon (200818, 25.1% of the
+  owner's buffed damage — now the single largest modelling gap and the top
+  tooltip ask)**, Seal of Command's 20424, Arcing Light, Whirling Light OH,
+  Siphon Health. Next `--with-dbc`: **seed the scope from log-observed ids** and
+  extract `SpellItemEnchantment.dbc` (the only route to 200818).
+- 🆕 **The buff layer is MEASURED, not modelled** (owner's incremental capture —
+  one export per buff added): **Blessing of Kings ×1.10 on all five stats,
+  applied LAST**; Arcane Brilliance +31 Int / +27 raw SP; **Consecrated Weapon
+  +86 RAW Holy SP per weapon, and it STACKS under Titan's Grip**; Strength of
+  Earth +62 Str AND +62 Agi; Aspect of the Beast +14 AP only. In
+  `core/sim/buffs.py`, reproducing the buffed export to rounding.
+  🆕 **BonusHealing reads UNDOUBLED spell power** — a free instrument: read an
+  effect's raw SP grant off it directly instead of unpicking PoI's ×2.0. ⚠ That
+  instrument shows `2d`'s "+172 imbue" was the *doubled* presentation read on a
+  sheet that should not have doubled — flagged for re-measure, not carried.
+- ❌ **RETRACTED (`2d`): "Seal of Command riders fire on autos only."** Full
+  rotation windows: ~0.25 procs per melee event, from autos AND abilities.
+  The 2d reading generalised from a Lightbound-Cleave-only isolation window —
+  and LC is the one ability measured to feed nothing. **An isolation window
+  isolates its subject; it cannot ground a claim about everything outside the
+  isolation.** (LC itself still procs nothing — the Cleave Kit costing stands.)
+- 🆕 **§1: glancing vs +3 is 32.6% on Ascension, measured** (95/291 swing
+  attempts; retail's 24% rejected at 3.1σ). Melee crit suppression vs +3:
+  first real constraint, **consistent with ZERO** (66/261 = 25.29% vs 26.06%
+  expected) — against the retail assumption, not yet conclusive.
+- 🆕 **The export read-too-early trap is GENERAL, not path-specific:** a
+  Blessing of Kings export taken immediately after casting was byte-identical
+  to the pre-cast export. **Wait for the sheet to show the change; treat a
+  zero-delta export as suspect.** (Same family as `2d`'s path-switch bug, now
+  demonstrated on an ordinary buff.)
+- 🆕 **Swift Retribution is an EXTERNAL aura from a passing player** — the
+  owner's mystery "3% haste, even naked". The export's haste fields are
+  rating-derived and structurally cannot show buff haste. Siphon Health remains
+  unattributed but is measured (small Shadow periodic).
+- ✅ **Tracker #200295 (Hammerdin trigger set) is FIXED, `[Pending Restart]`** —
+  hours after submission. Re-test protocol in `bugs/bug_hammerdin-trigger-set.md`,
+  including the **PBL × Lightbound Cleave discriminator** that separates a
+  Hammerdin-only fix from a general engine fix. §11's rotation demotion reverts
+  only after the in-game re-test.
+- ✅ **First fully-attributed DPS**: 1,555 unbuffed / 3,650 buffed vs a +3 dummy
+  — the owner's long-reported ~3,600, finally measured with a known stat block.
+
 **v27 changelog (2026-08-05, session `2d`).** An owner-in-the-loop in-game
 testing session. Full detail in `primer/Session_2026-08-05_2d_capture_and_bugs.md`;
 only what changes *practice* is here. **The theme: three premises this project had

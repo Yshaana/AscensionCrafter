@@ -22,6 +22,11 @@ from dataclasses import dataclass, field
 from .ability_model import resolve_ability, AbilityResolutionError
 from .apl import APL, entry_ready
 from .content import ContentProfile, Metric, PRIMARY_METRIC_BY_ROLE, SimResult
+from .swings import (
+    swing_events, expected_swing, seal_procs, righteous_vengeance_damage,
+    SEAL_PROC_PER_MELEE_EVENT, SEAL_PROC_RATE_EVIDENCE,
+    RIGHTEOUS_VENGEANCE_SPELL_ID, RIGHTEOUS_VENGEANCE_FRACTION,
+)
 
 # retail_hypothesis: 1.5s base GCD, floored at 1.0s, reduced by spell haste for
 # spells only. Not yet validated on Ascension — a calibration candidate.
@@ -154,6 +159,19 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
     warnings.append(
         "fast_sim does not model resources — it cannot see mana/rage/energy "
         "starvation. Use medium_sim for castability")
+
+    # 2e: the same swing layer medium_sim uses. Both tiers must model it or they
+    # disagree by the whole auto-attack + DoT share, which is exactly what
+    # `check_sim_engine`'s fast-vs-medium agreement guard caught when only
+    # medium had it. The tiers may differ in HOW rigorously they evaluate over
+    # time; they must never differ in WHAT an ability does (PHASE_2 T3).
+    melee_ability_hits = sum(
+        r["casts"] for sid, r in per_ability.items()
+        if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
+    swing_damage, _ = _add_swing_sources(
+        conn, char_state, content, available, per_ability, melee_ability_hits,
+        warnings)
+    total += swing_damage
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
     return SimResult(
@@ -297,6 +315,19 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             _regen(st, char_state, 0.1)
             st.now += 0.1
 
+    # ------------------------------------------------------- 2e: the swing layer
+    # Auto-attacks, seal riders and Righteous Vengeance are rate-driven by the
+    # swing timer or by the rotation's own crit output, so none of them can be
+    # expressed as "damage per cast". They are added here, after the timeline,
+    # each as its own `per_ability` row so nothing is hidden inside a total.
+    melee_ability_hits = sum(
+        r["casts"] for sid, r in per_ability.items()
+        if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
+    swing_damage, seal_note = _add_swing_sources(
+        conn, char_state, content, available, per_ability, melee_ability_hits,
+        warnings)
+    total += swing_damage
+
     dps = total / content.fight_duration if content.fight_duration else 0.0
     saturation = gcd_used / available if available else 0.0
     warnings.append(
@@ -349,6 +380,82 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
         primary_metric=PRIMARY_METRIC_BY_ROLE[build_spec.role],
         role=build_spec.role, content=content, per_ability=per_ability,
         warnings=warnings)
+
+
+def _add_swing_sources(conn, char_state, content, available, per_ability,
+                       melee_ability_hits, warnings):
+    """Auto-attacks, seal riders and Righteous Vengeance (session `2e`, T1).
+
+    Returns the damage added. Every source that cannot be computed is WARNED and
+    contributes zero — never estimated, never fitted from the parse it is meant
+    to be checked against.
+    """
+    added = 0.0
+    mh, oh, w = swing_events(char_state, available)
+    warnings.extend(w)
+    if mh <= 0:
+        return 0.0, None
+
+    # --- auto-attacks -------------------------------------------------------
+    for weapon, count, label, off in ((char_state.main_hand, mh, "Melee auto (MH)", False),
+                                      (char_state.off_hand, oh, "Melee auto (OH)", True)):
+        if not weapon or count <= 0:
+            continue
+        out = expected_swing(char_state, weapon, content.target, is_offhand=off)
+        if out is None:
+            continue
+        warnings.extend(out.warnings)
+        dmg = out.mean * count
+        added += dmg
+        per_ability[f"auto_{'oh' if off else 'mh'}"] = {
+            "name": label, "casts": round(count, 1), "damage": dmg,
+            "mean_per_cast": out.mean, "school": "Physical",
+            "events": [], "unresolved_events": [], "attributed": False}
+
+    # --- seal riders --------------------------------------------------------
+    # The RATE is measured; the per-proc MAGNITUDE is not available, because the
+    # damage spell (20424) is absent from `spell_dbc_raw` entirely — it is
+    # reached only as an EffectTriggerSpell of the seal, a route the extract does
+    # not currently follow. Procs are reported; damage is NOT invented.
+    melee_events = mh + oh + melee_ability_hits
+    procs = seal_procs(melee_events)
+    seal_note = (
+        f"seal riders: ~{procs:.0f} procs expected over the fight "
+        f"({melee_events:.0f} melee events x {SEAL_PROC_PER_MELEE_EVENT:.2f}); "
+        f"rate is {SEAL_PROC_RATE_EVIDENCE}. 🛑 Per-proc DAMAGE is UNMODELLED — "
+        "the seal's damage spell (20424) has no record in spell_dbc_raw, so it "
+        "is reached by no extraction route. Seal damage is therefore MISSING "
+        "from this total, not zero; it measured 8.5% of unbuffed and 6.5% of "
+        "buffed damage in the 2e captures")
+    warnings.append(seal_note)
+
+    # --- Righteous Vengeance ------------------------------------------------
+    # A derived source: 30% of the rotation's own crit damage as an 8 s Holy DoT.
+    # It has no magnitude of its own in the DBC (aura 3, periodic, value supplied
+    # by the caster), so this is the only way it can ever be modelled.
+    crit_damage = 0.0
+    for sid, rec in list(per_ability.items()):
+        for ev in rec.get("events") or ():
+            if ev.get("crit_damage"):
+                crit_damage += ev["crit_damage"] * rec["casts"]
+    if crit_damage > 0:
+        rv = righteous_vengeance_damage(crit_damage)
+        added += rv
+        per_ability[RIGHTEOUS_VENGEANCE_SPELL_ID] = {
+            "name": "Righteous Vengeance", "casts": 0, "damage": rv,
+            "mean_per_cast": 0.0, "school": "Holy",
+            "events": [], "unresolved_events": [], "attributed": True}
+        warnings.append(
+            f"Righteous Vengeance is DERIVED: {RIGHTEOUS_VENGEANCE_FRACTION:.0%} "
+            f"of {crit_damage:,.0f} crit damage = {rv:,.0f}. It pools on refresh "
+            "(92-101% uptime over four parses) so the total is conserved; a "
+            "per-tick figure would be meaningless. Cannot crit (0/130 ticks in 2e)")
+    else:
+        warnings.append(
+            "Righteous Vengeance NOT modelled — no per-event crit damage was "
+            "reported by the ability model, so its 30% cannot be derived. It "
+            "measured 6.7-9.9% of damage in the 2e captures")
+    return added, seal_note
 
 
 def _regen(st: TimelineState, char_state, seconds):

@@ -2,6 +2,18 @@
 
 **Read `00_ARCHITECTURE.md` and Phases 1–3 first.**
 
+> **🆕 Terminology (2e D6, owner decision 2026-08-05): "lego" is renamed
+> "kit"** going forward — a **kit** is a coupling-based cluster of cards, a
+> **chassis** is the shared base a kit slots into. This document keeps its
+> original wording (annotate, don't rewrite); read every "lego" below as "kit".
+> The planned `core/legos/` becomes `core/kits/`. The first fully-measured kit
+> is **the Cleave Kit** (`builds/shared/synergy_portable-multiplier-packages.md`
+> Package 4): Lightbound Cleave + Improved Cleave, portable *because* it is
+> engine-inert — all eight Cleave school variants share the byte-identical
+> family-4 mask `[4194304,0,0]`, so Improved Cleave's ×2.20 reaches every one.
+> **Kit discovery must REDISCOVER it from data alone — it is this phase's
+> regression target.**
+
 ---
 
 # Part A — The Lego Box (Layer 4)

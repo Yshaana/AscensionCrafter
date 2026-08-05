@@ -56,10 +56,29 @@ chat session; if gear changed first, re-export.
 withdrawn — path grants apply with a **~5–10 s settle delay** after a switch
 (owner observed the sheet updating). Every capture below labelled
 "contaminated" was exported inside that window; all post-relog captures are
-settled and stand unchanged. **Protocol going forward: switch → wait ~15 s →
-read/export.** A third mid-settle flavor was captured at 21:08 (weapon speeds
+settled and stand unchanged. ~~**Protocol going forward: switch → wait ~15 s →
+read/export.**~~ A third mid-settle flavor was captured at 21:08 (weapon speeds
 ×1.202 fast with AP/SP already correct) — kept as
 `stat_export_POD_midsettle_weaponspeed.txt` if needed.
+
+**🛑 SUPERSEDED AGAIN, end of the same session (annotated `2e` T6):** the
+"settle delay" diagnosis was *also* wrong — the AP behaviour is an **indefinite
+~10–15 s oscillation** (`bugs/bug_path-of-duality-broken.md`), so "wait ~15 s"
+does not produce a settled reading on Path of Duality; it samples one phase.
+**Current protocol: relog between path readings** — and note that `2e`'s
+incremental buff capture caught the same read-too-early failure on an ordinary
+buff (Blessing of Kings absent from an export taken immediately after casting),
+so on ANY path: **wait until the change is visible on the character sheet before
+exporting, and treat a zero-delta export as suspect.**
+
+**⚠ Also flagged by `2e`:** this README's *"buff state = Swift Retribution
+only"* line describes an **external aura cast by another player** (`Virginity`
+— seen leaving Elric in the 23:03 log), not a self-buff. And the *"Consecrated
+Weapon +172 Holy SP"* figure needs re-measuring: `2e`'s incremental capture puts
+the RAW grant at **+86** (read off Bonus Healing, which is undoubled), with 172
+being the Path-of-Intelligence-doubled presentation — a Duality sheet should
+have shown 86, so the `2d` reading was likely taken in a carried-over
+PoI-doubled state (the very bug this file documents).
 
 **Measured path facts from this trio (all post-relog unless noted):**
 Duality = NO SP amplifier (accounting closes ±1 with none); Duality converts

@@ -510,6 +510,19 @@ six misses group by SCHOOL — Holy 1.71–1.87×, Holystrike 1.34–1.38× — 
 what an unmodelled school-scoped amplifier *or* an unmodelled buff looks like.
 🛑 Not closed by fitting a constant.
 
+### 8.1b — D4: the calibration gate before ANY cross-school ranking (2e T10)
+
+Owner decision D4 (2026-08-05), recorded here as the standing rule: **no phase
+emits a cross-school build ranking until the school residual is explained** —
+either modelled (buff / Path / enchant, with the mechanism named) or per-school
+calibration lands inside `CALIBRATION_TOLERANCE.md`'s recorded thresholds.
+Within-school comparisons are fine before that; ranking Holy against Frost off
+a sim carrying an unexplained ~1.4× Holy-side residual is not. The Phase 4 doc
+carries a forward reference to this section; `SCORECARD.md` §4 applies it to
+axes 1–3. *(2e status: the Holystrike residual is closed — it was the weapon
+input — and the Holy residual is split into two named mechanisms; the gate
+stays shut until those land inside tolerance.)*
+
 ### 8.2 — The ≥3-character criterion MOVES to Phase 3a
 
 Recorded phase-boundary change, `2c`. Simulating a crawled character needs their
@@ -622,7 +635,11 @@ logic in either.
 
 ## Exit criteria
 
-- Calibration reproduces ≥3 real characters within stated tolerance, per content profile
+- ~~Calibration reproduces ≥3 real characters within stated tolerance, per content profile~~
+  **→ MOVED to Phase 3a** (recorded phase-boundary change, §8.2 — simulating a
+  crawled character needs gear, which is Phase 3 T4's `items` table). Phase 2
+  exited without it, deliberately and on record; `PHASE_3_builds_repo.md` now
+  carries the gate. *(2e T6 — the exit list and §8.2 previously disagreed.)*
 - `mean(roll_hit)` ≈ `expected_hit` in test
 - Stat weights stable under delta variation, or the instability is reported
 - Zero silent defaults — every NULL/conflicted field surfaces in `warnings`

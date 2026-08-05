@@ -24,6 +24,7 @@ guaranteed stable across client updates.
 import argparse
 import ctypes
 from ctypes import wintypes
+import datetime
 import json
 import os
 import re
@@ -587,6 +588,10 @@ def export_dbc_extract_json(cur):
     hidden_formula_scaling = [{'spell_id': r[0], 'term_type': r[1], 'coefficient': r[2]} for r in cur.fetchall()]
 
     payload = {
+        # 2e T4: the extract-staleness sweep compares this against the latest
+        # Darkmoon patch date — without it the extracts carry no date at all and
+        # staleness is only guessable from file mtimes, which git resets.
+        '_extracted_at': datetime.datetime.now().isoformat(timespec='seconds'),
         'spell_dbc_raw': spell_dbc_raw,
         'support_tables': support_tables,
         'hidden_formula_scaling': hidden_formula_scaling,
@@ -894,6 +899,7 @@ def export_ascension_extract_json(cur):
             continue
         cols = [d[0] for d in cur.description]
         payload[table] = {'columns': cols, 'rows': cur.fetchall()}
+    payload['_extracted_at'] = datetime.datetime.now().isoformat(timespec='seconds')
     path = DBC_ASCENSION_EXTRACT_JSON
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload), encoding='utf-8')

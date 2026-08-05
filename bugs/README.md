@@ -19,13 +19,17 @@ submitted whenever there's time rather than lost in a session transcript.
 ## 🔭 Watch list — bugs whose FIX we must notice
 
 A fix silently changes what our data means, so these are scanned against the
-daily changelog capture (`data/source/changelog/daily/`). Keywords to scan for
-are listed per row; on a hit, re-open the questions the bug file names.
+daily changelog capture (`data/source/changelog/daily/`) by
+`tools/audit/audit_gaps.py :: bugfix_watch_sweep` on every rebuild. Keywords are
+listed per row; on a hit, re-open the questions the bug file names.
+⚠ **The FIRST keyword in each row is the ANCHOR** — the sweep only fires when it
+matches, and the remaining keywords amplify. Put the bug's distinctive name
+first; a generic term (`proc`, `spell power`) first makes the row all noise.
 
 | Bug | Changelog keywords | What a fix re-opens |
 |---|---|---|
 | [Path of Duality broken](bug_path-of-duality-broken.md) | `Duality`, `attack power`, `spell power`, `path` | The whole Duality path model, `elric_active_path_and_duality_ap_anomaly`, and the "ignore PoD logs" advisory |
-| [Hammerdin trigger set](bug_hammerdin-trigger-set.md) (#200295) | `Hammerdin`, `Hour of Judgement`, `Holy Shock`, `Judgement`, `proc` | build doc §11 rotation priority — Judgement/Holy Shock would become engine-feeding again |
+| ✅ **[Hammerdin trigger set](bug_hammerdin-trigger-set.md) (#200295) — FIXED 2026-08-05 `[Pending Restart]`** | `Hammerdin`, `Hour of Judgement`, `Holy Shock`, `Judgement`, `proc` | **Firing now.** build doc §11 rotation priority + §2 class-tag table + `hammerdin_trigger_set_excludes_trigger_delivered_damage`. Re-test after restart; **use the PBL × Lightbound Cleave discriminator** to tell a Hammerdin-only fix from a general engine fix |
 
 ## Queue
 

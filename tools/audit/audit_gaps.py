@@ -37,7 +37,8 @@ if hasattr(sys.stdout, "reconfigure"):
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
-from config import DATA_DERIVED, DB_PATH, ensure_derived_dir  # noqa: E402
+from config import (DATA_DERIVED, DB_PATH, DBC_DIR, CHANGELOG_DIR, REPO,  # noqa: E402
+                    ensure_derived_dir)
 from core.spells.epistemics import find_answered_questions  # noqa: E402
 
 PHASE2_BOUNDARY = "2026-08-08"   # server Phase 2 launch — first live test of this sweep
@@ -265,6 +266,128 @@ def autofix(conn):
     return fixed
 
 
+def _watch_list_rows():
+    """Parse the watch-list table out of `bugs/README.md` — that file is the
+    single source of truth for what we watch and which keywords identify a fix.
+    Duplicating the keywords here would drift."""
+    readme = REPO / "bugs" / "README.md"
+    if not readme.exists():
+        return []
+    rows, in_watch = [], False
+    for line in readme.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            in_watch = "Watch list" in line
+            continue
+        if not in_watch or not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 3 or cells[0].startswith("---") or cells[0] == "Bug":
+            continue
+        keywords = [k.strip(" `") for k in cells[1].split(",") if k.strip(" `")]
+        if keywords:
+            rows.append({"bug": cells[0], "keywords": keywords,
+                         "reopens": cells[2]})
+    return rows
+
+
+def bugfix_watch_sweep(conn, deep):
+    """2e T4: a fix silently changes what our data means, so scan the daily
+    changelog capture for each watch-list bug's keywords and report hits LOUDLY,
+    naming what to re-open. Keyword-crude on purpose — a false positive costs
+    one read, a missed fix costs a wrong verdict for weeks.
+
+    Proof of need arrived the same session this was built: tracker #200295
+    (Hammerdin trigger set) was fixed within hours of being reported, and the
+    fix was noticed by the owner reading the tracker, not by any tooling."""
+    daily = CHANGELOG_DIR / "daily"
+    watch = _watch_list_rows()
+    if not watch:
+        return {"_note": "no watch-list rows parsed from bugs/README.md"}
+    if not daily.exists():
+        return {"_watch_rows": len(watch),
+                "sweep_blocked": ["no daily changelog captures found"]}
+
+    # Entries from the last capture files; the watch entries' `found` dates are
+    # all 2026-08-04+ so scanning everything captured daily/ holds is bounded
+    # and needs no per-bug date plumbing.
+    hits = []
+    seen_ids = set()
+    for f in sorted(daily.glob("*.json")):
+        try:
+            payload = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        data = payload.get("data") or {}
+        groups = data.values() if isinstance(data, dict) else [data]
+        for group in groups:
+            entries = (group.values() if isinstance(group, dict) else group)
+            for sub in entries:
+                for e in (sub if isinstance(sub, list) else [sub]):
+                    if not isinstance(e, dict) or e.get("id") in seen_ids:
+                        continue
+                    seen_ids.add(e.get("id"))
+                    desc = e.get("description") or ""
+                    # Darkmoon filter, crude: skip entries that tag ONLY other realms
+                    if (("Dawnrise" in desc or "Bronzebeard" in desc)
+                            and "Darkmoon" not in desc):
+                        continue
+                    low = desc.lower()
+                    for row in watch:
+                        # The FIRST keyword is the ANCHOR — the bug's distinctive
+                        # name (`Duality`, `Hammerdin`). Generic terms like `proc`
+                        # or `spell power` alone matched 299 unrelated balance
+                        # entries on the first run; they now only ever AMPLIFY an
+                        # anchor hit, never create one.
+                        anchor, rest = row["keywords"][0], row["keywords"][1:]
+                        if anchor.lower() not in low:
+                            continue
+                        matched = [anchor] + [k for k in rest if k.lower() in low]
+                        hits.append({
+                            "bug": row["bug"], "matched": matched,
+                            "date": e.get("group_key"),
+                            "entry": desc[:300],
+                            "REOPEN": row["reopens"]})
+    return {"_watch_rows_scanned": len(watch), "_changelog_entries": len(seen_ids),
+            "watch_hits": hits}
+
+
+def extract_staleness_sweep(conn, deep):
+    """2e T4: is the committed DBC extract older than the latest Darkmoon patch?
+    A stale extract silently serves pre-patch magnitudes with tier-4 confidence."""
+    latest_patch = conn.execute(
+        "SELECT MAX(patch_date) FROM patches WHERE realm = 'Darkmoon'").fetchone()[0]
+    out = {"latest_darkmoon_patch": latest_patch, "stale_extracts": []}
+    for name in ("dbc-extract.json", "dbc-ascension-extract.json"):
+        path = DBC_DIR / name
+        if not path.exists():
+            out["stale_extracts"].append({"extract": name, "problem": "missing"})
+            continue
+        stamped = None
+        try:
+            with open(path, encoding="utf-8") as fh:
+                head = fh.read(4096)
+            m = re.search(r'"_extracted_at":\s*"([^"]+)"', head)
+            if not m:      # stamp may serialize at the tail (ascension extract)
+                with open(path, "rb") as fh:
+                    fh.seek(-4096, 2)
+                    m = re.search(r'"_extracted_at":\s*"([^"]+)"',
+                                  fh.read().decode("utf-8", "replace"))
+            stamped = m.group(1) if m else None
+        except OSError:
+            pass
+        if stamped is None:
+            out["stale_extracts"].append({
+                "extract": name,
+                "problem": "no _extracted_at stamp — extract predates 2e T4; "
+                           "age unknowable until the next --with-dbc run"})
+        elif latest_patch and stamped[:10] < str(latest_patch)[:10]:
+            out["stale_extracts"].append({
+                "extract": name, "extracted_at": stamped,
+                "problem": f"OLDER than latest Darkmoon patch {latest_patch} — "
+                           "run `py cli/rebuild.py --with-dbc`"})
+    return out
+
+
 CHECKS = [
     ("conflict_sweep", conflict_sweep),
     ("staleness_sweep", staleness_sweep),
@@ -278,6 +401,8 @@ CHECKS = [
     ("string_match_sweep", string_match_sweep),
     ("orphan_name_sweep", orphan_name_sweep),
     ("outlier_coefficient_sweep", outlier_coefficient_sweep),
+    ("bugfix_watch_sweep", bugfix_watch_sweep),
+    ("extract_staleness_sweep", extract_staleness_sweep),
 ]
 
 

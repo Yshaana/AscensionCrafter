@@ -521,6 +521,12 @@ a nice-to-have check.
 
 ## Exit criteria
 
+- 🆕 **INHERITED FROM PHASE 2 (recorded boundary change, PHASE_2 §8.2 / 2e T6):
+  the sim reproduces ≥3 real characters within the stated tolerance
+  (`predictions/CALIBRATION_TOLERANCE.md`), per content profile.** It lands here
+  because simulating a crawled character needs gear (T4's `items` table). Until
+  this passes, the sim is not trusted on hypothetical builds — that gate moved
+  with the criterion.
 - Every crawled record resolves via the crosswalk; zero string matching remains
 - Inference proposes crit-table verdicts with sample sizes for the top ~50 most-played abilities
 - At least one default uncertainty range replaced by a measured confidence interval

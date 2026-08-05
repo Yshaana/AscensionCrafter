@@ -22,7 +22,7 @@ BisBeard is treated as an integration target rather than something to rebuild (�
 | 1 | **Spell & Mechanics Database** | Everything the game does, with provenance, uncertainty, and relationships modelled as a graph |
 | 2 | **Builds Repo** | What real players run and how it performs — crawled + live-captured. Also a *measurement instrument* feeding layer 1 |
 | 3 | **Simulation** | Build → numbers, with honest uncertainty, across content types, target counts, roles, and gear levels |
-| 4 | **Lego Box** | Reusable, measured, evidence-backed build components that slot together |
+| 4 | **Kit Box** *(renamed from "Lego Box", 2e D6 — owner decision 2026-08-05)* | Reusable, measured, evidence-backed build components that slot together. **A `kit` is a coupling-based cluster of cards; a `chassis` is the shared base a kit slots into.** Older docs say "lego" — same concept, annotate-don't-rewrite applies |
 | 5 | **Theorycrafter** | Principles + tools + judgment → a designed build and a player-facing guide |
 
 Layers 1–2 are data, 3 is computation, 4–5 are synthesis. Data quality gates everything — a wrong
@@ -206,7 +206,7 @@ core/            ← pure logic. No I/O side effects, no CLI, no hardcoded paths
   changelog/     patch-entry parsing and classification
   builds/        build spec, stats, repo queries, inference, gear
   sim/           combat_engine, fast/medium/slow, uncertainty, weights, calibration
-  legos/         discovery, validation, composition
+  kits/          discovery, validation, composition   (was `legos/` — renamed 2e D6, dir not yet created)
   theory/        principles, brief, acquisition, guide
 api/             ← service layer; thin functions a web API wraps 1:1
 cli/             ← thin CLI wrappers. rebuild.py runs the whole ingest chain

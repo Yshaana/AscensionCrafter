@@ -1,9 +1,57 @@
 # Hammerdin never procs from Holy Shock or Judgement
 
-**Status: 📤 submitted 2026-08-05 — [tracker #200295](https://ascension.gg/bugtracker/view/200295)**
+**Status: ✅ FIXED BY ASCENSION 2026-08-05 `[Pending Restart]`** — reported fixed
+on [tracker #200295](https://ascension.gg/bugtracker/view/200295) the same day it
+was submitted. **Not live until the restart; owner will re-test 2026-08-06.**
 **Found:** 2026-08-05, session `2d`, dedicated 10-minute proc test on training
 dummies + a 5.5-minute log the same evening.
 (Tracker pages are auth-gated — check for dev responses while logged in.)
+
+---
+
+## 🚨 Fix landed — what it changes, and the one thing it does NOT yet tell us
+
+**Turnaround was hours, not weeks.** The report was submitted and marked fixed on
+2026-08-05. This is the first `fixed_on` event in the project's impairment
+architecture, and it arrived through the owner reading the tracker rather than
+through our changelog sweep — which is the argument *for* building the sweep
+(`2e` T4), not against it.
+
+### What re-opens when it goes live
+
+| Re-open | Because |
+|---|---|
+| `builds/my-builds/build_paladin-hammerdin.md` **§11 rotation priority** | "Press Judgement and Holy Shock" becomes correct again — `2d` had demoted it |
+| build doc **§2 class-tag table** | Judgement / Holy Shock return to feeding the engine |
+| open question `hammerdin_trigger_set_excludes_trigger_delivered_damage` | The *general* mechanism is now testable against a working case |
+| primer §4's engine-intake mapping | The "check whether it damages with the spell you press" practice may narrow to a historical note |
+
+### 🎯 The decisive test — is the fix SPECIFIC or GENERAL?
+
+`2d` suspected a general cause: **a "damaging X abilities" trigger is blind to
+damage delivered by a *second* spell** (Holy Shock's press is a dummy → 25902;
+Judgement damages through the seal → 20467). If that generalises it affects every
+proc engine on the server.
+
+**A Hammerdin-only fix and a general engine fix look identical if you only
+re-test Hammerdin.** The discriminator is a *different* engine with the same
+shape:
+
+> **Purification By Light × Lightbound Cleave.** `2d` measured PBL taking **zero**
+> intake from Lightbound Cleave (65% weapon damage) across an isolation window,
+> while a same-session control produced 14 Consecrations. **If PBL now procs from
+> Lightbound Cleave, the general mechanism was fixed. If it still does not, the
+> fix was scoped to Hammerdin** and primer §4's practice stands unchanged.
+
+Run both in one session: Hammerdin procs from Holy Shock/Judgement (confirms the
+reported fix), and a Lightbound-Cleave-only window watching for Consecration
+(tests the generalisation). The `2d` protocol and its control window are reusable
+as-is.
+
+⚠ **Every capture in `data/source/captures/2026-08-05_elric_2e_poi_baseline/` is
+PRE-fix.** Per-hit magnitudes are unaffected (proc rates do not enter a non-crit
+average), so the calibration work stands. **Rotation and APL conclusions drawn
+from those logs are time-limited** and must be re-derived after the restart.
 
 ---
 

@@ -19,6 +19,13 @@ automatically as the season accrues.
 
 "Does it get nerfed after becoming popular" needs the builds repo's popularity
 timeline (Phase 3) and is deliberately not attempted here.
+
+🆕 2e T9 (D7): the score is DECAY-WEIGHTED —
+`weight = direction_mult × 0.5^(age_days/90)`, direction priors nerf 1.5 /
+rework 1.25 / buff 0.75 / unknown 1.0. **Both the half-life and the multipliers
+are stated priors, not fitted values** — the Darkmoon-tagged window is far too
+thin to fit anything (see `data_thin`). Bands read off the weighted score.
+Still Darkmoon-strict, still report-only.
 """
 from datetime import date, datetime
 
@@ -75,15 +82,35 @@ def volatility_score(conn, spell_id, lookback_days=365, realm="Darkmoon",
     nerfs = by_direction.get("nerf", 0)
     buffs = by_direction.get("buff", 0)
 
-    # qualitative band, computed over the OBSERVED window (never extrapolated
-    # past the data): touches per 90 observed days
+    # ------------------------------------------------------------- 2e T9 (D7)
+    # Decay-weighted score: weight = direction_mult × 0.5^(age_days / 90).
+    # A nerf last week matters more than a buff last season — both the 90-day
+    # half-life and the direction multipliers are STATED PRIORS, not measured
+    # quantities (there is nowhere near enough Darkmoon-tagged history to fit
+    # them; see `data_thin`). They are arguable and are meant to be argued with.
+    #   nerf 1.5   — a nerf is evidence the devs think it is too strong,
+    #                and further nerfs follow more often than reversals
+    #   rework 1.25 — a rework destabilises verdicts in both directions
+    #   buff 0.75  — a buff invalidates less of what we measured
+    #   unknown 1.0
+    DIRECTION_MULT = {"nerf": 1.5, "rework": 1.25, "buff": 0.75}
+    HALF_LIFE_DAYS = 90.0
+    weighted = 0.0
+    for r in in_window:
+        age = (today - _parse_date(r[0])).days
+        weighted += (DIRECTION_MULT.get(r[1], 1.0)
+                     * 0.5 ** (age / HALF_LIFE_DAYS))
+
+    # Banded on the weighted score. Thresholds are the same stated-prior
+    # calibration: one fresh nerf (1.5) alone lands 'active'; three fresh
+    # touches land 'hot'; anything decayed below half a fresh touch is 'stable'.
     observed_days = min(lookback_days, data_window_days) or 1
     rate_per_90d = n * 90.0 / observed_days
     if n == 0:
         band = "untouched_in_window"
-    elif rate_per_90d >= 6:
+    elif weighted >= 3.0:
         band = "hot"
-    elif rate_per_90d >= 2:
+    elif weighted >= 1.0:
         band = "active"
     else:
         band = "stable"
@@ -110,6 +137,14 @@ def volatility_score(conn, spell_id, lookback_days=365, realm="Darkmoon",
         "last_touched": last_touch,
         "days_since_last_touch": (today - _parse_date(last_touch)).days if last_touch else None,
         "touch_rate_per_90d": round(rate_per_90d, 2),
+        # 2e T9: decay-weighted score (see the stated-priors comment above).
+        # Bands read off this, not off the raw rate. Keep `data_thin` in view:
+        # with a ~2-week tagged window nothing has meaningfully decayed yet, so
+        # the honesty block stays until the window exceeds ~2 half-lives (180d).
+        "weighted_score": round(weighted, 3),
+        "weighting": "direction_mult x 0.5^(age_days/90); "
+                     "priors nerf 1.5 / rework 1.25 / buff 0.75 / unknown 1.0 "
+                     "(STATED, not fitted)",
         "band": band,
         "recent_entries": [
             {"date": r[0], "direction": r[1], "status": r[2],

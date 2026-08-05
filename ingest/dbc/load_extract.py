@@ -79,7 +79,9 @@ def load_table(conn, table, block):
 
 def load_ascension_extract(conn, path):
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    return {table: load_table(conn, table, block) for table, block in payload.items()}
+    # Keys prefixed '_' are extract METADATA (`_extracted_at`, 2e T4), not tables.
+    return {table: load_table(conn, table, block)
+            for table, block in payload.items() if not table.startswith("_")}
 
 
 def load_spell_extract(conn, path):

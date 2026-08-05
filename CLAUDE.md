@@ -22,11 +22,14 @@ Check this list before hand-parsing, hand-decoding, or guessing at anything belo
   `decode_alc.py`, and `d1_dict.bin` alongside it in the same folder). Outputs
   `<logname>.summary.json` with `crit_rate_by_source_ability`,
   `avoidance_breakdown`, and every player build ALC captured in the log
-  (decoded, verified byte-exact against ALC's own source). Note:
-  `combat_log_parser.py`'s event parsing is *unverified* against a real
-  Ascension log as of this writing — confirm field alignment against the
-  first real log in a session and fix anything that's off; don't assume it's
-  already validated. Full detail in `tools/log_parser/README.md`.
+  (decoded, verified byte-exact against ALC's own source).
+  `combat_log_parser.py`'s event parsing **is verified against real Ascension
+  logs** (2026-08-03: two field-layout bugs found and fixed — 6 base fields,
+  `SPELL_MISSED`/`SWING_MISSED` names; details in `tools/log_parser/README.md`).
+  ⚠ Use its **named fields**, never hand-indexed columns — the 2e session's one
+  parsing error came from a throwaway script hand-counting columns and reading
+  `glancing` where it wanted `critical`. Re-verify only if Ascension changes the
+  client's log grammar.
 
 - **Scouting another player's build/rankings** on `darkmoon.ascensionlogs.gg`
   → run `tools/scrapers/scout_ascensionlogs_cli.py <name>` (or `--top "<instance>"
