@@ -1,0 +1,78 @@
+{
+  "name": "paladin_observed",
+  "provenance": "Models the rotation as PLAYED in the King Gordok parse (build_paladin-hammerdin.md v5/§11), NOT as designed. The parse logged 3 Judgements and 3 Holy Shocks in a ~309s fight against an expected ~38 and ~50, with Hour of Judgement at 13.6% uptime. ⚠ THIS IS A MODEL OF AN OBSERVED BEHAVIOUR, NOT A MEASUREMENT OF INTENT: the starvation is represented structurally, by demoting Holy Shock below the fillers so the priority list crowds it out, which reproduces the observed cast count without claiming to know why it happened. Identical to apl_paladin_optimal.json in every other respect, so a diff between the two isolates exactly one variable. Exists so 2c calibration has an APL that matches a real parse - calibrating the OPTIMAL rotation against a log of a rotation the owner was not executing would attribute the rotation error to the model.",
+  "entries": [
+    {
+      "spell_id": 907300,
+      "conditions": [{"type": "always"}],
+      "off_gcd": true,
+      "comment": "Lightbound Cleave: off-GCD, queued throughout - same as optimal"
+    },
+    {
+      "spell_id": 20375,
+      "conditions": [{"type": "buff_missing", "spell_id": 20375}],
+      "off_gcd": false,
+      "comment": "Seal of Command upkeep - same as optimal"
+    },
+    {
+      "spell_id": 31801,
+      "conditions": [{"type": "buff_missing", "spell_id": 31801}],
+      "off_gcd": false,
+      "comment": "Seal of Vengeance upkeep - same as optimal"
+    },
+    {
+      "spell_id": 282984,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Hour of Judgement on cooldown - WAS being pressed (13.6% uptime is close to the 10s/90s natural maximum), so it stays at optimal priority"
+    },
+    {
+      "spell_id": 903158,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Dawnreaver on cooldown - same as optimal"
+    },
+    {
+      "spell_id": 280210,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Judgement of The Three Hammers - same as optimal"
+    },
+    {
+      "spell_id": 907780,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Whirling Light - same as optimal"
+    },
+    {
+      "spell_id": 26573,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Consecration - same as optimal"
+    },
+    {
+      "spell_id": 904880,
+      "conditions": [{"type": "combo_points_at_least", "value": 5}],
+      "off_gcd": false,
+      "comment": "Holy Finish at 5 CP - same as optimal"
+    },
+    {
+      "spell_id": 907894,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Dawn Strike filler - AHEAD of Holy Shock here, which is the whole difference"
+    },
+    {
+      "spell_id": 20473,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Holy Shock DEMOTED below the filler - this single reordering is what reproduces the parse's ~3 casts in 309s and the starved Hammerdin engine"
+    },
+    {
+      "spell_id": 913444,
+      "conditions": [{"type": "other_cooldown_not_ready", "spell_id": 282984}],
+      "off_gcd": false,
+      "comment": "Blades of Light while HoJ is down - same as optimal"
+    }
+  ]
+}

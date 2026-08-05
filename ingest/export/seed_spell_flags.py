@@ -112,6 +112,42 @@ if felinf_id is not None:
          'confirmed', 'Confirmed no-ICD, fires on every auto attack and melee ability.'))
     rows += 1
 
+# --- Hammer from the Heavens (282987) — the trigger TARGET, not a card ---------
+# Added in session 2b. This id is deliberately hardcoded rather than looked up by
+# name: 282987 is NOT in spell-export.json (it is reached only via
+# EffectTriggerSpell and profiles as dbc_only), so spell_id() cannot find it.
+#
+# Why it belongs here at all: the 4,962-hit avoidance measurement is a tier-1/2
+# fact about the PULSE, not about the cards that trigger it. Before this, the sim
+# could not see it structurally — the ability model fell back to "assume it rolls"
+# for a spell we have 4,962 hits' worth of evidence never misses, which inflates
+# the modelled hit weight exactly the way the build doc's §10 walkback warns about.
+HFTH = 282987
+HFTH_EVIDENCE = ('primer v17 / confirmed_facts.hammer_from_heavens_cannot_be_avoided: '
+                 '4,962 pooled hits, 11 characters, 17 reports')
+for field, vtext, vreal, note in [
+    ('rolls_hit_check', None, 0.0,
+     'Cannot be avoided: 0 miss / 0 dodge / 0 parry across 4,962 pooled hits. '
+     'Settles the "do summoned procs roll a hit check" question for this ability '
+     '(build_paladin-hammerdin.md §10) — they do not, which is why raid-tier Hit '
+     'Rating stays near zero rather than rising to ~1.2.'),
+    ('can_be_full_resisted', None, 0.0,
+     '0 full resists in the same 4,962-hit sample. ⚠ "Unresistable" means NO '
+     'FULL-RESIST ROLL only — partial resistance is nonzero and still applies '
+     '(primer §1 v17). Do not read this as resistance-proof.'),
+    ('crit_table', 'spell', None,
+     'Measured 35.9% crit in the King Gordok parse, landing with the Holy sources '
+     '(Consecrated Holy Weapon 39.0%, Lightbound Cleave 38.1%) and far above the '
+     'physical ones (autos 16.2%, Sword Spec 20.0%) — primer §1 / build doc §4.'),
+]:
+    cur.execute(
+        "INSERT INTO doc_confirmed_mechanics VALUES (?,?,?,?,?,?,?,?)",
+        (HFTH, field, vtext, vreal, 'pooled_log_measurement', HFTH_EVIDENCE,
+         'confirmed', note))
+    rows += 1
+print(f'  Hammer from the Heavens ({HFTH}, out-of-catalog trigger target): '
+      '3 combat-table facts seeded from the 4,962-hit sample.')
+
 conn.commit()
 print(f'doc_confirmed_mechanics rows seeded: {rows}')
 conn.close()

@@ -73,6 +73,15 @@ class CharState:
     # BY NAME, never silently — ability_model surfaces which buckets it applied.
     damage_multipliers: dict = field(default_factory=dict)
     ability_crit_damage_bonus: float = 0.0   # additive on the crit multiplier
+    # Resource pools and regen, for the medium sim's castability question.
+    # EMPTY MEANS UNKNOWN, not zero: medium_sim refuses to model starvation
+    # rather than assuming an infinite bar or an empty one.
+    resource_pools: dict = field(default_factory=dict)   # 'mana' -> max value
+    resource_regen: dict = field(default_factory=dict)   # 'mana' -> per second
+    # Path of Agility's 1H clause reduces GCD and cost by 8%; 2a recorded it as
+    # "rotation-level, medium sim (2b) owns it" and this is where it arrives.
+    gcd_modifier_pct: float = 0.0            # negative = faster
+    resource_cost_modifier_pct: float = 0.0  # negative = cheaper
     warnings: list = field(default_factory=list)
 
     def effective_spell_power(self, school):
@@ -110,6 +119,7 @@ def _weapon_clause(path, wielding):
     haste_bonus_pct(melee, spell), notes). primer §3; 'abilities' wording
     excludes auto-attacks (ascension_confirmed)."""
     mults, crit_dmg, haste_m, haste_s, notes = {}, 0.0, 0.0, 0.0, []
+    gcd_mod = cost_mod = 0.0
     is_2h = wielding in ("2h", "dual_2h")
     if path == "Strength":
         if is_2h:
@@ -121,8 +131,10 @@ def _weapon_clause(path, wielding):
         if is_2h:
             crit_dmg = 0.20                    # ability crit damage bonus
         else:
-            notes.append("Agility 1H -8% GCD/cost clause is rotation-level — "
-                         "not modelled in stats; medium sim (2b) owns it")
+            # primer §3: damaging melee/ranged abilities' GCD and cost -8%.
+            # Carried on CharState for the medium sim rather than folded into a
+            # damage number — it is a castability effect, not a damage one.
+            gcd_mod = cost_mod = -8.0
     elif path == "Duality":
         if is_2h:
             mults["all_damage"] = 1.06         # magic AND physical +6%
@@ -139,7 +151,7 @@ def _weapon_clause(path, wielding):
             notes.append("Healing 2H +3% spell crit applied")
         else:
             notes.append("Healing 1H +5% healing clause not modelled yet")
-    return mults, crit_dmg, haste_m, haste_s, notes
+    return mults, crit_dmg, haste_m, haste_s, gcd_mod, cost_mod, notes
 
 
 # --------------------------------------------------------------- gear loading
@@ -182,6 +194,8 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
                 setattr(cs, k, v)
             elif k == "spell_power_by_school":
                 cs.spell_power_by_school = dict(v)
+            elif k in ("resource_pools", "resource_regen", "damage_multipliers"):
+                setattr(cs, k, dict(v))
             elif k in ("hit_rating", "crit_rating", "haste_rating",
                        "expertise_rating", "armor_pen_rating"):
                 # ratings supplied raw: convert here so sheet users can paste
@@ -283,7 +297,7 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
                 "component-mode output underestimates until then")
 
     # ----- weapon clauses apply in both modes ------------------------------
-    mults, crit_dmg, haste_m, haste_s, notes = _weapon_clause(
+    mults, crit_dmg, haste_m, haste_s, gcd_mod, cost_mod, notes = _weapon_clause(
         build_spec.path, wielding)
     warnings.extend(notes)
     for bucket, m in mults.items():
@@ -291,6 +305,8 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
     cs.ability_crit_damage_bonus += crit_dmg
     cs.melee_haste_pct += haste_m
     cs.spell_haste_pct += haste_s
+    cs.gcd_modifier_pct += gcd_mod
+    cs.resource_cost_modifier_pct += cost_mod
     if build_spec.path == "Healing" and wielding in ("2h", "dual_2h"):
         cs.spell_crit_pct += 3.0
 

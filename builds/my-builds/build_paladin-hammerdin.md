@@ -1,3 +1,53 @@
+# Project Ascension — Paladin Build Handoff (v12)
+
+**v12 changelog (2026-08-05, from Phase 2 session `2b` — one chase-list reversal, one
+free buff, no gear or rotation change):**
+
+- 🔴 **RETRACTED: v9's Improved Cleave reprioritisation. It goes back to the BOTTOM of
+  the §7 chase list, where v8 had it.** v9 read Lightbound Cleave's bonus term as
+  `9 + AP × 1.0` and computed +120% taking it 593 → 1,305 at AP 584. **Both halves are
+  wrong**, and each was already covered by a hard rule this document carries:
+  - **wrong rank** — 9 is the **Rank-1** value (`907300`, SpellLevel 16). A level-60
+    character casts **Rank 5** (`907304`, SpellLevel 56), where the same effect slot
+    reads **62**.
+  - **`EffectBonusCoefficient = 1.0` is not an AP coefficient** — it is stock
+    `EffectBonusMultiplier`, whose neutral default is exactly 1.0 (7,647 of 9,211
+    non-zero values). Session `1x` retracted this reading catalog-wide; v9 reintroduced
+    it locally, and even flagged the value as "unusually strong" without treating that
+    as the warning it was.
+
+  **Lightbound Cleave R5 = 65% weapon damage + a flat 62 Holystrike**, with no stated
+  AP or SP term. Improved Cleave 3/3 amplifies the flat, so it is worth **+74 per hit,
+  not +712** — roughly a **9.6× overestimate**. §10a's combined **×1.48 ceiling loses
+  its ×1.110 Improved Cleave factor** and should be recomputed. ⚠ v9's "independent
+  corroboration" against Pumprat's Voidbound Cleave applied the *same formula to the
+  same premises*, so it never tested them.
+  **What would overturn this:** a live Rank-5 tooltip showing an `$AP`/`$SP` term. The
+  claim is that *no source states a coefficient*, not that one is proven absent.
+- ✅ **Free buff to a card already slotted (patch 2026-08-04, Darkmoon):** *"Fixed a bug
+  where mechanics that are supposed to trigger from physical abilities would not trigger
+  from the newly introduced physical + magic school abilities. (Talents such as Art of
+  War, Vengeance etc.)"* Holystrike is such a school and is most of this build's pressed
+  damage, so **Vengeance 2/3 — which triggers on direct critical strikes — was not being
+  fed by the build's own Holystrike crits until this fix.** No action needed. **The Art
+  of War** is named explicitly and sits on the §7 chase list; its trigger reliability on
+  this build just improved, which raises its value. ⚠ Patch note, not a measurement —
+  confirm with a dummy parse counting Vengeance stacks per Holystrike crit.
+- 🔬 **Hour of Judgement fires Hammer from the Heavens ~20 times per cast, not once.**
+  Its effect 1 is a `SPELL_AURA_PERIODIC_TRIGGER_SPELL` at a **500 ms** period over the
+  10 s duration, alongside its own periodic 81 every 2 s. Validated against 20,823
+  pooled crawl hits (predicted ratio 4.00 HftH per HoJ tick, observed **3.81**). This
+  does not change any decision here, but it does mean per-cast reasoning about HoJ
+  should use the pulse count. See `periodic_trigger_delivery_pulse_count` for what is
+  still unconfirmed (the absolute count rides on the DBC duration).
+- ⚠ **A sim now exists and disagrees with §10's stat weights. Do not adopt its numbers.**
+  It is uncalibrated, reads ~600 DPS against your ~3,600, and models **no talents at
+  all** — on a build whose identity is a stacked Holy multiplier chain. Full accounting
+  in `predictions/pred_2026-08-05_elric_paladin.md`. §10's empirically-derived weights
+  remain the ones to gear by.
+
+---
+
 # Project Ascension — Paladin Build Handoff (v11)
 
 **v11 changelog (2026-08-04, from Phase 0 recon session `0a` — no build decisions changed, two facts
@@ -268,7 +318,7 @@ Hammerdin · Purification By Light · Righteous Zealot · **Twist of Faith** (en
 | 4 | **Dark Justicar 0/1** | SoV to 10 stacks; Judgement consumes for `0.58 × (SP+AP)` → **+8.4%** | **none — 1/1** |
 | 5 | **Inevitable Vengeance 0/1** | SoV DoT crits + hastes; **1% Phys/Holy damage-taken per stack → 10%** | **none — 1/1** |
 | 6 | **The Art of War 3/3** | +% Judgement, Crusader Strike (→ Dawnreaver), Divine Storm | partial |
-| 2b | **⚠ Improved Cleave 3/3 (REPRIORITIZED, see v9)** | **+120% to LC's AP-scaling bonus component** (not a flat 62 — see v9 changelog). Was ranked #7/last; likely belongs much higher. | partial |
+| ~~2b~~ 7 | **Improved Cleave 3/3 — ⛔ v9's promotion RETRACTED in v12, back to LAST** | **+120% of a flat 62, i.e. +74 per Lightbound Cleave hit.** v9 claimed +712 by reading a Rank-1 flat and treating `EffectBonusCoefficient=1.0` as an AP coefficient — both wrong, see the v12 changelog. Lowest priority on this list. | partial |
 
 **Total gap ≈ 40% damage**, concentrated in six cards (pre-v9 estimate — does not yet reflect Improved Cleave's corrected magnitude, see v9). The two 1/1s are the cheapest acquisitions (a hit is a complete hit). None of these six appear in the v6 live export — chase list is unchanged, still fully outstanding.
 

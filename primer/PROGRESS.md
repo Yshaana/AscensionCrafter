@@ -9,8 +9,36 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `2b` — three sim tiers (T5) + uncertainty propagation (T6). Read
-`PHASE_2_simulation.md`.**
+**Next session: `2c` — talent modelling, calibration (T8), prediction ledger (T9),
+cache (T10), diff/report (T11). Read `PHASE_2_simulation.md`.**
+
+**✅ SESSION `2b` IS DONE (2026-08-05).** T5 (three tiers + APL grammar + apl_gen),
+T6 (uncertainty from a sim-layer policy table), T7 cheap half (stat weights, path
+comparison). The sim produces its first end-to-end number. Session record:
+`primer/Session_2026-08-05_2b_sim_tiers.md`. Validation: `check_sim_engine.py` is
+**30 checks** (was 16), all pass; purity 0/34; 19-step rebuild green.
+
+**What `2c` inherits from `2b`:**
+
+- 🛑 **FIRST ITEM: open question `rank_siblings_inherit_no_hidden_refs`.** It
+  blocks the rotation question. A rank sibling inherits no `hidden_refs` (that
+  column is parsed from the export, which siblings are by definition absent
+  from), so a sibling whose own record is a DUMMY loses its sub-spell chain.
+  **Holy Shock R4 (20930) is exactly that and resolves to 0 damage** — which makes
+  `paladin_optimal` (602) score BELOW `paladin_observed` (659), inverting build doc
+  §11's central conclusion. The sim names the zero-damage ability loudly and
+  `check_sim_engine` asserts that it does, so it cannot be quoted as a result.
+- 🚨 **Talent modelling is now the single largest error source**, ahead of
+  everything else combined. The sim reads ~600 DPS against the owner's reported
+  ~3,600 — pre-registered with its causes ranked in
+  `predictions/pred_2026-08-05_elric_paladin.md`.
+- ⚠ **Do NOT adopt the sim's stat weights.** They disagree sharply with the build
+  doc's empirical ones (sim: weapon_damage 25, hit 17, crit 6.1; doc: crit 2.00
+  best, AP 1.00). The disagreement is a diagnostic, not a result.
+- Remaining named gaps: seals scored per cast not per swing; auto-attacks
+  unmodelled; `Judgement` resolves to no current-pool card; Righteous Vengeance's
+  30% crit DoT unmodelled.
+- `sensitivity()` output is ready to populate `open_questions.variance_contribution`.
 
 **✅ SESSION `2a` IS DONE (2026-08-05).** T1–T4: `core/sim/combat_engine.py` (gt-table
 rating conversions, anchor-validated; attack tables; no silent defaults),
@@ -132,8 +160,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **1b** | `spell_mechanics` (T4) + relationship graph (T5) | ✅ done | `Session_2026-08-05_1b_mechanics_relationships.md` | 3,747 mechanics rows, 5,302 edges, bounded trigger attribution (724 rows / 444 cards, HftH 122–145 reproduces end-to-end), `spell_scaling` rank-keyed (+229 sibling rows), `spells` combat-table columns → `doc_confirmed_mechanics`. Rebuild is 16 steps; piped-output crash fixed. Two stale `confirmed_facts` rows qualified SUPERSEDED (pre-`1b` prep item) |
 | **1c** | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ✅ done | `Session_2026-08-05_1c_epistemics_tooling.md` | **Phase 1 complete, exit criteria checked.** T6–T10 + compound-form gap closed (+290 scaling rows) + amplifier queue pre-classified (approval-gated per owner decision) + conflict sweep buckets slot collisions separately. Two more owner decisions implemented: Darkmoon-only volatility, Datasette pinned. Rebuild is 18 steps |
 | **2a** | Combat engine, content profiles, ability model, build spec | ✅ done | `Session_2026-08-05_2a_sim_foundation.md` | T1–T4 + `check_sim_engine.py` (16 checks). Found the HftH coefficient queryability gap; 2 open questions filed |
-| 2b | Three sim tiers + uncertainty | ⬜ | — | ▶ **NEXT.** Start with `trigger_attributed_coefficients_not_in_spell_scaling`. ⚠ The 2026-08-08 phase boundary lands during/near this session — the audit's phase-boundary sweep starts firing then |
-| 2c | Weights, calibration, prediction ledger, cache, CLI | ⬜ | — | |
+| **2b** | Three sim tiers, uncertainty, stat weights | ✅ done | `Session_2026-08-05_2b_sim_tiers.md` | T5+T6+T7-cheap-half. **4 data bugs found, all silently zeroing**: trigger coefficients unserved, rank siblings had NO magnitudes (686 cards), weapon-percent read as flat, fast_sim allocation order. 🚨 Structural finding: trigger-reached damage can be delivered by a periodic-trigger aura (HoJ fires HftH 20x/cast, validated 3.81 vs predicted 4.00 over 20,823 pooled hits). 🔴 Improved Cleave reverted to bottom of the chase list |
+| 2c | Talent modelling, calibration, prediction ledger, cache, diff/report | ⬜ | — | ▶ **NEXT.** Start with `rank_siblings_inherit_no_hidden_refs` — it blocks the rotation question. ⚠ The 2026-08-08 phase boundary lands in 3 days; the audit's phase-boundary sweep starts firing then |
 | 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9 |
 | 3b | Addon, logs, automation, crawler refinement | ⬜ | — | |
 | 4 | Legos + Theorycrafter | ⬜ | — | Chunk as it goes |
@@ -196,6 +224,14 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (2b) | 🚨 **Trigger-reached damage can be DELIVERED by a periodic-trigger aura — a trigger-attributed magnitude is not "once per cast"** | Hour of Judgement effect 1 is `SPELL_AURA_PERIODIC_TRIGGER_SPELL` at a 500 ms period over a 10 s duration, so one cast fires Hammer from the Heavens **20 times**, alongside 5 ticks of its own 81. The pulse spell itself is NOT periodic — the DELIVERY is, so periodicity must be read off the triggering effect slot, never the triggered spell. Validated with no fitting: predicted ratio exactly 4.00, pooled crawl gives **16,491 HftH hits / 4,332 HoJ hits = 3.81** across 170 character-report groups. Confirms the ratio and hence the structure; does NOT confirm the absolute 20 (invariant to duration) or any magnitude (crawl records no level). 48 component rows across **34 cards** are affected; counts above 100 are refused, not clamped |
+| 2026-08-05 (2b) | 🚨 **Rank siblings had NO magnitudes at all — 686 cards silently simmed as 0** | The resolver correctly redirects a level-60 query to the rank the character casts, but `resolve_numeric_formulas.py` only ever decoded CATALOG ids, so the redirect landed on a spell with zero `spell_effect_values` rows: it traded a WRONG magnitude for NO magnitude. All 686 were in `spell_dbc_raw` and decodable the whole time. Now 676 covered (+1,193 rows), 25 ambiguous lines skipped rather than tie-broken. Lightbound Cleave, Dawn Strike, Holy Finish and Consecration all went 0 → real |
+| 2026-08-05 (2b) | ⚠ **`EFFECT_WEAPON_PCT` was emitted as a FLAT damage term** | The stored value is a PERCENT: Lightbound Cleave gained 65 flat damage instead of 65% of a ~627 swing. A units error that shrinks with gear, so it presents as a scaling problem rather than a units problem. Now becomes a `WEAPON` coefficient of pct/100 |
+| 2026-08-05 (2b) | ⚠ **`fast_sim` allocation order is not priority order** | A no-cooldown ability first in the priority list consumed the entire GCD budget and starved every cooldown behind it — reporting a one-button rotation and **every stat weight as 0.00**. Cooldown abilities are rate-limited and must be allocated first; off-GCD entries ride along free |
+| 2026-08-05 (2b) | 🔴 **RETRACTED: Improved Cleave amplifies an AP-scaling term — back to the BOTTOM of the chase list** | v9 moved it from last to #2b on the reading that Lightbound Cleave's bonus term is `9 + AP x 1.0`. Two compounding errors, each already covered by a hard rule: 9 is the **Rank-1** value (a level-60 character casts Rank 5, where it is **62**), and `EffectBonusCoefficient = 1.0` is stock `EffectBonusMultiplier`'s neutral default, not an AP coefficient — retracted catalog-wide in `1x`. LC R5 is 65% weapon damage + flat 62; Improved Cleave 3/3 is worth **+74 per hit, not +712** (~9.6x overestimate). §10a's x1.48 ceiling loses its x1.110 factor. v9's "independent corroboration" applied the same formula to the same premises |
+| 2026-08-05 (2b) | ⚠ **T6 cannot source its ranges from `spell_mechanics.uncertainty_json`; owner decision — build them in the sim layer** | Measured across all 3,747 rows: `damage_formula_terms_json` is stored `low: None, high: None, basis: non-numeric`, and every numeric field carries a `default_confidence_mapping(confirmed, ±0%)` band explicitly labelled "heuristic, not measured". Sampling that reports ±0% knowledge uncertainty — worse than none, because it looks authoritative. Bands now live in `core/sim/uncertainty.py`'s POLICY table as a stated, arguable assumption; Phase 1's truth table stays untouched rather than carrying invented ranges behind tier provenance |
+| 2026-08-05 (2b) | ⚠ **Combat-table facts now follow the rank redirect; magnitudes do not** | `doc_confirmed_mechanics` is seeded against catalog ids, so Lightbound Cleave's proc-tested `crit_table='spell'` was discarded the moment the resolver redirected to the rank-5 id, falling back to a heuristic guess in place of a measurement. Crit/hit table and avoidance are rank-INVARIANT properties; magnitudes are not, so only the former are carried |
+| 2026-08-05 (2b) | ⚠ **The daily patch check missed a build-relevant entry — scan by MECHANIC, not by card name** | 2a reported 2026-08-04 Darkmoon as "PvP-only reductions plus a new talent Authority". It also carried *"Fixed a bug where mechanics that are supposed to trigger from physical abilities would not trigger from the newly introduced physical + magic school abilities (Talents such as Art of War, Vengeance etc.)"* — Holystrike is such a school and is most of this build's damage, and **Vengeance is slotted at 2/3**, so its own Holystrike crits were not feeding an equipped card. The note names no slotted card except in a parenthetical, which is why a name scan missed it |
 | 2026-08-05 (2a+) | 🆕 **Owner decision: trigger-reached coefficients live on the trigger TARGET, never the cards** | Closes the decision half of `trigger_attributed_coefficients_not_in_spell_scaling` (now in_progress). New append-only `seed_hand_coefficients.py` owns `spell_scaling` rows with `source='db_ascension_gg'` (rebuild is 19 steps); first rows: 282987 SP/AP 0.091. Rationale: truth stays where it is true, no per-card duplication, and 2b's per-source-spell event model composes on top. Cards-side hand-seeding was explicitly rejected (conflates the pulse event with the card's own hit — 282984 already carries its own SP/AP 0.05) |
 | 2026-08-05 (2a) | 🆕 **Trigger-attributed magnitudes ARE summed into `expected_hit`**, flagged `calibration_anchor=False` | The kickoff note's "never let inferred rows anchor calibration" was first over-read as "exclude from computation" — which zeroes 444 cards (Hour of Judgement's entire damage is its trigger chain). Corrected same session: computed + warned + listed in `triggered_components` so calibration can subtract them. The rule constrains *anchoring*, not *computation* |
 | 2026-08-05 (2a) | 🚨 **HftH's confirmed 9.1% SP/AP coefficients are NOT queryable** — doc prose + `confirmed_facts` only, no `spell_scaling` rows for 282987 or the cards | Found by 2a's validation: the resolver serves flat 122–145 without the stat terms (~45% understatement at AP 584/SP 533). Filed as open question `trigger_attributed_coefficients_not_in_spell_scaling` rather than rush-seeded — attributing coefficients to cards has per-event/rotation semantics, the same per-case judgment 1b's multi-path decision deferred |

@@ -72,6 +72,11 @@ class SimResult:
     content: ContentProfile
     per_ability: dict = field(default_factory=dict)   # spell_id -> breakdown dict
     warnings: list = field(default_factory=list)
+    # Combat-RNG spread, set by slow_sim only. Deliberately a SEPARATE field
+    # from anything uncertainty.py produces: combat variance and knowledge
+    # uncertainty are different quantities and must never share one error bar
+    # (PHASE_2 T6).
+    combat_rng: dict | None = None
 
     @property
     def primary_value(self):

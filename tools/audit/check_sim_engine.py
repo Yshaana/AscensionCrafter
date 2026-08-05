@@ -59,44 +59,79 @@ def main():
           abs(dict(st.segments)["dodge"] - 0.0) < 1e-9)
 
     # 3 -- Hammer from the Heavens end-to-end THROUGH THE SIM PATH, via the
-    # card actually pressed (Hour of Judgement 282984 — HftH's 122-145 is
-    # attributed to it by the bounded trigger walk, confidence=inferred).
-    # ⚠ The confirmed +9.1% SP / +9.1% AP terms are NOT in spell_scaling (doc
-    # prose only, 2a finding) — so the resolvable base is the flat 122-145
-    # plus the trigger chain's dummy effect (1). Recorded as a data gap.
-    hoj = resolve_ability(conn, 282984, level=60)
+    # card actually pressed. Two cards reach it (Hour of Judgement 282984 and
+    # Hammerdin 282983) by the bounded trigger walk at confidence=inferred.
+    #
+    # 2b closed the coefficient half: the confirmed +9.1% SP / +9.1% AP live on
+    # the TARGET (282987) and are now pulled per component source, so Hammerdin
+    # — whose only damage IS the pulse — must reproduce the independently
+    # confirmed 223.6-246.6 at AP 584 / SP 533 (build doc §12 item 2).
     from core.builds.stats import CharState
     cs = CharState(level=60, attack_power=584.0, spell_power=533.0,
                    spell_crit_pct=0.0, melee_crit_pct=0.0)
-    res = hoj.expected_hit(cs, get_preset("raid_boss_st"))
-    hfth_terms = [c for c in res.components
-                  if c.get("via") == "trigger_hop2" and c.get("min")
-                  and 121.5 <= c["min"] <= 122.5]
-    check("HftH 122-145 present via trigger_hop2 attribution",
-          bool(hfth_terms) and abs(hfth_terms[0]["max"] - 145.0) < 0.5,
-          f"components: {[(c.get('via'), c.get('min'), c.get('max')) for c in res.components]}")
-    check("HoJ own periodic (confirmed, 21+(60-30)*2 -> 81) also present",
-          any(c.get("via") == "self" and c.get("min") and
-              80.5 <= c["min"] <= 81.5 for c in res.components))
-    check("trigger-attributed terms flagged never-anchor",
-          any("never a calibration anchor" in w for w in res.warnings))
+    ct = get_preset("raid_boss_st")
 
-    # 4 -- MC convergence: mean(roll_hit x 100k) ~= expected_hit
+    hammerdin = resolve_ability(conn, 282983, level=60)
+    hres = hammerdin.expected_hit(cs, ct)
+    check("HftH base reproduces 223.6-246.6 (flat 122-145 + 9.1% SP + 9.1% AP)",
+          abs(hres.breakdown["base_min"] - 223.6) < 0.5
+          and abs(hres.breakdown["base_max"] - 246.6) < 0.5,
+          f"{hres.breakdown.get('base_min'):.1f}-{hres.breakdown.get('base_max'):.1f}")
+    check("HftH SP+AP coefficients arrive via trigger attribution, not the card",
+          sum(1 for c in hres.components
+              if c.get("kind") == "coefficient" and c.get("via") == "trigger_hop2"
+              and abs(c.get("coefficient", 0) - 0.091) < 1e-9) == 2,
+          f"{[(c.get('term'), c.get('coefficient'), c.get('via')) for c in hres.components]}")
+
+    hoj = resolve_ability(conn, 282984, level=60)
+    evs = {e.key: e for e in hoj.events()}
+    check("HoJ splits into its own periodic tick + the attributed HftH pulse",
+          any(k.startswith("self:periodic") for k in evs)
+          and any("282987" in k for k in evs), f"events: {sorted(evs)}")
+    check("HoJ own periodic resolves to the confirmed 81 (21 + 2/level at 60)",
+          any(abs((c.get("min") or 0) - 81.0) < 0.5
+              for e in evs.values() if e.kind == "periodic"
+              for c in hoj.expected_hit(cs, ct, event=e).components))
+
+    # The pulse is delivered by a PERIODIC-TRIGGER aura (aura 23, 500ms) over a
+    # 10s duration -> 20 pulses/cast, against 5 ticks of HoJ's own damage. The
+    # 4.00 ratio this implies is validated against 20,823 pooled crawl hits
+    # (observed 3.81) — see confirmed_facts.
+    pulse = next(e for e in hoj.events() if e.is_attributed)
+    own = next(e for e in hoj.events() if not e.is_attributed)
+    n_pulse, _ = hoj.occurrences_per_cast(pulse)
+    n_own, _ = hoj.occurrences_per_cast(own)
+    check("HoJ pulse delivery: 20 HftH pulses vs 5 own ticks (ratio 4.00)",
+          n_pulse == 20 and n_own == 5, f"{n_pulse} vs {n_own}")
+    check("attributed events flagged never-anchor",
+          any("never a calibration anchor" in w
+              for w in hoj.expected_cast(cs, ct).warnings))
+
+    # 4 -- MC convergence, at BOTH levels. Per-event is PHASE_2 T3's mandated
+    # tier-divergence guard; per-cast additionally guards the event composition
+    # and occurrence counting that 2b introduced.
     rng = random.Random(42)
     cs_crit = CharState(level=60, attack_power=584.0, spell_power=533.0,
                         spell_crit_pct=28.86, melee_crit_pct=32.46,
                         spell_hit_pct=5.7, melee_hit_pct=5.7)
-    for spell_id, label in ((282984, "Hour of Judgement"),):
-        ab = resolve_ability(conn, spell_id, level=60)
-        exp = ab.expected_hit(cs_crit, get_preset("raid_boss_st"))
+    ab = resolve_ability(conn, 282984, level=60)
+    for ev in ab.events():
+        exp = ab.expected_hit(cs_crit, ct, event=ev)
         n = 100_000
-        total_dmg = sum(
-            ab.roll_hit(cs_crit, get_preset("raid_boss_st"), rng).damage
-            for _ in range(n))
-        mc = total_dmg / n
+        mc = sum(ab.roll_hit(cs_crit, ct, rng, event=ev).damage
+                 for _ in range(n)) / n
         tol = 4 * (exp.variance / n) ** 0.5 + 1e-9   # 4 sigma of the MC mean
-        check(f"MC mean ~= expected ({label})", abs(mc - exp.mean) <= tol,
+        check(f"MC mean ~= expected per event ({ev.key})",
+              abs(mc - exp.mean) <= tol,
               f"mc {mc:.2f} vs exp {exp.mean:.2f}, tol {tol:.2f}")
+
+    exp_cast = ab.expected_cast(cs_crit, ct)
+    n = 20_000
+    mc_cast = sum(ab.roll_cast(cs_crit, ct, rng).damage for _ in range(n)) / n
+    tol = 4 * (exp_cast.variance / n) ** 0.5 + 1e-9
+    check("MC mean ~= expected per CAST (event composition guard)",
+          abs(mc_cast - exp_cast.mean) <= tol,
+          f"mc {mc_cast:.1f} vs exp {exp_cast.mean:.1f}, tol {tol:.1f}")
 
     # 5 -- rank-gap redirect on a known wrong-rank catalog entry
     row = conn.execute(
@@ -132,6 +167,87 @@ def main():
           any("ANOMALY" in w for w in st2.warnings))
     check("component mode names unmodelled talents",
           any("talents contribute NO stats" in w for w in st2.warnings))
+
+    # 7 -- T5 tiers, T6 uncertainty, T7 weights, on the committed fixture
+    import json as _json
+    from core.sim.apl import APL, APLEntry, APLError
+    from core.sim.tiers import fast_sim, medium_sim
+    from core.sim.weights import stat_weights
+    from core.sim.uncertainty import sim_with_uncertainty
+
+    root = Path(__file__).resolve().parents[2]
+    bd = _json.loads((root / "fixtures/build_elric_paladin.json").read_text(
+        encoding="utf-8"))
+    from core.builds.spec import GearItem
+    gear = {s: GearItem(item_id=0, name=s, slot=s, stats={}, weapon=w)
+            for s, w in bd["weapons"].items()}
+    fspec = BuildSpec(
+        character_level=bd["character_level"], role=Role(bd["role"]),
+        path=bd["path"], gear=gear, stats_override=bd["stats_override"],
+        abilities=[SlottedCard(a["spell_id"], a["rank"]) for a in bd["abilities"]],
+        talents=[SlottedCard(t["spell_id"], t["rank"]) for t in bd["talents"]])
+    fcs = compute_stats(fspec, ct, conv)
+
+    apls = {}
+    for nm in ("optimal", "observed"):
+        d = _json.loads((root / f"fixtures/apl_paladin_{nm}.json").read_text(
+            encoding="utf-8"))
+        apls[nm] = APL(name=d["name"], provenance=d["provenance"],
+                       entries=[APLEntry(**{k: v for k, v in e.items()
+                                            if k != "name"})
+                                for e in d["entries"]])
+    check("both Paladin APL fixtures parse against the closed grammar", True)
+
+    try:
+        APLEntry(spell_id=1, conditions=[{"type": "target_count_at_least",
+                                          "value": 3}])
+        check("APL refuses target-count branching", False, "it was accepted")
+    except APLError:
+        check("APL refuses target-count branching", True)
+
+    f = fast_sim(conn, fspec, ct, fcs, apl=apls["optimal"])
+    m = medium_sim(conn, fspec, apls["optimal"], ct, fcs)
+    check("fast and medium agree within 35% on the same APL",
+          f.primary_value > 0 and m.primary_value > 0
+          and abs(f.primary_value - m.primary_value) / m.primary_value < 0.35,
+          f"fast {f.primary_value:.0f} vs medium {m.primary_value:.0f}")
+    # The allocation-order bug this guards: a no-cooldown ability first in the
+    # priority list used to eat the whole GCD budget and report a 1-button rotation.
+    check("fast_sim allocates to more than one ability",
+          sum(1 for r in f.per_ability.values() if r["damage"] > 0) >= 5,
+          f"{sum(1 for r in f.per_ability.values() if r['damage'] > 0)} abilities")
+    check("medium_sim reports GCD saturation",
+          any("GCD saturation" in w for w in m.warnings))
+
+    # ⚠ The optimal APL currently scores BELOW the observed/starved one, and
+    # that is a data gap, not a result: Holy Shock resolves to 0 damage (open
+    # question rank_siblings_inherit_no_hidden_refs — its level-60 rank is a
+    # DUMMY effect whose sub-spell chain the sibling does not inherit). The
+    # optimal APL spends ~9 GCDs on it, so the model scores pressing it as a
+    # loss, inverting build doc §11's central conclusion. What is asserted here
+    # is therefore that the sim REFUSES TO BE TRUSTED about it — the zero-damage
+    # ability must be named loudly. Flip this to a real comparison once Holy
+    # Shock resolves.
+    mo = medium_sim(conn, fspec, apls["observed"], ct, fcs)
+    check("zero-damage ability in the rotation is named, not silently scored",
+          any("ZERO damage" in w for w in m.warnings),
+          f"optimal {m.primary_value:.0f} vs observed {mo.primary_value:.0f} "
+          "- comparison BLOCKED by the Holy Shock gap, by design")
+
+    u = sim_with_uncertainty(conn, fspec, ct, fcs, apl=apls["optimal"],
+                             samples=40, seed=1)
+    check("knowledge-uncertainty band is non-degenerate",
+          u["high"] > u["low"] and u["spread_pct"] > 0,
+          f"{u['low']:.0f}-{u['high']:.0f} (+/-{u['spread_pct']:.1f}%)")
+    check("uncertainty is reported separately from combat RNG",
+          f.combat_rng is None and "policy_note" in u)
+
+    w = stat_weights(conn, fspec, ct, fcs, apl=apls["optimal"], delta=100)
+    check("stat weights are non-degenerate",
+          any(r["dps_per_point"] > 0 for r in w["weights"].values()),
+          f"{len(w['weights'])} stats")
+    check("hit weight states its target level and gated share",
+          "level-63" in (w["weights"].get("hit_rating", {}).get("note") or ""))
 
     print()
     if FAILURES:

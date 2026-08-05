@@ -83,6 +83,11 @@ AURA_PERIODIC_DAMAGE = 3
 AURA_PERIODIC_HEAL = 8
 AURA_PERIODIC_LEECH = 53
 AURA_PERIODIC_DAMAGE_PCT = 89
+# stock 3.3.5 SPELL_AURA_PERIODIC_TRIGGER_SPELL. Load-bearing for 2b: a trigger
+# hanging off THIS aura fires once per period for the aura's whole duration, so
+# a trigger-reached magnitude is NOT "once per cast". Hour of Judgement is the
+# live case — effect 1 is aura 23 at a 500 ms period over a 10 s duration.
+AURA_PERIODIC_TRIGGER_SPELL = 23
 PERIODIC_AURAS = {AURA_PERIODIC_DAMAGE, AURA_PERIODIC_HEAL,
                   AURA_PERIODIC_LEECH, AURA_PERIODIC_DAMAGE_PCT}
 AURA_SCHOOL_ABSORB = 69
@@ -288,25 +293,105 @@ def _resolve_structure(conn, fs, raw, catalog_type):
                ref("DurationIndex"))
 
 
+def _trigger_delivery(conn, chain):
+    """How often a trigger-reached component actually fires (2b).
+
+    `chain` is the evidence string the bounded walk recorded, e.g.
+    'trigger:282984->282986->282987;dbc:...'. We walk it hop by hop, and at each
+    hop find which of the parent's effect slots names the child in
+    `EffectTriggerSpell`. If that slot is a PERIODIC TRIGGER aura (23) with a
+    period, the component fires once per period rather than once per cast.
+
+    Returns {'periodic': bool, 'period_seconds': float|None, 'hop': str|None}.
+    Nothing is assumed: an unparseable chain returns periodic=False, which is
+    the pre-2b behaviour, and the caller says so.
+    """
+    out = {"periodic": False, "period_seconds": None, "hop": None}
+    if not chain or "trigger:" not in chain:
+        return out
+    try:
+        path = chain.split("trigger:", 1)[1].split(";", 1)[0]
+        ids = [int(x) for x in path.split("->")]
+    except (ValueError, IndexError):
+        return out
+    for parent, child in zip(ids, ids[1:]):
+        row = conn.execute("SELECT effect_json FROM spell_dbc_raw WHERE id = ?",
+                           (parent,)).fetchone()
+        if not row or not row[0]:
+            continue
+        try:
+            eff = json.loads(row[0])
+        except (ValueError, TypeError):
+            continue
+        trig = eff.get("EffectTriggerSpell") or []
+        auras = eff.get("EffectAura") or []
+        periods = eff.get("EffectAuraPeriod") or []
+        for i, t in enumerate(trig):
+            if t != child:
+                continue
+            aura = auras[i] if i < len(auras) else 0
+            period = periods[i] if i < len(periods) else 0
+            if aura == AURA_PERIODIC_TRIGGER_SPELL and period:
+                out.update(periodic=True, period_seconds=period / 1000.0,
+                           hop=f"{parent}->{child}")
+                return out
+    return out
+
+
 def _formula_terms(conn, fs, spell_id, level):
     """Magnitude terms: flats from `spell_effect_values`, coefficients from
-    `spell_scaling`. Sorted into damage / heal / absorb JSON blocks."""
+    `spell_scaling`. Sorted into damage / heal / absorb JSON blocks.
+
+    Coefficients are keyed by the spell that OWNS them, which is not always the
+    card. Owner decision 2026-08-05: a trigger-reached component's coefficients
+    live on the trigger TARGET, never duplicated onto the cards that reach it —
+    truth stays where it is true. So the pull is per COMPONENT SOURCE, not just
+    per card: Hour of Judgement (282984) and Hammerdin (282983) both receive
+    Hammer from the Heavens' flat via `trigger_hop2`, and its 9.1% SP/AP rows
+    live on 282987. Keying only on the card served flat-only magnitudes and
+    understated HftH by ~45% (open question
+    `trigger_attributed_coefficients_not_in_spell_scaling`).
+
+    The walk is inherited, not re-done: component sources come from the rows
+    `spell_effect_values` already holds, so 1b's bounds (depth <= 2, cycle-safe,
+    single-path, out-of-catalog targets only) apply unchanged. `hidden_ref`
+    sources are deliberately NOT followed — their coefficients already land on
+    the card's own id as `source='dbc_hidden_formula'`, and following them too
+    would double-count.
+    """
     damage, heal, absorb = [], [], []
 
     rows = conn.execute(
         """SELECT v.source_spell_id, v.effect_index, v.via, v.effect_type,
                   v.effect_aura, v.flat_min, v.flat_max, v.per_level, v.per_combo,
-                  v.evidence_ref, v.confidence,
-                  d.spell_level, d.max_level
+                  v.evidence_ref, v.confidence, v.aura_period,
+                  d.spell_level, d.max_level, d.school_mask
            FROM spell_effect_values v
            LEFT JOIN spell_dbc_raw d ON d.id = v.source_spell_id
            WHERE v.spell_id = ?
            ORDER BY v.via, v.source_spell_id, v.effect_index""",
         (spell_id,)).fetchall()
+    trigger_sources = {}     # source_spell_id -> (via, evidence_ref)
+    delivery_memo = {}
+
+    def delivery_for(via, chain):
+        if not str(via or "").startswith("trigger_hop"):
+            return None
+        if chain not in delivery_memo:
+            delivery_memo[chain] = _trigger_delivery(conn, chain)
+        return delivery_memo[chain]
+
     for (src, idx, via, etype, aura, fmin, fmax, per_level, per_combo,
-         evidence, confidence, sl, ml) in rows:
+         evidence, confidence, period, sl, ml, smask) in rows:
+        if str(via or "").startswith("trigger_hop") and src is not None:
+            trigger_sources.setdefault(src, (via, evidence))
         if fmin is None and not per_combo:
             continue
+        # A term's own periodicity and school belong to the SPELL THAT CARRIES
+        # IT, which is not always the card (2b): Hour of Judgement's own tick,
+        # its own direct hit and the Hammer from the Heavens pulse it triggers
+        # are three different events that resolve on their own tables. Recorded
+        # per term so the ability model can split them (PHASE_2 T5).
         term = {
             "term": "FLAT",
             "min": scaled_flat(fmin, per_level, sl, ml, level),
@@ -317,6 +402,10 @@ def _formula_terms(conn, fs, spell_id, level):
             "scaled_at_level": level if per_level else None,
             "per_combo": per_combo,
             "via": via, "source_spell_id": src, "effect_index": idx,
+            "is_periodic": aura in PERIODIC_AURAS,
+            "tick_interval_seconds": (period / 1000.0) if period else None,
+            "source_school": school_name(smask) if smask is not None else None,
+            "trigger_delivery": delivery_for(via, evidence),
             "evidence_ref": evidence, "confidence": confidence,
         }
         if etype == EFFECT_HEAL or aura == AURA_PERIODIC_HEAL:
@@ -325,27 +414,64 @@ def _formula_terms(conn, fs, spell_id, level):
             absorb.append(term)
         elif etype in DAMAGE_EFFECTS or aura in (AURA_PERIODIC_DAMAGE,
                                                  AURA_PERIODIC_LEECH):
-            damage.append(term)
             if etype == EFFECT_WEAPON_PCT and fmin is not None:
                 fs.set("weapon_damage_pct", fmin, "dbc_numeric_field", evidence,
                        confidence="confirmed" if confidence == "confirmed"
                        else "inferred")
+                # 🛑 A weapon-percent effect's stored value is a PERCENT, not a
+                # damage number. Emitting it as a flat added 65 damage to
+                # Lightbound Cleave instead of 65% of a ~627 swing — an error
+                # that shrinks with gear and so would have looked like a
+                # scaling problem rather than a units problem. It becomes a
+                # WEAPON coefficient, which is the term type that multiplies
+                # weapon damage.
+                term = dict(term, term="WEAPON", coefficient=fmin / 100.0,
+                            weapon_pct=fmin, min=None, max=None)
+            damage.append(term)
 
     # SP/AP/RAP coefficients live in tooltip TEXT (tier 6) — the only place
     # Ascension states them. Rank-ramp risk documented per row via source/rank.
-    for term_type, coeff, source, cp, rank in conn.execute(
-            "SELECT term_type, coefficient, source, cp_scaling_type, rank "
-            "FROM spell_scaling WHERE spell_id = ?", (spell_id,)):
-        entry = {"term": term_type, "coefficient": coeff,
-                 "cp_scaling": cp, "source": source, "rank": rank,
-                 "confidence": "inferred",
-                 "note": ("tier-6 tooltip text; coefficients can ramp with rank "
-                          "(1x: 169/1,580 lines vary) — check rank before trusting")}
-        # BH (bonus healing) is a healing coefficient by definition — the 1c
-        # extraction widening added it, and it must not masquerade as damage.
-        # Every other term (incl. SPI/STA) stays in the damage block with its
-        # term label visible; text alone cannot bind a term to an effect slot.
-        (heal if term_type == "BH" else damage).append(entry)
+    # Pull the card's own coefficients, then each trigger-reached component's
+    # from the spell that owns them (see the docstring for why).
+    coeff_sources = [(spell_id, "self", None)]
+    for src in sorted(trigger_sources):
+        via, evidence = trigger_sources[src]
+        coeff_sources.append((src, via, evidence))
+
+    for src, via, chain in coeff_sources:
+        srow = conn.execute("SELECT school_mask FROM spell_dbc_raw WHERE id = ?",
+                            (src,)).fetchone()
+        src_school = school_name(srow[0]) if srow and srow[0] is not None else None
+        for term_type, coeff, source, cp, rank in conn.execute(
+                "SELECT term_type, coefficient, source, cp_scaling_type, rank "
+                "FROM spell_scaling WHERE spell_id = ?", (src,)):
+            entry = {"term": term_type, "coefficient": coeff,
+                     "cp_scaling": cp, "source": source, "rank": rank,
+                     "via": via, "source_spell_id": src,
+                     "source_school": src_school,
+                     "trigger_delivery": delivery_for(via, chain),
+                     # Coefficients come from tooltip TEXT, which cannot bind a
+                     # term to an effect slot — so a coefficient's direct-vs-
+                     # periodic binding is genuinely unknown, not merely
+                     # unrecorded. The ability model attaches it to the source's
+                     # direct event when one exists and warns when both exist.
+                     "is_periodic": None,
+                     "confidence": "inferred",
+                     "note": ("tier-6 tooltip text; coefficients can ramp with "
+                              "rank (1x: 169/1,580 lines vary) — check rank "
+                              "before trusting")}
+            if via != "self":
+                # Attributed, not stated on this card: the coefficient belongs
+                # to the trigger target and is reached by the bounded walk.
+                entry["evidence_ref"] = chain
+                entry["note"] += (
+                    f"; ATTRIBUTED from trigger target {src} via {via} — real "
+                    "but inferred, never a calibration anchor")
+            # BH (bonus healing) is a healing coefficient by definition — the 1c
+            # extraction widening added it, and it must not masquerade as damage.
+            # Every other term (incl. SPI/STA) stays in the damage block with its
+            # term label visible; text alone cannot bind a term to an effect slot.
+            (heal if term_type == "BH" else damage).append(entry)
 
     if damage:
         fs.set("damage_formula_terms_json", json.dumps(damage),

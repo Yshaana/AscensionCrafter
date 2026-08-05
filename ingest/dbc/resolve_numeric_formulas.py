@@ -95,17 +95,55 @@ def validate(conn):
     return failures
 
 
-def collect_rows(conn, patch_id, now):
-    """One row per usable effect slot, for every catalog spell and its hidden refs."""
+def rank_sibling_targets(conn, level=60):
+    """Level-appropriate rank siblings that are NOT catalog entries (session 2b).
+
+    Why this is needed, and why its absence was invisible until the sim ran:
+    the catalog stores Rank 1 for ~half of all multi-rank cards, so the resolver
+    correctly redirects a query to the id a level-60 character actually casts —
+    but this extractor only ever decoded CATALOG ids, so the redirect landed on a
+    spell with no `spell_effect_values` rows at all. The resolver traded a WRONG
+    magnitude for NO magnitude, and every affected ability silently simmed as 0.
+    686 catalog cards were in that state, all of them present in `spell_dbc_raw`
+    and therefore decodable the whole time.
+
+    🛑 Ambiguous rank lines are SKIPPED, not tie-broken — `catalog_rank_gaps`
+    returns every candidate precisely so nobody picks one by list order.
+    """
+    from core.spells.ranks import catalog_rank_gaps
+    targets = {}
+    skipped_ambiguous = []
+    for gap in catalog_rank_gaps(conn, level=level):
+        if gap["ambiguous"]:
+            skipped_ambiguous.append(gap["catalog_spell_id"])
+            continue
+        cand = gap["candidates"][0]
+        if not cand["in_catalog"]:
+            targets[cand["spell_id"]] = gap["catalog_spell_id"]
+    return targets, skipped_ambiguous
+
+
+def collect_rows(conn, patch_id, now, level=60):
+    """One row per usable effect slot, for every catalog spell, its hidden refs,
+    and the level-appropriate rank siblings catalog entries redirect to."""
     raw = {r[0]: (r[1], r[2]) for r in conn.execute(
         "SELECT id, effect_json, source_archive FROM spell_dbc_raw")}
 
     rows = []
     seen = set()
-    stats = {"self": 0, "hidden_ref": 0, "catalog_covered": set(),
+    stats = {"self": 0, "hidden_ref": 0, "rank_sibling": 0, "catalog_covered": set(),
+             "sibling_covered": set(), "sibling_ambiguous": [],
              "blocked_resolved": set(), "blocked_empty": set()}
 
     catalog = conn.execute("SELECT id, hidden_refs, has_hidden_formula FROM spells").fetchall()
+    siblings, ambiguous = rank_sibling_targets(conn, level=level)
+    stats["sibling_ambiguous"] = ambiguous
+    # Siblings carry no `hidden_refs`: that column is parsed from the EXPORT's
+    # tooltip text and a sibling is by definition absent from the export. Their
+    # own effect slots are decoded; anything they reach by trigger is picked up
+    # separately by the bounded walk in core/spells/relationships.py.
+    catalog = list(catalog) + [(sid, None, 0) for sid in sorted(siblings)]
+
     for spell_id, hidden_refs, blocked in catalog:
         sources = [(spell_id, "self")]
         ref_ids = [int(x) for x in (hidden_refs or "").split(",") if x.strip()]
@@ -122,7 +160,7 @@ def collect_rows(conn, patch_id, now):
                 if key in seen:
                     continue
                 seen.add(key)
-                stats[via] += 1
+                stats["rank_sibling" if spell_id in siblings else via] += 1
                 found_any = True
                 rows.append((
                     spell_id, source_id, decoded["effect_index"], via,
@@ -139,7 +177,8 @@ def collect_rows(conn, patch_id, now):
                     "confirmed", REALM, SEASON, patch_id, now,
                 ))
         if found_any:
-            stats["catalog_covered"].add(spell_id)
+            (stats["sibling_covered"] if spell_id in siblings
+             else stats["catalog_covered"]).add(spell_id)
 
         if blocked:
             # did the HIDDEN REF specifically yield a magnitude? that is the 803's
@@ -196,6 +235,11 @@ def render_report(stats, counts, gaps, differing, validation_failures):
         f"{len(stats['catalog_covered'])} |",
         f"| effect rows decoded from the spell's own record | {stats['self']} |",
         f"| effect rows decoded from a hidden sub-spell | {stats['hidden_ref']} |",
+        f"| **rank siblings** covered (the level-60 id a catalog entry redirects "
+        f"to) | **{len(stats['sibling_covered'])}** |",
+        f"| effect rows decoded from a rank sibling | {stats['rank_sibling']} |",
+        f"| rank lines SKIPPED as ambiguous (never tie-broken) | "
+        f"{len(stats['sibling_ambiguous'])} |",
         f"| `has_hidden_formula` spells whose hidden ref yielded a magnitude | "
         f"**{len(stats['blocked_resolved'])}** |",
         f"| `has_hidden_formula` spells still with no numeric magnitude | "
@@ -329,8 +373,12 @@ def main():
 
     print(f"spell_effect_values: {len(rows)} rows "
           f"({stats['self']} from the spell's own record, "
-          f"{stats['hidden_ref']} from hidden sub-spells)")
+          f"{stats['hidden_ref']} from hidden sub-spells, "
+          f"{stats['rank_sibling']} from rank siblings)")
     print(f"catalog spells with a decoded numeric effect: {len(stats['catalog_covered'])}")
+    print(f"rank siblings covered (the id a level-60 character actually casts): "
+          f"{len(stats['sibling_covered'])}"
+          f"; {len(stats['sibling_ambiguous'])} ambiguous lines skipped, not tie-broken")
     print(f"has_hidden_formula spells resolved from numeric fields: "
           f"{len(stats['blocked_resolved'])} "
           f"(still empty: {len(stats['blocked_empty'])})")

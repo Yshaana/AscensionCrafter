@@ -1,0 +1,78 @@
+{
+  "name": "paladin_optimal",
+  "provenance": "Hand-authored from build_paladin-hammerdin.md v11 §11 (ROTATION), the rotation as DESIGNED. Pairs with apl_paladin_observed.json, which models the rotation as PLAYED; the gap between the two is the value of the §11 rotation fix. ⚠ One button in §11 could not be resolved: the plain 'Judgement' has no card in the current pool (both CharacterAdvancement entries named 'Judgement' carry in_current_pool=0), so priority 3 of §11 is ABSENT from this APL rather than substituted with a guess. Its omission understates both APLs equally, so the COMPARISON between them stands, but neither absolute number includes it.",
+  "entries": [
+    {
+      "spell_id": 907300,
+      "conditions": [{"type": "always"}],
+      "off_gcd": true,
+      "comment": "Lightbound Cleave: queued off-GCD at all times, macroed onto fillers (§11 priority 8). Warrior-tagged, feeds no Hammerdin procs, so it costs the engine nothing to queue."
+    },
+    {
+      "spell_id": 20375,
+      "conditions": [{"type": "buff_missing", "spell_id": 20375}],
+      "off_gcd": false,
+      "comment": "Seal of Command up wire-to-wire (§11 priority 1)"
+    },
+    {
+      "spell_id": 31801,
+      "conditions": [{"type": "buff_missing", "spell_id": 31801}],
+      "off_gcd": false,
+      "comment": "Seal of Vengeance, paired with SoC via Twist of Faith (§11 priority 1)"
+    },
+    {
+      "spell_id": 282984,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Hour of Judgement on cooldown - the only burst window, and the whole reason the build exists (§11 priority 2)"
+    },
+    {
+      "spell_id": 20473,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Holy Shock on cooldown - Paladin-tagged, feeds Hammerdin's cooldown reduction. §11 names this one of the two single largest rotation errors."
+    },
+    {
+      "spell_id": 903158,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Dawnreaver on its 4s cooldown - Paladin-tagged via Crusader Strike modifiers (§11 priority 5)"
+    },
+    {
+      "spell_id": 280210,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Judgement of The Three Hammers - wide-intake engine, fed by any direct damage"
+    },
+    {
+      "spell_id": 907780,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Whirling Light on its 10s cooldown (§11 priority 6)"
+    },
+    {
+      "spell_id": 26573,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Consecration - earns its slot per v5, 2.2-7.6% at 30-79% uptime"
+    },
+    {
+      "spell_id": 904880,
+      "conditions": [{"type": "combo_points_at_least", "value": 5}],
+      "off_gcd": false,
+      "comment": "Holy Finish at 5 CP ONLY - the CP term is quadratic ((AP+SP) x CP^2 x 0.02), so 3->5 CP is ~2.8x, not 1.67x. Never dump below max (§11 priority 7)."
+    },
+    {
+      "spell_id": 907894,
+      "conditions": [{"type": "always"}],
+      "off_gcd": false,
+      "comment": "Dawn Strike filler (§11 priority 7)"
+    },
+    {
+      "spell_id": 913444,
+      "conditions": [{"type": "other_cooldown_not_ready", "spell_id": 282984}],
+      "off_gcd": false,
+      "comment": "Blades of Light ONLY while Hour of Judgement is unavailable (§11 priority 9). Its channel locks out every other ability and starves the Hammerdin engine, so using it near a HoJ window is actively negative."
+    }
+  ]
+}
