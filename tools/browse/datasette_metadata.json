@@ -1,0 +1,58 @@
+{
+  "title": "AscensionCrafter — spell database browser",
+  "description": "Browsing convenience only (Phase 1 T9) — explicitly not the builder app. Query surfaces: spell_mechanics (resolved numbers + provenance) and spell_relationships (interactions). Rebuild with: py cli/rebuild.py",
+  "databases": {
+    "ascension": {
+      "queries": {
+        "resolved_mechanics_for_spell": {
+          "sql": "SELECT * FROM spell_mechanics WHERE spell_id = :spell_id",
+          "title": "What are this spell's resolved numbers, with provenance?"
+        },
+        "what_amplifies_this": {
+          "sql": "SELECT r.source_spell_id, s.name, r.relation_type, r.magnitude, r.magnitude_unit, r.confidence, r.evidence_ref FROM spell_relationships r LEFT JOIN spells s ON s.id = r.source_spell_id WHERE r.target_spell_id = :spell_id AND r.relation_type IN ('amplifies','borrows_modifiers','amplifies_school')",
+          "title": "Everything that amplifies a spell (graph edition)"
+        },
+        "trigger_attributed_magnitudes": {
+          "sql": "SELECT source_spell_id, via, flat_min, flat_max, per_level, evidence_ref FROM spell_effect_values WHERE spell_id = :spell_id AND via LIKE 'trigger_hop%'",
+          "title": "A card's trigger-attributed magnitudes (chain in evidence_ref)"
+        },
+        "owned_by_school": {
+          "sql": "SELECT s.id, s.name, oc.pool, oc.rank FROM owned_cards oc JOIN spells s ON s.id = oc.spellId WHERE (',' || COALESCE(s.schools,'') || ',') LIKE '%,' || :school || ',%' ORDER BY s.name",
+          "title": "What do I own that does <school> damage?"
+        },
+        "top_coefficients_by_term": {
+          "sql": "SELECT s.name, ss.term_type, ss.coefficient, ss.source, ss.rank, ss.cp_scaling_type FROM spell_scaling ss LEFT JOIN spells s ON s.id = ss.spell_id WHERE ss.term_type = :term ORDER BY ss.coefficient DESC LIMIT 50",
+          "title": "Highest coefficients for a scaling term (SP/AP/SPFR/...) — ⚠ check rank, Rank-1 rows ramp"
+        },
+        "chase_list_exclusivity_conflicts": {
+          "sql": "SELECT eb1.bucket_name, s1.name AS card_a, s2.name AS card_b FROM exclusivity_buckets eb1 JOIN exclusivity_buckets eb2 ON eb1.bucket_id = eb2.bucket_id AND eb1.spell_id < eb2.spell_id JOIN spells s1 ON s1.id = eb1.spell_id JOIN spells s2 ON s2.id = eb2.spell_id",
+          "title": "Exclusivity-bucket conflicts (does-not-stack pairs)"
+        },
+        "open_questions_queue": {
+          "sql": "SELECT slug, question, blocks, status, affected_spell_ids, opened_at FROM open_questions WHERE status IN ('open','in_progress') ORDER BY opened_at DESC",
+          "title": "The verification queue — what's still unknown"
+        },
+        "retraction_history": {
+          "sql": "SELECT slug, claim, what_falsified_it, superseding_fact_topic, retracted_at FROM retractions ORDER BY retracted_at DESC",
+          "title": "Everything this project has been wrong about, and why"
+        },
+        "facts_touching_spell": {
+          "sql": "SELECT f.topic, f.fact, l.match_method, l.confidence FROM fact_spell_links l JOIN confirmed_facts f ON f.topic = l.fact_topic WHERE l.spell_id = :spell_id",
+          "title": "Confirmed facts linked to a spell (name links are needs_review)"
+        },
+        "recently_patched_spells": {
+          "sql": "SELECT p.patch_date, pes.spell_id, pes.matched_name, pe.change_direction, pe.status, substr(pe.raw_text,1,160) AS text FROM patch_entry_spells pes JOIN patch_entries pe ON pe.entry_id = pes.entry_id JOIN patches p ON p.patch_id = pe.patch_id ORDER BY p.patch_date DESC LIMIT 100",
+          "title": "Recently patched spells (Darkmoon)"
+        },
+        "mechanics_conflicts": {
+          "sql": "SELECT spell_id, rank, confidence, conflicts_json FROM spell_mechanics WHERE confidence = 'conflict'",
+          "title": "Mechanics conflicts — surfaced, never auto-resolved (§2.3)"
+        },
+        "rank_gap_spot_check": {
+          "sql": "SELECT r.spell_id, r.name, r.rank, r.spell_level FROM dbc_spell_rank r WHERE r.line_id = (SELECT line_id FROM dbc_spell_rank WHERE spell_id = :spell_id) ORDER BY r.rank",
+          "title": "A spell's full rank line (level-60 casts the highest rank with spell_level <= 60)"
+        }
+      }
+    }
+  }
+}

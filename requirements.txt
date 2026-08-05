@@ -11,9 +11,12 @@ requests
 # is trivially in-memory and a graph DB adds an operational dependency for no gain."
 networkx
 
+# Phase 1 Task 9 browsing (py cli/browse.py + tools/browse/datasette_metadata.json).
+# Approved as a pinned dependency by owner decision 2026-08-05 (was "install ad hoc").
+datasette
+
 # NOT a dependency, on purpose:
 #   * StormLib - ingest/dbc/build_dbc_index.py loads it via ctypes from a locally
 #     built DLL (ASCENSION_STORMLIB_DLL overrides the path). Only needed when
 #     re-extracting from the game client; every other session reads the committed
 #     JSON in data/source/dbc/ instead.
-#   * datasette - Phase 1 Task 9, browsing convenience only. Install it ad hoc.
