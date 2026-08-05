@@ -23,12 +23,8 @@
 > | Dawn Strike | Holystrike | 476 | 528 | 1.11× ⚠ |
 > | Consecration | Holy | 56 | 199 | 3.55× ⚠ |
 >
-> **The ratios cluster by school, which is the whole finding.** Pure Holy sits at
-> **~1.76×**, Holystrike hybrids at **~1.40×** — consistent with the Holy
-> multiplier stack applying in full to Holy damage and to only the magic half of
-> a hybrid, with the Titan's Grip −10% physical tax on the weapon half. That is
-> the missing talent layer, measured rather than assumed, and it is the single
-> number 2c needs.
+> **The ratios cluster by school.** ⚠ **Superseded by the five-log run below —
+> these are ONE SESSION's values, not constants.**
 >
 > **Why this also validates the base formulas.** Hammer from the Heavens
 > (flat 122–145 + 9.1% SP + 9.1% AP) and Hour of Judgement's own tick
@@ -56,9 +52,48 @@
 > Confirms `rank_siblings_inherit_no_hidden_refs` is worth fixing first in 2c.
 >
 > ⚠ **Caveat on all ratios:** the sim base uses the 2026-08-03 sheet (AP 584 /
-> SP 533) and weapon damage from the older King Gordok parse, against a
-> 2026-08-04 log. The tight within-school clustering suggests the drift is small,
-> but these are not a same-moment comparison.
+> SP 533) and weapon damage from the older King Gordok parse. Not a same-moment
+> comparison.
+>
+> ---
+>
+> ### Extended to all five logs — and it changes the conclusion
+>
+> `tools/audit/calibrate_vs_log.py --character Elric --all-logs`. Three separate
+> results, and conflating them was my mistake above:
+>
+> **1. Within any one log, a school's abilities agree very tightly.** In
+> `2026-08-03-20.51` the three Holystrike abilities read **1.88 / 1.87 / 1.87**;
+> Hammer from the Heavens and Hour of Judgement's tick read **2.46 / 2.49**. Two
+> structurally unrelated Holy formulas agreeing to 0.03 is strong evidence
+> **both base formulas are correct.** Holds in every log with enough hits.
+>
+> **2. The absolute multiplier is NOT a constant.**
+>
+> | log | Holy | Holystrike | Holy÷Holystrike |
+> |---|---|---|---|
+> | 2026-08-03 20.51 | 2.48 | 1.87 | 1.32 |
+> | 2026-08-03 21.18 | 1.99 | 1.52 | 1.31 |
+> | 2026-08-04 20.07 | 1.76 | 1.40 | 1.25 |
+> | 2026-08-04 20.37 | 1.90 | 1.42 | 1.34 |
+>
+> A **1.41× swing** between sessions. That is buff and gear state — raid buffs,
+> consumables, Vengeance uptime, Avenging Wrath windows — not talents.
+>
+> **3. The durable quantity is the SCHOOL RATIO: 1.31 ± 0.03.** Whatever buff
+> state multiplies both schools cancels in the ratio, leaving the talent
+> structure. **That is the number a correct talent model must reproduce**; the
+> absolute values are session-specific calibration inputs.
+>
+> **Dawn Strike misses its group in all four logs, always low** (1.43 / 1.17 /
+> 1.11 / 1.13 against peers at 1.87 / 1.50 / 1.40 / 1.42). A bias that reproduces
+> in every sample is not noise — its sim **base is ~25–30% too high**. Suspect
+> effect type 121 (normalized weapon) being counted alongside type 31
+> (weapon-percent). If so it affects every ability carrying type 121.
+>
+> **🛑 Consequence for 2c: do not fit one talent multiplier from pooled logs.**
+> Fit per-log with buff state known, or model buffs explicitly and let the
+> residual be talents.
 
 ---
 

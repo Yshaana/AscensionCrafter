@@ -30,17 +30,26 @@ comparison). The sim produces its first end-to-end number. Session record:
   `check_sim_engine` asserts that it does, so it cannot be quoted as a result.
 - ✅ **The sim is CALIBRATED against a real parse** (Elric's own
   `2026-08-04-20.07.21 WoWCombatLog.txt`, 60,427 events). Outcome recorded in
-  `predictions/pred_2026-08-05_elric_paladin.md`. **The missing talent layer is
-  measured: ~1.76× for pure Holy, ~1.40× for Holystrike hybrids**, clustering
-  tightly by school across five abilities. Two structurally unrelated formulas
-  (HftH and HoJ's own tick) land on the same multiplier, which validates both
-  base formulas. **Pulse delivery confirmed a second time, independently: 259
-  HftH hits / 60 HoJ ticks = 4.32 against a predicted 4.00.**
-- ⚠ **Two calibration outliers must be settled BEFORE fitting talents**, or they
-  will drag the school constants: **Consecration 3.55×** (suspect missing
-  component or wrong rank) and **Dawn Strike 1.11×** (suspect the sim base is too
-  high — effect types 121/80/31 may double-count weapon damage). Open question
-  `consecration_and_dawn_strike_calibration_outliers`.
+  `predictions/pred_2026-08-05_elric_paladin.md`, tool
+  `tools/audit/calibrate_vs_log.py` (verifies field alignment against three
+  doc-confirmed facts and REFUSES to report if they fail). **Within any one log a
+  school's abilities agree to ~±0.03 — and since HftH and HoJ's tick are
+  structurally unrelated formulas, that agreement validates BOTH base formulas.**
+  **Pulse delivery confirmed a second time, independently: 259 HftH hits / 60 HoJ
+  ticks = 4.32 against a predicted 4.00.**
+- 🛑 **Do NOT fit one talent multiplier from pooled logs.** The absolute
+  multiplier swings **1.41× between sessions** (Holy 1.76 / 1.90 / 1.99 / 2.48)
+  — that is buff and gear state, not talents. **The durable quantity is the
+  Holy÷Holystrike RATIO, 1.31 ± 0.03 across all four logs**, because buff state
+  cancels in a ratio. That ratio is what a correct talent model must reproduce.
+- ⚠ **Two calibration outliers must be settled BEFORE fitting talents**:
+  **Consecration ~4×** (suspect missing component or wrong rank) and **Dawn
+  Strike**, which misses its school group in ALL FOUR logs, always ~0.3 low — a
+  reproducing per-ability bias meaning its sim base is **~25–30% too high**.
+  Suspect effect type 121 (normalized weapon) being counted alongside type 31
+  (weapon-percent); if so it affects every ability carrying type 121. Open
+  questions `consecration_and_dawn_strike_calibration_outliers` and
+  `dawn_strike_sim_base_is_systematically_too_high`.
 - 🚨 **Talent modelling is now the single largest error source**, ahead of
   everything else combined. **Owner decision 2026-08-05: general extractor for
   coverage + hand-seed the ~24 slotted talents.** A correct model should
