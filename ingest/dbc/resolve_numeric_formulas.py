@@ -50,6 +50,7 @@ from core.db.connection import connect, table_exists, transaction  # noqa: E402
 from core.db.schema import create_phase1_schema  # noqa: E402
 from core.spells import dbc_numeric as dn  # noqa: E402
 from core.spells import rank_scaling as rs  # noqa: E402
+from core.spells.text_extraction import SUBSPELL_REF_PAT  # noqa: E402
 
 REALM = "Darkmoon"
 SEASON = "S10"
@@ -68,6 +69,13 @@ VALIDATION = [
     (53385, 0, 110.0, "Divine Storm = 110% weapon damage (v10)"),
     (498, 1, -50.0, "Divine Protection = -50% damage taken (v10)"),
     (276082, 0, 15.0, "Fel Infused Weapon 2H bonus = +15% (INDEX_GUIDE v6)"),
+    # 2c G4: the rank-sibling sub-spell chain. 25902 is reachable ONLY by parsing
+    # Holy Shock R4's own DBC description — it is not a catalog id, not an export
+    # hidden_ref, and not an EffectTriggerSpell target. If a future extraction
+    # narrows the scope again, this is the check that fails instead of Holy Shock
+    # silently reverting to zero damage.
+    (25902, 0, 562.0, "Holy Shock R4 damage sub-spell (2c G4 rank-sibling chain)"),
+    (25903, 0, 676.0, "Holy Shock R4 healing sub-spell (2c G4 rank-sibling chain)"),
 ]
 
 
@@ -123,26 +131,55 @@ def rank_sibling_targets(conn, level=60):
     return targets, skipped_ambiguous
 
 
+def sibling_hidden_refs(raw, sibling_id):
+    """Sub-spell ids a rank sibling's OWN DBC description points at (session 2c, G4).
+
+    A sibling inherits no `hidden_refs`, because that column is parsed from the
+    export tooltip and a sibling is by definition absent from the export. When
+    the sibling's own record is a DUMMY holding its magnitude in a sub-spell,
+    that left the ability with no magnitude at all — Holy Shock R4 (20930) is the
+    live case, and it simmed as 0 damage against 36 real casts.
+
+    🛑 **This reads a POINTER, not a magnitude.** The project's rule is that a
+    number must never come from a `description` string (the Titanic Mutilate
+    trap, where the text said 115% and the numeric field said 70%). A `$25902s1`
+    token is a spell id; the magnitude is still decoded from *that* spell's
+    numeric fields. The export-tooltip `hidden_refs` path has always worked this
+    way — this is the same mechanism on the DBC's copy of the same text, which is
+    the only place the link is recorded for a spell the export never saw.
+    """
+    entry = raw.get(sibling_id)
+    if entry is None:
+        return []
+    return sorted({int(m.group(1))
+                   for m in SUBSPELL_REF_PAT.finditer(entry[2] or "")
+                   if int(m.group(1)) != sibling_id})
+
+
 def collect_rows(conn, patch_id, now, level=60):
     """One row per usable effect slot, for every catalog spell, its hidden refs,
     and the level-appropriate rank siblings catalog entries redirect to."""
-    raw = {r[0]: (r[1], r[2]) for r in conn.execute(
-        "SELECT id, effect_json, source_archive FROM spell_dbc_raw")}
+    raw = {r[0]: (r[1], r[2], r[3]) for r in conn.execute(
+        "SELECT id, effect_json, source_archive, description FROM spell_dbc_raw")}
 
     rows = []
     seen = set()
-    stats = {"self": 0, "hidden_ref": 0, "rank_sibling": 0, "catalog_covered": set(),
+    stats = {"self": 0, "hidden_ref": 0, "rank_sibling": 0,
+             "sibling_hidden_ref": 0, "catalog_covered": set(),
              "sibling_covered": set(), "sibling_ambiguous": [],
+             "sibling_rescued": set(),
              "blocked_resolved": set(), "blocked_empty": set()}
 
     catalog = conn.execute("SELECT id, hidden_refs, has_hidden_formula FROM spells").fetchall()
     siblings, ambiguous = rank_sibling_targets(conn, level=level)
     stats["sibling_ambiguous"] = ambiguous
-    # Siblings carry no `hidden_refs`: that column is parsed from the EXPORT's
-    # tooltip text and a sibling is by definition absent from the export. Their
-    # own effect slots are decoded; anything they reach by trigger is picked up
-    # separately by the bounded walk in core/spells/relationships.py.
-    catalog = list(catalog) + [(sid, None, 0) for sid in sorted(siblings)]
+    # Siblings carry no `hidden_refs` from the export — see `sibling_hidden_refs`,
+    # which recovers them from the sibling's OWN DBC description instead (2c G4).
+    # Anything a sibling reaches by trigger is still picked up separately by the
+    # bounded walk in core/spells/relationships.py.
+    catalog = list(catalog) + [
+        (sid, ",".join(str(r) for r in sibling_hidden_refs(raw, sid)) or None, 0)
+        for sid in sorted(siblings)]
 
     for spell_id, hidden_refs, blocked in catalog:
         sources = [(spell_id, "self")]
@@ -154,13 +191,18 @@ def collect_rows(conn, patch_id, now, level=60):
             entry = raw.get(source_id)
             if entry is None:
                 continue
-            effect_json, archive = entry
+            effect_json, archive = entry[0], entry[1]
             for decoded in dn.decode_effects(json.loads(effect_json)):
                 key = (spell_id, source_id, decoded["effect_index"])
                 if key in seen:
                     continue
                 seen.add(key)
-                stats["rank_sibling" if spell_id in siblings else via] += 1
+                if spell_id in siblings:
+                    stats["sibling_hidden_ref" if via == "hidden_ref"
+                          else "rank_sibling"] += 1
+                    stats["sibling_rescued"].add((spell_id, via))
+                else:
+                    stats[via] += 1
                 found_any = True
                 rows.append((
                     spell_id, source_id, decoded["effect_index"], via,
@@ -189,11 +231,31 @@ def collect_rows(conn, patch_id, now, level=60):
                 for rid in ref_ids if rid in raw)
             (stats["blocked_resolved"] if ref_hit else stats["blocked_empty"]).add(spell_id)
 
+    # The G4 rescue set: siblings that have magnitudes ONLY because their own DBC
+    # description was followed. Before this, each of these resolved to no events
+    # at all, and the sim scored the ability as zero damage.
+    by_sibling = {}
+    for sid, via in stats["sibling_rescued"]:
+        by_sibling.setdefault(sid, set()).add(via)
+    stats["sibling_rescued"] = {sid for sid, vias in by_sibling.items()
+                                if vias == {"hidden_ref"}}
+
     return rows, stats
 
 
 def write_rows(conn, rows):
-    conn.execute("DELETE FROM spell_effect_values")
+    # 🛑 Delete only the rows THIS script owns. `spell_effect_values` has a second
+    # writer: core/spells/relationships.py adds the bounded trigger-attribution
+    # rows (`via='trigger_hopN'`), and it correctly scopes its own delete the same
+    # way. An unscoped `DELETE FROM spell_effect_values` here silently destroyed
+    # them — and because the rebuild runs this step BEFORE relationships, the
+    # chain hid it completely; it only appeared on a standalone re-run, which the
+    # docstring explicitly invites ("re-running is a replace"). Cost: every
+    # trigger-reached ability resolved to no events, Hammer from the Heavens —
+    # the owner's top damage source — among them. Same family as the three
+    # idempotency bugs Phase 0 found, inverted: not a script that fails to delete
+    # its own output, but one that deletes output it does not own.
+    conn.execute("DELETE FROM spell_effect_values WHERE via IN ('self', 'hidden_ref')")
     conn.executemany(
         "INSERT INTO spell_effect_values VALUES (" + ",".join("?" * 26) + ")", rows)
 
@@ -238,6 +300,10 @@ def render_report(stats, counts, gaps, differing, validation_failures):
         f"| **rank siblings** covered (the level-60 id a catalog entry redirects "
         f"to) | **{len(stats['sibling_covered'])}** |",
         f"| effect rows decoded from a rank sibling | {stats['rank_sibling']} |",
+        f"| effect rows decoded from a rank sibling's **own sub-spell** (2c G4) | "
+        f"{stats['sibling_hidden_ref']} |",
+        f"| siblings that have a magnitude ONLY via that path | "
+        f"**{len(stats['sibling_rescued'])}** |",
         f"| rank lines SKIPPED as ambiguous (never tie-broken) | "
         f"{len(stats['sibling_ambiguous'])} |",
         f"| `has_hidden_formula` spells whose hidden ref yielded a magnitude | "
@@ -379,6 +445,9 @@ def main():
     print(f"rank siblings covered (the id a level-60 character actually casts): "
           f"{len(stats['sibling_covered'])}"
           f"; {len(stats['sibling_ambiguous'])} ambiguous lines skipped, not tie-broken")
+    print(f"  of which {len(stats['sibling_rescued'])} have a magnitude ONLY via "
+          f"their own DBC sub-spell refs ({stats['sibling_hidden_ref']} rows) — "
+          f"these resolved to zero damage before 2c's G4 fix")
     print(f"has_hidden_formula spells resolved from numeric fields: "
           f"{len(stats['blocked_resolved'])} "
           f"(still empty: {len(stats['blocked_empty'])})")

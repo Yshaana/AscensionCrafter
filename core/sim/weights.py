@@ -180,7 +180,7 @@ def compare_paths(conn, build_spec, content, apl=None, paths=None):
     out, current = {}, None
     for path in (paths or PATHS):
         spec = replace(build_spec, path=path)
-        cs = compute_stats(spec, content, conv)
+        cs = compute_stats(spec, content, conv, conn=conn)
         dps = _dps(conn, spec, content, cs, apl)
         out[path] = {"dps": dps}
         if path == build_spec.path:

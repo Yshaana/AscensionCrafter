@@ -1,3 +1,57 @@
+# Project Ascension — Paladin Build Handoff (v13)
+
+**v13 changelog (2026-08-05, from Phase 2 session `2c` — one chase-list entry
+gets a mechanical proof, one talent-stack claim is corrected, one §11 conclusion
+is restored):**
+
+- ✅ **Improved Cleave × Lightbound Cleave is now PROVED from numeric fields, not
+  argued.** The talent's `EffectSpellClassMask` is **byte-identical** to
+  Lightbound Cleave's — SpellFamily **4**, mask **`[4194304, 0, 0]`** — and its
+  SpellModOp is **8 = `SPELLMOD_ALL_EFFECTS`**, so +120% at 3/3 multiplies the
+  whole ability: **×2.20**. The same mask reaches **Cleave** itself and **Fel
+  Cleave**, and reaches **none** of Whirling Light (`[0,4,0]`), Dawnreaver
+  (family 10) or Dawn Strike (family 8). v9's ranking and v12's re-derivation
+  were both right; this is the first time the reach has been demonstrated rather
+  than inferred from the "uses Cleave modifiers" clause. **§7 chase-list entry
+  1= stands, with better evidence.**
+- 🚨 **CORRECTION to §7 and §1's framing: `Holy Power` and `Holy Specialization`
+  are CRIT talents, not damage multipliers.** Both are **aura 71 —
+  `+5% critical strike CHANCE with Holy` each** at 5/5, read from numeric fields.
+  `Holy Focus` is **crit DAMAGE** (+34%), also not a damage multiplier. This
+  document repeatedly describes a "stacked Holy multiplier chain" of Holy Power /
+  Holy Specialization / Twin Disciplines / Answered Prayers / Holy Focus; only
+  **two** of those five multiply damage — **Answered Prayers +10% (all schools)
+  and Twin Disciplines +5% (Holy)**, for a total damage-multiplier layer of
+  **×1.155**. ⚠ This does **not** demote the cards: at 70% spell-table exposure
+  with Righteous Vengeance converting crits into a DoT, +20 crit points is worth
+  a great deal. It corrects *what kind of thing they are*, which matters for
+  every future "does this stack with X" question — a crit talent and a damage
+  talent share no exclusivity bucket.
+- ✅ **§11's central conclusion is RESTORED.** `2b`'s sim scored the observed
+  (starved) rotation ABOVE the optimal one, and flagged the result as blocked
+  because Holy Shock resolved to 0 damage. Holy Shock now resolves
+  (**562–608 Holy at rank 4**, id 20930 via sub-spell 25902), and **optimal 848
+  beats observed 823**. Press Judgement and Holy Shock.
+- ⚠ **Holy Shock is materially bigger than this document has ever credited.** It
+  parses at a **1,380–1,843 non-crit average** across the owner's logs, 3.0% of
+  damage at only ~36 casts — i.e. it is a hard-hitting button that is being
+  under-pressed, which is exactly §11's complaint. Open question
+  `holy_shock_bonus_coefficient_0429` (its sub-spell carries a 0.429 SP
+  coefficient that our catalog-wide rule says not to trust; the discriminator was
+  run and "no SP term" is **falsified**, but 0.429 is consistently ~5% too large
+  — owner decision needed before it is seeded).
+- ⚠ **`Consecrated Holy Weapon` is NOT the catalog's `Consecrated Weapon`.** The
+  owner's logs show it as spell **200818**; §12 item 5's caution against assuming
+  it equals **200809** was right. It is still unresolved by the sim (1,223 hits,
+  445 average — a real damage source with no modelled magnitude).
+- ⚠ **The sim's absolute DPS still reads low (848 vs a reported ~3,600) and its
+  stat weights still must not be adopted.** §10's empirically-derived weights
+  remain the ones to gear by. What changed is that the residual is now
+  *characterised*: it groups by school (Holy ~1.86×, Holystrike ~1.37×), which is
+  an unmodelled school amplifier or unmodelled buff state, not missing talents.
+
+---
+
 # Project Ascension — Paladin Build Handoff (v12)
 
 **v12 changelog (2026-08-05, from Phase 2 session `2b` — one chase-list reversal, one

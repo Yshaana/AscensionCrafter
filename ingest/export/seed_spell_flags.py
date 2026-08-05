@@ -17,6 +17,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import DB_PATH  # noqa: E402  - repo-root path resolution (see config.py)
+import config  # noqa: E402
+
+# Piped/redirected stdout defaults to cp1252 on Windows and this file
+# prints non-ASCII; without this it dies with UnicodeEncodeError only when
+# its output is captured. See config.ensure_utf8_stdout.
+config.ensure_utf8_stdout()
 
 conn = sqlite3.connect(str(DB_PATH))
 cur = conn.cursor()

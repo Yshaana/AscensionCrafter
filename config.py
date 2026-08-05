@@ -7,6 +7,7 @@ parameter. So **`core/` must never import this module.** Only `ingest/`, `cli/`,
 Every path here is derived from this file's own location, so a fresh clone works
 anywhere with no environment setup.
 """
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
@@ -38,3 +39,24 @@ def ensure_derived_dir() -> Path:
     """Create data/derived/ if absent. Callers write .db files into it."""
     DATA_DERIVED.mkdir(parents=True, exist_ok=True)
     return DATA_DERIVED
+
+
+def ensure_utf8_stdout() -> None:
+    """Make stdout/stderr UTF-8 so piped output does not crash on Windows.
+
+    Python picks the console codepage (cp1252 here) for a NON-CONSOLE stdout, so
+    any script that prints ⚠ or 🛑 dies with UnicodeEncodeError the moment its
+    output is piped or redirected — while working perfectly in a terminal. That
+    is the worst possible failure shape: it only appears when someone captures
+    the output, which is exactly when they are least able to see why.
+
+    Flagged in INDEX_GUIDE v10 against `build_index.py` and left unfixed since;
+    it recurred in 2c against `seed_epistemics.py`. Call this once at the top of
+    any entry point that prints non-ASCII. Idempotent, and a no-op on a stream
+    that does not support reconfigure.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass

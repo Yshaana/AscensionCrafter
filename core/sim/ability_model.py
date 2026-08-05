@@ -131,6 +131,11 @@ class ResolvedAbility:
     rank_note: str | None
     resolution_warnings: list
     component_fields: dict = field(default_factory=dict)   # source_spell_id -> fields
+    # SpellFamilyName / SpellClassMask — what a talent SpellMod's class mask is
+    # matched against (T4b). None means the client record was unavailable, which
+    # is NOT the same as "no talent reaches this ability"; the talent path warns.
+    spell_family: int | None = None
+    spell_class_mask: list | None = None
     _events_cache: list | None = None
 
     # ----------------------------------------------------------------- events
@@ -499,9 +504,12 @@ class ResolvedAbility:
                 "armor-mitigated half")
         return 1.0
 
-    def _damage_buckets(self, ev, char_state):
-        """Which CharState.damage_multipliers buckets apply to ONE EVENT.
-        Applied buckets are surfaced so nothing multiplies invisibly."""
+    def _damage_buckets(self, ev, char_state, warnings=None):
+        """Which multipliers apply to ONE EVENT, talents included (T4b).
+
+        Applied buckets are surfaced so nothing multiplies invisibly — that is
+        the whole point of returning them rather than a single number.
+        """
         applied = {}
         for bucket, mult in char_state.damage_multipliers.items():
             if bucket == "all_damage":
@@ -510,6 +518,30 @@ class ResolvedAbility:
                 applied[bucket] = mult
             elif bucket == "spell_damage" and ev.school in _MAGIC_SCHOOLS:
                 applied[bucket] = mult
+
+        talents = getattr(char_state, "talents", None)
+        if talents is None:
+            if warnings is not None:
+                warnings.append(
+                    f"{self.name} event {ev.key}: talents NOT modelled on this "
+                    "CharState (compute_stats was called without a `conn`) — "
+                    "damage is understated by the build's whole multiplier stack")
+            return applied
+        factor, names = talents.damage_multiplier(
+            ev.school, spell_family=self.spell_family,
+            class_mask=self.spell_class_mask)
+        if factor != 1.0:
+            applied["talents"] = factor
+            if warnings is not None:
+                warnings.append(
+                    f"{self.name} event {ev.key}: talent multiplier "
+                    f"x{factor:.4f} from {', '.join(names)}")
+        if self.spell_class_mask is None and warnings is not None:
+            warnings.append(
+                f"{self.name} ({self.spell_id}): no SpellClassMask in the "
+                "client record, so per-spell talent modifiers (auras 107/108) "
+                "could not be matched against it — school-wide amplifiers still "
+                "applied. This is a data gap, not a finding that none apply")
         return applied
 
     def occurrences_per_cast(self, ev):
@@ -601,10 +633,19 @@ class ResolvedAbility:
                            + probs.get("glancing", 0.0)) / 100.0
 
         can_crit, always = self._can_crit(ev, warnings)
+        talents = getattr(char_state, "talents", None)
+        # 🛑 In sheet mode the supplied crit is FINAL and already contains every
+        # talent's contribution, so adding the talent crit bonus on top would
+        # double-count it. compute_stats records which mode produced this state.
+        sheet_mode = any("treated as FINAL" in w for w in char_state.warnings)
+        talent_crit = 0.0
+        if talents is not None and not sheet_mode:
+            talent_crit = talents.crit_bonus(
+                ev.school, self._crit_table(ev, []) if can_crit else "spell")
         if can_crit and not always:
             ctable = self._crit_table(ev, warnings)
             crit_pct = (char_state.melee_crit_pct if ctable == "melee"
-                        else char_state.spell_crit_pct)
+                        else char_state.spell_crit_pct) + talent_crit
             p_crit = min(1.0, max(0.0, crit_pct / 100.0))
             mult = ce.crit_multiplier(
                 ctable, ev.fields.get("crit_damage_multiplier"))
@@ -614,13 +655,21 @@ class ResolvedAbility:
                 ev.fields.get("crit_damage_multiplier"))
         else:
             p_crit, mult = 0.0, 1.0
-        mult += char_state.ability_crit_damage_bonus if p_crit else 0.0
+        crit_dmg_bonus = char_state.ability_crit_damage_bonus
+        if talents is not None:
+            crit_dmg_bonus += talents.crit_damage_bonus(ev.school) / 100.0
+        mult += crit_dmg_bonus if p_crit else 0.0
+        if talent_crit:
+            warnings.append(
+                f"{self.name} event {ev.key}: talent crit +{talent_crit:g} "
+                "points (school/table-scoped, applied here rather than folded "
+                "into CharState)")
 
         primary = self._primary_event()
         dmin, dmax, heal, comps = self._components(
             ev, char_state, warnings, include_healing=(ev is primary))
         mitigation = self._mitigation(ev, char_state, content, warnings)
-        buckets = self._damage_buckets(ev, char_state)
+        buckets = self._damage_buckets(ev, char_state, warnings)
         bucket_mult = 1.0
         for m in buckets.values():
             bucket_mult *= m
@@ -705,16 +754,26 @@ class ResolvedAbility:
         dmg = rng.uniform(dmin, dmax) * mitigation * bucket_mult
 
         can_crit, always = self._can_crit(ev, warnings)
+        # Talent crit and crit-damage must be read the SAME way here as in
+        # expected_hit, or the two tiers silently diverge — which is precisely
+        # what the mean(roll_hit x N) ~= expected_hit assertion exists to catch.
+        talents = getattr(char_state, "talents", None)
+        sheet_mode = any("treated as FINAL" in w for w in char_state.warnings)
         crit = False
         if can_crit:
             ctable = self._crit_table(ev, warnings)
             crit_pct = (char_state.melee_crit_pct if ctable == "melee"
                         else char_state.spell_crit_pct)
+            if talents is not None and not sheet_mode:
+                crit_pct += talents.crit_bonus(ev.school, ctable)
             crit = always or rng.uniform(0.0, 100.0) < crit_pct
             if crit:
                 mult = ce.crit_multiplier(
                     ctable, ev.fields.get("crit_damage_multiplier"))
-                dmg *= mult + char_state.ability_crit_damage_bonus
+                bonus = char_state.ability_crit_damage_bonus
+                if talents is not None:
+                    bonus += talents.crit_damage_bonus(ev.school) / 100.0
+                dmg *= mult + bonus
         return HitResult(outcome="crit" if crit else "hit", damage=dmg,
                          healing=heal)
 
@@ -866,10 +925,21 @@ def resolve_ability(conn, spell_id, level=60, _redirected=False) -> ResolvedAbil
                 f: (vt if vt is not None else vr) for f, vt, vr in rows}
 
     identity = prof["identity"]
+
+    # SpellFamilyName + SpellClassMask: what a talent's SpellMod class mask is
+    # matched against (T4b). Read here so the per-event path needs no db access.
+    family, class_mask = None, None
+    raw = conn.execute("SELECT effect_json FROM spell_dbc_raw WHERE id = ?",
+                       (identity["id"],)).fetchone()
+    if raw:
+        e = json.loads(raw[0])
+        family, class_mask = e.get("SpellClassSet"), e.get("SpellClassMask")
+
     return ResolvedAbility(
         spell_id=identity["id"], name=identity.get("name") or str(spell_id),
         level=level, school=fields.get("school"), fields=fields,
         confidence=mech.get("confidence", "inferred"),
         damage_terms=damage_terms, healing_terms=healing_terms,
         triggered_components=triggered, rank_note=rank_note,
-        resolution_warnings=warnings, component_fields=component_fields)
+        resolution_warnings=warnings, component_fields=component_fields,
+        spell_family=family, spell_class_mask=class_mask)

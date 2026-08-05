@@ -1,8 +1,67 @@
-# Project Ascension — Systems Primer v23 (Context for Claude)
+# Project Ascension — Systems Primer v26 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v26 changelog (2026-08-05, Phase 2 session `2c`).** The calibration gates, talent
+modelling, and Phase 2 close-out. Full detail in
+`primer/Session_2026-08-05_2c_gates_and_talents.md`; only what changes *practice*
+is here. **Three of this session's five findings were errors in our own tooling,
+not in the game data — that is the theme.**
+
+- 🚨 **NEW §5 PRACTICE, and it is the biggest one: THIS DOCUMENT'S OWN HARD RULES
+  APPLY TO OUR TOOLS, NOT ONLY TO THE GAME DATA.** `calibrate_vs_log.py` matched
+  abilities by NAME. The "Consecration" in the owner's log is **270768** and the
+  "Exorcism" is **270767** — Purification By Light's own out-of-catalog spells,
+  with their own level scaling — while the tool resolved the catalog's 26573 and
+  879. That is the duplicate-name trap (§2) and the never-relate-by-name rule
+  (§4) firing inside our own code, and it manufactured **two fake calibration
+  outliers** that a whole session was planned around. Fixed structurally: combat
+  logs state the spell id on every damage line, so nothing is matched at all.
+  **When a tool resolves a game object, ask which ID SPACE it is using — the same
+  question we ask of scouted data.**
+- 🚨 **NEW §5 PRACTICE: "increases your X" on a talent may not be a DAMAGE
+  increase at all.** `Holy Power` and `Holy Specialization` — two of the five
+  cards the Paladin build calls its "stacked Holy multiplier chain" — are
+  **aura 71, +5% crit CHANCE with Holy each**. `Holy Focus` is crit *damage*.
+  The whole build's modelled damage-multiplier layer is **×1.155**, not the ~2×
+  the prose implies. Read the aura id, not the adjective.
+- ✅ **The v25 amplifier practice is now MECHANISED and proved.** Talent
+  modifiers decode from **auras 107/108 + `EffectMiscValue` (SpellModOp) +
+  `EffectSpellClassMask`**, all numeric (`core/sim/talents.py`). Improved Cleave's
+  class mask is **byte-identical** to Lightbound Cleave's (family 4,
+  `[4194304,0,0]`), so its +120% `SPELLMOD_ALL_EFFECTS` reaches it — ×2.20 — and
+  does **not** reach Whirling Light, Dawnreaver or Dawn Strike. ⚠
+  `EffectSpellClassMask` was parsed since v9 and **never written to the extract**,
+  which is why no earlier session could do this.
+- 🚨 **NEW §5 PRACTICE: a RATIO cancels shared factors, not a one-sided input
+  error.** v25 said to prefer a ratio between two things measured in the same
+  log, because buff state cancels. True, and incomplete. The Holy ÷ Holystrike
+  ratio does *not* cancel a weapon-damage error, because Holystrike is **86–100%
+  weapon damage** and Holy is **0%** — so a stale weapon input passes in at ~1:1.
+  **v25's 1.31 is RETRACTED as a fit target.** The replacement is a
+  **weapon-free pair**: same school (cancels the talent stack) *and* both sides
+  either carrying no weapon term or both pure weapon-percent (cancels weapon
+  damage). Two exist in this kit and both reproduce — HftH ÷ HoJ-tick predicted
+  1.718, observed within 3.2% over four logs; Dawnreaver ÷ Whirling Light 0.769,
+  within 6.4% over three. **Before trusting any ratio, check that both sides
+  depend on the same inputs.**
+- ⚠ **A tool that "owns the deletion of its own output" must delete only the rows
+  it owns.** `resolve_numeric_formulas.py` ran an unscoped
+  `DELETE FROM spell_effect_values`, wiping the trigger-attributed rows a
+  *different* script writes — and zeroing Hammer from the Heavens. The rebuild
+  order hid it entirely; it only appeared on the standalone re-run the script's
+  own docstring invites. Same family as Phase 0's three idempotency bugs,
+  inverted.
+- ✅ **v24's `rank_siblings_inherit_no_hidden_refs` is CLOSED**, and the fix
+  needed a second half nobody had reached: a sibling's sub-spells are named in
+  its own DBC description, but those ids **had never been extracted** — the
+  extract was scoped to catalog ids + *export* hidden_refs + siblings. Holy Shock
+  R4 = **562–608**. 🚨 **Consequence: the optimal rotation now beats the observed
+  one in the sim (848 vs 823), restoring `build_paladin-hammerdin` §11.**
+- ⚠ **Piped output no longer crashes.** `config.ensure_utf8_stdout()`, called by
+  12 entry points. Open since INDEX_GUIDE v10 and it bit twice more this session.
 
 **v25 changelog (2026-08-05, Phase 2 session `2b`).** Sim tiers + first calibration
 against real parses. Full detail in `primer/Session_2026-08-05_2b_sim_tiers.md`; only

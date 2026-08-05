@@ -435,9 +435,58 @@ CREATE INDEX IF NOT EXISTS idx_fact_links_topic ON fact_spell_links(fact_topic);
 CREATE INDEX IF NOT EXISTS idx_open_questions_status ON open_questions(status);
 """
 
+# --- Phase 2 T9: the prediction ledger ----------------------------------------
+# The point of this table is a property that is easy to destroy by accident: a
+# prediction must be logged BEFORE the parse that tests it, and must keep the
+# stamps it was made under. `sim_version` / `data_version` are what let an old
+# miss be re-checked against the current model to ask whether a fix actually
+# fixed it — re-deriving a stored prediction from today's model silently turns a
+# fitted number into an apparently pre-registered one, which is the exact
+# property the ledger exists to create.
+PHASE2_PREDICTIONS_DDL = """
+CREATE TABLE IF NOT EXISTS predictions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,        -- stable handle; the autoincrement id is not
+    user_id TEXT,
+    character_name TEXT,
+    build_spec_json TEXT NOT NULL,
+    build_spec_hash TEXT NOT NULL,
+    content_profile_json TEXT NOT NULL,
+    predicted_value REAL NOT NULL,
+    predicted_low REAL,
+    predicted_high REAL,
+    primary_metric TEXT NOT NULL,
+    per_ability_json TEXT,            -- predicted damage share per ability
+    sim_tier TEXT,
+    sim_version TEXT,                 -- the session that made it, e.g. '2b'
+    data_version TEXT,                -- which rebuild produced the inputs
+    patch_id INTEGER,
+    realm TEXT,
+    season TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS prediction_outcomes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    prediction_slug TEXT NOT NULL REFERENCES predictions(slug),
+    encounter_id INTEGER,
+    source TEXT,                      -- log filename / report id the actual came from
+    actual_value REAL NOT NULL,
+    actual_per_ability_json TEXT,
+    delta_pct REAL,
+    within_predicted_range INTEGER,
+    notes TEXT,
+    recorded_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_pred_outcomes_slug
+    ON prediction_outcomes(prediction_slug);
+"""
+
 PHASE1_DDL = (PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL + PHASE1_NUMERIC_DDL
               + PHASE1_MECHANICS_DDL + PHASE1_RELATIONSHIPS_DDL
-              + PHASE1_EPISTEMICS_DDL)
+              + PHASE1_EPISTEMICS_DDL + PHASE2_PREDICTIONS_DDL)
 
 
 def create_catalog_schema(conn) -> None:

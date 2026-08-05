@@ -36,6 +36,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import (  # noqa: E402
     CHANGELOG_DIR, CRAWL_DIR, DBC_ASCENSION_EXTRACT_JSON, DB_PATH, SPELL_EXPORT,
 )
+import config  # noqa: E402
+
+# Piped/redirected stdout defaults to cp1252 on Windows and this file
+# prints non-ASCII; without this it dies with UnicodeEncodeError only when
+# its output is captured. See config.ensure_utf8_stdout.
+config.ensure_utf8_stdout()
 from core.changelog.parse import (  # noqa: E402
     LEGACY_ZONE_TOKENS, detect_new_cards, parse_entry,
 )

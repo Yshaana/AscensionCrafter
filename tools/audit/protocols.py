@@ -36,6 +36,12 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 from config import DB_PATH  # noqa: E402
+import config  # noqa: E402
+
+# Piped/redirected stdout defaults to cp1252 on Windows and this file
+# prints non-ASCII; without this it dies with UnicodeEncodeError only when
+# its output is captured. See config.ensure_utf8_stdout.
+config.ensure_utf8_stdout()
 
 METHOD_LADDER = [
     "character-sheet breakdown tooltip",

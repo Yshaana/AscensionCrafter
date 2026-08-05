@@ -9,8 +9,84 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `2c` — talent modelling, calibration (T8), prediction ledger (T9),
-cache (T10), diff/report (T11). Read `PHASE_2_simulation.md`.**
+**Next session: `3a` — Phase 3 (builds repo). Read `PHASE_3_builds_repo.md`.
+⚠ It also inherits Phase 2's ≥3-character calibration criterion (see below).**
+
+**✅ SESSION `2c` IS DONE (2026-08-05). PHASE 2 IS COMPLETE.** Gates G0–G4 plus
+T4b (talents), T8 (calibration), T9 (prediction ledger), T10 (cache), T11
+(diff/report). Session record:
+`primer/Session_2026-08-05_2c_gates_and_talents.md`. Validation:
+`check_sim_engine.py` **38 checks**, all pass; purity 0 violations; 20-step
+rebuild green.
+
+**Four things `2b` believed were wrong, and three were our own tooling:**
+
+- ✅ **`rank_siblings_inherit_no_hidden_refs` RESOLVED.** A sibling's sub-spells
+  are named in its own DBC description — but had never been EXTRACTED, because
+  `spell_dbc_raw` was scoped to catalog + **export** hidden_refs + siblings.
+  Needed `--with-dbc` (+797 ids). **Holy Shock R4 = 562–608.**
+  🚨 **Consequence: `paladin_optimal` 848 now BEATS `paladin_observed` 823 —
+  build doc §11's central rotation conclusion is restored.**
+- 🛑 **The 1.31 Holy÷Holystrike ratio is CONFOUNDED and demoted — do not fit
+  against it.** Holystrike is 86–100% weapon damage and Holy is 0%, so the stale
+  weapon input (from a different session's parse) passes into the ratio ~1:1.
+  **Replaced by WEAPON-FREE PAIR RATIOS, which need no weapon input at all:**
+  HftH ÷ HoJ-tick predicted **1.718**, observed within **3.2%** across 4 logs;
+  Dawnreaver ÷ Whirling Light predicted **0.769**, within **6.4%** across 3.
+  Those are the targets a talent model must reproduce.
+- ✅ **Consecration and Exorcism were never calibration outliers.**
+  `calibrate_vs_log.py` matched by NAME; the logged spells are **270768** and
+  **270767** (Purification By Light's own out-of-catalog versions), not the
+  catalog's 26573/879. Our own never-match-by-name rule, never applied to our own
+  tools. Fixed by keying on the log's `spellId`. **The Holy group is now n=3,
+  1.97–2.15, with no outlier.**
+- ✅ **The effect-type-121 double-count theory is wrong twice.** The three
+  Holystrike anchors do NOT carry 121 (only Dawn Strike does), so `2b`'s
+  base-formula validation **stands**; and the resolver never counted 121 as a
+  swing anyway. Dawn Strike is reframed as a TALENT question — same formula as
+  Lightbound Cleave, different family, 25% less damage in game.
+
+**T4b — talents now contribute, and two build-doc claims need correcting:**
+
+- ⚠ **`EffectSpellClassMask` had to be added to the extract** — parsed since v9
+  and never written out, which is why no earlier session could model amplifiers.
+- ✅ **Improved Cleave's class mask is byte-identical to Lightbound Cleave's**
+  (family 4, `[4194304,0,0]`) → **×2.20**, proved from numeric fields. It does
+  NOT reach Whirling Light, Dawnreaver or Dawn Strike.
+- 🚨 **Holy Power and Holy Specialization are CRIT talents (aura 71, +5% Holy
+  crit each), not damage multipliers.** The build doc calls them part of a
+  "stacked Holy multiplier chain". The whole modelled damage layer is **×1.155**.
+- **Unknown auras are named, never assumed inert:** 6 talents use auras outside
+  stock 3.3.5 (231/333/122/136), 4 are server-side scripts (`SPELL_AURA_DUMMY`).
+
+**T8 — tolerance recorded BEFORE calibrating** (`predictions/CALIBRATION_TOLERANCE.md`,
+±20% aggregate / ±25% per-ability). **Reported result: 1 of 7 abilities within
+tolerance.** The misses group by SCHOOL (Holy ~1.86×, Holystrike ~1.37×) — an
+unmodelled school amplifier *or* an unmodelled buff. 🛑 Not to be closed by
+fitting a constant.
+
+**📅 PHASE BOUNDARY CHANGE:** T8's **"reproduces ≥3 real characters" criterion
+MOVES to 3a**, because simulating a crawled character needs gear and gear is
+Phase 3 T4's `items` table. Phase 2 exits without it, deliberately and on record.
+
+**Bug introduced and caught this session:** `resolve_numeric_formulas.py` ran
+`DELETE FROM spell_effect_values` unscoped, destroying the trigger rows
+`relationships.py` owns — invisible in the rebuild, visible only on the
+standalone re-run its docstring invites, and it zeroed Hammer from the Heavens.
+Now scoped. Also fixed repo-wide: **piped/redirected stdout no longer crashes**
+on Windows (`config.ensure_utf8_stdout()`, 12 entry points) — open since
+INDEX_GUIDE v10.
+
+**Cheapest thing the owner can do next:** a character-sheet screenshot (weapon
+damage, AP, SP) at the **start of the next logged session**. It un-confounds the
+absolute calibration *and* settles `elric_active_path_and_duality_ap_anomaly`.
+
+---
+
+## Superseded: what `2c` was told to inherit from `2b`
+
+Kept because several of these numbers are still quoted in older docs, and each
+is now wrong for a reason worth knowing.
 
 **✅ SESSION `2b` IS DONE (2026-08-05).** T5 (three tiers + APL grammar + apl_gen),
 T6 (uncertainty from a sim-layer policy table), T7 cheap half (stat weights, path
@@ -18,7 +94,8 @@ comparison). The sim produces its first end-to-end number. Session record:
 `primer/Session_2026-08-05_2b_sim_tiers.md`. Validation: `check_sim_engine.py` is
 **30 checks** (was 16), all pass; purity 0/34; 19-step rebuild green.
 
-**What `2c` inherits from `2b`:**
+**What `2c` inherited from `2b` — ⚠ four of these are now SUPERSEDED, see the
+`2c` block above before using any number here:**
 
 - 🛑 **FIRST ITEM: open question `rank_siblings_inherit_no_hidden_refs`.** It
   blocks the rotation question. A rank sibling inherits no `hidden_refs` (that

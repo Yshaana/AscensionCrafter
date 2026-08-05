@@ -36,6 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import (  # noqa: E402
     DBC_ASCENSION_EXTRACT_JSON, DBC_EXTRACT_JSON, DB_PATH as _DB_PATH,
 )
+from core.spells.text_extraction import SUBSPELL_REF_PAT  # noqa: E402
 
 DB_PATH = str(_DB_PATH)  # ephemeral, gitignored
 
@@ -1019,10 +1020,35 @@ def main():
         if catalog_ids.intersection(ids):
             sibling_ids.update(ids)
 
-    relevant_ids = catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids
+    # A rank sibling's OWN sub-spell refs (session 2c, gate G4). `hidden_ref_ids`
+    # above comes from `spells.hidden_refs`, which is parsed from the EXPORT's
+    # tooltip - and a sibling is by definition absent from the export, so it
+    # contributes none. When the sibling's own record is a DUMMY that keeps its
+    # magnitude in a sub-spell, that sub-spell was therefore never in scope and
+    # the ability resolved to zero damage. Holy Shock is the live case: catalog
+    # R1 (20473) points at 25912/25914, but the R4 a level-60 character casts
+    # (20930) points at 25902/25903, and neither was ever extracted.
+    #
+    # 🛑 This reads a POINTER out of the description string, never a magnitude.
+    # The magnitude still comes from the referenced spell's numeric fields. The
+    # ban is on trusting description *numbers* (the Titanic Mutilate trap); a
+    # `$25902s1` token is an id, and it is the only place the link is recorded.
+    sibling_ref_ids = set()
+    id_struct_scan = struct.Struct('<I')
+    for rec in dbc['records']:
+        if id_struct_scan.unpack_from(rec, 0)[0] not in sibling_ids:
+            continue
+        desc = parse_spell_record(rec, dbc['string_block']).get('Description') or ''
+        for m in SUBSPELL_REF_PAT.finditer(desc):
+            sibling_ref_ids.add(int(m.group(1)))
+    sibling_ref_ids -= (catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids)
+
+    relevant_ids = (catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids
+                    | sibling_ref_ids)
     print(f'Scoping spell_dbc_raw to {len(relevant_ids)} relevant IDs '
           f'({len(catalog_ids)} catalog + {len(hidden_ref_ids)} hidden_refs + '
-          f'{len(sibling_ids)} rank siblings + neighbor buffer)')
+          f'{len(sibling_ids)} rank siblings + {len(sibling_ref_ids)} rank-sibling '
+          f'sub-spell refs + neighbor buffer)')
 
     spell_rows = []
     id_struct = struct.Struct('<I')
@@ -1041,6 +1067,14 @@ def main():
             'EffectMiscValueB': p['EffectMiscValueB'], 'EffectTriggerSpell': p['EffectTriggerSpell'],
             'EffectPointsPerCombo': p['EffectPointsPerCombo'], 'EffectBonusCoefficient': p['EffectBonusCoefficient'],
             'DurationIndex': p['DurationIndex'], 'RangeIndex': p['RangeIndex'], 'CastingTimeIndex': p['CastingTimeIndex'],
+            # Session 2c (T4b): the modifier fields. `EffectSpellClassMask` was
+            # already PARSED here and simply never written out — the same shape
+            # as v9's hardcoded-column-list gap, and it hid the one field that
+            # says WHICH spells an amplifier talent reaches. 9 u32s, three per
+            # effect slot; `SpellClassSet` (SpellFamilyName) below scopes them,
+            # since a class mask only means anything within its family.
+            'EffectSpellClassMask': p['EffectSpellClassMask'],
+            'SpellClassSet': p['SpellClassSet'], 'SpellClassMask': p['SpellClassMask'],
         })
         spell_rows.append((p['ID'], p['Name'], p['NameSubtext'], p['Description'], p['AuraDescription'],
                             p['Attributes'], p['AttributesEx'], p['SchoolMask'], effect_json,

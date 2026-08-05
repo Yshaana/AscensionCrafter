@@ -1,7 +1,61 @@
-# PHASE 2 — Simulation Engine (Layer 3) — v3
+# PHASE 2 — Simulation Engine (Layer 3) — v4
 
 **Read `00_ARCHITECTURE.md` and Phase 1 first. Hard dependency: `spell_mechanics` (Phase 1 T4) and
 `spell_profile()` (Phase 1 T7). A sim built before those simulates placeholders.**
+
+---
+
+## Progress (session `2c`, 2026-08-05): gates G0–G4 + T4b, T8, T9, T10, T11 ✅
+
+Full detail in `Session_2026-08-05_2c_gates_and_talents.md`. **PHASE 2 IS
+COMPLETE**, with one exit criterion deliberately moved to 3a (§8.2).
+
+New: `core/sim/{talents,predictions,cache,diff,report}.py`,
+`ingest/export/seed_predictions.py` (new rebuild step),
+`predictions/CALIBRATION_TOLERANCE.md`. Validation is **38 checks**.
+
+**The headline is that four things `2b` believed were wrong, and each was found
+by a gate rather than by a parse:**
+
+1. **Holy Shock resolved to 0** and inverted the rotation conclusion — because a
+   rank sibling's sub-spells were never extracted (G4). Fixed; **optimal now
+   beats observed, 848 vs 823**, restoring build doc §11.
+2. **The 1.31 school ratio is confounded** by a weapon input from a different
+   session (G1). Demoted; replaced by weapon-free pair ratios.
+3. **Consecration and Exorcism were never outliers** — the calibration tool
+   matched them by NAME and resolved the wrong spells (G3). Our own
+   never-match-by-name rule, unapplied to our own tooling.
+4. **The type-121 double-count theory is wrong twice over** (G2): the anchors do
+   not carry 121, and the resolver never counted it as a swing anyway.
+
+**Plus a bug this session introduced and caught:** `resolve_numeric_formulas.py`
+ran `DELETE FROM spell_effect_values` unscoped, destroying the trigger-attributed
+rows `relationships.py` owns. Invisible in the rebuild (which runs it first) and
+only visible on the standalone re-run its own docstring invites — it zeroed
+Hammer from the Heavens. Now scoped to `via IN ('self','hidden_ref')`.
+
+**T4b, talent modelling — what it does and does not explain.** Built on auras
+107/108 + `EffectMiscValue` + `EffectSpellClassMask` from numeric fields, as
+`2b` specified. ⚠ **`EffectSpellClassMask` had to be added to the extract** — it
+was parsed and never written out, so no earlier session could have done this.
+
+* **Improved Cleave's class mask is byte-identical to Lightbound Cleave's**
+  (family 4, `[4194304,0,0]`), so its +120% `SPELLMOD_ALL_EFFECTS` reaches it —
+  **×2.20**, from numeric fields alone. It reaches Cleave and Fel Cleave, and
+  does **not** reach Whirling Light, Dawnreaver or Dawn Strike. The chase-list
+  ranking now has a mechanical proof rather than an argument.
+* 🚨 **Holy Power and Holy Specialization are CRIT talents, not damage
+  multipliers** (aura 71, `+5%` crit chance with Holy each). The build doc calls
+  them part of a "stacked Holy multiplier chain"; two of that chain's members do
+  not multiply damage at all.
+* **The modelled talent layer is only ×1.155** for Holy (Answered Prayers +10%
+  all schools, Twin Disciplines +5% Holy) against a logged ~2.1×. The residual is
+  **not claimed to be talents** — see §8.1.
+* **Unknown auras are named, never assumed inert.** 6 talents use auras outside
+  stock 3.3.5 (231, 333, 122, 136); 4 more are `SPELL_AURA_DUMMY`, i.e. a
+  server-side script that no numeric field states. Both sets are listed by name
+  in `warnings`, because a talent silently contributing 1.0× is indistinguishable
+  from one read correctly.
 
 ---
 
@@ -373,6 +427,55 @@ tiers move with it.
 
 ---
 
+## Calibration gates (added by the `2c` addendum, 2026-08-05) — ALL CLOSED
+
+These were gates on T8 and on talent modelling, not new tasks. Every one is now
+closed; kept here because each closed by overturning something, and the
+overturned version is still quoted in older docs.
+
+| Gate | Question | Outcome |
+|---|---|---|
+| **G4** | `rank_siblings_inherit_no_hidden_refs` — Holy Shock R4 sims as 0 | ✅ **RESOLVED.** Two halves: the sibling's own DBC *description* names its sub-spells (25902/25903), and those ids had never been EXTRACTED — `build_dbc_index.py` scoped `spell_dbc_raw` to catalog + **export** hidden_refs + siblings, so a sibling's own refs were never in scope. +797 ids, Holy Shock R4 = **562–608**. 🛑 Consequence: **the optimal-vs-observed APL comparison inverts back — optimal 848 vs observed 823 — restoring build doc §11** |
+| **G0** | four numbers disagreeing with themselves | ✅ done, see below |
+| **G1** | is the Holy÷Holystrike ratio confounded by a stale weapon input? | ✅ **YES, and 1.31 is DEMOTED — do not fit against it.** Measured composition: Holystrike is 86–100% weapon damage, Holy is 0%, so a weapon-input error passes into the ratio ~1:1. Replaced by **weapon-free pair ratios** |
+| **G2** | do the Holystrike anchors carry effect type 121? | ✅ **NO.** Lightbound Cleave `[58,31]`, Whirling Light `[31,64]`, Dawnreaver `[31]`; only Dawn Strike carries 121, at every rank. **2b's base-formula validation STANDS** — three independent confirmations, not one shared bias |
+| **G3** | Consecration ~3.55×, blocking the Holy-group constant | ✅ **RESOLVED, and it was our own tooling.** `calibrate_vs_log.py` matched by NAME; logged "Consecration" is **270768** and logged "Exorcism" is **270767** — Purification By Light's own out-of-catalog spells, not the catalog's 26573/879. Fixed by keying on the log's own `spellId`. The Holy group is now tight at n=3, **1.97–2.15**, with no outlier |
+
+### G0 — the four reconciled numbers
+
+Recorded as errata rather than silent edits (Rule 7 applies to handoffs too).
+
+| Was | Is |
+|---|---|
+| "five real parses" vs a 4-row table vs "all four logs" | **5 logs scan and pass alignment; 4 contribute rows.** The fifth, `2026-08-03-20.41.34`, is a **53-event fragment** — below the 15-hit minimum on every ability. A dropped sample is a finding, so it is named |
+| Holystrike `1.52` vs `1.50` for `2026-08-03 21.18` | **Moot** — every ratio was re-derived after G3 and G4 changed which spells resolve. Current per-log Holystrike for that log: LC 1.50 / Dawn Strike 1.17 / Whirling Light 1.58 / Dawnreaver 1.48 |
+| `1.31 ± 0.03` when the values span 1.25–1.34 | **Withdrawn entirely by G1** (the quantity is confounded). Rule 2 applies to our own derived numbers: the band was narrower than the data |
+| `check_sim_engine.py` "30 checks" | **32 checks** in `2b`'s state (31 executed). Now **38**, all pass |
+
+### What replaces 1.31 — the weapon-free pair ratios
+
+A same-school pair cancels weapon damage only at the extremes: both sides
+carrying **no** weapon term, or both **pure** weapon-percent with no flat.
+Anything between (a flat plus a weapon term — most of this kit) does not cancel,
+because the flat does not scale with weapon damage. Same school means the
+school's whole talent stack cancels too, leaving the ratio of the two **base
+formulas** — a claim about our data that a parse checks directly, with no fitted
+input at all.
+
+| Pair | Predicted | Observed | Worst delta |
+|---|---|---|---|
+| Hammer from the Heavens ÷ Hour of Judgement's own tick | **1.718** | 1.697 / 1.773 / 1.685 / 1.771 | **3.2%** over 4 logs |
+| Dawnreaver ÷ Whirling Light | **0.769** | 0.768 / 0.720 / 0.757 | **6.4%** over 3 logs |
+
+**These are the targets a talent model must reproduce.** `calibrate_vs_log.py`
+computes them as a first-class report and labels each pair REPRODUCES / MISSES.
+
+⚠ **To un-confound the ABSOLUTE numbers later, and it is free:** capture a
+character-sheet screenshot (weapon damage, AP, SP) at the start of the next
+logged session, so one parse finally has a same-moment stat block.
+
+---
+
 ## Task 8 — Calibration
 
 ```python
@@ -392,6 +495,33 @@ output of the sim before trusting it on hypotheticals.
   separately from mythic AoE? Strictly more informative than one aggregate number
 - **Gate:** the sim isn't trusted on hypothetical builds until it reproduces ≥3 real characters
   within a stated tolerance. Write the tolerance down; treat missing it as a finding
+
+### 8.1 — The tolerance, written down BEFORE calibrating (`2c`)
+
+**`predictions/CALIBRATION_TOLERANCE.md`, stamped 2026-08-05 as the first act of
+T8.** Aggregate DPS **±20%**; per-ability **±25%** on the non-crit average and
+±15% on damage share, for abilities ≥5% of damage. Set from the measured noise
+floor (the weapon-free pairs reproduce to 3.2% and 6.4%; buff state moves the
+same ability 1.41× between sessions), not chosen after seeing the deltas.
+Widening it needs a dated entry in that file with a reason.
+
+**Result, reported rather than hidden: 1 of 7 abilities within tolerance.** The
+six misses group by SCHOOL — Holy 1.71–1.87×, Holystrike 1.34–1.38× — which is
+what an unmodelled school-scoped amplifier *or* an unmodelled buff looks like.
+🛑 Not closed by fitting a constant.
+
+### 8.2 — The ≥3-character criterion MOVES to Phase 3a
+
+Recorded phase-boundary change, `2c`. Simulating a crawled character needs their
+**gear**, and gear is Phase 3 T4's `items` table — the same dependency that
+already deferred T7's `gear_tier_presets` and `scaling_curve`. The crawl records
+per-ability damage and a build but no stat block, so "reproduces 3 characters"
+would be measuring our own invented stats three times.
+
+**Phase 2 exits without it.** What `2c` delivers instead is arguably stronger:
+one character across **five logs and four sessions**, so the model is tested
+against session variation — plus the weapon-free pair ratios, which are
+predictions with no fitted input at all.
 
 ---
 

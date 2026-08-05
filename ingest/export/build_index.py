@@ -23,6 +23,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from config import CARDS_FILE, DB_PATH, SPELL_EXPORT, ensure_derived_dir  # noqa: E402
+import config  # noqa: E402
+
+# Piped/redirected stdout defaults to cp1252 on Windows and this file
+# prints non-ASCII; without this it dies with UnicodeEncodeError only when
+# its output is captured. See config.ensure_utf8_stdout.
+config.ensure_utf8_stdout()
 from core.db.connection import connect, transaction  # noqa: E402
 from core.db.schema import create_all  # noqa: E402
 from core.spells.text_extraction import (  # noqa: E402

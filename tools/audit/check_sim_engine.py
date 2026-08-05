@@ -29,6 +29,16 @@ from core.sim.content import Role  # noqa: E402
 
 FAILURES = []
 
+# A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
+# zero-damage guard rather than assume it still works. Thorns states `$s1 Nature
+# damage` in its tooltip and resolves to no events at all — the same state Holy
+# Shock was in until 2c's G4 fix, and the state the guard exists to catch.
+# ⚠ Do not swap this for an ability that merely has a zero *component*: Blades of
+# Light looks like a candidate and is not one — its own effect is zero but its
+# trigger-reached components resolve, so the ability-level guard correctly stays
+# quiet and only the per-event warning fires.
+ZERO_DAMAGE_SPELL_ID = 467  # Thorns
+
 
 def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail else ""))
@@ -162,11 +172,33 @@ def main():
 
     spec2 = BuildSpec(character_level=60, role=Role.DPS, path="Duality",
                       abilities=[], talents=[SlottedCard(1, 1)])
-    st2 = compute_stats(spec2, get_preset("raid_boss_st"), conv)
+    st2 = compute_stats(spec2, get_preset("raid_boss_st"), conv, conn=conn)
     check("component mode warns about Duality AP anomaly",
           any("ANOMALY" in w for w in st2.warnings))
-    check("component mode names unmodelled talents",
-          any("talents contribute NO stats" in w for w in st2.warnings))
+    # T4b replaces 2a's blanket "talents contribute nothing" warning with a
+    # per-talent account. Two properties are asserted, because the failure this
+    # guards is a talent silently contributing 1.0x — indistinguishable, without
+    # a warning, from one that was read correctly and does nothing.
+    check("a talent id that does not resolve is NAMED, not dropped",
+          any("NOT RESOLVED" in w for w in st2.warnings),
+          "spell id 1 is not a card")
+
+    from core.sim.talents import resolve_talents
+    teff = resolve_talents(conn, [SlottedCard(12815, 5)])   # Sword Specialization
+    check("a talent whose auras are not understood is NAMED as a gap",
+          any("UNMODELLED" in w for w in teff.warnings)
+          and any(m.kind.startswith("unmodelled_aura") for m in teff.modifiers),
+          "Sword Specialization uses aura 333, outside stock 3.3.5")
+
+    # The Improved Cleave lesson in code: the scope of an amplifier comes from
+    # the modifier op, never from the tooltip. 3/3 is +120% via SpellModOp 8
+    # (ALL_EFFECTS), so it must multiply the WHOLE ability.
+    ic = resolve_talents(conn, [SlottedCard(12329, 3)])
+    ic_mods = [m for m in ic.modifiers if m.kind == "spellmod_pct"]
+    check("Improved Cleave 3/3 reads as +120% SPELLMOD_ALL_EFFECTS",
+          any(abs(m.value - 120.0) < 1e-6 and m.scope.get("op") == 8
+              for m in ic_mods),
+          f"{[(m.value, m.scope.get('op_name')) for m in ic_mods]}")
 
     # 7 -- T5 tiers, T6 uncertainty, T7 weights, on the committed fixture
     import json as _json
@@ -186,7 +218,7 @@ def main():
         path=bd["path"], gear=gear, stats_override=bd["stats_override"],
         abilities=[SlottedCard(a["spell_id"], a["rank"]) for a in bd["abilities"]],
         talents=[SlottedCard(t["spell_id"], t["rank"]) for t in bd["talents"]])
-    fcs = compute_stats(fspec, ct, conv)
+    fcs = compute_stats(fspec, ct, conv, conn=conn)
 
     apls = {}
     for nm in ("optimal", "observed"):
@@ -219,20 +251,30 @@ def main():
     check("medium_sim reports GCD saturation",
           any("GCD saturation" in w for w in m.warnings))
 
-    # ⚠ The optimal APL currently scores BELOW the observed/starved one, and
-    # that is a data gap, not a result: Holy Shock resolves to 0 damage (open
-    # question rank_siblings_inherit_no_hidden_refs — its level-60 rank is a
-    # DUMMY effect whose sub-spell chain the sibling does not inherit). The
-    # optimal APL spends ~9 GCDs on it, so the model scores pressing it as a
-    # loss, inverting build doc §11's central conclusion. What is asserted here
-    # is therefore that the sim REFUSES TO BE TRUSTED about it — the zero-damage
-    # ability must be named loudly. Flip this to a real comparison once Holy
-    # Shock resolves.
+    # ✅ UNBLOCKED in 2c by gate G4. Through 2b the optimal APL scored BELOW the
+    # observed/starved one, inverting build doc §11's central conclusion — a data
+    # gap, not a result: Holy Shock's level-60 rank (20930) is a DUMMY whose
+    # sub-spell chain the rank sibling did not inherit, so it resolved to 0 and
+    # the ~9 GCDs the optimal APL spends on it scored as waste. G4 follows the
+    # sibling's own DBC description to its sub-spells (25902/25903), Holy Shock
+    # resolves to 562–608, and the comparison means something again.
+    #
+    # Two checks, deliberately separate:
+    #   1. the zero-damage GUARD still works (it is what caught this) — asserted
+    #      against a rotation deliberately built around an ability with no
+    #      known magnitude, so the guard is tested rather than assumed;
+    #   2. the real comparison now runs, and optimal must beat observed.
     mo = medium_sim(conn, fspec, apls["observed"], ct, fcs)
+    zero_apl = APL(name="zero_damage_guard",
+                   entries=[APLEntry(spell_id=ZERO_DAMAGE_SPELL_ID)])
+    mz = medium_sim(conn, fspec, zero_apl, ct, fcs)
     check("zero-damage ability in the rotation is named, not silently scored",
-          any("ZERO damage" in w for w in m.warnings),
+          any("ZERO damage" in w for w in mz.warnings),
+          f"guard exercised against spell {ZERO_DAMAGE_SPELL_ID}")
+    check("optimal APL beats the observed/starved one (build doc §11)",
+          m.primary_value > mo.primary_value,
           f"optimal {m.primary_value:.0f} vs observed {mo.primary_value:.0f} "
-          "- comparison BLOCKED by the Holy Shock gap, by design")
+          "- unblocked by G4 (Holy Shock resolves)")
 
     u = sim_with_uncertainty(conn, fspec, ct, fcs, apl=apls["optimal"],
                              samples=40, seed=1)
@@ -248,6 +290,48 @@ def main():
           f"{len(w['weights'])} stats")
     check("hit weight states its target level and gated share",
           "level-63" in (w["weights"].get("hit_rating", {}).get("note") or ""))
+
+    # 8 -- T9 ledger, T10 cache, T11 diff. Each check targets the one property
+    # that makes the module worth having, not that it runs.
+    from core.sim import cache as simcache
+    from core.sim.predictions import PredictionLedgerError, record_prediction
+
+    dv, dv_warnings = simcache.data_version(conn)
+    # The failure this guards is silent and total: a key that watches only
+    # spell_mechanics serves a previous session's answers after a rebuild that
+    # changed spell_effect_values or the talent path.
+    missing = [t for t in simcache.SIM_INPUT_TABLES
+               if not conn.execute(
+                   "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                   (t,)).fetchone()]
+    check("cache data_version covers every sim input table",
+          not missing and not dv_warnings, f"{len(simcache.SIM_INPUT_TABLES)} "
+          f"tables hashed -> {dv}" + (f"; MISSING {missing}" if missing else ""))
+    k1 = simcache.cache_key(build_hash="x", tier="medium", content={"a": 1},
+                            data_version_str=dv)
+    k2 = simcache.cache_key(build_hash="x", tier="medium", content={"a": 1},
+                            data_version_str=dv + "!")
+    check("a changed data_version changes the cache key", k1 != k2)
+
+    try:
+        record_prediction(
+            conn, slug="pred_2026-08-05_elric_paladin_raid_boss_st",
+            build_spec={}, content_profile={}, predicted_value=1.0,
+            primary_metric="DAMAGE_DONE", sim_version="x", data_version="x")
+        check("the ledger refuses to overwrite an existing prediction", False,
+              "it accepted the overwrite")
+    except PredictionLedgerError:
+        check("the ledger refuses to overwrite an existing prediction", True)
+
+    # T11's central clause: a delta smaller than the uncertainty is not a result.
+    from core.sim.diff import diff_builds
+    d = diff_builds(conn, fspec, fspec, ct, fcs, fcs, apl_a=apls["optimal"],
+                    apl_b=apls["optimal"],
+                    uncertainty_a={"low": u["low"], "high": u["high"]},
+                    uncertainty_b={"low": u["low"], "high": u["high"]})
+    check("diff refuses to rank builds whose delta is inside the uncertainty",
+          d["verdict"] == "inconclusive" and d["winner"] is None,
+          f"{d['verdict']}, delta {d['delta']:.1f}")
 
     print()
     if FAILURES:

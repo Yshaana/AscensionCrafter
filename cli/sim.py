@@ -117,7 +117,7 @@ def main():
     spec, raw = load_build(args.build)
     content = get_preset(args.content)
     conv = ce.load_rating_conversions(conn, level=spec.character_level)
-    cs = compute_stats(spec, content, conv)
+    cs = compute_stats(spec, content, conv, conn=conn)
 
     print(f"build: {raw.get('name', args.build)}  path={spec.path}  "
           f"level={spec.character_level}")

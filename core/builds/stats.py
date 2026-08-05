@@ -73,6 +73,10 @@ class CharState:
     # BY NAME, never silently — ability_model surfaces which buckets it applied.
     damage_multipliers: dict = field(default_factory=dict)
     ability_crit_damage_bonus: float = 0.0   # additive on the crit multiplier
+    # T4b: the build's decoded talent effects, or None when talents were not
+    # modelled (no `conn` passed to compute_stats). None and "no talents" are
+    # different states and the ability model reports which one it saw.
+    talents: object = None
     # Resource pools and regen, for the medium sim's castability question.
     # EMPTY MEANS UNKNOWN, not zero: medium_sim refuses to model starvation
     # rather than assuming an infinite bar or an empty one.
@@ -171,9 +175,20 @@ _GEAR_RATING_KEYS = {
 
 def compute_stats(build_spec, content, conversions: RatingConversions,
                   duality_sp_amp=DUALITY_SP_AMP_MEASURED,
-                  duality_ap_factor=DUALITY_AP_FACTOR_MEASURED):
-    """Resolve a BuildSpec into a CharState for `content`. See module docstring
-    for exactly what is and is not modelled in 2a."""
+                  duality_ap_factor=DUALITY_AP_FACTOR_MEASURED,
+                  conn=None):
+    """Resolve a BuildSpec into a CharState for `content`.
+
+    Pass `conn` to model talents (session 2c, T4b). Without it the 2a behaviour
+    is preserved — talents contribute nothing and say so.
+
+    🛑 **Sheet mode and talents interact, and getting it wrong double-counts.**
+    `stats_override` means the values are FINAL character-sheet readings, and a
+    sheet already includes every talent's contribution to crit, AP, SP and
+    haste. So in sheet mode only the talents' DAMAGE MULTIPLIERS are applied —
+    a sheet never displays those — and their stat contributions are deliberately
+    dropped. In component mode both halves apply.
+    """
     warnings = list(conversions.warnings)
     level = build_spec.character_level
     wielding = build_spec.wielding()
@@ -290,11 +305,43 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
         cs.spell_crit_pct += cs.intellect / INT_PER_SPELL_CRIT_PCT
 
         n_talents = len(build_spec.talents)
-        if n_talents:
+        if n_talents and conn is None:
             warnings.append(
-                f"{n_talents} slotted talents contribute NO stats/multipliers "
-                "yet (2a limitation) — talent modelling lands with calibration; "
-                "component-mode output underestimates until then")
+                f"{n_talents} slotted talents contribute NO stats/multipliers — "
+                "compute_stats was called without a `conn`, so T4b's talent "
+                "model could not run; output underestimates")
+
+    # ----- talents (T4b, session 2c) ---------------------------------------
+    if conn is not None and build_spec.talents:
+        from ..sim.talents import resolve_talents
+        cs.talents = resolve_talents(conn, build_spec.talents)
+        warnings.extend(cs.talents.warnings)
+        if build_spec.stats_override:
+            warnings.append(
+                "talents: DAMAGE MULTIPLIERS applied; their crit/AP/SP/haste "
+                "contributions deliberately NOT applied, because sheet mode "
+                "means those are already in the numbers you supplied. Applying "
+                "both would double-count them")
+        else:
+            cs.attack_power *= 1.0 + cs.talents.scalar("attack_power_pct") / 100.0
+            cs.ranged_attack_power *= \
+                1.0 + cs.talents.scalar("ranged_attack_power_pct") / 100.0
+            cs.melee_haste_pct += cs.talents.scalar("melee_haste_pct")
+            for m in cs.talents.modifiers:
+                if m.kind == "spell_power_from_stat_pct" and m.value:
+                    stat = (m.scope.get("stat") or "").lower()
+                    src = getattr(cs, stat, 0.0) if stat else 0.0
+                    cs.spell_power += src * m.value / 100.0
+                elif m.kind == "healing_from_stat_pct" and m.value:
+                    stat = (m.scope.get("stat") or "").lower()
+                    cs.bonus_healing += getattr(cs, stat, 0.0) * m.value / 100.0
+            # crit talents are school- and table-scoped, so they cannot collapse
+            # into the two scalar crit fields without losing that scoping. They
+            # are applied per event by the ability model instead.
+            warnings.append(
+                "talent crit bonuses are school/table-scoped and are applied "
+                "PER EVENT by the ability model, not folded into "
+                "melee_crit_pct/spell_crit_pct here")
 
     # ----- weapon clauses apply in both modes ------------------------------
     mults, crit_dmg, haste_m, haste_s, gcd_mod, cost_mod, notes = _weapon_clause(

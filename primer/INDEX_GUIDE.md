@@ -1,3 +1,54 @@
+# Ascension Spell/Card Index — Guide (v14)
+
+**v14 changelog (2026-08-05, session `2c`).** Two new tables, one widened extract,
+one repo-wide fix. The rebuild is **20 steps**.
+
+- 🆕 **`predictions` + `prediction_outcomes`** (PHASE_2 T9), owned by
+  `ingest/export/seed_predictions.py` — append-only source of truth, same
+  discipline as `seed_confirmed.py`. Keyed on a stable `slug`; the autoincrement
+  id is not stable across rebuilds. 🛑 **`record_prediction` refuses to overwrite
+  an existing slug** — a changed prediction is a NEW row. Migrated rows keep
+  their **original** `sim_version` / `data_version` stamps; re-deriving one from
+  the current model would turn a post-hoc number into an apparently
+  pre-registered one, which is the only property the table has.
+- 🆕 **`spell_dbc_raw.effect_json` gained `EffectSpellClassMask`,
+  `SpellClassSet` and `SpellClassMask`.** The first was already parsed and never
+  written out — the same hardcoded-output shape as v9's exporter gap — and it is
+  the field that says *which spells an amplifier talent reaches*. **Any session
+  reading talent modifiers needs a `--with-dbc` extract from 2026-08-05 or
+  later.** A class mask is only meaningful within its `SpellClassSet`, so masks
+  must never be compared across families.
+- 🚨 **`spell_effect_values` has TWO writers, and one of them used to delete the
+  other's rows.** `resolve_numeric_formulas.py` owns `via IN ('self',
+  'hidden_ref')`; `core/spells/relationships.py` owns `via LIKE 'trigger_hop%'`.
+  The former ran an unscoped `DELETE FROM` — harmless in the rebuild (it runs
+  first) but destructive on the standalone re-run its own docstring invites, and
+  it zeroed every trigger-reached ability. Fixed; **if you add a third writer,
+  scope its delete.**
+- 🆕 **`spell_dbc_raw` is scoped wider again**: + rank-sibling sub-spell refs
+  (+797 ids, 15,769 → 16,566). A rank sibling's magnitude can live in a
+  sub-spell named only in the sibling's **own** `description`, which no export
+  tooltip ever mentions. Holy Shock R4 is the case.
+- ⚠ **Piped/redirected output no longer crashes.** `config.ensure_utf8_stdout()`,
+  called by 12 entry points. Python selects cp1252 for a non-console stdout on
+  Windows, so any script printing `⚠` died only when its output was captured —
+  open since v10, and it bit twice more this session.
+
+```sql
+-- what did we predict, under which model, and what happened?
+SELECT p.slug, p.sim_version, p.predicted_value, o.actual_value, o.delta_pct
+FROM predictions p LEFT JOIN prediction_outcomes o ON o.prediction_slug = p.slug
+ORDER BY p.created_at;
+
+-- which spells does a talent's SpellMod reach? (compare within one family only)
+SELECT json_extract(effect_json, '$.SpellClassSet')  AS family,
+       json_extract(effect_json, '$.EffectSpellClassMask') AS effect_masks,
+       json_extract(effect_json, '$.SpellClassMask')  AS own_mask
+FROM spell_dbc_raw WHERE id = ?;
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v13)
 
 **v13 changelog (2026-08-05, session `2b` — Phase 2 T5–T7).** No new tables; three
