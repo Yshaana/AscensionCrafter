@@ -9,8 +9,89 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `3a` — Phase 3 (builds repo). Read `PHASE_3_builds_repo.md`.
-⚠ It also inherits Phase 2's ≥3-character calibration criterion (see below).**
+**Next session: `2e` — read `primer/PHASE_2E_buffs_and_carryover.md`.**
+`3a` is deferred behind it: `2d` spent its budget on an owner-in-the-loop testing
+run that produced three premise-invalidating findings, and left every code task
+untouched. `2e` carries them plus what `2d` created.
+
+**⚠ SESSION `2d` IS PARTIAL (2026-08-05).** T0 (in-game list) and T1 (capture
+bundle) delivered and far exceeded; **T2–T10 not started.** Session record:
+`primer/Session_2026-08-05_2d_capture_and_bugs.md`. Rebuild green (20 steps),
+purity 0/39. Code changed: `core/builds/stats.py` only — a correctness fix.
+
+### 🛑 Read before touching any calibration data: Path of Duality is broken
+
+Community-reported (multiple independent players) and corroborated by our own
+captures — `bugs/bug_path-of-duality-broken.md`, spell `129243`:
+
+- **AP bonus cycles ON/OFF every ~10–15 s, indefinitely** (a player watched
+  832↔1128; we read 174↔307). **So every historical calibration log had a
+  per-hit input oscillating mid-parse** — a candidate cause of part of `2b`'s
+  1.41× between-session spread.
+- **SP grant reduced to a flat ~+19** (independently reported as "a difference of
+  19 Spellpower"; we measured +19).
+- Weapon-type passives (2H +6% damage / 1H +10% haste) **dead** — `stats.py` had
+  been applying the 6%.
+
+**Owner decisions:** ignore PoD parses for absolute calibration; **do not
+recommend PoD**; he plays **Path of Intelligence** now; **track bug fixes** — the
+watch list with changelog keywords is in `bugs/README.md`.
+**What survives:** within-log ratios between abilities sharing input dependence
+(pair ratios, the Holy Shock coefficient), all proc-rate results, crit tables.
+
+### Three retractions `2d` forced
+
+- ❌ **"Duality applies a 1.895× SP amp"** → **no amplifier, flat +19.** The ×2.0
+  doubling belongs to **Path of Intelligence** (its tooltip says so); the project
+  attributed it to the wrong path for two versions. The 2026-08-04 test used
+  rapid path toggling and cannot be repaired retrospectively.
+- ❌ **"Duality Str→AP at 0.548×"** → an **OFF-phase reading** of the cycling bug.
+  When it applies, the tooltip's 100% is exact. *Two agreeing measurements of an
+  oscillating quantity are two samples of one phase, not a rate.*
+- ❌ **"Hit and crit rating are unified"** (build doc §10) → unified in **gear**
+  only; Duality's cross-crit conversions grant **rating** (~3.4 stat per rating
+  point) and split them (238 melee / 187 spell).
+
+### 🚨 Hammerdin does not proc from Judgement or Holy Shock
+
+Measured over 10 minutes on a dummy: Dawnreaver 15–17 procs / 119 casts (~20%,
+consistent), **Holy Shock 1 / 78, Judgement 0 / 51** — combined 1 where ~26 is
+predicted, **p < 10⁻⁹**. The −4 s cooldown reduction *does* work per proc, and
+there is no ICD. Submitted as
+[tracker #200295](https://ascension.gg/bugtracker/view/200295).
+**Consequence: build doc §2's class-tag table and §11's rotation priority are
+both wrong — Dawnreaver is the engine driver, not Judgement/Holy Shock.**
+Suspected mechanism (a guess): trigger-delivered damage is proc-blind, which
+would affect **every** "damaging X abilities" engine — open question
+`hammerdin_trigger_set_excludes_trigger_delivered_damage`.
+
+### Also settled in `2d`
+
+- ✅ **Lightbound Cleave feeds NOTHING** — zero Hammerdin, zero PBL (while a
+  control window proved the engine live), Seal of Command riders on autos only.
+  Closes `lightbound_cleave_post_patch_procs`. **That inertness is what makes it
+  portable** → the owner-proposed **Cleave Kit** (Package 4 in
+  `synergy_portable-multiplier-packages.md`), now a `PHASE_4` regression target.
+- ✅ **Holy Shock SP coefficient ≈ 0.40** (n=40 unbuffed, weapon-free pair) —
+  still unseeded pending an owner decision.
+- ✅ **First direct pulse count:** 17.9 HftH per HoJ cast vs 20–21 modelled.
+- 🆕 **Dummy identity is a calibration variable** — level-scaling vs fixed-63
+  dummies differ 10–18% at identical stats. Put it in capture metadata.
+- 🆕 **Weapon imbues grant STATS** — Consecrated Weapon +172 Holy SP / ~+61 AP,
+  school-scoped. An "unbuffed" baseline isn't clean unless the imbue is absent.
+- ✅ Talent model validated exactly: Twin Disciplines' unrecorded third effect
+  (+5% Holy crit) makes the stack 15 points; the sheet reads 15.00.
+- ✅ The `2b` "Judgement resolves to no card" gap: the **seal** selects the
+  judgement spell, so pressed card ≠ damaging id (20467).
+
+**Capture data:** `data/source/captures/2026-08-05_elric_2d/` (unbuffed + buffed
+exports, three relog-separated path captures, board ids, README with provenance).
+
+---
+
+## Superseded: `3a`'s original position
+
+**⚠ It also inherits Phase 2's ≥3-character calibration criterion (see below).**
 
 **✅ SESSION `2c` IS DONE (2026-08-05). PHASE 2 IS COMPLETE.** Gates G0–G4 plus
 T4b (talents), T8 (calibration), T9 (prediction ledger), T10 (cache), T11
@@ -282,8 +363,10 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **1c** | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ✅ done | `Session_2026-08-05_1c_epistemics_tooling.md` | **Phase 1 complete, exit criteria checked.** T6–T10 + compound-form gap closed (+290 scaling rows) + amplifier queue pre-classified (approval-gated per owner decision) + conflict sweep buckets slot collisions separately. Two more owner decisions implemented: Darkmoon-only volatility, Datasette pinned. Rebuild is 18 steps |
 | **2a** | Combat engine, content profiles, ability model, build spec | ✅ done | `Session_2026-08-05_2a_sim_foundation.md` | T1–T4 + `check_sim_engine.py` (16 checks). Found the HftH coefficient queryability gap; 2 open questions filed |
 | **2b** | Three sim tiers, uncertainty, stat weights | ✅ done | `Session_2026-08-05_2b_sim_tiers.md` | T5+T6+T7-cheap-half. **4 data bugs found, all silently zeroing**: trigger coefficients unserved, rank siblings had NO magnitudes (686 cards), weapon-percent read as flat, fast_sim allocation order. 🚨 Structural finding: trigger-reached damage can be delivered by a periodic-trigger aura (HoJ fires HftH 20x/cast, validated 3.81 vs predicted 4.00 over 20,823 pooled hits). 🔴 Improved Cleave reverted to bottom of the chase list |
-| 2c | Talent modelling, calibration, prediction ledger, cache, diff/report | ⬜ | — | ▶ **NEXT.** Start with `rank_siblings_inherit_no_hidden_refs` — it blocks the rotation question. ⚠ The 2026-08-08 phase boundary lands in 3 days; the audit's phase-boundary sweep starts firing then |
-| 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9 |
+| **2c** | Talent modelling, calibration, prediction ledger, cache, diff/report | ✅ done | `Session_2026-08-05_2c_gates_and_talents.md` | Phase 2 complete. Gates G0–G4 + T4b/T8–T11. Holy Shock R4 resolved; the 1.31 ratio demoted; talents modelled |
+| **2d** | Capture bundle, in-game testing, bug findings | ⚠ partial | `Session_2026-08-05_2d_capture_and_bugs.md` | T0+T1 delivered and exceeded; **T2–T10 not started** → carried to `2e`. Three premise-invalidating findings (Duality broken, Hammerdin trigger set, LC engine-inert), 2 bugs filed / 1 submitted (#200295), 3 retractions, Cleave Kit written up |
+| 2e | Buff model, sim gaps, PoI recalibration, bug-fix watch, scorecard spec | ⬜ | — | ▶ **NEXT.** Read `PHASE_2E_buffs_and_carryover.md`. 🛑 Recalibration must run on **Path of Intelligence** — PoD parses are excluded |
+| 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9. Deferred behind `2e` |
 | 3b | Addon, logs, automation, crawler refinement | ⬜ | — | |
 | 4 | Legos + Theorycrafter | ⬜ | — | Chunk as it goes |
 
@@ -298,7 +381,14 @@ they're answered.
 
 | Item | Blocking | Asked on |
 |---|---|---|
-| *(nothing currently open)* | — | — |
+| **A Path of Intelligence capture bundle** (unbuffed export + 2 logs, relog before exporting, dummy identity + imbue state noted) | `2e` T3 — the recalibration. PoD parses are excluded by the bug advisory, so the existing bundle cannot serve absolute calibration | 2026-08-05 (`2e` T3) |
+| **`holy_shock_bonus_coefficient_0429`** — seed the measured ~0.40, or wait for a tooltip that states a coefficient? | Holy Shock's modelled damage (3% of parse) | 2026-08-05 (open since `2c`) |
+| Identify **Siphon Health (18652)** and **Swift Retribution (853484)** — hover in game | Completeness of the passive layer; small calibration residuals | 2026-08-05 (`2d`) |
+| *(optional)* Bug-DB read access via the owner's browser session | `2e` T5 — repeatable bug-database lookups | 2026-08-05 (owner suggestion) |
+
+**Delivered by the owner in `2d` and consumed:** the full capture bundle (stat
+exports, three path captures, four dummy logs, Holy Shock R4 tooltip, 55-id
+board), plus the Path-of-Duality bug-database excerpts that changed the session.
 
 **🎉 Both long-standing 3b blockers were resolved on 2026-08-04 — Phase 3 is no longer gated on the
 owner for anything.**
@@ -345,6 +435,17 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (2d) | 🆕 **ARCHITECTURE (owner): model INTENDED behaviour; impairments are a separate, dated layer; "don't recommend" is a policy flag, never a change to the math** | Corrects a same-session over-reach of mine that hardcoded Duality's bugged values as the model. Three reasons, all the owner's: a fix would otherwise require re-deriving the model (a landmine someone must remember to defuse); **other players' parses are full of the broken system**, and only an intended model lets a crawled character read as *impaired* rather than as a *worse build*; and an intermittent bug has no true point value, so `as_measured` must return a **RANGE** with the unmeasured quantity named (`duty_cycle: None` — not guessed). Implemented as `core/builds/stats.py :: SYSTEM_IMPAIRMENTS` + `compute_stats(system_state=...)`, 4 new checks. ✅ **Free detector:** parses that systematically underperform the intended model *are* the bug — and when they stop, that is the fix landing |
+| 2026-08-05 (2d) | 🚨 **Duality's INTENDED behaviour includes a +75% boost to GEAR spell power — which ends a four-version oscillation** | Ascension's own path documentation: AP = highest primary stat, **gear SP boosted 75%**, cross-stat crits, and two named sub-abilities (*Unleashed Force* 2H +6% damage, *Twin Flurry* 1H +10% haste). **This vindicates v3's "×1.75 itemised SP amp", which v4 retracted for not being visible on the sheet — both were right about different things: v3 read the DESIGN, v4 observed the BROKEN DELIVERY.** At gear SP 229, intended ≈ 425 vs 271 observed (~36% shortfall), which is exactly why a bug report says *"a difference of 19 Spellpower"*. ⚠ Scoped to **gear** SP, so the multiplier is order-dependent in `compute_stats` — it must run before Lunar Guidance and other effect SP is added |
+| 2026-08-05 (2d) | 🛑 **PATH OF DUALITY IS BROKEN — its parses are excluded from absolute calibration, and it is not to be recommended** | Community-reported by multiple players and corroborated by our own captures: the AP bonus **cycles on/off every ~10–15 s** (832↔1128 for one player, 174↔307 for us), the SP grant is reduced to a flat **+19** (independently reported as 19), and the weapon-type passives are dead. Every historical calibration log therefore had AP oscillating **mid-parse** — a candidate cause of part of `2b`'s 1.41× between-session spread. `core/builds/stats.py` was applying a 6% all-damage clause the server does not grant; removed. Owner plays **Path of Intelligence** now. Fix-detection watch list in `bugs/README.md` |
+| 2026-08-05 (2d) | ❌ **RETRACTED: "Duality applies a 1.895× SP amplifier"** (which had itself reversed a v4 retraction) | A relog-separated three-path capture measures **no amplifier — a flat +19**, while **Path of Intelligence** measures a real ×2.0 doubling that its own tooltip states. A Path-of-Strength capture taken *without* relogging read SP 500 = 1.995 × (items + Lunar Guidance), proving PoI's doubling persists across a switch. So the 2026-08-04 reading could have been stale PoI, an ON phase of the cycling bug, or a working Duality — indistinguishable after the fact. **Method: a measurement taken by toggling a setting is only as clean as the toggle; where a switch has settle/cycle/carry-over behaviour, a relog belongs between every reading** |
+| 2026-08-05 (2d) | ❌ **RETRACTED: "Duality converts Str→AP at 0.548×"** | Not a rate — an **OFF-phase reading** of the cycling bug. 174/307 = 0.567 and 0.548 are two samples of the same phase. **Two agreeing measurements of an oscillating quantity are not a confirmation** |
+| 2026-08-05 (2d) | ❌ **RETRACTED: "hit and crit rating are UNIFIED stats"** (build doc §10) | Unified in **gear**, not in the engine. The path trio shows 238 melee vs 187 spell crit rating on identical gear under Duality (179/179 under Strength and Intelligence) — the cross-crit conversions grant **rating** at ~3.4 stat per rating point. Stat weights must be per-table |
+| 2026-08-05 (2d) | 🚨 **Hammerdin does NOT proc from Judgement or Holy Shock — build doc §11's rotation premise is false in game** | 10-minute dummy test: Dawnreaver 15–17 procs / 119 casts (~stated 20%), **Holy Shock 1/78, Judgement 0/51** — combined 1 where ~26 is predicted, p < 10⁻⁹. The −4 s reduction works per proc; no ICD. Submitted as [tracker #200295](https://ascension.gg/bugtracker/view/200295). **Dawnreaver is the engine driver.** Suspected cause (a guess, filed as an open question): trigger-delivered damage is proc-blind, which would affect every "damaging X abilities" engine on the server |
+| 2026-08-05 (2d) | ✅ **Lightbound Cleave feeds NO engine — and that inertness is a feature** | Isolation window + same-log control: zero Hammerdin (53 LC hits + 70 swings), zero PBL (while the control produced 14 Consecrations / 2 Exorcisms), Seal of Command riders on **autos only**. PBL's "weapon-damage spells and abilities" intake is narrower than its wording. Closes `lightbound_cleave_post_patch_procs`. Owner's observation that LC + Improved Cleave is a portable **kit** is written up as Package 4 and made a `PHASE_4` discovery regression target — all 8 Cleave school variants share the byte-identical family-4 mask, so Improved Cleave's ×2.20 reaches every one |
+| 2026-08-05 (2d) | 🆕 **Training-dummy identity is a calibration variable** | Two sessions an hour apart, identical unbuffed character, differed **10–18% on every ability** — one dummy scales to player level, the other is a fixed 63. Dummy NPC identity belongs in capture metadata alongside gear and buffs. Within-log ratios unaffected, which is again why the weapon-free pairs are the durable quantities |
+| 2026-08-05 (2d) | 🆕 **Weapon imbues grant STATS, not just a damage rider** | Consecrated Weapon adds **+172 Holy SP and ~+61 AP** to the sheet, school-scoped — so it separates Holy from general SP. ⚠ The catalog's Rank-1 sub-spell states +11/+19; the level-60 sibling is unresolved. **An "unbuffed" baseline is not clean unless the imbue is also absent** |
+| 2026-08-05 (2d) | ⚠ **A settle delay and an indefinite oscillation are indistinguishable through one before/after pair** | Mine, twice: I diagnosed the AP behaviour first as "stale until relog", then as "a ~5–10 s settle delay" after the owner watched the sheet settle. Both wrong — it oscillates forever. Repeated sampling over minutes is what separates them |
 | 2026-08-05 (2b) | 🚨 **Trigger-reached damage can be DELIVERED by a periodic-trigger aura — a trigger-attributed magnitude is not "once per cast"** | Hour of Judgement effect 1 is `SPELL_AURA_PERIODIC_TRIGGER_SPELL` at a 500 ms period over a 10 s duration, so one cast fires Hammer from the Heavens **20 times**, alongside 5 ticks of its own 81. The pulse spell itself is NOT periodic — the DELIVERY is, so periodicity must be read off the triggering effect slot, never the triggered spell. Validated with no fitting: predicted ratio exactly 4.00, pooled crawl gives **16,491 HftH hits / 4,332 HoJ hits = 3.81** across 170 character-report groups. Confirms the ratio and hence the structure; does NOT confirm the absolute 20 (invariant to duration) or any magnitude (crawl records no level). 48 component rows across **34 cards** are affected; counts above 100 are refused, not clamped |
 | 2026-08-05 (2b) | 🚨 **Rank siblings had NO magnitudes at all — 686 cards silently simmed as 0** | The resolver correctly redirects a level-60 query to the rank the character casts, but `resolve_numeric_formulas.py` only ever decoded CATALOG ids, so the redirect landed on a spell with zero `spell_effect_values` rows: it traded a WRONG magnitude for NO magnitude. All 686 were in `spell_dbc_raw` and decodable the whole time. Now 676 covered (+1,193 rows), 25 ambiguous lines skipped rather than tie-broken. Lightbound Cleave, Dawn Strike, Holy Finish and Consecration all went 0 → real |
 | 2026-08-05 (2b) | ⚠ **`EFFECT_WEAPON_PCT` was emitted as a FLAT damage term** | The stored value is a PERCENT: Lightbound Cleave gained 65 flat damage instead of 65% of a ~627 swing. A units error that shrinks with gear, so it presents as a scaling problem rather than a units problem. Now becomes a `WEAPON` coefficient of pct/100 |

@@ -104,6 +104,39 @@ hypotheses as facts.
 build's own uncertainty range, the correct verdict is **"not measurably coupled"**, not a small
 criticality number.
 
+### Design input from session `2d` (2026-08-05) — worked examples with ground truth
+
+The owner's framing: the packages in
+`builds/shared/synergy_portable-multiplier-packages.md` (Demon Package, DK
+Disease Package, Kings, and the measured **Cleave Kit**) are **examples of what
+this discovery process must find on its own**. They double as a regression
+suite: when discovery first runs, it must rediscover the Cleave Kit from data
+alone — if it can't, a signal below is missing. Signals the worked examples
+prove out, each already grounded in an existing table:
+
+1. **Amplifier reach is queryable, so graph proposal is concrete.** Improved
+   Cleave + every family-4 mask member (`[4194304,0,0]` — all 8 Cleave school
+   variants) is a provable candidate cluster from `EffectSpellClassMask` alone,
+   no tooltip parsing. Amplifier + mask-family = the canonical 2-card kit motif.
+2. **School-parameterized families collapse to ONE kit.** The six `-bound`
+   Cleaves are byte-identical fingerprints differing only in school mask — the
+   miner should emit one kit with a school parameter (pick the variant matching
+   the host's tallest school stack), not six near-duplicate kits.
+3. **Portability is measurable: low marginal-value VARIANCE across chassis.**
+   The Cleave Kit travels because it is engine-inert (proc-tested: feeds no
+   Hammerdin/PBL/seal riders → no host dependency). Formally: run ablation
+   against *diverse* chassis; a portable kit has stable marginal value, a
+   coupled engine piece has high variance. Both are valuable — they are
+   different product types and should be labeled as such.
+4. **Absence of coupling is evidence, record it.** The engine-inertness verdict
+   came from dedicated proc isolation tests. Discovery should treat measured
+   independence as a first-class kit property, not merely missing edges.
+5. **Delivery channel matters for portability.** Off-GCD/next-swing delivery
+   means the kit adds a damage channel without displacing the host's rotation —
+   detectable from timing attributes. Conversely its cost is host-dependent
+   (converted autos starve auto-keyed riders — measured: Seal of Command rides
+   white swings only), which `compatible_legos` must price per host.
+
 **Anti-synergies are legos too.** `role='anti_synergy'` records cards that fight each other —
 exclusivity collisions, weapon-imbue slot conflicts, dead talents whose triggers never fire in a
 given kit. Knowing what *not* to slot is as valuable, and this project has found dead slots the hard

@@ -55,6 +55,72 @@ Flat **+10% to all five stats** (Str/Agi/Stam/Int/Spirit combined). One ability 
 
 ---
 
+## Package 4: The Cleave Kit (owner-proposed 2026-08-05, session `2d`)
+
+**Two slots: any `-bound Cleave` ability + Improved Cleave 3/3.** Proposed by the
+owner after the `2d` isolation tests; unlike Packages 1–3 this one carries
+same-day measurements on our own character.
+
+| Piece | What it does | Evidence |
+|---|---|---|
+| Lightbound Cleave (R5 at 60) | 62 flat + 65% MH weapon damage, Holystrike, **off-GCD next-swing queue** — stacks on top of any GCD rotation | 53 isolated single-target hits, 2026-08-05: avg 493 pre-resist unbuffed (MH 415–518 @ 3.57) |
+| Improved Cleave 3/3 | +120% to **all** effects (`SPELLMOD_ALL_EFFECTS`, class mask byte-identical to LC's, family 4) → **×2.20** | numeric-field proof, session `2c`; not yet parse-verified on our board (card not owned) |
+
+**Rough value at our unbuffed stats:** LC nets ~+133 per MH swing over the auto
+it replaces (auto avg 360); with Improved Cleave ×2.20 → ~1,085 per LC, net
+**~+725 per swing ≈ +200 DPS single-target for two slots**, scaling with weapon
+damage and crit (percentage-based, gear-proof).
+
+**Why it travels (measured 2026-08-05, the key property):** LC is
+**engine-inert** — proc-tested feeding **zero** Hammerdin, zero Purification By
+Light, zero Seal of Command riders. It needs nothing from the host build and
+takes nothing from it: no class-tag dependency, no intake conflict.
+
+**The school roster (owner's point, 2026-08-05, verified from numeric fields):**
+Ascension ships a Cleave in every magic school, all in the current pool, all
+with the same rank ladder (level-60 rank = SpellLevel 56), and **all eight carry
+the byte-identical family-4 class mask `[4194304,0,0]` — Improved Cleave's
+×2.20 provably reaches every one:**
+
+| Variant | School | Card id (R5 id) |
+|---|---|---|
+| Cleave | Physical | 845 |
+| Lightbound Cleave | Holystrike | 907300 (907304) |
+| Voidbound Cleave | Shadowstrike | 907280 (907284) |
+| Flamebound Cleave | Firestrike | 907320 (907324) |
+| Frostbound Cleave | Froststrike | 907340 (907344) |
+| Stormbound Cleave | Stormstrike | 907360 (907364) |
+| Spellbound Cleave | Spellstrike | 907260 (907264) |
+| Fel Cleave | Shadowflame | 276066 (276087) |
+
+Each `-bound` variant is a true hybrid (school mask = Physical + its school), so
+per the primer's hybrid rules it **double-dips the host's Physical AND
+school-specific modifier stacks and crits on the spell table** (measured for
+Holystrike; assumed for siblings pending a parse). That is the kit's third
+scaling lever after weapon damage and Improved Cleave: a host with a big school
+stack (as with our Holy pile) or heavy spell crit gets substantially more than
+the baseline +200 DPS estimate — pick the variant matching the tallest stack.
+
+**Costs and fit conditions:**
+1. **Consumes the next MH swing** — hosts whose autos carry rider economies
+   (seal riders keyed to "main hand auto attacks", auto-keyed imbue procs) lose
+   those procs on converted swings. Measured 2026-08-05: SoC riders fired on
+   white swings only, never on LC swings.
+2. Occupies *the* next-swing queue slot — mutually exclusive with the Heroic
+   Strike family.
+3. The 65% weapon half is Physical: armor-mitigated, and pays Titan's Grip's
+   −10% where the host runs TG. Favors one hard-hitting 2H.
+4. Improved Cleave is a 3-rank talent (+40%/rank linear) — a partial roll still
+   pays ×1.4/×1.8. The Cleave ability itself is a single-rank ability card
+   (spell rank is level-set — no rank risk).
+5. Mana per queued swing.
+
+**Confidence:** `internal_test` for LC's behavior and formula;
+`confirmed` (numeric fields) for the mask reach; the ×2.20 multiplier itself is
+unverified on our own board until Improved Cleave is acquired — §7 chase #1=.
+
+---
+
 ## Assumption register
 
 **Confirmed (live resolved tooltip text, not export placeholders):**

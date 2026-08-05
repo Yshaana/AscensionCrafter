@@ -13,7 +13,19 @@ submitted whenever there's time rather than lost in a session transcript.
 | ✅ **ready** | Written up field-by-field, evidence holds, submit any time |
 | 🔍 **needs verification** | Real discrepancy, but one check is missing before it's safe to report. The check is named on each row |
 | 📤 submitted | Sent. Record the date and any response |
+| 🔭 **watching** | Already reported by others (or by us) — **do not re-submit**. Tracked because it invalidates data or gates a recommendation. Watch the changelog for a fix and re-open what it unblocks |
 | ❌ withdrawn | Turned out not to be a bug. **Keep the row** and say why — a withdrawn report is worth remembering |
+
+## 🔭 Watch list — bugs whose FIX we must notice
+
+A fix silently changes what our data means, so these are scanned against the
+daily changelog capture (`data/source/changelog/daily/`). Keywords to scan for
+are listed per row; on a hit, re-open the questions the bug file names.
+
+| Bug | Changelog keywords | What a fix re-opens |
+|---|---|---|
+| [Path of Duality broken](bug_path-of-duality-broken.md) | `Duality`, `attack power`, `spell power`, `path` | The whole Duality path model, `elric_active_path_and_duality_ap_anomaly`, and the "ignore PoD logs" advisory |
+| [Hammerdin trigger set](bug_hammerdin-trigger-set.md) (#200295) | `Hammerdin`, `Hour of Judgement`, `Holy Shock`, `Judgement`, `proc` | build doc §11 rotation priority — Judgement/Holy Shock would become engine-feeding again |
 
 ## Queue
 
@@ -24,6 +36,9 @@ submitted whenever there's time rather than lost in a session transcript.
 | 🔍 needs verification | Scaling **term type changes across ranks** — catalog rank scales from Spell Power (0.2), the level-60 rank scales from Attack Power (0.2). A stat swap between ranks of one ability is odd enough to be a data error | `281220` → `281224` Spirit Charge | — |
 | 🔍 needs verification | **AP term disappears at higher rank** — catalog rank has SP 0.4 / AP 0.2, the level-60 rank has SP 1.3 and no AP term at all | `289100` → `289107` Sun Down | — |
 | 🔍 needs verification | **db.ascension.gg and the client disagree by exactly 3×** on the per-level term — db renders 4.5/level, client DBC says 1.5. Open since `RECON_FINDINGS` | `276076` Fel Infused Weapon | — |
+| 🔭 **watching** (community-reported, do NOT submit) | **Path of Duality is broken in ~6 ways** — AP bonus cycles on/off every ~10–15 s (832↔1128 for one player; 174↔307 for us), SP grant reduced to a flat ~19 (independently reported as 19), weapon-type passives dead, AP added after modifiers. **Owner decision: ignore PoD logs, don't recommend PoD, play PoI** | `129243` Path of Duality | [bug_path-of-duality-broken.md](bug_path-of-duality-broken.md) |
+| ❌ withdrawn twice (same day) | **"Path switching leaves stats stale until relog"**, then **"~5–10 s settle delay"** — both superseded by the Duality AP **oscillation** above. Method lesson: a settle delay and an indefinite oscillation look identical through one before/after pair | — | [bug_path-switch-stale-stats.md](bug_path-switch-stale-stats.md) |
+| 📤 **submitted 2026-08-05** — [tracker #200295](https://ascension.gg/bugtracker/view/200295) | **Hammerdin never procs from Holy Shock or Judgement** (1 proc / 129 casts vs ~26 expected at the tooltip's 20%; p < 10⁻⁹) while Dawnreaver and Hammer of Wrath proc normally and the −4 s reduction works per proc. Suspected cause: trigger-delivered damage is proc-blind | `282983` Hammerdin | [bug_hammerdin-trigger-set.md](bug_hammerdin-trigger-set.md) |
 
 ### What each 🔍 row still needs
 
@@ -38,6 +53,9 @@ submitted whenever there's time rather than lost in a session transcript.
 - **Fel Infused Weapon** — an in-game tooltip read at level 60 resolves it, and beats both
   sources. Note db was byte-faithful on Holy Supernova, so suspect a rank/variant mismatch
   (`276069` vs `276076`) or a stale snapshot before blaming either side.
+- **Path-switch staleness** — whether *combat* uses the stale value or only the sheet/API
+  does: ~20 dummy white swings right after a switch vs ~20 after relog, same gear. A ~+9%
+  mean-swing shift = real gameplay bug; no shift = staleness in the character sheet only.
 
 🛑 **Do not submit a 🔍 row.** Reporting a discrepancy that turns out to be our own
 resolution error costs credibility on the reports that are real.

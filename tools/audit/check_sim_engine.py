@@ -23,7 +23,7 @@ from core.db.connection import connect  # noqa: E402
 from core.sim import combat_engine as ce  # noqa: E402
 from core.sim.ability_model import resolve_ability  # noqa: E402
 from core.sim.content import get_preset  # noqa: E402
-from core.builds.spec import BuildSpec, SlottedCard  # noqa: E402
+from core.builds.spec import BuildSpec, GearItem, SlottedCard  # noqa: E402
 from core.builds.stats import compute_stats  # noqa: E402
 from core.sim.content import Role  # noqa: E402
 
@@ -173,8 +173,34 @@ def main():
     spec2 = BuildSpec(character_level=60, role=Role.DPS, path="Duality",
                       abilities=[], talents=[SlottedCard(1, 1)])
     st2 = compute_stats(spec2, get_preset("raid_boss_st"), conv, conn=conn)
-    check("component mode warns about Duality AP anomaly",
-          any("ANOMALY" in w for w in st2.warnings))
+    # Session 2d replaced the "Duality AP anomaly" claim (retracted — it was an
+    # OFF-phase reading of a cycling bug, not a conversion rate) with an
+    # impairment layer. Three properties are asserted, because the failure this
+    # guards is a build silently modelled against a system the server is not
+    # honouring — and the second is the one that makes a fix cheap: the MODEL
+    # must stay the intended behaviour, so only `fixed_on` has to change.
+    check("an impaired path raises a SYSTEM IMPAIRMENT advisory",
+          any("SYSTEM IMPAIRMENT" in w for w in st2.warnings))
+    check("the impairment carries its policy flag to the recommender",
+          any(i.get("recommend") is False for i in st2.impairments),
+          f"impairments={[i['system'] for i in st2.impairments]}")
+    check("default mode models INTENDED behaviour, not the bug",
+          st2.impairment_range is None
+          and any("OPTIMISTIC" in w for w in st2.warnings))
+    # Needs real Strength, or Duality's AP grant is 0 and the range degenerates
+    # to a single point — which would make the assertion below pass vacuously.
+    spec2m = BuildSpec(character_level=60, role=Role.DPS, path="Duality",
+                       abilities=[], talents=[SlottedCard(1, 1)],
+                       gear={"chest": GearItem(item_id=1, name="t", slot="chest",
+                                               stats={"strength": 121})})
+    st2m = compute_stats(spec2m, get_preset("raid_boss_st"), conv, conn=conn,
+                         system_state="as_measured")
+    check("as_measured yields a RANGE for an intermittent impairment, "
+          "never a fabricated duty cycle",
+          st2m.impairment_range is not None
+          and st2m.impairment_range.get("unmeasured") == "duty_cycle"
+          and st2m.impairment_range["attack_power_low"]
+          < st2m.impairment_range["attack_power_high"])
     # T4b replaces 2a's blanket "talents contribute nothing" warning with a
     # per-talent account. Two properties are asserted, because the failure this
     # guards is a talent silently contributing 1.0x — indistinguishable, without
@@ -210,7 +236,6 @@ def main():
     root = Path(__file__).resolve().parents[2]
     bd = _json.loads((root / "fixtures/build_elric_paladin.json").read_text(
         encoding="utf-8"))
-    from core.builds.spec import GearItem
     gear = {s: GearItem(item_id=0, name=s, slot=s, stats={}, weapon=w)
             for s, w in bd["weapons"].items()}
     fspec = BuildSpec(

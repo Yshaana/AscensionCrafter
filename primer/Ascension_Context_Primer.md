@@ -4,6 +4,94 @@ This file explains how **Project Ascension** works so you can reason about build
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
 
+**v27 changelog (2026-08-05, session `2d`).** An owner-in-the-loop in-game
+testing session. Full detail in `primer/Session_2026-08-05_2d_capture_and_bugs.md`;
+only what changes *practice* is here. **The theme: three premises this project had
+confirmed turned out to be artifacts of a broken game system, and the tell in
+every case was a measurement that agreed with itself twice.**
+
+- 🛑 **NEW §3 ADVISORY, and it gates data: PATH OF DUALITY IS BROKEN.** Reported
+  by multiple independent players and corroborated by our own captures
+  (`bugs/bug_path-of-duality-broken.md`, spell `129243`): its **AP bonus cycles
+  ON and OFF every ~10–15 seconds, indefinitely** (one player watched 832↔1128,
+  a delta equal to their Strength; we read 174↔307), its **SP grant is reduced to
+  a flat ~+19** (independently reported as *"a difference of 19 Spellpower"* —
+  the same number we measured), and its **weapon-type passives (2H +6% damage /
+  1H +10% haste) do not work at all.** **Consequence: every parse recorded on
+  Duality had Attack Power changing mid-fight**, so Duality parses are unusable
+  for absolute calibration. **Owner decision 2026-08-05: do not recommend Path of
+  Duality even when the sheet favours it; he plays Path of Intelligence.** Track
+  the fix — watch list and changelog keywords in `bugs/README.md`.
+- 🆕 **§3 REWRITTEN — and it ends a FOUR-VERSION oscillation.** Ascension's path
+  documentation states Duality as: AP = your highest primary stat, **spell power
+  FROM GEAR boosted by 75%**, cross-stat crits, and two named weapon
+  sub-abilities — **Unleashed Force** (2H, +6% all damage) and **Twin Flurry**
+  (1H, +10% haste). **The 75% clause vindicates v3's "×1.75 itemised SP amp",
+  which v4 retracted for not being visible on the live sheet.** Both readings
+  were right about different things: **v3 read the DESIGN, v4 observed the BROKEN
+  DELIVERY.** At gear SP 229 the intended clause gives ~425; the sheet reads
+  **271** — a ~36% shortfall, which is exactly why a bug report describes *"a
+  difference of 19 Spellpower"*. ⚠ The clause is scoped to **gear** SP, not all
+  SP. ❌ **The v20 "×1.895" is still retracted** as a Duality property — that
+  test toggled paths without relogging, and **Path of Intelligence's ×2.0
+  doubling persists across a switch** (measured: a PoS capture read SP 500 =
+  1.995 × (items + Lunar Guidance)). ❌ **"0.548× AP" retracted**: an OFF-phase
+  reading, not a rate; when it applies, the documented 100% is exact.
+- 🚨 **NEW §5 PRACTICE, and it is the general lesson of the above: SEPARATE WHAT
+  A SYSTEM IS DESIGNED TO DO FROM WHAT THE SERVER CURRENTLY DELIVERS.** Model the
+  **intended** behaviour; record the shortfall as a dated, evidence-linked
+  **impairment** (`core/builds/stats.py :: SYSTEM_IMPAIRMENTS`); keep "don't
+  recommend this" as a **policy flag**, never as a change to the math. Owner
+  decision 2026-08-05, correcting a same-session over-reach that hardcoded the
+  bugged values. Three reasons it matters: a fix then needs only a `fixed_on`
+  date rather than re-derivation; **other players' parses are full of the broken
+  system**, and only an intended model lets a crawled character read as
+  *impaired* rather than as a *worse build*; and an intermittent bug has no true
+  point value, so `as_measured` must return a **range** with the unmeasured
+  quantity named. ✅ **A free detector falls out:** if parses on an impaired
+  system systematically underperform the intended model, that *is* the bug — and
+  when they stop underperforming, that is the fix landing.
+- 🚨 **NEW §5 PRACTICE: two agreeing measurements of an OSCILLATING quantity are
+  two samples of one phase, not a confirmation.** 0.548 and 0.567 agreed closely
+  and were both wrong. **A settle delay and an indefinite oscillation are
+  indistinguishable through a single before/after pair** — separating them needs
+  repeated sampling over minutes. Corollary for §3: **a measurement taken by
+  toggling a setting is only as clean as the toggle. Relog between readings.**
+- 🚨 **NEW §4 PRACTICE, and it may generalise to every proc engine: a "damaging X
+  abilities" trigger can be BLIND to trigger-delivered damage.** Measured over 10
+  minutes: Hammerdin procs from Dawnreaver (15–17/119 ≈ the stated 20%) and
+  Hammer of Wrath, but **Holy Shock 1/78 and Judgement 0/51** — combined 1 where
+  ~26 is predicted, p < 10⁻⁹ ([tracker #200295](https://ascension.gg/bugtracker/view/200295)).
+  The failing abilities are exactly those whose damage arrives via a *second*
+  spell (Holy Shock's press is a dummy → 25902; Judgement damages through the
+  seal → 20467). **Before assuming an ability feeds an engine, check whether it
+  damages with the spell you press.** §4's engine-intake mapping now needs this
+  question asked per feeder.
+- ⚠ **An engine's stated intake can be NARROWER than its wording.** Purification
+  By Light reads *"weapon-damage spells and abilities"*; Lightbound Cleave is 65%
+  weapon damage and feeds it **zero** (measured against a same-session control
+  window that produced 14 Consecrations). Seal of Command's riders likewise fire
+  on **autos only**, never on the queued Cleave.
+- 🆕 **§5: TRAINING-DUMMY IDENTITY IS A CALIBRATION VARIABLE.** Two sessions an
+  hour apart with an identical unbuffed character differed **10–18% on every
+  ability** — one dummy scales to player level, the other is a fixed 63. Record
+  the dummy's NPC identity alongside gear and buff state. Within-log ratios are
+  unaffected, which is once more why the weapon-free pairs are the durable
+  quantities.
+- 🆕 **§2: weapon imbues grant STATS, not only a per-swing damage rider.**
+  Consecrated Weapon adds **+172 Holy SP and ~+61 AP** to the sheet — school
+  scoped, so it separates Holy SP from general SP and silently breaks any
+  accounting that assumes they move together. ⚠ Its catalog Rank-1 sub-spell
+  states +11/+19; the level-60 sibling is unresolved. **An "unbuffed" baseline is
+  not clean unless the imbue is also absent.**
+- ✅ **Hammer from the Heavens' absolute pulse count measured for the first time**:
+  **17.9 per Hour of Judgement cast** (143 hits over 8 casts, single target) vs
+  20–21 modelled. The pair ratio reproduced twice more (1.743, 1.68 vs 1.718) —
+  six logs now, and the first two with a same-session stat export.
+- ✅ **Holy Shock's SP coefficient measured at ≈0.40** (n=40 unbuffed non-crits,
+  against HftH in the same log so the Duality cycling cancels). Confirms `2c`'s
+  finding that the client's 0.429 reads ~5% high. Not yet seeded.
+
 **v26 changelog (2026-08-05, Phase 2 session `2c`).** The calibration gates, talent
 modelling, and Phase 2 close-out. Full detail in
 `primer/Session_2026-08-05_2c_gates_and_talents.md`; only what changes *practice*
