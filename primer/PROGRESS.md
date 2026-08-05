@@ -77,9 +77,15 @@ Now scoped. Also fixed repo-wide: **piped/redirected stdout no longer crashes**
 on Windows (`config.ensure_utf8_stdout()`, 12 entry points) — open since
 INDEX_GUIDE v10.
 
-**Cheapest thing the owner can do next:** a character-sheet screenshot (weapon
-damage, AP, SP) at the **start of the next logged session**. It un-confounds the
-absolute calibration *and* settles `elric_active_path_and_duality_ap_anomaly`.
+**🔴 FIRST ACTION NEXT SESSION: ask the owner for the capture bundle he agreed
+to produce — see `primer/NEXT_CAPTURE.md`.** An unbuffed stat export
+(`addons/AscensionCrafterExport/`) taken in the **same session** as two dungeon
+logs, plus a bounded list of live tooltips. The stat block is the binding item:
+it un-confounds the absolute calibration, settles
+`elric_active_path_and_duality_ap_anomaly`, and makes the two logs able to test
+whether the ~1.86 Holy / ~1.37 Holystrike residual is structural or buff state.
+🛑 Stats and logs must be the same session — a mismatch is exactly the King
+Gordok error that forced `2c` to demote the headline ratio.
 
 ---
 
