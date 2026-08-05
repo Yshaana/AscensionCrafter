@@ -59,7 +59,7 @@ fixed N).
 | Item | Blocking |
 |---|---|
 | `holy_shock_bonus_coefficient_0429` — seed measured ~0.40 or hold for a stating tooltip? | Holy Shock's modelled damage |
-| Commit the ~16 MB of raw combat logs under `data/source/captures/`? | Repo layout; T3b re-runs need them wherever they live |
+| ~~Commit the raw combat logs?~~ ✅ **Resolved 2026-08-05: committed as reference** (owner decision). May be pruned later if unneeded for a while — if pruning, re-derive nothing from them first: T3b's duty-cycle re-test and the seal PPM question both consume the raw per-hit data | — |
 | Consecrated Holy Weapon (200818) live tooltip | 25.1% of buffed damage, unmodelled |
 | *(optional)* bug-DB read access via the owner's browser session (`2e` T5, deferred) | Repeatable bug-database lookups |
 
