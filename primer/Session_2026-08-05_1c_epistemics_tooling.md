@@ -153,6 +153,13 @@ approval ingester is deliberately not built until a first batch exists.** Questi
   no tooltip-vs-log discrepancy surfaced (the 291180 collapse is our modelling
   granularity, not a game bug).
 
+## Post-close addendum (same day)
+
+The two 1b-audit feedback items were checked after close: the Datasette pin had landed
+in T9 as recorded; the stale `rebuild.py` step label for `seed_spell_flags.py`
+("crit_table / proc_icd_seconds", columns retired in 1b) had been missed and is now
+fixed (commit `401e649`).
+
 ## For session `2a`
 
 - **Call `spell_profile(mode='fast')` (or `resolve_spell_mechanics`) from the ability
