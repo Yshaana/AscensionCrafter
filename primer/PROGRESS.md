@@ -28,9 +28,24 @@ comparison). The sim produces its first end-to-end number. Session record:
   `paladin_optimal` (602) score BELOW `paladin_observed` (659), inverting build doc
   §11's central conclusion. The sim names the zero-damage ability loudly and
   `check_sim_engine` asserts that it does, so it cannot be quoted as a result.
+- ✅ **The sim is CALIBRATED against a real parse** (Elric's own
+  `2026-08-04-20.07.21 WoWCombatLog.txt`, 60,427 events). Outcome recorded in
+  `predictions/pred_2026-08-05_elric_paladin.md`. **The missing talent layer is
+  measured: ~1.76× for pure Holy, ~1.40× for Holystrike hybrids**, clustering
+  tightly by school across five abilities. Two structurally unrelated formulas
+  (HftH and HoJ's own tick) land on the same multiplier, which validates both
+  base formulas. **Pulse delivery confirmed a second time, independently: 259
+  HftH hits / 60 HoJ ticks = 4.32 against a predicted 4.00.**
+- ⚠ **Two calibration outliers must be settled BEFORE fitting talents**, or they
+  will drag the school constants: **Consecration 3.55×** (suspect missing
+  component or wrong rank) and **Dawn Strike 1.11×** (suspect the sim base is too
+  high — effect types 121/80/31 may double-count weapon damage). Open question
+  `consecration_and_dawn_strike_calibration_outliers`.
 - 🚨 **Talent modelling is now the single largest error source**, ahead of
   everything else combined. **Owner decision 2026-08-05: general extractor for
-  coverage + hand-seed the ~24 slotted talents.** Build the extractor on
+  coverage + hand-seed the ~24 slotted talents.** A correct model should
+  *reproduce* ~1.76 and ~1.40 from the actual cards — those are targets, not
+  values to hardcode. Build the extractor on
   **auras 107/108 (`ADD_FLAT_MODIFIER`/`ADD_PCT_MODIFIER`) read together with
   `EffectMiscValue` (the SpellModOp) and `EffectSpellClassMask`, from NUMERIC
   fields** — 2b showed Improved Cleave's tooltip understates its own scope

@@ -1,5 +1,68 @@
 # Pre-registered prediction — Elric (Paladin Hammerdin), 2026-08-05
 
+> ## ✅ OUTCOME — reconciled same day against a real parse
+>
+> Source: `2026-08-04-20.07.21 WoWCombatLog.txt` (Elric, 60,427 events,
+> 2,179,963 damage). Parsed with `tools/log_parser/parse_log.py`; field
+> alignment verified against three doc-confirmed facts before use (Consecration,
+> Righteous Vengeance and Hour of Judgement all parse at 0% crit, matching the
+> aura-tick rule; melee 35.6% vs Holystrike 46–53%, matching the Holystrike
+> spell-table verdict).
+>
+> **The prediction that mattered — "this is wrong, and here is why" — holds, and
+> the error decomposes almost exactly as predicted.** Comparing the sim's base
+> per-event value against the logged NON-CRIT average, at AP 584 / SP 533:
+>
+> | ability | school | sim base | logged non-crit | ratio |
+> |---|---|---|---|---|
+> | Hammer from the Heavens | Holy | 235 | 410 | **1.74×** |
+> | Hour of Judgement (own tick) | Holy | 137 | 243 | **1.78×** |
+> | Lightbound Cleave | Holystrike | 470 | 661 | **1.41×** |
+> | Whirling Light | Holystrike | 408 | 576 | **1.41×** |
+> | Dawnreaver | Holystrike | 314 | 436 | **1.39×** |
+> | Dawn Strike | Holystrike | 476 | 528 | 1.11× ⚠ |
+> | Consecration | Holy | 56 | 199 | 3.55× ⚠ |
+>
+> **The ratios cluster by school, which is the whole finding.** Pure Holy sits at
+> **~1.76×**, Holystrike hybrids at **~1.40×** — consistent with the Holy
+> multiplier stack applying in full to Holy damage and to only the magic half of
+> a hybrid, with the Titan's Grip −10% physical tax on the weapon half. That is
+> the missing talent layer, measured rather than assumed, and it is the single
+> number 2c needs.
+>
+> **Why this also validates the base formulas.** Hammer from the Heavens
+> (flat 122–145 + 9.1% SP + 9.1% AP) and Hour of Judgement's own tick
+> (flat 81 + 5% SP + 5% AP) are structurally unrelated formulas, yet they land on
+> the *same* multiplier (1.74 vs 1.78). If either base were wrong the two would
+> not agree. The same holds across the three Holystrike abilities at 1.39–1.41.
+>
+> **Pulse delivery confirmed on the owner's own character.** 259 Hammer from the
+> Heavens hits against 60 Hour of Judgement ticks = **4.32**, versus the **4.00**
+> predicted from the 500 ms trigger period against the 2,000 ms tick period.
+> Independent of the pooled crawl's 3.81. The mild overshoot has a candidate
+> cause: Hammerdin (282983) triggers the same pulse chain, adding HftH hits with
+> no corresponding HoJ tick. ⚠ Still does not settle the ABSOLUTE count — no
+> `SPELL_CAST_SUCCESS` for Hour of Judgement appears in this log, so pulses-per-
+> cast could not be counted directly.
+>
+> **Two abilities came back as outliers and are NOT explained:**
+> * **Consecration 3.55×** — far outside the Holy group. Suspect a missing
+>   component or a rank issue, not the talent stack.
+> * **Dawn Strike 1.11×** — far below its Holystrike peers. Its effect structure
+>   (121/80/31) differs from the others, so its sim base is the likely error.
+>
+> **Holy Shock resolves to no events at all**, as predicted — and the log shows it
+> is real and material: 36 casts, 1,380 non-crit average, 3.0% of damage.
+> Confirms `rank_siblings_inherit_no_hidden_refs` is worth fixing first in 2c.
+>
+> ⚠ **Caveat on all ratios:** the sim base uses the 2026-08-03 sheet (AP 584 /
+> SP 533) and weapon damage from the older King Gordok parse, against a
+> 2026-08-04 log. The tight within-school clustering suggests the drift is small,
+> but these are not a same-moment comparison.
+
+---
+
+
 **Logged BEFORE the next parse, never fitted afterwards** (PHASE_2 T9's discipline).
 The `predictions` table itself is session `2c`; until it exists this file is the
 ledger, and it carries the same stamps a row would.
