@@ -57,6 +57,8 @@ CHAIN = [
     # relationships.py are inputs to the mechanics resolver
     ("cli/relationships.py", "spell_relationships + bounded trigger attribution (T5)"),
     ("cli/mechanics.py", "spell_mechanics resolved truth table + spell_scaling rank keying (T4)"),
+    # last, per the phase doc: the auto-debugger sweeps everything above
+    ("tools/audit/audit_gaps.py", "auto-debugger integrity sweep (T8)"),
 ]
 
 DBC_STEP = ("ingest/dbc/build_dbc_index.py",
