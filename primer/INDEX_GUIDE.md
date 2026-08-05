@@ -1,3 +1,48 @@
+# Ascension Spell/Card Index — Guide (v13)
+
+**v13 changelog (2026-08-05, session `2b` — Phase 2 T5–T7).** No new tables; three
+existing ones gained content that changes what queries return, plus one new tool.
+
+- 🚨 **`spell_effect_values` now covers RANK SIBLINGS** — the level-60 id a catalog
+  entry redirects to. It previously held catalog ids only, so the resolver's
+  (correct) rank redirect landed on a spell with **zero** rows and every affected
+  ability modelled as 0 damage. **686 cards were in that state; 676 now decode**
+  (+1,193 rows; 25 ambiguous rank lines skipped, never tie-broken). ⚠ Residual: a
+  sibling inherits no `hidden_refs` (that column is parsed from the export, which
+  siblings are absent from), so a sibling whose own record is a DUMMY still loses its
+  sub-spell chain — open question `rank_siblings_inherit_no_hidden_refs`.
+- 🆕 **`spell_mechanics.damage_formula_terms_json` terms carry new keys**, needed to
+  split an ability into events: `is_periodic`, `tick_interval_seconds`,
+  `source_school`, `trigger_delivery` (`{periodic, period_seconds, hop}`), and
+  `via`/`source_spell_id` **on coefficient rows as well as flats**.
+- 🚨 **Coefficients are now pulled per component `source_spell_id`, not per card.**
+  A trigger-reached component's coefficients live on the TARGET (owner decision
+  2026-08-05), so `SELECT … FROM spell_scaling WHERE spell_id = <card>` returns only
+  what the card says about *itself* and silently omits anything it reaches by trigger.
+  Query `spell_mechanics` (or `spell_profile`) rather than `spell_scaling` directly.
+- ⚠ **`EFFECT_WEAPON_PCT` rows are no longer emitted as flat damage.** The stored
+  value is a **percent**; it now becomes a `WEAPON` term with `coefficient = pct/100`.
+  Anything reading the old shape saw "65 damage" where the game does 65% of a swing.
+- 🆕 **`doc_confirmed_mechanics` can hold OUT-OF-CATALOG ids.** Hammer from the
+  Heavens (282987) now carries `rolls_hit_check=0`, `can_be_full_resisted=0` and
+  `crit_table='spell'` from the 4,962-hit sample. Combat-table facts are
+  rank-invariant and are carried across a rank redirect; magnitudes are not.
+- 🆕 **New tool `tools/audit/calibrate_vs_log.py`** — compares sim base values against
+  a real combat log's non-crit averages, grouped by school. Verifies field alignment
+  against three doc-confirmed facts and **refuses to report** if they fail.
+
+```sql
+-- a card's damage terms, including anything reached by trigger, with delivery info
+SELECT damage_formula_terms_json FROM spell_mechanics WHERE spell_id = ?;
+
+-- did this catalog entry's level-60 rank sibling actually decode?
+SELECT COUNT(*) FROM spell_effect_values WHERE spell_id =
+  (SELECT spell_id FROM spell_id_crosswalk
+   WHERE external_source='catalog_vs_live' AND external_id = ?);
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v12)
 
 **v12 changelog (2026-08-05, session `1c` — Phase 1 T6–T10, PHASE 1 COMPLETE).**

@@ -4,6 +4,52 @@ This file explains how **Project Ascension** works so you can reason about build
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
 
+**v25 changelog (2026-08-05, Phase 2 session `2b`).** Sim tiers + first calibration
+against real parses. Full detail in `primer/Session_2026-08-05_2b_sim_tiers.md`; only
+what changes *practice* is here.
+
+- ✅ **v24's `trigger_attributed_coefficients_not_in_spell_scaling` is CLOSED.** The
+  resolver now pulls `spell_scaling` per component `source_spell_id`, so a card's
+  profile serves the coefficients of anything it reaches by trigger. **Sim output for
+  trigger-reached abilities no longer understates them** — Hammerdin reproduces the
+  confirmed 223.6–246.6. The v24 warning not to quote those numbers is withdrawn.
+- 🚨 **NEW TRAP, §4 family — trigger DELIVERY, not just trigger modifiers.** §4's
+  proof case #2 says a triggered effect doesn't inherit its trigger's *modifiers*.
+  This is the same shape one level down: **a triggered effect doesn't fire once
+  just because you pressed a button once.** Hour of Judgement's effect 1 is
+  `SPELL_AURA_PERIODIC_TRIGGER_SPELL` at a 500 ms period over a 10 s duration, so one
+  cast fires Hammer from the Heavens **20 times**. HftH itself is an ordinary direct
+  spell — **the delivery is periodic, not the effect**, so periodicity must be read
+  off the *triggering effect slot*, never off the triggered spell. 34 cards do this.
+  Confirmed three independent ways (predicted 4.00 pulses per HoJ tick; pooled crawl
+  3.81; owner's own log 4.32).
+- 🚨 **NEW §5 PRACTICE: read an amplifier talent from auras 107/108 + SpellModOp, not
+  from its tooltip.** This document already says never to read a *magnitude* from
+  tooltip prose. **It extends to SCOPE.** Improved Cleave's tooltip says *"increases
+  the bonus damage done by your Cleave ability"* — naming one term — while its
+  `EffectMiscValue` is **8 = `SPELLMOD_ALL_EFFECTS`**, so it multiplies *every* effect
+  of the spells in its class mask. Reading the tooltip gave +74 per hit; reading the
+  modifier op gives +563. Check `EffectAura` 107 (`ADD_FLAT_MODIFIER`) / 108
+  (`ADD_PCT_MODIFIER`) with `EffectMiscValue` and `EffectSpellClassMask`, from numeric
+  fields.
+- 🧠 **NEW §5 PRACTICE: retracting a MECHANISM does not retract the CONCLUSION it
+  supported.** Re-derive the conclusion independently. This cost a correct chase-list
+  decision in this session and was caught only because the owner said it contradicted
+  what he'd seen in game.
+- ⚠ **NEW §5 PRACTICE: a damage multiplier measured against a parse is NOT a
+  constant — it moves with buff state.** Across five of the owner's logs the same
+  ability's logged-vs-modelled ratio swings **1.41×** between sessions, while
+  abilities *within* one log agree to ±0.03. **Never pool logs to fit a multiplier**;
+  either fit per-log with buff state known, or use a RATIO between two things measured
+  in the same log, where buff state cancels.
+- ⚠ **The catalog's wrong-rank problem has a second half nobody had hit yet: the
+  rank-correct id may have NO DATA AT ALL.** Resolving to the rank a level-60
+  character casts is right, but until this session `spell_effect_values` only held
+  catalog ids — so the redirect traded a *wrong* magnitude for *no* magnitude, and
+  **686 cards silently modelled as zero damage**. Fixed (676 now decode). Residual:
+  a rank sibling inherits no `hidden_refs`, so one whose own record is a DUMMY still
+  loses its sub-spell chain (Holy Shock is the live case).
+
 **v24 changelog (2026-08-05, Phase 2 session `2a`).** Sim foundation — no game-mechanic
 verdict changed. Full detail in `primer/Session_2026-08-05_2a_sim_foundation.md`; only
 what changes practice is here.

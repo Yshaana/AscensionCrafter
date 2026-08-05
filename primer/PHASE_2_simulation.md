@@ -1,7 +1,61 @@
-# PHASE 2 — Simulation Engine (Layer 3) — v2
+# PHASE 2 — Simulation Engine (Layer 3) — v3
 
 **Read `00_ARCHITECTURE.md` and Phase 1 first. Hard dependency: `spell_mechanics` (Phase 1 T4) and
 `spell_profile()` (Phase 1 T7). A sim built before those simulates placeholders.**
+
+---
+
+## Progress (session `2b`, 2026-08-05): T5, T6, T7-cheap-half ✅ — plus 4 data bugs
+
+Full detail in `Session_2026-08-05_2b_sim_tiers.md`. Validation is now **30 checks**
+in `py tools/audit/check_sim_engine.py`. New: `core/sim/{apl,tiers,apl_gen,uncertainty,
+weights}.py`, `cli/sim.py`, `tools/audit/calibrate_vs_log.py`, `fixtures/`,
+`predictions/`.
+
+**Deviations from this document, and why:**
+
+1. **T6 does NOT source ranges from `spell_mechanics.uncertainty_json`** (owner
+   decision). Measured across all 3,747 rows, that column cannot serve:
+   `damage_formula_terms_json` is stored `low: None, high: None, basis:
+   non-numeric`, and every numeric field carries a `±0%` confidence-mapping
+   default labelled "heuristic, not measured". Sampling it would report ±0%
+   knowledge uncertainty — worse than none, because it looks authoritative.
+   Ranges live in `core/sim/uncertainty.py`'s **POLICY table** instead: a stated,
+   arguable assumption, kept out of Phase 1's truth table so invented ranges
+   never acquire tier provenance.
+2. **`expected_hit` changed meaning.** It resolved every damage term a card could
+   reach into one number under one avoidance roll and one crit roll — not a
+   quantity that occurs in the game. It now resolves ONE event; `expected_cast`
+   composes them. See "per-source-spell events" below.
+3. **T7 is half-done by design** (owner decision): `stat_weights` and
+   `compare_paths` shipped; `gear_tier_presets` and `scaling_curve` deferred to
+   Phase 3, which owns the `items` table — without it they would run on
+   hand-invented stat blocks.
+4. **T8 calibration started early**, because the owner's combat logs were
+   available. `tools/audit/calibrate_vs_log.py` is the tool; results below.
+
+**🚨 The structural finding T5 could not have been built without:** an ability is
+not one event. Hour of Judgement is three — its own periodic tick, its own direct
+terms, and the Hammer from the Heavens pulse it triggers — resolving on different
+tables. Worse, **trigger-reached damage can be DELIVERED periodically**: HoJ's
+effect 1 is `SPELL_AURA_PERIODIC_TRIGGER_SPELL` at 500 ms over a 10 s duration, so
+one cast fires the pulse **20 times**. The pulse spell itself is not periodic —
+the delivery is, so periodicity must be read off the **triggering effect slot**,
+never the triggered spell. 34 cards are affected.
+
+**Calibration result, and the trap in it.** Comparing the sim's base per-event
+value against logged non-crit averages across five of the owner's parses:
+
+* within any ONE log, a school's abilities agree to ~±0.03, and since Hammer from
+  the Heavens and HoJ's own tick are structurally unrelated formulas, that
+  agreement **validates both base formulas**;
+* the **absolute** multiplier swings **1.41× between sessions** (Holy 1.76 → 2.48)
+  — that is buff and gear state, not talents;
+* **the durable quantity is the Holy ÷ Holystrike ratio, 1.31 ± 0.03**, because
+  buff state cancels in a ratio.
+
+🛑 **T8 must not fit one talent multiplier from pooled logs.** Fit per-log with
+buff state known, or model buffs and let the residual be talents.
 
 ---
 
