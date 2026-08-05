@@ -159,6 +159,57 @@ empirical ones** (sim: weapon_damage 25, hit 17, haste 14, crit 6.1; doc: crit
 2.00 best, AP 1.00 baseline). **Do not adopt the sim's weights.** The
 disagreement is a diagnostic, not a result.
 
+## ✅ Calibrated against five real parses — and the first read was wrong
+
+Late addition: the owner's combat logs were sitting in
+`E:\Ascension Launcher\resources\ascension-live\Logs`. New tool
+`tools/audit/calibrate_vs_log.py` compares the sim's BASE per-event value
+(no talents, no crit) against the logged NON-CRIT average, so the ratio *is* the
+unmodelled talent layer. **It verifies field alignment against three
+doc-confirmed facts first and refuses to report if they fail** — the log parser
+is documented as unvalidated, and my own first ad-hoc scan had the crit flag one
+field off and would have produced confident nonsense.
+
+**I read one log, drew a conclusion, then four more logs overturned it.**
+
+**1. Within any one log, a school's abilities agree very tightly.** In
+`2026-08-03-20.51` the three Holystrike abilities read **1.88 / 1.87 / 1.87**;
+Hammer from the Heavens and Hour of Judgement's own tick read **2.46 / 2.49**.
+Those two Holy formulas are structurally unrelated — flat 122–145 + 9.1% SP/AP
+versus flat 81 + 5% SP/AP — so agreeing to 0.03 is strong evidence that **both
+base formulas are correct.** Holds in every log with enough hits.
+
+**2. The absolute multiplier is NOT a constant.**
+
+| log | Holy | Holystrike | Holy ÷ Holystrike |
+|---|---|---|---|
+| 2026-08-03 20.51 | 2.48 | 1.87 | 1.32 |
+| 2026-08-03 21.18 | 1.99 | 1.52 | 1.31 |
+| 2026-08-04 20.07 | 1.76 | 1.40 | 1.25 |
+| 2026-08-04 20.37 | 1.90 | 1.42 | 1.34 |
+
+A **1.41× swing** between sessions — buff and gear state, not talents. The
+single-log figure I first recorded (1.76 / 1.40) is one session's value and is
+marked SUPERSEDED in `confirmed_facts`.
+
+**3. The durable quantity is the school ratio: 1.31 ± 0.03.** Buff state
+multiplies both schools and cancels in a ratio, leaving talent structure —
+consistent with the Holy stack applying in full to Holy damage but only to the
+magic half of a hybrid, with Titan's Grip's −10% physical on the weapon half.
+
+**Pulse delivery confirmed a third time, on the owner's own character:** 259
+HftH hits / 60 HoJ ticks = **4.32** against the predicted **4.00**. Independent
+of the pooled crawl's 3.81. Candidate cause of the overshoot: Hammerdin triggers
+the same chain, adding pulses with no matching tick. ⚠ The **absolute** count is
+still unsettled — no `SPELL_CAST_SUCCESS` for Hour of Judgement appears in any
+log, so pulses-per-cast could not be counted.
+
+**Dawn Strike misses its group in all four logs, always low** (1.43 / 1.17 /
+1.11 / 1.13 vs peers at 1.87 / 1.50 / 1.40 / 1.42). A bias that reproduces in
+every sample is neither noise nor buff state — its sim base is **~25–30% too
+high**. Suspect effect type 121 (normalized weapon) being counted alongside type
+31 (weapon-percent), which would affect **every** ability carrying type 121.
+
 ## What 2c inherits
 
 * 🛑 **The optimal-vs-observed APL comparison is BLOCKED**, and the sim says so.
@@ -177,6 +228,14 @@ disagreement is a diagnostic, not a result.
   `EffectMiscValue` (SpellModOp) + `EffectSpellClassMask`, from numeric fields** —
   the Improved Cleave case above proves tooltip prose understates modifier scope,
   so tooltip parsing is the wrong foundation.
+* 🛑 **Do NOT fit one talent multiplier from pooled logs.** It swings 1.41×
+  between sessions on buff state. Fit per-log with buff state known, or model
+  buffs explicitly and let the residual be talents. **Target: reproduce the
+  1.31 Holy÷Holystrike ratio**, not the absolute values.
+* ⚠ **Settle two calibration outliers BEFORE fitting**, or they drag the
+  constants: `dawn_strike_sim_base_is_systematically_too_high` (reproduces in all
+  four logs; likely a type-121/type-31 double count affecting many abilities) and
+  `consecration_and_dawn_strike_calibration_outliers` (Consecration ~4×).
 * 📅 **Re-run the Phase 1 baseline capture on 2026-08-07** (owner decision) before
   the phase flip on the 8th. Overwrites in place.
 * Seals are scored per cast, not per swing; auto-attacks are unmodelled;
