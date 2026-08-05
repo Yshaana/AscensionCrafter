@@ -4,6 +4,24 @@ This file explains how **Project Ascension** works so you can reason about build
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
 
+**v24 changelog (2026-08-05, Phase 2 session `2a`).** Sim foundation — no game-mechanic
+verdict changed. Full detail in `primer/Session_2026-08-05_2a_sim_foundation.md`; only
+what changes practice is here.
+
+- 🆕 **A simulation layer exists**: `core/sim/` (combat engine, content profiles, ability
+  model) + `core/builds/` (BuildSpec, compute_stats). Ability math goes through
+  `ResolvedAbility` (resolver path, rank-gap-safe) — validate changes with
+  `py tools/audit/check_sim_engine.py`. **Read sim output `warnings` — they carry every
+  unvalidated assumption (retail_hypothesis values, heuristic crit/hit tables, excluded
+  outlier coefficients) by name.**
+- 🚨 **Known sim gap, open question `trigger_attributed_coefficients_not_in_spell_scaling`:**
+  Hammer from the Heavens' confirmed 9.1% SP/AP terms are doc-prose-only — the resolver
+  serves the flat 122–145 without them, so sim output understates HftH ~45% until 2b
+  lands the attribution decision. Don't quote sim numbers for trigger-reached abilities
+  before checking this question's status.
+- 🆕 **New open question `melee_crit_suppression_vs_higher_level`** — the engine warns
+  rather than fabricating a retail constant; a large white-swing parse settles it.
+
 **v23 changelog (2026-08-05, Phase 1 session `1c`).** Tooling session — **Phase 1 is
 complete** (T6–T10). No game-mechanic verdict changed. Full detail in
 `primer/Session_2026-08-05_1c_epistemics_tooling.md` and `INDEX_GUIDE.md` v12; only what

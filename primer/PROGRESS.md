@@ -9,8 +9,33 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `2a` — combat engine (T1) + content profiles (T2) + ability model (T3) +
-build spec (T4). Read `PHASE_2_simulation.md`.**
+**Next session: `2b` — three sim tiers (T5) + uncertainty propagation (T6). Read
+`PHASE_2_simulation.md`.**
+
+**✅ SESSION `2a` IS DONE (2026-08-05).** T1–T4: `core/sim/combat_engine.py` (gt-table
+rating conversions, anchor-validated; attack tables; no silent defaults),
+`core/sim/content.py` (8 presets, raid durations derived from scouted ZG data),
+`core/sim/ability_model.py` (resolver-path-only `ResolvedAbility`, full term_type
+vocabulary, outliers excluded), `core/builds/spec.py`+`stats.py` (BuildSpec ranks-
+mandatory; compute_stats sheet/component modes, Duality parameterised at measured
+values). Validation: `py tools/audit/check_sim_engine.py` (16 checks incl. the
+mean(roll_hit×100k)≈expected_hit guard). Session record:
+`primer/Session_2026-08-05_2a_sim_foundation.md`.
+
+**What `2b` inherits from `2a`:**
+
+- 🚨 **First item: `trigger_attributed_coefficients_not_in_spell_scaling`** (new open
+  question). HftH's confirmed 9.1% SP/AP terms are doc-prose-only — the resolver
+  serves flat 122–145 without them (~45% understatement on the flagship ability).
+  Needs a per-case attribution decision (same family as 1b's multi-path deferral).
+- **Trigger-hop magnitudes ARE summed into expected_hit** (flagged
+  `calibration_anchor=False`, listed in `triggered_components`) — see the 2a plan-
+  changes row for why the "never anchor" rule does not mean "exclude".
+- `expected_hit` is per-EVENT (hit or tick): direct-vs-DoT splitting, CP
+  parameterisation, hybrid-school mitigation split, AoE totals-at-N are all
+  deliberate 2a gaps with warnings — T5's tiers own them.
+- New open question `melee_crit_suppression_vs_higher_level` — the engine warns
+  instead of modelling it; a big white-swing parse settles it.
 
 **✅ SESSION `1c` IS DONE (2026-08-05). PHASE 1 IS COMPLETE — all exit criteria checked
 and recorded in `PHASE_1_spell_database.md`.** Session record:
@@ -102,8 +127,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **1x** | Numeric-field DBC extractor (+ settle rank-vs-coefficient) | ✅ done | `Session_2026-08-04_1x_numeric_extractor.md` | 794/887 blocked spells resolved; `spell_effect_values` + `dbc_numeric.py` + `rank_scaling.py`. **Two Phase 0 claims corrected** — `EffectBonusCoefficient` is not the SP/AP coefficient, and coefficients DO scale with rank |
 | **1b** | `spell_mechanics` (T4) + relationship graph (T5) | ✅ done | `Session_2026-08-05_1b_mechanics_relationships.md` | 3,747 mechanics rows, 5,302 edges, bounded trigger attribution (724 rows / 444 cards, HftH 122–145 reproduces end-to-end), `spell_scaling` rank-keyed (+229 sibling rows), `spells` combat-table columns → `doc_confirmed_mechanics`. Rebuild is 16 steps; piped-output crash fixed. Two stale `confirmed_facts` rows qualified SUPERSEDED (pre-`1b` prep item) |
 | **1c** | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ✅ done | `Session_2026-08-05_1c_epistemics_tooling.md` | **Phase 1 complete, exit criteria checked.** T6–T10 + compound-form gap closed (+290 scaling rows) + amplifier queue pre-classified (approval-gated per owner decision) + conflict sweep buckets slot collisions separately. Two more owner decisions implemented: Darkmoon-only volatility, Datasette pinned. Rebuild is 18 steps |
-| 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | ▶ **NEXT.** ⚠ The 2026-08-08 phase boundary lands during/near this session — the audit's phase-boundary sweep starts firing then |
-| 2b | Three sim tiers + uncertainty | ⬜ | — | |
+| **2a** | Combat engine, content profiles, ability model, build spec | ✅ done | `Session_2026-08-05_2a_sim_foundation.md` | T1–T4 + `check_sim_engine.py` (16 checks). Found the HftH coefficient queryability gap; 2 open questions filed |
+| 2b | Three sim tiers + uncertainty | ⬜ | — | ▶ **NEXT.** Start with `trigger_attributed_coefficients_not_in_spell_scaling`. ⚠ The 2026-08-08 phase boundary lands during/near this session — the audit's phase-boundary sweep starts firing then |
 | 2c | Weights, calibration, prediction ledger, cache, CLI | ⬜ | — | |
 | 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9 |
 | 3b | Addon, logs, automation, crawler refinement | ⬜ | — | |
@@ -167,6 +192,10 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (2a) | 🆕 **Trigger-attributed magnitudes ARE summed into `expected_hit`**, flagged `calibration_anchor=False` | The kickoff note's "never let inferred rows anchor calibration" was first over-read as "exclude from computation" — which zeroes 444 cards (Hour of Judgement's entire damage is its trigger chain). Corrected same session: computed + warned + listed in `triggered_components` so calibration can subtract them. The rule constrains *anchoring*, not *computation* |
+| 2026-08-05 (2a) | 🚨 **HftH's confirmed 9.1% SP/AP coefficients are NOT queryable** — doc prose + `confirmed_facts` only, no `spell_scaling` rows for 282987 or the cards | Found by 2a's validation: the resolver serves flat 122–145 without the stat terms (~45% understatement at AP 584/SP 533). Filed as open question `trigger_attributed_coefficients_not_in_spell_scaling` rather than rush-seeded — attributing coefficients to cards has per-event/rotation semantics, the same per-case judgment 1b's multi-path decision deferred |
+| 2026-08-05 (2a) | ⚠ **Crit suppression vs higher-level targets: warned, not modelled** | No fabricated retail constant (§2 rule 2). The owner's own parse hints it exists (sheet 21.76% vs autos 16.2%, n=37 — too small). Open question `melee_crit_suppression_vs_higher_level`; combat_engine emits a warning whenever a white table is built vs a higher-level target |
+| 2026-08-05 (2a) | ⚠ **Talent stat/multiplier modelling deferred to calibration** — component-mode `compute_stats` warns per unmodelled slot | PHASE_2 T4 wants full resolution; without an items table (Phase 3) and per-talent magnitudes, silent partial modelling would fabricate precision. Sheet mode (`stats_override` = FINAL sheet values) is exact today and is the calibration path. The phase doc's T4 section is amended |
 | 2026-08-05 (1c) | 🆕 **`open_questions`/`retractions` key on a `slug` column** beyond T6's DDL | Autoincrement ids reset every rebuild — nothing durable can reference them. Both tables owned by `seed_epistemics.py`, append-only, same discipline as `seed_confirmed.py` |
 | 2026-08-05 (1c) | ⚠ **A "mark vanished crosswalk targets" auto-fix was built and WITHDRAWN in-session** | Without history, absent-from-extract is indistinguishable from never-in-scope: 7,654 out-of-pool CA rank-slot rows matched the "vanished" predicate. Now report-only in the provenance sweep. The withdrawn version had already polluted notes on one build — a rebuild reset it |
 | 2026-08-05 (1c) | ⚠ **The one "cross-source" mechanics conflict is a component collapse, not a source disagreement** | Champion's Spear (291180): weapon_damage_pct 150 (initial hit, own effect) vs 50 (per-second DoT, sub-spell 291181). Both real; one column cannot hold two components. Queued; a T4-schema follow-up (per-component formula terms) would dissolve it |

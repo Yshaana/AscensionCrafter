@@ -5,6 +5,36 @@
 
 ---
 
+## Progress (session `2a`, 2026-08-05): T1–T4 ✅ built as specified, with four deviations
+
+Full detail in `Session_2026-08-05_2a_sim_foundation.md`; validation is
+`py tools/audit/check_sim_engine.py` (includes T3's mandated
+`mean(roll_hit × 100k) ≈ expected_hit` assertion — a standalone script per the
+repo's no-test-framework precedent, not pytest).
+
+1. **T3 addition:** trigger-attributed magnitudes (`via='trigger_hopN'`,
+   confidence=inferred) ARE summed into `expected_hit`, flagged
+   `calibration_anchor=False` and listed in `triggered_components`. Excluding
+   them zeroes 444 cards.
+2. **T1 deviation:** crit suppression vs higher-level targets is *warned about,
+   not modelled* — open question `melee_crit_suppression_vs_higher_level`
+   (owner's parse hints it exists; no retail constant fabricated).
+3. **T4 deviation:** talent stat/multiplier resolution is deferred to
+   calibration — component mode warns per unmodelled slot; sheet mode
+   (`stats_override` = FINAL sheet values) is the exact path today. Duality is
+   parameterised at the *measured* values (SP amp 1.895, AP factor 0.548
+   anomaly) with warnings, never the tooltip's.
+4. **Known 2a scope cuts owned by T5/T6:** `expected_hit` is per-event
+   (direct-vs-DoT term split undone, `n_ticks()` exposed), CP terms
+   unparameterised, hybrid mitigation unsplit, AoE totals refuse when
+   falloff/split data is NULL.
+
+🚨 **T5 must start with `trigger_attributed_coefficients_not_in_spell_scaling`**
+(open question, filed 2a): HftH's confirmed 9.1% SP/AP terms are not queryable,
+so the flagship ability is understated ~45% until an attribution decision lands.
+
+---
+
 ## The SimC decision, stated once
 
 **Port SimC's combat math into Python. Do not fork SimC.**
