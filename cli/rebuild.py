@@ -43,6 +43,8 @@ CHAIN = [
     # after the weaker tooltip tier above, so disagreements are detectable
     ("ingest/export/seed_class_from_skill_line.py", "class_origin from the client's skill lines"),
     ("ingest/export/seed_confirmed.py", "confirmed_facts from the docs"),
+    ("ingest/export/seed_epistemics.py",
+     "open_questions + retractions + fact_spell_links (T6)"),
     ("ingest/export/seed_synergies.py", "shared_synergies from builds/shared/"),
     ("ingest/export/seed_exclusivity.py", "exclusivity_buckets"),
     ("ingest/export/seed_modifier_links.py", "modifier_links from spells.borrows_from"),

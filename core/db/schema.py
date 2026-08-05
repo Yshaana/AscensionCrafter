@@ -72,12 +72,24 @@ CREATE TABLE IF NOT EXISTS owned_cards (
     pool TEXT    -- abilityNormal / abilityGolden / talentNormal / talentGolden
 );
 
+-- T6 (session 1c) widened this with provenance columns. The whole db is dropped
+-- and recreated each rebuild, so the columns live in the CREATE rather than as a
+-- migration. Backfilled rows carry evidence_ref = source_doc + section (that IS
+-- the evidence pointer for doc-seeded facts) and NULL verified_at_patch (they
+-- predate patch tracking); realm/season default to where the measurements were
+-- actually made. sample_size only where the source doc states one.
 CREATE TABLE IF NOT EXISTS confirmed_facts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     topic TEXT,
     fact TEXT,
     source_doc TEXT,
-    source_section TEXT
+    source_section TEXT,
+    verified_at_patch INTEGER,    -- REFERENCES patches(patch_id); NULL = pre-tracking
+    superseded_by_patch INTEGER,  -- set when a later patch invalidates the fact
+    evidence_ref TEXT,
+    sample_size INTEGER,          -- hits/parses behind a measured fact, when stated
+    realm TEXT,
+    season TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_spells_name ON spells(name);
@@ -374,8 +386,58 @@ CREATE INDEX IF NOT EXISTS idx_rel_target ON spell_relationships(target_spell_id
 CREATE INDEX IF NOT EXISTS idx_rel_type   ON spell_relationships(relation_type);
 """
 
+# --------------------------------------------------------------------------
+# Phase 1 Task 6 — epistemics: fact links, open questions, retractions (1c)
+# --------------------------------------------------------------------------
+# §2.6: storing epistemics as prose means a fresh session can re-derive a dead
+# conclusion. `retractions` makes being-wrong queryable; `open_questions` is the
+# verification queue's input; `fact_spell_links` is what lets spell_profile()
+# answer "which confirmed facts touch this spell" without string matching.
+#
+# Ownership: ingest/export/seed_epistemics.py owns open_questions + retractions
+# (hand-curated, append-only source file — resolving a question means editing the
+# seed, same discipline as seed_confirmed.py). fact_spell_links is derived by
+# core/spells/epistemics.py :: link_facts_to_spells() each rebuild.
+PHASE1_EPISTEMICS_DDL = """
+CREATE TABLE IF NOT EXISTS fact_spell_links (
+    fact_topic   TEXT NOT NULL,
+    spell_id     INTEGER NOT NULL,
+    match_method TEXT NOT NULL,   -- 'id_regex' | 'id_plus_name' | 'name_exact' | 'manual'
+    confidence   TEXT NOT NULL    -- name-only matches are 'needs_review', never auto-approved
+);
+
+CREATE TABLE IF NOT EXISTS open_questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,      -- stable handle; the autoincrement id is not stable across rebuilds
+    question TEXT NOT NULL,
+    blocks TEXT,                    -- what decision waits on this
+    status TEXT NOT NULL,           -- 'open' | 'in_progress' | 'resolved' | 'abandoned'
+    resolved_by_fact_topic TEXT,
+    variance_contribution REAL,     -- computed by Phase 2 sensitivity analysis; NULL until then
+    affected_spell_ids TEXT,        -- comma-joined
+    opened_at TEXT NOT NULL,
+    opened_at_patch INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS retractions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,
+    claim TEXT NOT NULL,
+    why_believed TEXT NOT NULL,
+    what_falsified_it TEXT NOT NULL,
+    superseding_fact_topic TEXT,
+    retracted_at TEXT NOT NULL,
+    retracted_at_patch INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_fact_links_spell ON fact_spell_links(spell_id);
+CREATE INDEX IF NOT EXISTS idx_fact_links_topic ON fact_spell_links(fact_topic);
+CREATE INDEX IF NOT EXISTS idx_open_questions_status ON open_questions(status);
+"""
+
 PHASE1_DDL = (PHASE1_PATCH_DDL + PHASE1_CROSSWALK_DDL + PHASE1_NUMERIC_DDL
-              + PHASE1_MECHANICS_DDL + PHASE1_RELATIONSHIPS_DDL)
+              + PHASE1_MECHANICS_DDL + PHASE1_RELATIONSHIPS_DDL
+              + PHASE1_EPISTEMICS_DDL)
 
 
 def create_catalog_schema(conn) -> None:

@@ -193,8 +193,18 @@ FACTS = [
 # 103 -> 213 rows). Same bug class as the two found in build_dbc_index.py today.
 cur.execute('DELETE FROM confirmed_facts')
 
-cur.executemany('INSERT INTO confirmed_facts (topic, fact, source_doc, source_section) VALUES (?,?,?,?)',
-                 [(t, f, d, s) for (t, f, d, s) in FACTS])
+# T6 (1c) provenance stamps. evidence_ref for doc-seeded facts IS the doc+section
+# pointer; verified_at_patch stays NULL (these rows predate patch tracking — the
+# staleness sweep treats NULL as "age unknown", never as "current"). realm/season
+# are where the verifications were actually made: every measurement in these docs
+# is Darkmoon S10, and engine-level facts (gt tables, DBC conventions) were
+# verified against the Darkmoon client. §2.5: an undifferentiated fact is a wrong
+# fact — a Dawnrise session must re-verify, not inherit.
+cur.executemany('''INSERT INTO confirmed_facts
+                   (topic, fact, source_doc, source_section, evidence_ref, realm, season)
+                   VALUES (?,?,?,?,?,?,?)''',
+                [(t, f, d, s, f"{d} :: {s}", 'Darkmoon', 'S10')
+                 for (t, f, d, s) in FACTS])
 
 conn.commit()
 cur.execute('SELECT COUNT(*) FROM spells WHERE class_origin IS NOT NULL')
