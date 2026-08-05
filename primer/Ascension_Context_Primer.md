@@ -1,8 +1,44 @@
-# Project Ascension — Systems Primer v20 (Context for Claude)
+# Project Ascension — Systems Primer v23 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v23 changelog (2026-08-05, Phase 1 session `1c`).** Tooling session — **Phase 1 is
+complete** (T6–T10). No game-mechanic verdict changed. Full detail in
+`primer/Session_2026-08-05_1c_epistemics_tooling.md` and `INDEX_GUIDE.md` v12; only what
+changes *practice* is here.
+
+- 🆕 **One-call spell lookup: `py cli/profile.py "<name or id>"`** — identity, ownership,
+  resolved mechanics (rank gaps and conflicts surfaced first), linked facts, patch history,
+  graph neighbourhood, volatility, scouted usage. Duplicate names refuse with a candidate
+  list; out-of-catalog ids (282987) still profile. Check this before hand-querying tables.
+- 🆕 **Open questions and retractions are TABLES now** (`open_questions`, `retractions`,
+  keyed by slug; `fact_spell_links` ties facts to spell ids). They live in
+  `ingest/export/seed_epistemics.py` — **when a session resolves a question or retracts a
+  claim, edit that seed in the same session**, exactly like `seed_confirmed.py`. Name-based
+  fact links are `needs_review`, never auto-approved.
+- ✅ **v14's compound-form extraction gap is CLOSED.** `($AP+$SP)*n*n*0.02`, `$SPFR*0.0096`,
+  `0.0066*$SPH`, and lowercase `$sp*0.69` all extract; `spell_scaling` gained 290 rows across
+  112 more spells, and its `term_type` vocabulary now includes school-suffixed SP variants
+  and BH. Holy Finish and Winds of Winter's Frost term auto-extract — their hand-seeds are
+  now no-op guards.
+- 🆕 **Every rebuild ends with an audit** (`data/derived/audit_report.md`): conflicts
+  (slot collisions bucketed separately), staleness vs patches, provenance, coverage,
+  answered-question overlap, coefficient outliers. **The 2026-08-08 phase boundary is wired
+  in** — from that date the audit flags any pre-boundary stat weight or gear tier.
+- 🆕 **Test protocols on demand: `py tools/audit/protocols.py`** — per open question, with
+  the primer's own test-design rules enforced in code (card-destroying protocols REFUSED,
+  <3-point discriminators rejected, target level and per-hypothesis outcomes mandatory).
+- 🆕 **Browsing: `py cli/browse.py`** (Datasette, 12 canned queries) and
+  `search_spells(conn, **filters)` for programmatic filtered search. Datasette is a pinned
+  dependency now (owner decision 2026-08-05).
+- 🆕 **Volatility scoring exists and is Darkmoon-only, report-only** (owner decision
+  2026-08-05): patch-touch history per spell with an explicit thin-data warning (realm tags
+  only exist from 2026). It never enters stat weights.
+- **The 243-row amplifier review queue is pre-classified in `reviews/amplifier_review.md`**
+  — owner approves batches there (`[x]`/`[!]`); nothing enters the graph until then.
+- **Rebuild is 18 steps (~90s).**
 
 **v22 changelog (2026-08-05, Phase 1 session `1b`).** Tooling session — `spell_mechanics` (the
 resolved truth table) and `spell_relationships` (the interaction graph) landed; no game-mechanic
@@ -468,7 +504,7 @@ Abilities worded *"while under this effect you cannot perform any other abilitie
 
 - **Check the daily patch notes at the start of any build-theorycrafting session (v12).** Source: `https://ascension.gg/en/changelog/1`, filtered mentally for **Darkmoon** (the player's realm — ignore Dawnrise/Bronzebeard-only entries unless they reveal a shared-engine mechanic change). Flag anything that: (a) touches a card/talent/ability already in a `build_*` or `wip_*` file, (b) changes an exclusivity bucket, proc-trigger mechanic, or scaling coefficient already recorded in `seed_confirmed.py`, or (c) suggests the spell export itself is stale (new abilities, reworked tooltips) and needs a fresh `spell-export.json`/`Cards.txt` pull before the next index rebuild. Report findings even when nothing is actionable — a patch that merely confirms an existing verdict (e.g. codifying a tooltip-only exclusivity rule) is still worth one line, since it upgrades the fact's confidence tier.
 - **Check `shared_synergies` before treating an external build's mechanic as novel (v12).** Query `ingest/export/seed_synergies.py`'s table (or `builds/shared/synergy_*.md` directly) — a pattern like "no-ICD scaling with attack speed" or "quadratic combo-point finisher" may already be logged from a previous encounter, with a confidence tier and a linked file, rather than something to re-derive from scratch.
-- **Rebuild the index from source at the start of any session that needs it — `py cli/rebuild.py`** (v22: 16 steps, ~75s, into `data/derived/ascension.db`; replaces the nine-script chain. Add `--with-dbc` only after a client patch). Don't rely on a re-uploaded binary. **Query `spell_mechanics` first for any resolved number and `spell_relationships` for any interaction question (v22)** — then the underlying tables, and fall back to raw `spell-export.json` only for something none of them capture. Remember the export is **missing cards** as well as magnitudes (v20), so check `dbc_character_advancement` before concluding a card doesn't exist.
+- **Rebuild the index from source at the start of any session that needs it — `py cli/rebuild.py`** (v23: 18 steps, ~90s, into `data/derived/ascension.db`; ends with the audit sweep. Add `--with-dbc` only after a client patch). Don't rely on a re-uploaded binary. **For a single spell, start with `py cli/profile.py "<name or id>"` (v23); query `spell_mechanics` for any resolved number and `spell_relationships` for any interaction question (v22)** — then the underlying tables, and fall back to raw `spell-export.json` only for something none of them capture. Remember the export is **missing cards** as well as magnitudes (v20), so check `dbc_character_advancement` before concluding a card doesn't exist.
 - **Keep `seed_confirmed.py` and `seed_synergies.py` in sync with this doc and the build files.** Whenever a verdict here or in a `build_*`/`wip_*` file changes (a retraction, a new resolution, an updated stat weight), add the matching fact to `seed_confirmed.py` in the same session — the next rebuild picks it up automatically. Whenever a new external engine gets written up in `builds/shared/`, add its row to `seed_synergies.py` the same way. This replaces directly editing rows in a persisted `.db`.
 - **Cross-reference against the exports** — but treat exports as *incomplete*, not authoritative. Request live tooltip screenshots before final verdicts.
 - **Coefficients over intuition** — pull real tooltip scaling; when magnitudes are unresolved (`$s1`) or sub-spells are hidden, say so and name the test.

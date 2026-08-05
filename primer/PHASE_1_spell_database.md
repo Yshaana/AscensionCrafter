@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ Progress — amended 2026-08-05 after session `1b`
+## ✅ Progress — amended 2026-08-05 after session `1c`. **PHASE 1 IS COMPLETE.**
 
 | Task | Status |
 |---|---|
@@ -14,7 +14,61 @@
 | **1x** numeric-field DBC extractor | ✅ **done** (`1x`) |
 | **T4** `spell_mechanics` | ✅ **done** (`1b`) |
 | **T5** relationship graph | ✅ **done** (`1b`) |
-| T6–T10 | ⬜ session `1c`, next |
+| **T6** facts / retractions / open questions | ✅ **done** (`1c`) |
+| **T7** `spell_profile()` | ✅ **done** (`1c`) |
+| **T8** auto-debugger + test protocols | ✅ **done** (`1c`) |
+| **T9** browsing and search | ✅ **done** (`1c`) |
+| **T10** volatility scoring | ✅ **done** (`1c`) |
+
+### `1c` deviations from the task text below (2026-08-05, recorded per §6)
+
+- **`open_questions` and `retractions` gained a `slug` column** (stable handle) beyond the
+  DDL below — autoincrement ids reset on every rebuild, so nothing durable can key on them.
+  Both tables are owned by `ingest/export/seed_epistemics.py`, append-only source-of-truth
+  discipline like `seed_confirmed.py`: resolving a question = editing the seed in the
+  resolving session.
+- **`confirmed_facts`' new columns live in the CREATE, not as ALTERs** — the whole db is
+  dropped and recreated each rebuild, so a migration would be theatre. Backfilled rows carry
+  `evidence_ref = doc :: section`, `realm='Darkmoon'`, `season='S10'`, NULL
+  `verified_at_patch` (they predate patch tracking; the staleness sweep reads NULL as "age
+  unknown", never "current").
+- **`fact_spell_links` matching discipline** (hard rule 5 skirted deliberately, compensated
+  by tiers): ids ≥ 100000 link at `inferred`; shorter ids only with the spell's name in the
+  same fact (`id_plus_name`); bare name matches are `needs_review` and **never
+  auto-approved**; duplicate names link every candidate. 37 + 27 + 346 rows.
+- **T10 scope (owner decision 2026-08-05): Darkmoon-only, strict.** Realm tags exist only
+  from 2026 (~159 Darkmoon entries), so the score carries a `data_thin` honesty block and
+  computes its band over the observed window only. The cross-realm 2016→ corpus is
+  deliberately NOT folded in (§2.5).
+- **T8's conflict sweep buckets multi-effect-slot collisions separately** from cross-source
+  disagreements, as `1b` required. Current split: 28 collisions, 1 "cross-source" — and that
+  one (Champion's Spear 291180, weapon_damage_pct 50 vs 150) is actually an
+  initial-hit-vs-DoT component collapse into a single column: both values are real, the
+  granularity is the limit. Queued, not resolved.
+- **A "mark vanished crosswalk targets" auto-fix was built and WITHDRAWN in-session**:
+  without history, absent-from-extract is indistinguishable from never-in-scope, and 7,654
+  out-of-pool CA rank-slot rows matched. Report-only in the provenance sweep now.
+- **The protocol generator's card-destruction refusal scans actionable fields only**
+  (method/setup/record), not question text — a question *about* reroll mechanics stays
+  protocolable via an observational protocol. 7 hand-written protocols (exit criterion: 5).
+- **The amplifier queue is pre-classified, not ingested** (owner decision 2026-08-05):
+  `reviews/amplifier_review.md` holds all 243 rows with evidence — 58 verbatim-ability, 12
+  verbatim-but-stat-wording, 16 school, 105 proposed-exclude (stat/defense), 52
+  unclassified. `[x]`/`[!]` approval contract; the approval ingester is deliberately not
+  built until a first batch exists.
+- **The compound-form extraction gap (carried from `1b`) is CLOSED**: `($AP+$SP)*chain`,
+  coefficient-before-token, school-suffixed SP tokens (`$SPFR` etc.), `BH`/`SPI`/`STA`, and
+  lowercase forms all extract. `spell_scaling` 1,058 → 1,348 rows (625 → 737 spells); Holy
+  Finish and Winds of Winter's Frost term now auto-extract (hand-seeds became no-op guards).
+  `SP_PAT`/`AP_PAT`/`RAP_PAT` were deliberately left untouched — `rank_scaling.py` compares
+  rank text with them and the validated `1x` verdicts must not shift. The DBC-side extractor
+  now delegates to the shared implementation (effective at the next `--with-dbc`).
+- **New open question `hidden_formula_outlier_coefficients`**: some cached
+  `dbc_hidden_formula` rows carry implausible values (Fury of the Eagle 277595 RAP/SP 6.0 —
+  a `*6` DoT-total multiplier swallowed as a coefficient by the old narrow extractor). The
+  audit's outlier sweep watches the threshold (> 3.0).
+- **Rebuild is 18 steps** (~90s): `seed_epistemics.py` after `seed_confirmed.py`, and the
+  audit sweep last.
 
 ### `1b` deviations from the task text below (2026-08-05, recorded per §6)
 
@@ -815,14 +869,23 @@ weigh heavily.
 It sits between 3 and 4 because T4 is the *resolved* truth table and 803 spells currently have no
 coefficient at all. See the progress block at the top of this file.
 
-## Exit criteria
+## Exit criteria — ✅ checked 2026-08-05 (session `1c`)
 
-- Auto-debugger clean, or every remaining issue consciously triaged
-- `spell_profile()` complete for every ability in the user's current builds
-- Zero mechanics rows without provenance **and** uncertainty
-- Every conflict resolved or queued — none silently resolved
-- The graph reproduces the four known exclusivity buckets and every documented class-tag borrowing
-- The protocol generator produces a runnable test for at least the top 5 open questions
+- Auto-debugger clean, or every remaining issue consciously triaged — ✅ 183 items, all
+  triaged: 28 slot collisions (modelling honesty), 1 component-collapse "conflict"
+  (291180, queued), crosswalk/class conflicts already open questions, 78 unresolved
+  changelog prose names (expected for `prose_name_match`), 4 coefficient outliers (new
+  open question), answered-question candidates reviewed (all self-referential)
+- `spell_profile()` complete for every ability in the user's current builds — ✅ 19/20
+  protect-list names resolve (plus 282987 via the dbc_only fallback); the one miss,
+  bare "Judgement", is the build doc's shorthand — no in-pool card carries that exact
+  name (two CA rows named Judgement are both out-of-pool)
+- Zero mechanics rows without provenance **and** uncertainty — ✅ 0 of 3,747
+- Every conflict resolved or queued — none silently resolved — ✅
+- The graph reproduces the four known exclusivity buckets and every documented class-tag
+  borrowing — ✅ (validated each rebuild since `1b`)
+- The protocol generator produces a runnable test for at least the top 5 open questions —
+  ✅ 7 hand-written, 24 total
 
 ## Out of scope
 

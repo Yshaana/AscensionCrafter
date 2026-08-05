@@ -1,3 +1,44 @@
+# Ascension Spell/Card Index — Guide (v12)
+
+**v12 changelog (2026-08-05, session `1c` — Phase 1 T6–T10, PHASE 1 COMPLETE).**
+Three new tables, one widened, five new tools, rebuild is **18 steps** (~90s, audit last).
+
+- 🆕 **`open_questions`** (28 rows, keyed by stable `slug` — autoincrement ids reset each
+  rebuild), **`retractions`** (24), **`fact_spell_links`** (fact topic ↔ spell id; 64
+  id-based `inferred`, 346 name-based `needs_review`, never auto-approved). Owned by
+  `ingest/export/seed_epistemics.py` (append-only source of truth — resolve a question by
+  editing the seed). Link derivation in `core/spells/epistemics.py`, which also provides
+  `find_answered_questions()` — the "you already answered this" overlap check.
+- 🆕 **`confirmed_facts` widened**: `verified_at_patch` / `superseded_by_patch` /
+  `evidence_ref` / `sample_size` / `realm` / `season`. Backfill stamps Darkmoon/S10 and
+  `doc :: section` as evidence; NULL patch = pre-tracking, read as "age unknown".
+- 🆕 **`spell_scaling` term vocabulary widened** (compound-form gap closed): school-suffixed
+  SP variants (`SPFR`/`SPFI`/`SPH`/`SPN`/`SPA`/`SPS`), `BH` (routes to the healing block in
+  `spell_mechanics`), `SPI`, `STA`; compound `($AP+$SP)*chain`, coefficient-before-token and
+  lowercase forms all extract. 1,058 → 1,348 rows, 625 → 737 spells.
+- 🆕 **Tools**: `cli/profile.py` (spell_profile — one-call lookup, rank gaps/conflicts
+  first), `cli/browse.py` (Datasette + `tools/browse/datasette_metadata.json`, 12 canned
+  queries; datasette pinned in requirements.txt), `core/spells/search.py :: search_spells`,
+  `core/spells/volatility.py :: volatility_score` (Darkmoon-only, report-only, thin-data
+  honest), `tools/audit/audit_gaps.py` (12 sweeps, runs every rebuild, writes
+  `data/derived/audit_report.md`), `tools/audit/protocols.py` (test protocols; refuses
+  card-destroying designs), `tools/audit/build_amplifier_review.py` →
+  `reviews/amplifier_review.md` (owner-approval gate for the 243 amplifier rows).
+
+```sql
+-- the verification queue
+SELECT slug, question, blocks FROM open_questions WHERE status = 'open';
+
+-- what has this project been wrong about?
+SELECT slug, claim, what_falsified_it FROM retractions ORDER BY retracted_at DESC;
+
+-- confirmed facts touching a spell (name links are needs_review)
+SELECT f.topic, l.match_method, l.confidence FROM fact_spell_links l
+JOIN confirmed_facts f ON f.topic = l.fact_topic WHERE l.spell_id = ?;
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v11)
 
 **v11 changelog (2026-08-05, session `1b` — Phase 1 T4 + T5).** Two new query surfaces,

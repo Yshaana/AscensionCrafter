@@ -9,47 +9,45 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**Next session: `1c` — facts/questions (T6), `spell_profile()` (T7), auto-debugger +
-test protocols (T8), browsing (T9), volatility (T10).**
+**Next session: `2a` — combat engine (T1) + content profiles (T2) + ability model (T3) +
+build spec (T4). Read `PHASE_2_simulation.md`.**
 
-**✅ SESSION `1b` IS DONE (2026-08-05).** T4 (`spell_mechanics`) and T5
-(`spell_relationships` + graph) built, validated, idempotent. Session record:
-`primer/Session_2026-08-05_1b_mechanics_relationships.md`.
+**✅ SESSION `1c` IS DONE (2026-08-05). PHASE 1 IS COMPLETE — all exit criteria checked
+and recorded in `PHASE_1_spell_database.md`.** Session record:
+`primer/Session_2026-08-05_1c_epistemics_tooling.md`.
 
-**What `1c` inherits from `1b`:**
+**What `2a` inherits from `1c`:**
 
-- **`py cli/rebuild.py` is now 16 steps** (~75s): `cli/relationships.py` (T5) then
-  `cli/mechanics.py` (T4) run last, in that order — the trigger-attributed
-  `spell_effect_values` rows T5 writes are inputs to T4's resolver. The piped-output
-  `UnicodeEncodeError` crash is FIXED (env `PYTHONIOENCODING=utf-8` in `run_step`).
-- **`spell_mechanics` is live: 3,747 rows** (3,061 catalog + 686 unambiguous level-60
-  rank siblings), per-field provenance/uncertainty JSON, 29 conflict rows (mostly
-  multi-effect-slot collisions, surfaced not resolved), **710 rows carrying an explicit
-  rank gap** — `resolve_spell_mechanics()` names the level-60 id instead of silently
-  serving Rank-1 magnitudes. 25 ambiguous rank lines contribute no sibling, per §2.3.
-- **`spell_relationships` is live: 5,302 edges** (4,670 triggers, 388 borrows_modifiers,
-  218 amplifies, 17 shares_exclusivity_bucket, 9 amplifies_school). Graph queries in
-  `core/spells/graph.py` (networkx): `neighbourhood` / `find_clusters` / `path_between` /
-  `gating_requirements`, all taking optional `build_spec` for `amplifies_school`
-  expansion (hybrid schools double-dip: a Fire amplifier reaches a Shadowflame ability).
-- **Bounded trigger attribution ran** (owner decision 2026-08-05: depth ≤ 2, cycle-safe,
-  single-path, out-of-catalog targets only, `via='trigger_hopN'`, `confidence='inferred'`):
-  **724 magnitude rows across 444 cards**; 26 ambiguous targets skipped. **Hammer from
-  the Heavens reproduces 122–145 end-to-end** — it is a rebuild-time validation now.
-- **`spell_scaling` is rank-keyed** (+`rank` label column; 229 level-60 sibling
-  coefficient rows at `source='dbc_rank_sibling_text'`, covering the 7 known-different
-  lines — Sun Down SP 1.3 is a rebuild-time validation). ⚠ **Its FK to `spells` was
-  dropped** (sibling ids are absent from the export by definition; `owned_cards` precedent).
-- **`spells.crit_table`/`hit_table`/`rolls_hit_check`/`proc_icd_seconds` no longer exist**
-  — doc-confirmed combat-table facts live in the `doc_confirmed_mechanics` staging table
-  (reworked `seed_spell_flags.py`) and surface only in `spell_mechanics`. Anything still
-  querying the old `spells` columns must switch.
-- **243 `talent_amplifiers` rows remain 'needs manual review' and contribute NO edges** —
-  a standing human-review queue T6/T8 should surface rather than let rot.
-- **The compound-form extraction gap is still open** (`($SP+$AP)*x`, `$SPFR*x`) — was not
-  in `1b`'s brief; do it in `1c` or log it as a T8 coverage-sweep item.
-- T4/T5 deviations from the phase doc are recorded in `PHASE_1_spell_database.md`'s
-  progress block (FK drop, migrate-and-demote, single-member bucket, attribution bounds).
+- **`py cli/rebuild.py` is now 18 steps** (~90s): `seed_epistemics.py` (T6) runs after
+  `seed_confirmed.py`, and `tools/audit/audit_gaps.py` (T8) runs LAST, writing
+  `data/derived/audit_report.md` + a one-line summary every rebuild.
+- **T6 epistemics live**: `open_questions` (28 rows: 23 open / 1 in-progress / 4
+  resolved-as-history, keyed by stable `slug`), `retractions` (24), `fact_spell_links`
+  (410: 64 inferred id-based, 346 needs_review name-based — never auto-approved).
+  `confirmed_facts` carries provenance columns (evidence_ref/realm/season stamped;
+  verified_at_patch NULL for pre-tracking backfill). **Both seed files are append-only
+  source of truth — resolving a question means editing `seed_epistemics.py`.**
+- **T7 `spell_profile()`** (`core/spells/profile.py`, `cli/profile.py`): rank gaps and
+  conflicts surfaced first; duplicate names refuse with a candidate list; out-of-catalog
+  ids fall back to `dbc_only` (282987 profiles); `mode='fast'` for sim loops — **this is
+  the resolver 2a's ability model should call, not raw tables.**
+- **T8 auto-debugger** (12 sweeps incl. the 2026-08-08 phase boundary, which fires in
+  3 days) + **test-protocol generator** (7 hand-written protocols; card-destruction
+  protocols are REFUSED structurally; <3-point discriminators emit "find another test").
+- **T9**: `search_spells(conn, **filters)` + `py cli/browse.py` (Datasette, 12 canned
+  queries; datasette now pinned in requirements.txt). **T10**: `volatility_score()` —
+  Darkmoon-only strict (owner decision 2026-08-05), report-only, carries a `data_thin`
+  honesty block (12-day tagged window today).
+- **The compound-form extraction gap is CLOSED**: `spell_scaling` 1,058 → 1,348 rows
+  (625 → 737 spells), new term types (`SPFR`/`SPH`/…/`BH`; BH routes to the healing
+  block). ⚠ 2a note: `spell_scaling.term_type` is no longer only SP/AP/RAP/WEAPON.
+- **Amplifier queue pre-classified, owner-approval gated** (`reviews/amplifier_review.md`,
+  243 rows: 58 verbatim / 12 check-stat / 16 school / 105 proposed-exclude / 52
+  unclassified). Nothing enters the graph until the owner approves a batch there.
+- **New open question**: `hidden_formula_outlier_coefficients` — 4 cached
+  `dbc_hidden_formula` coefficients look like swallowed multipliers (277595 RAP/SP 6.0);
+  the widened extractor fixes them at the next `--with-dbc` re-extraction.
+- 1c deviations from the phase doc are in `PHASE_1_spell_database.md`'s progress block.
 
 **✅ SESSION `1x` IS DONE (2026-08-04).** 794 of 887 blocked hidden-formula spells
 resolved from numeric DBC fields; the rank question settled. Session record:
@@ -103,8 +101,8 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **1a** | Restructure, patches/realms/seasons, crosswalk | ✅ done | `Session_2026-08-04_1a_restructure_crosswalk.md` | `core/api/cli` split + purity check; `cli/rebuild.py`; 5 patch tables; `spell_id_crosswalk` (4 ID spaces); class coverage 394→1,794. Crawler scheduling automated in the same session |
 | **1x** | Numeric-field DBC extractor (+ settle rank-vs-coefficient) | ✅ done | `Session_2026-08-04_1x_numeric_extractor.md` | 794/887 blocked spells resolved; `spell_effect_values` + `dbc_numeric.py` + `rank_scaling.py`. **Two Phase 0 claims corrected** — `EffectBonusCoefficient` is not the SP/AP coefficient, and coefficients DO scale with rank |
 | **1b** | `spell_mechanics` (T4) + relationship graph (T5) | ✅ done | `Session_2026-08-05_1b_mechanics_relationships.md` | 3,747 mechanics rows, 5,302 edges, bounded trigger attribution (724 rows / 444 cards, HftH 122–145 reproduces end-to-end), `spell_scaling` rank-keyed (+229 sibling rows), `spells` combat-table columns → `doc_confirmed_mechanics`. Rebuild is 16 steps; piped-output crash fixed. Two stale `confirmed_facts` rows qualified SUPERSEDED (pre-`1b` prep item) |
-| 1c | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ⬜ | — | ▶ **NEXT.** T6–T10; also: compound-form extraction gap, the 243 manual-review amplifier rows, and T8 bucketing multi-effect-slot "conflicts" separately from cross-source ones. **Owner decisions 2026-08-05:** (1) amplifier queue → **pre-classify with evidence into a review file, NOTHING enters the graph until owner approves a batch**; (2) **Datasette approved as a dependency** — pin in `requirements.txt` like networkx |
-| 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | |
+| **1c** | Facts, `spell_profile()`, auto-debugger, browsing, volatility | ✅ done | `Session_2026-08-05_1c_epistemics_tooling.md` | **Phase 1 complete, exit criteria checked.** T6–T10 + compound-form gap closed (+290 scaling rows) + amplifier queue pre-classified (approval-gated per owner decision) + conflict sweep buckets slot collisions separately. Two more owner decisions implemented: Darkmoon-only volatility, Datasette pinned. Rebuild is 18 steps |
+| 2a | Combat engine, content profiles, ability model, build spec | ⬜ | — | ▶ **NEXT.** ⚠ The 2026-08-08 phase boundary lands during/near this session — the audit's phase-boundary sweep starts firing then |
 | 2b | Three sim tiers + uncertainty | ⬜ | — | |
 | 2c | Weights, calibration, prediction ledger, cache, CLI | ⬜ | — | |
 | 3a | Crawl normalisation, inference, search, gear | ⬜ | — | Gear scope gated on 0a Task 9 |
@@ -169,6 +167,11 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (1c) | 🆕 **`open_questions`/`retractions` key on a `slug` column** beyond T6's DDL | Autoincrement ids reset every rebuild — nothing durable can reference them. Both tables owned by `seed_epistemics.py`, append-only, same discipline as `seed_confirmed.py` |
+| 2026-08-05 (1c) | ⚠ **A "mark vanished crosswalk targets" auto-fix was built and WITHDRAWN in-session** | Without history, absent-from-extract is indistinguishable from never-in-scope: 7,654 out-of-pool CA rank-slot rows matched the "vanished" predicate. Now report-only in the provenance sweep. The withdrawn version had already polluted notes on one build — a rebuild reset it |
+| 2026-08-05 (1c) | ⚠ **The one "cross-source" mechanics conflict is a component collapse, not a source disagreement** | Champion's Spear (291180): weapon_damage_pct 150 (initial hit, own effect) vs 50 (per-second DoT, sub-spell 291181). Both real; one column cannot hold two components. Queued; a T4-schema follow-up (per-component formula terms) would dissolve it |
+| 2026-08-05 (1c) | 🆕 **`spell_scaling.term_type` vocabulary widened** (SPFR/SPFI/SPH/SPN/SPA/SPS/BH/SPI/STA + lowercase/compound/prefix forms extract) | The 1b carry-over gap. +290 rows / +112 spells; BH routes to the healing block in `spell_mechanics`. `SP_PAT`/`AP_PAT`/`RAP_PAT` untouched so `rank_scaling`'s validated comparisons don't shift; DBC-side extractor delegates to the shared implementation (effective next `--with-dbc`) |
+| 2026-08-05 (1c) | 🆕 **Protocol generator refusal scans actionable fields only** (method/setup/record), not question text | A blanket scan made the reroll-mechanics question un-protocolable — its observational protocol (log fishing outcomes, zero cards at risk) is legitimate. The refusal still raises `CardDestructionRefused` on any instructing text |
 | 2026-08-05 (1b) | ⚠ **`spell_scaling` lost its FK to `spells`, deliberately** | The T4 rank migration inserts rows for level-60 rank siblings, and in all 697 wrong-rank cases the sibling id is absent from `spell-export.json` — an FK rejects exactly the rows that fix the wrong-rank problem. Same precedent as `owned_cards` (1a) |
 | 2026-08-05 (1b) | 🆕 **Trigger attribution semantics decided (owner, 2026-08-05): bounded walk, flagged** | Depth ≤ 2, cycle-safe, single-path targets only, out-of-catalog targets only, `via='trigger_hopN'`, `confidence='inferred'`, chain in `evidence_ref`. 724 rows / 444 cards; 26 multi-path targets deliberately unattributed. In-catalog targets are never double-attributed — their magnitude is their own row |
 | 2026-08-05 (1b) | ⚠ **T5's "migrate and retire" became "migrate and demote"; `exclusivity_buckets` stays a TABLE, not a view** | Staging tables are kept as ingestion inputs (their seeds own them, run earlier in the chain); `spell_relationships` is the one query surface. A view could not round-trip bucket 3 (Holy Focus) — a single-member bucket has no pairwise edge to reconstruct from. Every multi-member bucket is validated as an edge group each rebuild |
