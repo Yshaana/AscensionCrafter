@@ -64,10 +64,14 @@ if holy_finish_id is not None:
         print(f"Holy Finish (id {holy_finish_id}): cp_scaling_type='quadratic' set on {cur.rowcount} existing spell_scaling row(s).")
 
 # --- Bulk scan: any other finisher with a per-combo-point SP/AP/RAP formula ---
-cur.execute('''
+# 1c: the term list now includes the school-suffixed SP variants the compound-form
+# extraction fix added (SPFR etc.) — Winds of Winter's Frost-SP term auto-extracts
+# now and must be classified alongside its AP sibling, not left NULL.
+SP_FAMILY = "('SP','SPH','SPFR','SPFI','SPN','SPA','SPS','AP','RAP')"
+cur.execute(f'''
     SELECT DISTINCT s.id, s.name, s.tooltip
     FROM spells s JOIN spell_scaling ss ON ss.spell_id = s.id
-    WHERE ss.term_type IN ('SP','AP','RAP')
+    WHERE ss.term_type IN {SP_FAMILY}
       AND s.tooltip LIKE '%combo point%'
       AND s.id != COALESCE(?, -1)
 ''', (holy_finish_id,))
@@ -80,11 +84,11 @@ for sid, name, tt in candidates:
     if not TIER_PAT.search(tt):
         continue  # awards/spends combo points but has no per-point scaling tiers - not applicable
     if QUAD_PAT.search(tt):
-        cur.execute("UPDATE spell_scaling SET cp_scaling_type='quadratic' WHERE spell_id=? AND term_type IN ('SP','AP','RAP')", (sid,))
+        cur.execute(f"UPDATE spell_scaling SET cp_scaling_type='quadratic' WHERE spell_id=? AND term_type IN {SP_FAMILY}", (sid,))
         set_count += cur.rowcount
         quad_found.append(name)
     else:
-        cur.execute("UPDATE spell_scaling SET cp_scaling_type='linear' WHERE spell_id=? AND term_type IN ('SP','AP','RAP')", (sid,))
+        cur.execute(f"UPDATE spell_scaling SET cp_scaling_type='linear' WHERE spell_id=? AND term_type IN {SP_FAMILY}", (sid,))
         set_count += cur.rowcount
         linear_found.append(name)
 

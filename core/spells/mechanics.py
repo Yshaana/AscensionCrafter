@@ -341,7 +341,11 @@ def _formula_terms(conn, fs, spell_id, level):
                  "confidence": "inferred",
                  "note": ("tier-6 tooltip text; coefficients can ramp with rank "
                           "(1x: 169/1,580 lines vary) — check rank before trusting")}
-        damage.append(entry)
+        # BH (bonus healing) is a healing coefficient by definition — the 1c
+        # extraction widening added it, and it must not masquerade as damage.
+        # Every other term (incl. SPI/STA) stays in the damage block with its
+        # term label visible; text alone cannot bind a term to an effect slot.
+        (heal if term_type == "BH" else damage).append(entry)
 
     if damage:
         fs.set("damage_formula_terms_json", json.dumps(damage),

@@ -424,27 +424,18 @@ def validate_known_spells(cur):
 
 # ---------------------------------------------------------------------------
 # Resolve has_hidden_formula=1 spells: pull each hidden_ref's raw description
-# from spell_dbc_raw and run it through the exact same SP/AP/RAP/weapon regex
-# build_index.py uses on directly-visible tooltips, since the coefficients in
-# these hidden sub-spells are written the same way ("$AP*0.091", "$SP*0.325").
+# and run it through THE SAME extraction build_index.py uses on directly-visible
+# tooltips. 1c: this used to duplicate a narrower private copy of the regexes;
+# now it delegates to core.spells.text_extraction so the two extractors cannot
+# drift (the 1c widening — compound sums, school-suffixed tokens, lowercase —
+# takes effect here at the next --with-dbc client re-extraction).
 # ---------------------------------------------------------------------------
-SP_PAT = re.compile(r'\$SP\s*\*\s*([\d.]+)')
-AP_PAT = re.compile(r'\$AP\s*\*\s*([\d.]+)')
-RAP_PAT = re.compile(r'\$RAP\s*\*\s*([\d.]+)')
-WEAPON_PAT = re.compile(r'\$(MWB|mwb|OWB|owb|mw|ow)\b|weapon damage|Normalized', re.I)
+from core.spells.text_extraction import extract_scaling as _extract_scaling  # noqa: E402
 
 
 def extract_scaling_terms(text):
-    terms = set()
-    for m in SP_PAT.finditer(text):
-        terms.add(('SP', float(m.group(1))))
-    for m in AP_PAT.finditer(text):
-        terms.add(('AP', float(m.group(1))))
-    for m in RAP_PAT.finditer(text):
-        terms.add(('RAP', float(m.group(1))))
-    if WEAPON_PAT.search(text):
-        terms.add(('WEAPON', None))
-    return terms
+    terms, _hidden, _pct = _extract_scaling(text, spell_id=-1, valid_ids=())
+    return set(terms)
 
 
 def ensure_spell_scaling_source_column(cur):
