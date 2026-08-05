@@ -28,6 +28,27 @@ export beats a picture we have to transcribe.
 | **The active Path**, stated explicitly | still an open question on this character |
 | Full talent list **with ranks**, full ability bar | a 3/5 card is a different build |
 
+### ⚠ New as of 2026-08-05 evening: a patch is pending a restart
+
+A **large balance pass** was announced today — 73 Darkmoon entries, almost all
+talent buffs — and almost all of them are tagged **`[Pending Restart]`**, so they
+are announced but not necessarily live yet.
+
+**Note whether the restart has happened before you start logging**, and say so.
+If it lands between the stat capture and the logs, or between the two logs, the
+balance state differs from the database and from each other — which would
+reintroduce exactly the mismatch this whole capture exists to remove.
+
+Two entries touch this build, both on the **chase** list rather than the slotted
+board, so nothing currently equipped changes:
+
+* **Divine Ferocity: +50% per stack to your next Divine Storm, up from +20%** —
+  Divine Storm is §8 chase item #1, so this raises its value.
+* **In Sword We Trust reworked** — each stack now gives +25% damage *and* crit
+  chance to your next Crusader Strike, from +33% damage only. Relevant because
+  **Dawnreaver uses Crusader Strike modifiers**, so a Crusader-Strike amplifier
+  reaches it.
+
 ### 🛑 The one rule that makes or breaks this
 
 **The stat block and the logs must be the same session — same gear, same spec,
