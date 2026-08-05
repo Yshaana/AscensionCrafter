@@ -3,8 +3,9 @@
 **Date:** 2026-08-05 · **Scope:** PHASE_2 T5, T6, T7 (cheap half) · **Status:** ✅ complete
 
 The sim produces its first end-to-end number. Getting there surfaced **four data
-bugs**, two of which had been silently zeroing large parts of the catalog, and
-**one correction to a live build decision**.
+bugs**, two of which had been silently zeroing large parts of the catalog, plus
+**one structural finding about how triggered damage is delivered** and **one
+retraction of my own that the owner caught within the session**.
 
 ---
 
@@ -75,7 +76,33 @@ Filed as `periodic_trigger_delivery_pulse_count`.
 Periods run 0.01 s–18 s; 0.01 s over 10 s would imply 1,000 pulses, so any count
 above **100 is refused** — not applied, not clamped.
 
-## 🔴 Build decision reversed: Improved Cleave goes back to the bottom
+## 🧠 A retraction of my own, made and corrected within the session
+
+I retracted v9's Improved Cleave *mechanism* (below) — correctly — and then
+carried the demolition straight through to its *conclusion*, demoting the card to
+the bottom of the chase list. **The owner flagged it immediately against direct
+in-game experience, and the numeric field settled it against me.**
+
+Improved Cleave is `EffectAura 108` = `SPELL_AURA_ADD_PCT_MODIFIER` with
+`EffectMiscValue = 8`, and SpellModOp 8 is **`SPELLMOD_ALL_EFFECTS`**. Its +120%
+multiplies *every* effect of the spells in its class mask — the 65% weapon
+component as well as the flat. Lightbound Cleave goes **~470 → ~1,033 per hit**
+at Elric's weapon damage, on an ability carrying over half his pressed damage.
+**It stays a top-tier chase.**
+
+Two lessons worth more than the card:
+
+1. **Retracting a mechanism does not retract the conclusion it supported.** The
+   conclusion has to be re-derived independently. v9 was right about this card
+   for a reason it never stated.
+2. **This project's "never read a magnitude from tooltip prose" rule extends to
+   SCOPE.** The tooltip says *"increases the bonus damage done by your Cleave
+   ability"* — naming one term — while the modifier op says all of them.
+   Generalised: read amplifiers from auras **107/108 + `EffectMiscValue`
+   (SpellModOp) + `EffectSpellClassMask`**, in numeric fields. **This is the
+   foundation 2c's talent modelling should be built on**, not tooltip parsing.
+
+## 🔴 Still retracted: v9's Improved Cleave FORMULA (the ranking is unaffected)
 
 build_paladin-hammerdin v9 moved **Improved Cleave from last to #2b** on the
 chase list, on the reading that Lightbound Cleave's bonus term is `9 + AP × 1.0`,
@@ -89,10 +116,11 @@ already covered by an existing hard rule:
   had already retracted this catalog-wide.
 
 Lightbound Cleave R5 is **65% weapon damage + a flat 62 Holystrike**, with no
-stated AP term. Improved Cleave 3/3 is therefore worth **+74 per hit, not +712**
-— roughly a **9.6× overestimate**. §10a's ×1.48 ceiling needs its ×1.110 factor
-removed. ⚠ v9's "independent corroboration" against a scouted character applied
-the same formula to the same premises, so it never tested them.
+stated AP term. The card is excellent because Improved Cleave multiplies a large
+*weapon-damage* component, not a large AP-scaling one — §10a's ×1.110 factor is
+if anything **understated**, not removed. ⚠ v9's "independent corroboration"
+against a scouted character applied the same formula to the same premises, so it
+never tested them.
 
 **What would overturn this:** a live Rank-5 tooltip showing an `$AP`/`$SP` term.
 The claim is that *no source states a coefficient* — not that one is proven
@@ -144,7 +172,13 @@ disagreement is a diagnostic, not a result.
   chain. Holy Shock R4 is exactly that. **Fix this first in 2c** — it blocks the
   rotation question.
 * **Talent modelling** is now the single largest error source, ahead of
-  everything else combined.
+  everything else combined. **Owner decision: general extractor for coverage +
+  hand-seed the ~24 slotted talents.** Build the extractor on **auras 107/108 +
+  `EffectMiscValue` (SpellModOp) + `EffectSpellClassMask`, from numeric fields** —
+  the Improved Cleave case above proves tooltip prose understates modifier scope,
+  so tooltip parsing is the wrong foundation.
+* 📅 **Re-run the Phase 1 baseline capture on 2026-08-07** (owner decision) before
+  the phase flip on the 8th. Overwrites in place.
 * Seals are scored per cast, not per swing; auto-attacks are unmodelled;
   `Judgement` resolves to no current-pool card.
 * `sensitivity()` output is ready to populate `open_questions.variance_contribution`.

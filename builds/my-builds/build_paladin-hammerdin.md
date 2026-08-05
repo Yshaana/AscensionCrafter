@@ -3,10 +3,31 @@
 **v12 changelog (2026-08-05, from Phase 2 session `2b` — one chase-list reversal, one
 free buff, no gear or rotation change):**
 
-- 🔴 **RETRACTED: v9's Improved Cleave reprioritisation. It goes back to the BOTTOM of
-  the §7 chase list, where v8 had it.** v9 read Lightbound Cleave's bonus term as
-  `9 + AP × 1.0` and computed +120% taking it 593 → 1,305 at AP 584. **Both halves are
-  wrong**, and each was already covered by a hard rule this document carries:
+- ✅ **Improved Cleave STAYS a top chase — v9's conclusion is right, its mechanism was
+  not.** An earlier draft of this changelog demoted it to the bottom of the list; the
+  owner flagged that against direct in-game experience and **the numeric field settles it
+  against the demotion.** Improved Cleave is `EffectAura 108` =
+  `SPELL_AURA_ADD_PCT_MODIFIER` with `EffectMiscValue = 8`, and SpellModOp 8 is
+  **`SPELLMOD_ALL_EFFECTS`** — so its +120% at 3/3 multiplies *every* effect of the
+  spells in its class mask, not just the flat "bonus damage" its tooltip names.
+
+  **For Lightbound Cleave at your weapon damage (585–669, avg 627):**
+
+  | | flat | weapon component | per hit |
+  |---|---|---|---|
+  | base (Rank 5) | 62 | 65% → 408 | **~470** |
+  | with Improved Cleave 3/3 | 136 | 143% → 897 | **~1,033** |
+
+  That is **+120% of the whole ability, ~+563 per hit**, on the source that is over half
+  this build's pressed damage. ⚠ **The tooltip understates its own scope** — "increases
+  the bonus damage done by your Cleave ability" names one term while the modifier op
+  says all of them. Generalise this: for any amplifier talent, read auras 107/108 with
+  `EffectMiscValue` (the SpellModOp) and the class mask from **numeric** fields; the
+  tooltip is a summary.
+- 🔴 **Still retracted, and unaffected by the above: v9's `9 + AP × 1.0` FORMULA.**
+  The card is excellent because it multiplies a large *weapon-damage* component, not
+  because it multiplies a large AP-scaling one. **There is no AP term on Lightbound
+  Cleave.** Two independent errors produced that figure:
   - **wrong rank** — 9 is the **Rank-1** value (`907300`, SpellLevel 16). A level-60
     character casts **Rank 5** (`907304`, SpellLevel 56), where the same effect slot
     reads **62**.
@@ -17,13 +38,17 @@ free buff, no gear or rotation change):**
     as the warning it was.
 
   **Lightbound Cleave R5 = 65% weapon damage + a flat 62 Holystrike**, with no stated
-  AP or SP term. Improved Cleave 3/3 amplifies the flat, so it is worth **+74 per hit,
-  not +712** — roughly a **9.6× overestimate**. §10a's combined **×1.48 ceiling loses
-  its ×1.110 Improved Cleave factor** and should be recomputed. ⚠ v9's "independent
-  corroboration" against Pumprat's Voidbound Cleave applied the *same formula to the
-  same premises*, so it never tested them.
+  AP or SP term. ⚠ v9's "independent corroboration" against Pumprat's Voidbound Cleave
+  applied the *same formula to the same premises*, so it never tested them.
   **What would overturn this:** a live Rank-5 tooltip showing an `$AP`/`$SP` term. The
   claim is that *no source states a coefficient*, not that one is proven absent.
+  **§10a's ×1.110 Improved Cleave factor is if anything UNDERSTATED** — it was derived
+  from the wrong term, and the real multiplier is ~2.2× on an ability carrying over half
+  the build's pressed damage. Recompute the ceiling once talent modelling lands (2c).
+- 🧠 **Method lesson, recorded because it nearly cost a correct decision:** retracting a
+  *mechanism* does not retract the *conclusion* it was used to support. The conclusion
+  has to be re-derived independently. v9 was right that Improved Cleave is a top chase,
+  for a reason it never stated.
 - ✅ **Free buff to a card already slotted (patch 2026-08-04, Darkmoon):** *"Fixed a bug
   where mechanics that are supposed to trigger from physical abilities would not trigger
   from the newly introduced physical + magic school abilities. (Talents such as Art of
@@ -318,7 +343,7 @@ Hammerdin · Purification By Light · Righteous Zealot · **Twist of Faith** (en
 | 4 | **Dark Justicar 0/1** | SoV to 10 stacks; Judgement consumes for `0.58 × (SP+AP)` → **+8.4%** | **none — 1/1** |
 | 5 | **Inevitable Vengeance 0/1** | SoV DoT crits + hastes; **1% Phys/Holy damage-taken per stack → 10%** | **none — 1/1** |
 | 6 | **The Art of War 3/3** | +% Judgement, Crusader Strike (→ Dawnreaver), Divine Storm | partial |
-| ~~2b~~ 7 | **Improved Cleave 3/3 — ⛔ v9's promotion RETRACTED in v12, back to LAST** | **+120% of a flat 62, i.e. +74 per Lightbound Cleave hit.** v9 claimed +712 by reading a Rank-1 flat and treating `EffectBonusCoefficient=1.0` as an AP coefficient — both wrong, see the v12 changelog. Lowest priority on this list. | partial |
+| **1=** | **Improved Cleave 3/3 — CONFIRMED top-tier (v12)** | `SPELLMOD_ALL_EFFECTS`: **+120% to the WHOLE of Lightbound Cleave**, ~470 → ~1,033 per hit at your weapon damage, on >50% of pressed damage. v9's ranking was right; only its `9 + AP` formula was wrong. Owner has seen the card's impact in-game first-hand. | partial |
 
 **Total gap ≈ 40% damage**, concentrated in six cards (pre-v9 estimate — does not yet reflect Improved Cleave's corrected magnitude, see v9). The two 1/1s are the cheapest acquisitions (a hit is a complete hit). None of these six appear in the v6 live export — chase list is unchanged, still fully outstanding.
 
