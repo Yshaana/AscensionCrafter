@@ -24,10 +24,14 @@ mean(roll_hit×100k)≈expected_hit guard). Session record:
 
 **What `2b` inherits from `2a`:**
 
-- 🚨 **First item: `trigger_attributed_coefficients_not_in_spell_scaling`** (new open
-  question). HftH's confirmed 9.1% SP/AP terms are doc-prose-only — the resolver
-  serves flat 122–145 without them (~45% understatement on the flagship ability).
-  Needs a per-case attribution decision (same family as 1b's multi-path deferral).
+- 🚨 **First item: finish `trigger_attributed_coefficients_not_in_spell_scaling`**
+  (in_progress). The attribution DECISION is made (owner, 2026-08-05): coefficients
+  live on the trigger TARGET — `seed_hand_coefficients.py` (new 19th rebuild step)
+  seeds HftH's 9.1% SP/AP on 282987 with tier-3 provenance. **What 2b implements:**
+  the ability model pulls `spell_scaling` rows per component `source_spell_id`
+  (bounded, single-path, confidence=inferred when trigger-reached — 1b's walk
+  rules). Until that lands the rows are queryable but a card's profile still
+  serves flat-only (~45% understatement on HftH stands).
 - **Trigger-hop magnitudes ARE summed into expected_hit** (flagged
   `calibration_anchor=False`, listed in `triggered_components`) — see the 2a plan-
   changes row for why the "never anchor" rule does not mean "exclude".
@@ -192,6 +196,7 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-05 (2a+) | 🆕 **Owner decision: trigger-reached coefficients live on the trigger TARGET, never the cards** | Closes the decision half of `trigger_attributed_coefficients_not_in_spell_scaling` (now in_progress). New append-only `seed_hand_coefficients.py` owns `spell_scaling` rows with `source='db_ascension_gg'` (rebuild is 19 steps); first rows: 282987 SP/AP 0.091. Rationale: truth stays where it is true, no per-card duplication, and 2b's per-source-spell event model composes on top. Cards-side hand-seeding was explicitly rejected (conflates the pulse event with the card's own hit — 282984 already carries its own SP/AP 0.05) |
 | 2026-08-05 (2a) | 🆕 **Trigger-attributed magnitudes ARE summed into `expected_hit`**, flagged `calibration_anchor=False` | The kickoff note's "never let inferred rows anchor calibration" was first over-read as "exclude from computation" — which zeroes 444 cards (Hour of Judgement's entire damage is its trigger chain). Corrected same session: computed + warned + listed in `triggered_components` so calibration can subtract them. The rule constrains *anchoring*, not *computation* |
 | 2026-08-05 (2a) | 🚨 **HftH's confirmed 9.1% SP/AP coefficients are NOT queryable** — doc prose + `confirmed_facts` only, no `spell_scaling` rows for 282987 or the cards | Found by 2a's validation: the resolver serves flat 122–145 without the stat terms (~45% understatement at AP 584/SP 533). Filed as open question `trigger_attributed_coefficients_not_in_spell_scaling` rather than rush-seeded — attributing coefficients to cards has per-event/rotation semantics, the same per-case judgment 1b's multi-path decision deferred |
 | 2026-08-05 (2a) | ⚠ **Crit suppression vs higher-level targets: warned, not modelled** | No fabricated retail constant (§2 rule 2). The owner's own parse hints it exists (sheet 21.76% vs autos 16.2%, n=37 — too small). Open question `melee_crit_suppression_vs_higher_level`; combat_engine emits a warning whenever a white table is built vs a higher-level target |

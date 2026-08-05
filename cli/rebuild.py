@@ -52,6 +52,8 @@ CHAIN = [
     ("ingest/export/seed_spell_flags.py",
      "doc_confirmed_mechanics staging (combat-table facts; surfaces in spell_mechanics)"),
     ("ingest/export/seed_cp_scaling.py", "combo-point scaling types"),
+    ("ingest/export/seed_hand_coefficients.py",
+     "tier-3 hand-seeded coefficients on trigger TARGETS (owner decision 2026-08-05)"),
     ("ingest/changelog/ingest_changelog.py", "patches, patch_entries, seasons, server_phases"),
     ("cli/crosswalk.py", "spell_id_crosswalk - needs the dbc_* tables"),
     # T5 before T4: the trigger-attributed spell_effect_values rows written by

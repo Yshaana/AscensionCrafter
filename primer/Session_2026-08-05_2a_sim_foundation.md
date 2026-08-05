@@ -70,7 +70,30 @@ Validation: `py tools/audit/check_sim_engine.py` (all pass), `check_core_purity.
 - `spell_hit_pct` floor (1% retail rule) and glancing values are
   retail_hypothesis — flagged in output, candidates for calibration.
 
+## Addendum (same day, post-audit): the attribution decision is MADE
+
+Reviewing the 2a audit's kickoff brief with the owner, the Priority-0 decision
+was taken immediately instead of waiting for 2b:
+
+- **Owner decision (2026-08-05): trigger-reached coefficients live on the
+  trigger TARGET, never duplicated onto cards.** Rationale: truth stays where it
+  is true; no per-card duplication; and 2b's per-source-spell event model (which
+  must split HoJ's own tick / HftH pulse / own direct terms into separate
+  events) composes only on this shape. Cards-side seeding was rejected — it
+  conflates the pulse event with the card's own hit (282984 already carries its
+  own SP/AP 0.05 terms).
+- **Implemented today (seed half only):** `ingest/export/seed_hand_coefficients.py`
+  — append-only, owns `spell_scaling` rows with `source='db_ascension_gg'`
+  (tier 3); first rows are 282987 SP 0.091 / AP 0.091. Rebuild is **19 steps**.
+- **Deliberately NOT implemented today:** the resolver/ability-model follow
+  (pull `spell_scaling` per component `source_spell_id`, bounded/single-path,
+  `confidence='inferred'` when trigger-reached). That belongs with 2b's
+  per-event component rework, which touches the same code. The open question is
+  `in_progress`, and **the ~45% HftH understatement in sim output STANDS until
+  2b lands the follow.**
+
 ## Next session: `2b` — three sim tiers (T5) + uncertainty propagation (T6)
 
-Start with the `trigger_attributed_coefficients_not_in_spell_scaling` decision —
-fast_sim on the Paladin build is wrong by ~45% on its top ability until then.
+Start by finishing `trigger_attributed_coefficients_not_in_spell_scaling` (the
+serving half) — fast_sim on the Paladin build is wrong by ~45% on its top
+ability until then.

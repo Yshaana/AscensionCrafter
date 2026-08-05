@@ -14,11 +14,12 @@ what changes practice is here.
   `py tools/audit/check_sim_engine.py`. **Read sim output `warnings` — they carry every
   unvalidated assumption (retail_hypothesis values, heuristic crit/hit tables, excluded
   outlier coefficients) by name.**
-- 🚨 **Known sim gap, open question `trigger_attributed_coefficients_not_in_spell_scaling`:**
-  Hammer from the Heavens' confirmed 9.1% SP/AP terms are doc-prose-only — the resolver
-  serves the flat 122–145 without them, so sim output understates HftH ~45% until 2b
-  lands the attribution decision. Don't quote sim numbers for trigger-reached abilities
-  before checking this question's status.
+- 🚨 **Known sim gap, `trigger_attributed_coefficients_not_in_spell_scaling` (in_progress):**
+  the attribution decision is made (owner 2026-08-05: coefficients live on the trigger
+  TARGET — HftH's 9.1% SP/AP now seeded on 282987 via `seed_hand_coefficients.py`), but
+  the resolver only serves them through a card's profile once 2b lands the
+  source-spell follow. Sim output still understates HftH ~45% until then — don't quote
+  sim numbers for trigger-reached abilities before checking this question's status.
 - 🆕 **New open question `melee_crit_suppression_vs_higher_level`** — the engine warns
   rather than fabricating a retail constant; a large white-swing parse settles it.
 

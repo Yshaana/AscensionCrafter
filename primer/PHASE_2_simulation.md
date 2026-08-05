@@ -29,9 +29,13 @@ repo's no-test-framework precedent, not pytest).
    unparameterised, hybrid mitigation unsplit, AoE totals refuse when
    falloff/split data is NULL.
 
-🚨 **T5 must start with `trigger_attributed_coefficients_not_in_spell_scaling`**
-(open question, filed 2a): HftH's confirmed 9.1% SP/AP terms are not queryable,
-so the flagship ability is understated ~45% until an attribution decision lands.
+🚨 **T5 must start by finishing `trigger_attributed_coefficients_not_in_spell_scaling`**
+(in_progress). The decision is MADE (owner, 2026-08-05): coefficients live on the
+trigger TARGET — `seed_hand_coefficients.py` seeds HftH's 9.1% SP/AP on 282987
+(tier-3 `db_ascension_gg`). T5 implements the serving half: the ability model
+pulls `spell_scaling` rows per component `source_spell_id` (bounded, single-path,
+`confidence='inferred'` when trigger-reached). Until then a card's profile is
+flat-only on trigger-reached damage (~45% HftH understatement stands).
 
 ---
 
