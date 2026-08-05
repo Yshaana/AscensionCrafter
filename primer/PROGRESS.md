@@ -60,9 +60,14 @@ comparison). The sim produces its first end-to-end number. Session record:
   fields** — 2b showed Improved Cleave's tooltip understates its own scope
   (it names the flat; the op is `SPELLMOD_ALL_EFFECTS`), so tooltip parsing is
   the wrong foundation.
-- 📅 **Owner decision 2026-08-05: re-run the Phase 1 baseline capture on
-  2026-08-07**, before the 2026-08-08 phase flip, to tighten the "before" edge.
-  Overwrites `data/source/crawl/baseline_phase1/` in place. The sim reads ~600 DPS against the owner's reported
+- ✅ **Phase 1 baseline re-capture is SCHEDULED, not a reminder** (owner decision
+  2026-08-05). Task `AscensionCrafter Phase1 Baseline` fires **2026-08-07 20:00**
+  with `StartWhenAvailable`, so a powered-off PC catches up at next boot instead
+  of silently skipping. Registered by
+  `tools/scheduling/register_phase1_baseline.ps1`; full rationale in
+  `SCHEDULING.md`. It overwrites `data/source/crawl/baseline_phase1/` in place,
+  then commits **that folder only** and pushes. **Remove it after the flip** with
+  the script's `-Unregister` switch — it deliberately does not self-delete. The sim reads ~600 DPS against the owner's reported
   ~3,600 — pre-registered with its causes ranked in
   `predictions/pred_2026-08-05_elric_paladin.md`.
 - ⚠ **Do NOT adopt the sim's stat weights.** They disagree sharply with the build

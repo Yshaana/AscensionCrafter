@@ -122,3 +122,40 @@ flips, so the historical parse data is not going anywhere.
 
 The scheduled one has no `pause` because there is nobody to press a key — a pause
 would hang the task until the 2-hour limit killed it.
+
+---
+
+## One-shot: Phase 1 baseline before the 2026-08-08 flip
+
+**Task:** `AscensionCrafter Phase1 Baseline` · **fires** 2026-08-07 20:00 local ·
+**registered by** `tools/scheduling/register_phase1_baseline.ps1` ·
+**runs** `tools/scheduling/run_baseline_scheduled.bat`
+
+Owner decision 2026-08-05. A capture already exists from 2026-08-04; this
+tightens the "before" edge to the last practical day.
+
+**Why it is worth a scheduled task at all.** Leaderboard standings and armory
+snapshots are the *only* data a phase flip destroys — **reports persist**, so the
+report backfill has no deadline. "What the Phase 1 meta looked like" is gone the
+moment Phase 2 lands.
+
+**Why a dated one-time trigger, not the at-logon pattern.** The daily crawl uses
+at-logon because "when I turn on the computer" is the owner's rhythm. This is not
+a habit, it is a deadline — a phase flips on a fixed date whether or not anyone
+logs on. **`StartWhenAvailable` is the load-bearing setting**: if the PC is off at
+20:00 the task fires at the next boot instead of being silently skipped.
+
+**What it does:** re-runs `baseline_phase1.py --top 50`, **overwriting**
+`data/source/crawl/baseline_phase1/` in place (intended — it is a point-in-time
+artifact and every record is dated internally), then commits **that folder only**
+and pushes. Scoping the commit matters: the task runs unattended and must never
+sweep up unrelated working-tree changes. It carries its own once-per-day guard
+(`data/derived/last_baseline_capture.txt`) so a late catch-up run cannot fire twice,
+and it stamps **only on success** so a failure retries rather than being suppressed.
+
+**Afterwards — remove it.** The task deliberately does not self-delete (a task
+that vanishes on success leaves no evidence it ran):
+
+```bash
+powershell -ExecutionPolicy Bypass -File tools/scheduling/register_phase1_baseline.ps1 -Unregister
+```
