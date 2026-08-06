@@ -1,6 +1,6 @@
 {
  "date": "2026-08-06",
- "captured_at": "2026-08-06T06:46:39.807863+00:00",
+ "captured_at": "2026-08-06T08:01:35.388864+00:00",
  "realm": "darkmoon",
  "season": 10,
  "patch_date": "2026-08-05",
@@ -13,17 +13,17 @@
    "file": "leaderboards.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 12,
-   "bytes_gz": 7825,
-   "sha256": "1ca7918fc5fa4437f1dbed3aba4a6412974d4d8f900feaefaca89c87f3ecc89e"
+   "records": 24,
+   "bytes_gz": 15652,
+   "sha256": "4e61dee2930f998d8af0638cf3fb7697755b73fd27bbcf5d1bf17de01b1dfc6f"
   },
   {
    "file": "phases.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 1,
-   "bytes_gz": 772,
-   "sha256": "8e192441f570f441528c81dc4ae6ad021f34cb471ef8691a4e02eefe0a3b6e8d"
+   "records": 2,
+   "bytes_gz": 1546,
+   "sha256": "cb7d1640e09efb2934bbf0839a1c8f87a1a96f8df8065b39a6e9d059f3f5fe2e"
   }
  ]
 }
