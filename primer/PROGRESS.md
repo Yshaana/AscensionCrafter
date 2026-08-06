@@ -1,5 +1,87 @@
 # PROGRESS
 
+> ✅ **2026-08-07 — SESSION `3f` IS DONE. Next session is `3g`.**
+> Session record: `primer/Session_2026-08-06_3f_instruments.md`.
+> Work order it ran: `primer/SESSION_3F_PRIMER.md`.
+>
+> 🚨 **DEADLINE, THIS WEEK: the server flips to PHASE 2 on 2026-08-08.**
+> The pre-flip baseline capture is scheduled **2026-08-07 20:00**, and `3f`
+> fixed three things that would each have broken it. Leaderboards and armory are
+> the ONLY data a flip destroys — reports persist, so the report backfill has no
+> deadline. After the flip: bump `season_config.py`'s `EXPECTED_PHASE_NAME` (and
+> `SEASON` if the season rolled), then re-crawl `/api/phases` before reading any
+> gear tier — phase derivation returns NULL past the last phases payload's fetch
+> time, on purpose.
+>
+> **THE GATE DID NOT MOVE, AND THAT WAS THE POINT.**
+>
+> | | before `3f` | after `3f` |
+> |---|---:|---:|
+> | within ±20% (tuning set of 36) | 5 | **5** |
+> | qualified (≥50% coverage) | 2 | **2** |
+> | slice accuracy at ≥20% coverage | 64.3% | **64.3%** |
+>
+> Reported at all six commits and identical every time, including across a full
+> 21-step rebuild. Every per-character `delta_pct` in the manifest is byte-equal
+> to `3e`'s. `3f` changed no damage arithmetic.
+>
+> 🚨 **THE HEADLINE IS WHAT THE REPAIRED INSTRUMENTS FOUND.** `3f` put
+> ground truth into the Frost Mage fixture — until then **no assertion anywhere
+> in the harness compared a modelled magnitude to a measured one, on any of the
+> three fixtures**. It read **90,202 modelled DPS against a measured 1,382**, and
+> **two defects supply 99.6% of it**:
+>
+> * 🆕 **E14 — Absolute Zero scores 12,000 TICKS PER CAST** (the card's 12.0s
+>   duration divided by the *triggered* spell's 0.001s tick interval). 92.2% of
+>   the fixture's damage. Almost certainly
+>   `sim_magnitude_explosion_absolute_zero`, now with a mechanism rather than a
+>   symptom.
+> * 🆕 **E13 — EVERY WHITE SWING IS ~78× OVER.** `probabilities()` returns
+>   percentages (they sum to 100.0) and `expected_swing` multiplies by them as
+>   if they were fractions.
+>
+> 🛑 **E13 IS LIVE INSIDE THE GATE. 24 of the 36 scored cohort characters
+> carry a melee auto in their top 5 sim abilities — including `Ari`, one of the
+> gate's TWO qualified passes, whose single largest modelled source it is.** So
+> at least one qualified pass stands on a 78×-inflated auto-attack.
+> **`3e`'s conclusion that "the residual is not in the mechanisms" must be
+> re-read in that light:** it may be a large positive error cancelling a large
+> negative one, which an aggregate criterion is structurally blind to — the
+> compensating-error hazard the qualified rider exists to catch, one level
+> deeper. Strip E13 and E14 and the fixture models ~373 DPS against 1,382, the
+> ordinary −73% under-production.
+>
+> **Neither is fixed**, deliberately: both move the gate, so both are registered
+> with failing checks per `3d`'s D3 discipline. **E13 is the first thing the next
+> modelling session should do**, because every other calibration number in this
+> project is measured against a total that contains it.
+>
+> ⚠ **Neither was found by reasoning.** Both survived `3e`'s five-defect sweep,
+> three fixtures and a full adversarial audit, because nothing in the repo had
+> ever multiplied a sim output by a measured one.
+>
+> ✅ **Ten registered failing checks**, every one naming a written-up defect, and
+> **16 mutations named AND RUN** (`ENGINE_BUGS.md`'s new check registry). The new
+> standing rule — *every check carries a registered test that makes it fail* —
+> caught **four vacuous checks of my own** during the session, each only when the
+> mutation was actually executed.
+>
+> ⚠ **Block C (PHASE_3 T6, log ingestion) SPILLED WHOLE to `3g`**, per
+> stop-point 4. Nothing was written and no writer was left half-built. Every one
+> of its stated preconditions is now met; what `3g` must do FIRST is add
+> per-ability damage aggregation — `parse_log.py` produces crit rates and
+> avoidance only, no damage totals.
+>
+> 🛑 **SIX QUESTIONS ARE WAITING IN "Blocked on the user" BELOW.** Four were
+> asked at session start; the session ran unattended on stated defaults, all of
+> which are reversible.
+
+---
+
+<details><summary>Superseded: the <code>3e</code> top block</summary>
+
+# PROGRESS
+
 > ✅ **2026-08-06 — SESSION `3e` IS DONE. Next session is `3f`** (PHASE_3 T6,
 > log ingestion) — **unless the owner takes `PLAN_3G` first; see below.**
 > Session record: `primer/Session_2026-08-06_3e_modelling.md`.
@@ -253,6 +335,8 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ---
 
+</details>
+
 ## Current position
 
 **✅ `3e` IS DONE (2026-08-06) — modelling, on a frozen cohort.**
@@ -260,6 +344,55 @@ Session record: `primer/Session_2026-08-06_3e_modelling.md`.
 Gate: **5 of 36 tuning set, 2 qualified, slice 64.3% at ≥20% coverage.
 Holdout 0 of 5.** Blocks A and B complete; Block C partial (C1, C2, C5 landed;
 **C3 and C4 spilled whole to `3f`**).
+
+### 🔴 FIRST ACTIONS NEXT SESSION (`3g`)
+
+Gate: **5 of 36 tuning set, 2 qualified, slice 64.3% at ≥20% coverage.**
+Unmoved across all six `3f` commits and a full rebuild. Holdout NOT read
+(`3f` made no modelling change); `3e`'s reading is carried forward in the
+manifest, stamped `c7d2892`.
+
+1. 🚨 **FIX E13 FIRST, AND MEASURE THE GATE BEFORE AND AFTER.** Every white
+   swing is ~78× over — `white_melee_table(...).probabilities()` returns
+   PERCENTAGES summing to 100.0 and `expected_swing` multiplies by them as
+   fractions. **24 of the 36 scored cohort characters carry a melee auto in
+   their top 5**, and `Ari` — one of the two qualified passes — has it as its
+   largest modelled source. This is the highest-consequence item in the repo:
+   every calibration number is measured against a total containing it. Expect
+   the gate to get WORSE (more under-production) and report that honestly —
+   `3e` B1's precedent: *a criterion count went down because the model got more
+   truthful.*
+   ⚠ Two things to settle in the same change, neither assumed: whether the
+   `block` row should reduce damage rather than being dropped, and whether any
+   other consumer of `probabilities()` makes the same unit assumption
+   (`grep -rn "probabilities()" core/`).
+2. **Then E14** — a periodic component scored as `duration / tick` where the
+   duration comes from the CARD and the tick from the TRIGGERED spell. Absolute
+   Zero: 12.0 / 0.001 = 12,000 ticks per cast. Guard the general case (refuse
+   and warn on an implausible tick, or on tick and duration from different
+   spells), never special-case the spell.
+3. **Re-read `engine_fixes_did_not_move_the_holdout` after 1 and 2.** `3e`'s
+   conclusion that the residual is not in the mechanisms was drawn while E13
+   and E14 were live and unmeasured. It may be two large errors cancelling.
+4. **Block C, PHASE_3 T6 — log ingestion, SPILLED WHOLE from `3f`.** All its
+   preconditions are met. 🛑 **What is NOT in the work order and has to be
+   done first: `parse_log.py` produces `crit_rate_by_source_ability` and
+   `avoidance_breakdown` and NO per-ability damage totals.** The writer needs a
+   new aggregation over the parsed events before it has anything to write.
+   ⚠ And filter by `sourceName`: Window A of the Mage capture contains OTHER
+   PLAYERS (~2.1M damage), and summing "everything that is not the owner" as
+   pet damage reads 10,463 DPS against a true 1,382. The pet's real
+   `sourceName` is `Water Elemental`, not the README's creature name.
+5. **`PLAN_3G` may now be written** — it has four real specimens from `3f`
+   instead of the stale one it names. Amend it first per
+   `ADDENDUM_3E_to_3F.md` §3.1, and use `tools/audit/`, not `scripts/`.
+6. ⚠ **After the 2026-08-08 flip:** bump `season_config.EXPECTED_PHASE_NAME`,
+   then **re-crawl `/api/phases`** before reading any gear tier. Phase
+   derivation deliberately returns NULL past the last payload's fetch time, so
+   until a post-flip crawl lands, post-flip snapshots resolve to no phase —
+   which is correct, and visible in `gear_tier_stats`' `phase_scoping` block.
+
+<details><summary>Superseded: the <code>3f</code> first actions</summary>
 
 ### 🔴 FIRST ACTIONS NEXT SESSION (`3f`)
 
@@ -280,6 +413,8 @@ Holdout 0 of 5.** Blocks A and B complete; Block C partial (C1, C2, C5 landed;
 6. ⚠ **`--all-logs` globs `"* WoWCombatLog.txt"` (space)** and the `2e` capture
    folder uses `_WoWCombatLog.txt` (underscore), so it silently matches nothing
    there. `3f` owns log ingestion and should fix the convention.
+
+</details>
 
 <details><summary>Superseded: the <code>3e</code> first actions</summary>
 
@@ -1055,6 +1190,12 @@ they're answered.
 
 | Item | Blocking | Asked on |
 |---|---|---|
+| 🆕 **`3f` Q1 — the gate manifest vs the holdout.** Running the gate used to rewrite the committed manifest's holdout block to REDACTED, so `3f`'s own per-commit gate reporting would have destroyed `3e`'s close-out reading on its first run. **Default taken:** a run without `--read-holdout` now CARRIES THE PREVIOUS READING FORWARD, stamped with the commit that took it (`c7d2892`) and marked as not from this run. Reversible — confirm, or say you would rather it redact and the gate be run less often | Nothing today; it is implemented and tested. Confirmation only | 2026-08-06 (`3f` start) |
+| 🆕 **`3f` Q2 — the corpus is TWO phases, not one.** Against `/api/phases`' own dates, **182 of 412 snapshots (44.2%) are Phase 0**, not Phase 1. Every doc said otherwise because the `user_confirmed` `server_phases` seed gives Phase 1 a NULL start. **Default taken:** F8b implemented as written — derive from the live API, report the split. Gear tiers lose only 3.1% (their `pieces >= 12` population is 216/7) and the gate cohort is 40/1, so nothing is disrupted; but "the corpus is all Phase 1" is now false project-wide, and you may want the seeded timeline corrected too | Any phase-scoped reading of the corpus. Not blocking the gate | 2026-08-06 (`3f` start) |
+| 🆕 **`3f` Q3 — does the first log ingestion write a `prediction_outcomes` row at all?** The four registered predictions are all sim predictions against `raid_boss` / `mythic_dungeon` profiles, while every capture folder is a **training-dummy** parse. Writing an outcome across that content mismatch is a fabricated comparison. **Default:** build the path and have it REFUSE with a named reason when no prediction matches the capture's content profile | `3g` Block C's exit condition 8 | 2026-08-06 (`3f` start) |
+| 🆕 **`3f` Q4 — F9's tolerance is pre-registered at ±25%** (the gate's ±20% widened once, because the fixture carries ZERO talents by construction), committed one commit before the assertion ran. It **failed at +6,427%**, which is the correct outcome and is recorded as a number. Confirm it stands, or set a different one **before** the next run | Nothing — registered and failing as designed | 2026-08-06 (`3f` start) |
+| 🆕 **`3f` — the 20% successor floor's attribution**, logged retroactively as `AUDIT_3E` §6 asks. It is attributed to you three times in `3e`'s record and is numerically identical to `SLICE_COVERAGE_FLOOR_PCT`, a constant Code chose in A2 and justified in its own voice. Probably fine; unverifiable from the repo, and the next auditor will raise it again | Nothing. Confirm or correct the attribution | 2026-08-06 (`3f`, on the auditor's behalf) |
+| 🆕 **`3f` — should `3e`'s pair ratios be re-derived?** F5 found `calibrate_vs_log.py`'s `--stat-block`-only path crashed unconditionally before `return 0`, so `3e` C1's headline invocation cannot have completed as documented. Either C5 was run WITH the flags — leaving in circuit the hand-transcription channel C1 exists to remove — or a traceback was ignored. Now fixed; the question is whether to re-run before citing 1.704 / 0.769 again | Confidence in the pair ratios | 2026-08-06 (`3f` F5) |
 | **A Path of Intelligence capture bundle** (unbuffed export + 2 logs, relog before exporting, dummy identity + imbue state noted) | `2e` T3 — the recalibration. PoD parses are excluded by the bug advisory, so the existing bundle cannot serve absolute calibration | 2026-08-05 (`2e` T3) |
 | **`holy_shock_bonus_coefficient_0429`** — seed the measured ~0.40, or wait for a tooltip that states a coefficient? | Holy Shock's modelled damage (3% of parse) | 2026-08-05 (open since `2c`) |
 | Identify **Siphon Health (18652)** and **Swift Retribution (853484)** — hover in game | Completeness of the passive layer; small calibration residuals | 2026-08-05 (`2d`) |
