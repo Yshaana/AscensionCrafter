@@ -76,12 +76,18 @@ except ImportError:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_tier2_manifest  # noqa: E402  (per-report reproducibility manifest, 3a audit §1.1b)
 
-# --- constants -------------------------------------------------------------
-BASE = "https://darkmoon.ascensionlogs.gg"
-REALM = "darkmoon"
-SEASON = 10
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+import season_config  # noqa: E402  (realm/season/phase constants + live assertions, 3d A1)
+
+# --- constants -------------------------------------------------------------
+# Realm and season come from season_config.py — the ONE place they are written
+# down (3d A1). They used to be hardcoded here and in four other files with
+# nothing checking any of them against the live server; `assert_realm()` and
+# `assert_phase()` below close that.
+BASE = f"https://{season_config.REALM_SLUG}.ascensionlogs.gg"
+REALM = season_config.REALM_SLUG
+SEASON = season_config.SEASON_NUMBER
 CRAWL_ROOT = REPO_ROOT / "data" / "source" / "crawl"
 SCAN_LOG_PATH = CRAWL_ROOT / "scan_log.json"
 PATCH_DATE_FILE = REPO_ROOT / "data" / "source" / "changelog" / "latest_patch_date.txt"
@@ -294,14 +300,30 @@ def crawl_watchlist(seen_characters, scan_log):
 
 def crawl_phases(writers):
     """Snapshot /api/phases daily — phase timeline + active flags are load-bearing
-    for §2.10's per-phase gear tiers, and cheap to capture."""
+    for §2.10's per-phase gear tiers, and cheap to capture.
+
+    ALSO the assertion point for this clone's declared server state (3d A1).
+    `season_config.assert_phase()` raises `RealmSeasonMismatch` — deliberately
+    NOT caught here — if the server has moved to a phase this clone does not
+    expect. The whole run dies before a single record is stamped, because a
+    day captured against a stale phase constant cannot be repaired afterwards.
+
+    ⚠ The check reads `name` + `progression_parent_phase_id`, never
+    `phase_number`: the live record whose `phase_number` is 2 is named
+    "Phase 1.1" and is a CHILD of Phase 1.
+    """
     _, d = api_get("/api/phases")
     if d is None:
-        return []
+        raise season_config.RealmSeasonMismatch(
+            "/api/phases could not be fetched. Refusing to capture a day of "
+            "records without verifying which phase the server is on.")
     writers["phases"].write("phases_snapshot", d)
-    active = [p for p in d.get("phases", []) if p.get("is_active")]
-    print(f"[phases] {len(d.get('phases', []))} phases, active: "
-          f"{[p.get('phase_number') for p in active]}")
+    live = season_config.assert_phase(d)
+    active = season_config.active_phases(d)
+    print(f"[phases] {len(d.get('phases', []))} phases; "
+          f"{season_config.describe_phases(d)}")
+    print(f"[phases] ✅ phase assertion passed: server is on {live['name']!r}, "
+          f"matching season_config.EXPECTED_PHASE_NAME")
     return active
 
 
@@ -635,21 +657,137 @@ def write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids):
     return manifest
 
 
+# --- canary ----------------------------------------------------------------
+# 3d A3. The exit code used to be gated ONLY on request-level ERRORS, so a 200
+# response with changed JSON shape yields 0 phases -> 0 leaderboards -> exit 0,
+# day stamped success, empty capture committed. Nothing anywhere compared a
+# run's output volume against anything.
+#
+# 🛑 SCOPE, and it is deliberate: this canary covers the writers whose volume is
+# STRUCTURALLY STABLE run-to-run, not all eight. Measured across the committed
+# manifests:
+#
+#     2026-08-04  leaderboards=28  reports=28  abilities=827  characters=218
+#     2026-08-05  leaderboards=12  reports=50  abilities=702  characters=275
+#     2026-08-06  leaderboards=24  reports=4   abilities=15   characters=0
+#
+# `reports`/`abilities`/`healing`/`avoidance`/`damage_taken` are driven by how
+# many NEW reports exist that day, and `characters` by how many builds actually
+# CHANGED (content-hash dedupe writes nothing for an unchanged build). All of
+# them legitimately hit zero or drop >50%. Canarying them would produce a daily
+# false alarm, and an alarm that cries wolf is worse than none — the operator
+# learns to ignore the one signal that matters.
+#
+# `phases` and `leaderboards` are different: the server always has an active
+# phase and always has populated boards, so zero means the SHAPE changed. Those
+# two are exactly the failure the audit named ("0 phases -> 0 leaderboards").
+CANARY_WRITERS = ["phases", "leaderboards"]
+CANARY_DROP_RATIO = 0.5      # fail if a writer falls below half the previous day's rate
+
+
+def previous_manifest(date_dir):
+    """The most recent prior day's manifest.json, or None on the first ever run.
+
+    Deliberately skips the `baseline_phase1` folder — it is a one-shot artifact
+    with its own cadence, not a daily capture, so it is not a baseline for
+    "did today look like yesterday".
+    """
+    if not CRAWL_ROOT.exists():
+        return None
+    days = sorted(p for p in CRAWL_ROOT.iterdir()
+                  if p.is_dir() and p.name < date_dir.name
+                  and (p / "manifest.json").exists()
+                  and p.name[:4].isdigit())
+    if not days:
+        return None
+    try:
+        return json.loads((days[-1] / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def canary_check(manifest, prev):
+    """Compare this run's per-writer volume against the previous day's.
+
+    Returns a list of human-readable failure strings; empty means healthy.
+
+    Rates, not raw counts: `phases` writes one record per RUN, and the owner may
+    log on twice in a day, so 2026-08-04's manifest holds 3 phase records for 3
+    runs. Comparing raw counts across days would flag a normal one-run day
+    against a three-run day. Dividing by that day's phase-record count — which
+    IS the run count, since every run writes exactly one — makes the comparison
+    per-run and stable.
+    """
+    def counts(m):
+        out = {}
+        for f in (m or {}).get("files", []):
+            out[f["file"].split(".")[0]] = out.get(f["file"].split(".")[0], 0) + f["records"]
+        return out
+
+    now, before = counts(manifest), counts(prev)
+    failures = []
+
+    # Absolute floor: these can never legitimately be zero on a completed run.
+    for w in CANARY_WRITERS:
+        if now.get(w, 0) == 0:
+            failures.append(
+                f"{w}: 0 records written. This writer cannot legitimately be "
+                f"empty — the server always has an active phase and populated "
+                f"leaderboards. A 200 response with a changed payload shape "
+                f"looks exactly like this.")
+
+    if not prev:
+        return failures
+
+    runs_now = max(1, now.get("phases", 1))
+    runs_prev = max(1, before.get("phases", 1))
+    for w in CANARY_WRITERS:
+        if w == "phases":
+            continue    # phases IS the run counter; rate-normalising it is circular
+        if not before.get(w):
+            continue
+        rate_now = now.get(w, 0) / runs_now
+        rate_prev = before[w] / runs_prev
+        if rate_now < rate_prev * CANARY_DROP_RATIO:
+            failures.append(
+                f"{w}: {rate_now:.1f} records/run vs {rate_prev:.1f} on "
+                f"{prev.get('date')} — a drop of "
+                f"{100 * (1 - rate_now / rate_prev):.0f}%, past the "
+                f"{100 * (1 - CANARY_DROP_RATIO):.0f}% threshold. Check the "
+                f"endpoint's payload shape before trusting this capture.")
+    return failures
+
+
 # --- git -------------------------------------------------------------------
 
+# Scoped so an UNATTENDED job can never sweep up unrelated working-tree changes
+# (3d A2). This used to be a bare `git add data/source`, which would auto-commit
+# and push a half-edited scouted JSON or a capture folder mid-copy. The baseline
+# task already got this right — `tools/scheduling/run_baseline_scheduled.bat:58`
+# scopes to one folder — and this mirrors it. These are the only two paths this
+# crawler writes: if a writer is ever added outside them, add it here too.
+COMMIT_PATHS = ["data/source/crawl", "data/source/changelog"]
+
+
 def git_commit_push(date_str):
-    """Commit data/source and push. Returns human-readable status string."""
+    """Commit this crawler's OWN output paths and push. Returns a status string."""
     def run(*args):
         return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True,
                               text=True, timeout=300)
 
-    run("add", "data/source")
-    diff = run("diff", "--cached", "--stat")
+    run("add", "--", *COMMIT_PATHS)
+    # Scope the diff check to the same paths: an unrelated file the OWNER staged
+    # by hand before the task fired must not make this look like "we have
+    # something to commit", and must not ride along in the commit either — hence
+    # the pathspec on `commit` too, which commits only those paths regardless of
+    # what else sits in the index.
+    diff = run("diff", "--cached", "--stat", "--", *COMMIT_PATHS)
     if not diff.stdout.strip():
         return "nothing new to commit"
     c = run("commit", "-m",
             f"crawl: {date_str} daily capture (ascensionlogs + changelog)\n\n"
-            f"Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>")
+            f"Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "--", *COMMIT_PATHS)
     if c.returncode != 0:
         return f"COMMIT FAILED: {c.stderr.strip()[:300]}"
     p = run("push")
@@ -699,7 +837,14 @@ def main():
     scan_log = load_scan_log()
     seen_characters = {}
 
+    # 3d A1 — the realm constant must match the host we are about to crawl.
+    # Free, and it is the only one of the three constants this check can settle
+    # locally (the season is not stated by any endpoint; the phase needs the
+    # /api/phases response, asserted in crawl_phases()).
+    season_config.assert_realm(BASE)
+
     print(f"=== crawl_ascensionlogs {date_str} (realm={REALM}, season={SEASON}, "
+          f"expect_phase={season_config.EXPECTED_PHASE_NAME!r}, "
           f"patch_date={patch_date or 'UNKNOWN'}) ===")
 
     if args.recrawl_report:
@@ -736,6 +881,8 @@ def main():
         print(f"\nRecrawl complete. {STATS['requests']} requests, {len(ERRORS)} errors.")
         return 0 if not ERRORS else 1
 
+    prev_manifest = previous_manifest(date_dir)   # read BEFORE we write today's
+
     active_phases = crawl_phases(writers)
     crawl_watchlist(seen_characters, scan_log)
     crawl_leaderboards(writers, active_phases, seen_characters)
@@ -753,9 +900,15 @@ def main():
     t1 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 1)
     t2 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 2)
 
+    # 3d A3 — canary BEFORE the commit. An empty or shape-broken capture must
+    # not be committed, must not be pushed, and must not stamp the day as done.
+    canary_failures = canary_check(manifest, prev_manifest)
+
     total_bytes = sum(f.stat().st_size for f in date_dir.glob("*.jsonl.gz")) if date_dir.exists() else 0
     commit_status = "skipped (--no-push)"
-    if not args.no_push:
+    if canary_failures:
+        commit_status = "SKIPPED — canary failed (see below)"
+    elif not args.no_push:
         commit_status = git_commit_push(date_str)
 
     elapsed = time.time() - started
@@ -780,11 +933,30 @@ def main():
             print(f"    {path} -> {err}")
         if len(ERRORS) > 10:
             print(f"    ... and {len(ERRORS) - 10} more")
-    ok = not ERRORS and "FAILED" not in commit_status
+    if canary_failures:
+        print(f"  🛑 CANARY FAILED ({len(canary_failures)}) — this capture is NOT trustworthy:")
+        for f in canary_failures:
+            print(f"    - {f}")
+        print("    Nothing was committed and the day is NOT stamped; the next "
+              "run will retry. Files on disk are left in place for inspection.")
+    ok = not ERRORS and not canary_failures and "FAILED" not in commit_status
     print(f"  RESULT:           {'OK' if ok else 'COMPLETED WITH ERRORS'}")
     print("=" * 62)
     return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except season_config.RealmSeasonMismatch as e:
+        # 3d A1. Not a crash — a refusal. The clone's declared server state
+        # disagrees with the live server, so capturing would mis-stamp records
+        # in a way that cannot be repaired after the fact.
+        print("\n" + "=" * 62, file=sys.stderr)
+        print("🛑 REFUSING TO CAPTURE — realm/season/phase assertion failed",
+              file=sys.stderr)
+        print("=" * 62, file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        print("\nEdit season_config.py, then re-run. No day is stamped.",
+              file=sys.stderr)
+        sys.exit(2)

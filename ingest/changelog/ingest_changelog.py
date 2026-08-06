@@ -37,6 +37,7 @@ from config import (  # noqa: E402
     CHANGELOG_DIR, CRAWL_DIR, DBC_ASCENSION_EXTRACT_JSON, DB_PATH, SPELL_EXPORT,
 )
 import config  # noqa: E402
+import season_config  # noqa: E402
 
 # Piped/redirected stdout defaults to cp1252 on Windows and this file
 # prints non-ASCII; without this it dies with UnicodeEncodeError only when
@@ -48,8 +49,10 @@ from core.changelog.parse import (  # noqa: E402
 from core.db.connection import connect, transaction  # noqa: E402
 from core.db.schema import create_phase1_schema  # noqa: E402
 
-REALM = "Darkmoon"
-SEASON_LABEL = "S10"
+# Realm/season come from season_config.py — the ONE place they are written down
+# (3d A1). Re-exported under the local names so existing call sites are unchanged.
+REALM = season_config.REALM
+SEASON_LABEL = season_config.SEASON
 CURRENT_ERA = "2026/07/01"   # where dense realm tagging begins (Phase 0 Task 3)
 
 # User-confirmed 2026-08-04. The server's own "Phase N" label, which is NOT the logs

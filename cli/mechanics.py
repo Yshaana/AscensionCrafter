@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from config import DB_PATH  # noqa: E402
 import config  # noqa: E402
+import season_config  # noqa: E402
 
 # Piped/redirected stdout defaults to cp1252 on Windows and this file
 # prints non-ASCII; without this it dies with UnicodeEncodeError only when
@@ -34,8 +35,10 @@ from core.db.connection import connect, table_exists, transaction  # noqa: E402
 from core.db.schema import create_phase1_schema  # noqa: E402
 from core.spells import mechanics as mech  # noqa: E402
 
-REALM = "Darkmoon"
-SEASON = "S10"
+# Realm/season come from season_config.py — the ONE place they are written down
+# (3d A1). Re-exported under the local names so existing call sites are unchanged.
+REALM = season_config.REALM
+SEASON = season_config.SEASON
 
 
 def latest_patch_id(conn):

@@ -32,12 +32,37 @@ if exist "%STAMP%" (
 echo.
 echo ==== [1/2] Changelog snapshot ====
 py tools\scrapers\fetch_changelog.py
-if errorlevel 1 echo [WARN] changelog fetcher reported a problem - see above.
+set CHANGELOG_EXIT=!ERRORLEVEL!
+
+rem 3d A4. This used to print [WARN] and swallow the exit code. The crawler
+rem stamps every record with patch_date read from the file this step writes, so
+rem a failed changelog fetch means a whole day of records stamped
+rem `patch_date: null` - silently, and unrepairably once the day has passed.
+rem A failed changelog fetch now fails the day, so the next logon retries it.
+if not "!CHANGELOG_EXIT!"=="0" (
+    echo.
+    echo *********************************************************
+    echo *  CHANGELOG FETCH FAILED - aborting before the crawl.  *
+    echo *  Records would be stamped patch_date: null.           *
+    echo *  Not stamped; the next logon will retry.              *
+    echo *********************************************************
+    exit /b !CHANGELOG_EXIT!
+)
 
 echo.
 echo ==== [2/2] ascensionlogs crawl (max 25 new reports) ====
 py tools\scrapers\crawl_ascensionlogs.py --max-reports 25
 set CRAWL_EXIT=!ERRORLEVEL!
+
+rem Exit 2 is the realm/season/phase refusal (season_config.RealmSeasonMismatch)
+rem - it needs a human edit to season_config.py, not a retry.
+if "!CRAWL_EXIT!"=="2" (
+    echo.
+    echo *********************************************************
+    echo *  PHASE / REALM MISMATCH - season_config.py is stale.   *
+    echo *  Nothing captured. Read the message above and edit it. *
+    echo *********************************************************
+)
 
 if not exist "data\derived" mkdir "data\derived"
 
