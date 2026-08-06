@@ -1,8 +1,56 @@
-# Project Ascension — Systems Primer v29 (Context for Claude)
+# Project Ascension — Systems Primer v30 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v30 changelog (2026-08-06, session `3b` consolidation review).** A source this
+project had used once and never systematised. Detail in
+`primer/Session_2026-08-06_3b_gear_and_decomposition.md` §7.
+
+- 🆕 **§2a NEW SOURCE — `db.ascension.gg` STATES THE APPLIED COEFFICIENTS, and
+  it is now scraped.** This document has said since v21 that *Ascension keeps
+  the coefficients its server actually applies in tooltip text, not in
+  `EffectBonusCoefficient`* — which leaves the client **structurally unable**
+  to supply one for the ~41% of crawled damage where we hold a magnitude and no
+  coefficient. The site states them outright (`Scaling #1: +29.00% of spell
+  power`) and states `EffectTriggerSpell` links as well.
+  `tools/scrapers/scrape_ascension_db.py`. ⚠ **Consequence: the widened
+  `--with-dbc` run leaves the critical path** — it needs the owner's client
+  plus StormLib, and the web source reaches most of the same spells without it.
+- 🚨 **NEW §5 PRACTICE: BEFORE ASKING THE OWNER FOR ANYTHING, ASK WHETHER A
+  PUBLIC SOURCE ALREADY HAS IT.** The `--with-dbc` extract had been the top
+  structural ask for three sessions. Session `1x` had *already* read
+  db.ascension.gg by hand to resolve Hammer from the Heavens — and nobody
+  turned that one-off into a tool, so the same class of gap kept being routed
+  to the person whose time is scarcest. **A source used once is a source not
+  yet systematised.**
+- 🛑 **NEW §5 PRACTICE: a third-party source is admissible when it carries a
+  CHECK DIGIT against something we derived independently.** Same rule that made
+  the weapon-damage parse safe, applied one layer up: the site states each
+  spell's base value the same way we decode it from `Spell.dbc`, so the two
+  must agree — **14,100 spells** give that check. A page whose magnitude
+  disagrees has its coefficients **refused**, not stored with a caveat.
+  Verdicts are `agree` / `disagree` / `unverifiable`, and *unverifiable is not
+  a pass* — those rows carry weaker confidence and are never silently promoted.
+- 🚨 **NEW §5 PRACTICE, and the check caught OUR bug before the data's: AN
+  AGGREGATE ACROSS EFFECT SLOTS IS NOT A PROPERTY OF THE SPELL — IT MIXES
+  UNITS.** A `MIN/MAX` over `spell_effect_values` merged Lightbound Cleave's
+  effect 0 (flat **62**) with effect 1 (**65% weapon damage** — the
+  `EFFECT_WEAPON_PCT` trap) into "62–65", a range belonging to no effect, and
+  falsely contradicted a source that was right. **Compare per effect slot.**
+- ✅ **Free corroboration of the source, from this document's own history:** the
+  site gives Molten Earth `60 + 2.6/level, SP 0.11, AP 0.11`; §1's live in-game
+  tooltip (v7) reads `60 + (SP+AP)×0.12`. Two fully independent sources on the
+  same numbers — evidence it reflects *this server's* values, not stock 3.3.5.
+- ⚠ **Scope a scraper by MEASURED DEMAND, never by enumeration.** The site
+  carries hundreds of thousands of entries and almost all are irrelevant; the
+  request list is spell ids that actually dealt damage in the crawl, ranked by
+  damage. **285 ids cover 90% of all logged damage**, 2,902 cover everything
+  observed. Politeness and durability are not optional: `robots.txt` checked
+  (`Allow: /`, no `Crawl-delay`), sequential with a 2s delay and a contact
+  User-Agent, **stop** on 403/429 rather than retry, append-and-flush per
+  record so a network failure loses at most the request in flight.
 
 **v29 changelog (2026-08-06, session `3b`).** The gear layer and the decomposed
 calibration gate. Full detail in

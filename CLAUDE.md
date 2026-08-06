@@ -31,6 +31,16 @@ Check this list before hand-parsing, hand-decoding, or guessing at anything belo
   `glancing` where it wanted `critical`. Re-verify only if Ascension changes the
   client's log grammar.
 
+- **Need a spell's APPLIED SP/AP coefficient, or its trigger links** → run
+  `tools/scrapers/scrape_ascension_db.py`. `db.ascension.gg` states coefficients
+  outright (`Scaling #1: +29.00% of spell power`), which the client **cannot** —
+  Ascension keeps applied coefficients in tooltip text, not numeric fields. It also
+  states `EffectTriggerSpell` links (HoJ → HftH, from the page's own `href`).
+  🛑 Trust a scraped coefficient only on a `cross_check` verdict of **`agree`** —
+  the page's base value must reproduce our client-decoded flat; `unverifiable` is
+  not a pass. **Scope by measured demand, never enumeration** (`--plan` first;
+  `--coverage 0.90` = 285 ids). Don't hand-fetch spell pages one at a time.
+
 - **Scouting another player's build/rankings** on `darkmoon.ascensionlogs.gg`
   → run `tools/scrapers/scout_ascensionlogs_cli.py <name>` (or `--top "<instance>"
   --phase N --limit N` for leaderboard pulls). It's a public, unauthenticated

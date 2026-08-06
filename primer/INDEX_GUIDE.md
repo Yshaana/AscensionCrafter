@@ -1,3 +1,48 @@
+# Ascension Spell/Card Index — Guide (v19)
+
+**v19 changelog (2026-08-06, session `3b` consolidation review).** A new
+external source and its capture tool. No table changed yet — ingestion is next
+session's first task, deliberately not rushed in behind a running scrape.
+
+- 🆕 **`db.ascension.gg` is a captured source now** — the answer to the
+  ~41% of crawled damage where we hold a magnitude but **no coefficient**, a
+  gap the client cannot close because Ascension keeps applied coefficients in
+  tooltip text rather than numeric fields. Pages state them directly
+  (`Scaling #1: +29.00% of spell power to direct component`) **and** state
+  `EffectTriggerSpell` links, so trigger-graph edges come free (Hour of
+  Judgement → 282987 is read from the page's own `href`, never from link text).
+- 🆕 **`tools/scrapers/scrape_ascension_db.py`** (fetch, politeness,
+  checkpointing) + **`core/spells/db_ascension.py`** (parsing only — `core/`
+  takes text, not URLs). Raw records land in
+  **`data/source/ascension_db/spell_pages.ndjson`**, committed like every other
+  `data/source/` capture.
+  - **Scoped by measured demand, never enumeration** — spell ids that actually
+    dealt damage in the crawl corpus, ranked by damage. `--coverage 0.90` is
+    285 ids (~11 min at a 2s delay); `--all` is 2,902 (~2 h, ~3 MB stored).
+  - `--plan` prints the cost estimate and makes **no** requests. `--resume`
+    skips what is on disk; records append-and-flush per response.
+- 🛑 **`cross_check()` is the gate on trusting a scraped coefficient.** The
+  page's stated base value must reproduce the flat we decoded independently
+  from the client's numeric fields — **14,100 spells** carry that check digit.
+  Verdicts: `agree` (usable), `disagree` (**coefficients refused**),
+  `unverifiable` (no decoded flat our side — record at weaker confidence,
+  **never silently promote**). Interim over 1,141 of 2,902 records:
+  **59.5% agree / 40.1% unverifiable / 0.4% disagree**, 63% state a
+  coefficient, 154 trigger edges.
+- ⚠ **Compare per EFFECT SLOT, not aggregated.** A `MIN/MAX` across
+  `spell_effect_values` mixes units: Lightbound Cleave decodes effect 0 = 62
+  (a flat) and effect 1 = 65 (a **weapon percent**, v13's `EFFECT_WEAPON_PCT`
+  note), and the aggregate "62–65" belongs to no effect and falsely contradicts
+  the page's correct `Value: 62`.
+
+```bash
+py tools/scrapers/scrape_ascension_db.py --plan --all      # estimate only
+py tools/scrapers/scrape_ascension_db.py --coverage 0.90   # 90% of logged damage
+py tools/scrapers/scrape_ascension_db.py --all --resume    # continue a run
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v18)
 
 **v18 changelog (2026-08-06, session `3b`).** Two new `snapshot_gear` columns in

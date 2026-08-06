@@ -162,6 +162,107 @@ blocked on the owner**. Both were **resolved 2026-08-04** and are written up in
 WoWCombatLog.txt`, verified against three real logs; `ReloadUI()` confirmed
 working in game). They are not blockers for T5–T7 whenever that session runs.
 
+## 7. Consolidation review — and the source the project had been missing
+
+Owner asked mid-session to stop and consolidate rather than pay the cost later.
+Classifying **every** unmodelled damage row across the gate cohort by *why* the
+sim misses it:
+
+| share of the cohort's real damage | root cause |
+|---:|---|
+| **42.9%** | spell absent from our DBC extract entirely |
+| **41.1%** | we hold the magnitude but **no coefficient** |
+| 9.1% | auto-attacks / extra-attack procs |
+| 5.5% | data exists — a genuine resolver/APL gap |
+| 1.3% | in extract, no decoded magnitude |
+
+**Only 5.5% is a code problem.** The resolver and APL are essentially fine;
+this is a data problem, and the second bucket is one the client *structurally
+cannot fix* — Ascension keeps applied coefficients in tooltip text, not numeric
+fields (`effect_bonus_coefficient_is_not_the_sp_ap_coefficient`).
+
+🆕 **`db.ascension.gg` states them outright, and the project had used it by
+hand exactly once** (session `1x`, Hammer from the Heavens) without ever
+systematising it. Spot-checked against the worst offenders:
+
+| spell | our data | the site |
+|---|---|---|
+| Icy Penance (271340) | flat 284, no coefficient | Value **284** · SP 29.0% · AP 7.8% |
+| Devour Mind (287865) | nothing | 113/tick · SP 8.0% · AP 5.5% |
+| Arcing Light (954923) | nothing | 140 +1.2/lvl · SP 12.0% · AP 7.8% |
+| Firebolt (11763) | nothing | 83–93 +1.2/lvl · SP 74.5% · AP 48.4% |
+
+It reaches **both** buckets — magnitudes for what the extract lacks,
+coefficients for what it has. ⚠ **Consequence for the roadmap: the widened
+`--with-dbc` run drops off the critical path.** It has been the top structural
+ask since `2e` and needs the owner's client plus a built StormLib; the web
+source reaches most of the same spells without him.
+
+### Routes checked and rejected first (owner asked for outside-the-box)
+
+- **`?spell=X&power`** — the site is Wowhead/Aowow-derived, so this returns a
+  583-byte JS object instead of a 25 KB page. Carries the rendered tooltip
+  but **no `Scaling #N` lines**. Cheaper and useless; not taken.
+- **`sitemap.xml`** — 16 KB of guides and category listings, no per-spell URLs.
+- **`robots.txt`** (checked 2026-08-06) — `Allow: /` for all agents, **no
+  `Crawl-delay`**, disallowing only `?admin=`, `?account=`, `?compare=`,
+  `?filter=`, `?search=`, `?go-to-comment=`, `*&filter=`. Spell pages are
+  explicitly permitted; we are stricter than required regardless.
+
+### The check digit, and the bug it caught
+
+A scraped coefficient is accepted **only** where the page's stated base value
+reproduces the flat we decoded independently from the client's numeric fields.
+**14,100 spells** give us that check, so it is a standing validation surface,
+not a spot check. A disagreement **refuses** the coefficients.
+
+🚨 It earned its keep against our own code, not the site. The first version
+aggregated `MIN/MAX` across effect slots, so Lightbound Cleave's effect 0
+(flat **62**) and effect 1 (**65% weapon damage** — the `EFFECT_WEAPON_PCT`
+trap, INDEX_GUIDE v13) merged into "62–65", *a range belonging to no effect*,
+and falsely contradicted the page's correct `Value: 62`. Now compared **per
+effect slot**. Generalises: **an aggregate across effect slots is not a
+property of the spell** — it mixes units, and a flat and a weapon-percent are
+different kinds of number.
+
+### Free corroboration
+
+The page gives Molten Earth `60 + 2.6/level, SP 0.11, AP 0.11`; the owner's
+**live in-game tooltip** (primer §1 v7) reads `60 + (SP+AP)×0.12`. Two fully
+independent sources landing on the same numbers is evidence the site reflects
+*this server's* values rather than stock 3.3.5.
+
+### Trigger links are a byproduct
+
+Pages state `EffectTriggerSpell` relationships and the target id is taken from
+the page's own `href` — **never** by matching link text to a name (primer §4).
+Verified on Hour of Judgement → `282987` Hammer from the Heavens. **154 trigger
+edges** found in the first 39% of the run.
+
+### The scraper
+
+`tools/scrapers/scrape_ascension_db.py` + `core/spells/db_ascension.py`
+(parsing only — `core/` takes text, not URLs). **Scoped by measured demand,
+never by enumeration**: the request list is spell ids that actually dealt
+damage in the crawl corpus, ranked by damage. 285 ids cover 90% of all logged
+damage (~11 min at 2s); 2,902 cover everything observed (~2 h, ~3 MB stored).
+Records append-and-flush per response and `--resume` skips what is on disk, so
+a network failure loses at most the request in flight.
+
+**Interim result at 1,141 of 2,902 records (run still in progress):**
+
+| verdict | count | share |
+|---|---:|---:|
+| agree | 679 | 59.5% |
+| unverifiable (no decoded flat our side) | 458 | 40.1% |
+| **disagree** | **4** | **0.4%** |
+
+63% of pages state a coefficient. ⚠ The `unverifiable` share is not a failure —
+those are largely the bucket-A spells missing from our extract, which by
+definition have no check digit on our side. They are recorded at a weaker
+confidence and must never be silently promoted. **Final figures land next
+session.**
+
 ## What did NOT happen
 
 - **3b T5 (addon), T6 (log ingestion), T7 (session automation)** — deferred by

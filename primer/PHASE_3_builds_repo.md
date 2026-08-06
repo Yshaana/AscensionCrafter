@@ -227,6 +227,14 @@ with the description's own stated DPS as a check digit
 (`core/builds/gear.py :: parse_weapon_damage`). Without it a crawled character
 sims with no weapon at all.
 
+🆕 **And the source that unblocks Task 2's coefficient work (2026-08-06):**
+`db.ascension.gg` states applied SP/AP coefficients and `EffectTriggerSpell`
+links outright — `tools/scrapers/scrape_ascension_db.py`. This is what
+`infer_coefficient()` was never going to reach by regression (pooled data
+cannot isolate single stats, which is why it correctly refuses): the
+coefficient is *stated*, not inferred. 🛑 Only `cross_check == 'agree'` rows
+may be used; `unverifiable` is not a pass.
+
 **Still to do here:** `PLAN_3B` §4's accessible-ceiling object (open raids ×
 difficulties × current M+ cap, parsed from the timeline, bounding the sim and
 the weight sweep) and §6's two-vector weight emitter — the latter **only after

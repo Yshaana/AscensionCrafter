@@ -65,16 +65,62 @@ stands and is the real hazard — the crawl's own 98 `name_fallback` matches are
 it, now visible as `snapshot_gear.stats_match_type` — while "the deduped
 `items` table is lossy" is dropped, because keying on item_id is lossless.
 
+### 🆕 The magnitude-coverage bottleneck has a SOURCE now — db.ascension.gg
+
+A consolidation review classified **every** unmodelled damage row across the
+gate cohort by cause: **42.9%** spells absent from our DBC extract, **41.1%**
+magnitude-but-no-coefficient, 9.1% autos/extra-attack procs, **5.5%** a real
+resolver/APL gap, 1.3% no decoded magnitude. **Only 5.5% is a code problem** —
+the resolver and APL are fine.
+
+🆕 **`db.ascension.gg` states applied coefficients outright** (Icy Penance:
+`Value 284 · SP 29.0% · AP 7.8%`, against our decoded flat of exactly 284) and
+**states `EffectTriggerSpell` links too** — HoJ → HftH comes off the page's own
+href. The project had used it by hand once (`1x`, HftH) and never systematised
+it. `tools/scrapers/scrape_ascension_db.py` + `core/spells/db_ascension.py`
+now do, **scoped by measured demand and never by enumeration**: 285 ids cover
+90% of all logged damage, 2,902 cover everything observed (~2 h at a 2s delay).
+
+🛑 **A scraped coefficient is trusted only where the page's stated base value
+reproduces the flat we decoded from the client's numeric fields** — 14,100
+spells give that check digit; a disagreement REFUSES the coefficients.
+**Interim, 1,141 of 2,902 records: 59.5% agree, 40.1% unverifiable, 0.4%
+disagree; 63% state a coefficient; 154 trigger edges found.** Final figures
+next session.
+
+⚠ **Consequence: the widened `--with-dbc` run DROPS OFF the critical path.** It
+has been the top structural ask since `2e` and needs the owner's client plus a
+built StormLib; the web source reaches most of the same spells without him.
+Keep it opportunistic after a client patch.
+
 ### 🔴 FIRST ACTIONS NEXT SESSION
 
-1. **The owner's in-game capture is still THE ask:** `primer/NEXT_CAPTURE.md`,
-   gated on the server restart (see below).
-2. **Answer `crawled_gate_passes_by_compensating_error`** — it gates whether
-   the sim has earned the right to emit stat weights (`PLAN_3B` §6).
-3. ⚠ **`BEFORE_3B` §3's two "blocked" questions are already answered** — the
+1. **Ingest the scrape** into `spell_scaling` / `spell_effect_values` at a
+   distinct provenance tier, **`agree`-verdict rows only**; `unverifiable` rows
+   land at a weaker confidence and are never silently promoted. Then **re-run
+   the gate** — this is where the median 37% magnitude coverage should move.
+2. **Implement damage-CONVERSION mechanics** (Righteous Vengeance's
+   30%-of-crit-damage class, 9 characters in the gate). We already hold the
+   fact; the sim cannot express it. **No data needed** — pure sim work.
+3. **Model pets** — owner decision 2026-08-06. 10% of the cohort's real damage,
+   currently scored as zero, which quietly biases the corpus against
+   pet-carrying builds.
+4. **The owner's in-game capture** — `primer/NEXT_CAPTURE.md`, gated on the
+   server restart. **200818 is confirmed unreachable by every automated route**
+   (the site gives it `Value: 1`, no scaling), so its live tooltip stays the
+   one genuine owner-only ask.
+5. ⚠ **`BEFORE_3B` §3's two "blocked" questions are already answered** — the
    `WoWCombatLog` naming convention and `ReloadUI()` availability were both
    resolved 2026-08-04 and are written up in `PHASE_3_builds_repo.md` T5/T6.
    Doc drift, not a blocker; do not re-ask the owner.
+
+### Owner decisions, 2026-08-06 (consolidation review)
+
+| Decision | Call |
+|---|---|
+| db.ascension.gg scraper | **Build it** — polite, cross-validated, demand-scoped, resumable |
+| Pets in the sim | **Model them** |
+| Phase 3 exit criterion | **Keep ±20%, report coverage beside it** — do not move a gate after seeing its number |
 
 ---
 
@@ -687,6 +733,8 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-06 (3b) | 🆕 **db.ascension.gg is a systematised SOURCE now, and the widened `--with-dbc` run leaves the critical path** | A consolidation review classified every unmodelled damage row: **42.9%** absent from our extract, **41.1%** magnitude-but-no-coefficient, 9.1% autos, **5.5%** a real resolver/APL gap. The client **structurally cannot** fix the 41% — Ascension keeps applied coefficients in tooltip text, not numeric fields. The site states them (`Icy Penance: Value 284 · SP 29.0% · AP 7.8%`, against our decoded flat of exactly 284) **and** states `EffectTriggerSpell` links, so relationship discovery is a byproduct (HoJ → HftH off the page's own href; 154 edges in the first 39%). Used by hand once in `1x` and never systematised until now. **Cheaper routes checked and rejected first**: `?spell=X&power` returns a 583-byte JS object but **no `Scaling` lines**; `sitemap.xml` has no per-spell URLs. `robots.txt` is `Allow: /`, no `Crawl-delay`, disallowing only admin/account/compare/filter/search — we are stricter anyway (sequential, 2s, contact UA, stop on 403/429). **Scoped by measured demand, never enumeration.** 🛑 Coefficients trusted only where the page's base value reproduces our client-decoded flat (14,100 check digits); disagreement REFUSES them. Interim 1,141/2,902: **59.5% agree, 0.4% disagree** |
+| 2026-08-06 (3b) | ⚠ **An aggregate across EFFECT SLOTS is not a property of the spell — it mixes units** | The scrape's cross-check first aggregated `MIN/MAX` across slots, so Lightbound Cleave's effect 0 (flat **62**) and effect 1 (**65% weapon damage**, the `EFFECT_WEAPON_PCT` trap from INDEX_GUIDE v13) merged into "62–65" — a range belonging to no effect — and falsely contradicted the page's correct `Value: 62`. Caught because the check disagreed with a source that turned out to be right. Now compared per slot: 6 agree / 0 disagree on the pilot. **The check found a bug in our code before it found one in the data, which is the argument for having it** |
 | 2026-08-06 (3b) | 🎉 **The inherited exit gate now PASSES — 4 of 41 within ±20% — and the cause was ONE missing input, not a fitted constant: weapon damage is in NO stat block** | `resolved_bisbeard.damage` is NULL on **all 1,413** weapon-slot entries and `stats` never carries it, so `build_spec_for` was constructing every crawled character with `weapon=None` — the sim gave all 41 candidates **no weapon at all**, zeroing white swings and every weapon-percent ability. Found by DECOMPOSING the miss (PLAN_3B §5.2) rather than attributing it: gear resolution **eliminated** for 30 of 41 (median 100% coverage, still −92%), buffs **median +0.0%**, leaving per-ability coverage — sim damage for a median **20%** of real damage, **37%** after the fix. Weapon numbers exist only in the rendered item description and are parsed **with the same string's stated DPS as an enforced check digit**, 849/849 within 3%; a failing parse returns nothing. 🛑 **Read the pass with its coverage: only 1 of the 4 (Ari) is inside tolerance while ≥50% of its damage is modelled** — the others agree on the total while the sim reproduces 5–13% of the kit, i.e. compensating error, which an aggregate criterion is blind to. The criterion was **not** redefined after the result was seen; the qualified count is reported beside it and the question is the owner's (`crawled_gate_passes_by_compensating_error`) |
 | 2026-08-06 (3b) | 🚨 **Gear is dynamic, and `PLAN_3B` §3 was amended: the difficulty axis lives in the item_id** | Stats are rolled at drop by tier, so **476 of 1,157** resolved item names span several item_ids with different stat blocks (`Golem Shard Leggings` = Str 45 / 38 / 30 at Mythic 10 / Mythic / Heroic). **But each variant carries its own id** and `item_id → (tier, stats)` is a function — 0 of 1,792 stat-bearing ids carry two blocks or two tiers. So **"never map item NAME → stats" stands and is the real hazard** (the crawl's own 98 `name_fallback` matches are it, now visible as `snapshot_gear.stats_match_type`), while §3.2's "the deduped `items` table collapses real differences" is **dropped** — keying on the id is lossless. Owner decision 2026-08-06. ⚠ Whether base-id → variant-id forms a decodable scheme is **not established**; prefixes are inconsistent, and relating two ids by a pattern is the same error class as relating two spells by name |
 | 2026-08-06 (3b) | ⚠ **Gear-stat coverage is reportable but NOT repairable from the corpus** | `gear_coverage()` reports resolved fraction of stat-bearing slots (shirt/tabard excluded as measured-statless: 0 of 209 and 0 of 87). Median across the gate is **100%**, 30 of 41 fully resolved — which is what eliminated gear as the dominant cause. The 592 unresolved item_ids resolve on **no** snapshot (0 of 592), because they are absent upstream: levelling greens and vanilla items outside BisBeard's S10 scope. Whether to enrich them from db.ascension.gg is open (`crawl_gear_coverage_is_not_repairable`) |
