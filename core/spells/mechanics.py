@@ -338,6 +338,82 @@ def _trigger_delivery(conn, chain):
     return out
 
 
+# 🛑 Source precedence for a coefficient. Two sources can state the SAME
+# (spell, term, component) — measured 2026-08-06, **323 pairs**, of which 177 are
+# export_tooltip vs the db.ascension.gg scrape (Mongoose Bite: tooltip AP 0.20 vs
+# scraped AP 0.45). `_formula_terms` used to emit BOTH, and the engine sums
+# terms, so the ability silently got 0.65. A coefficient is a property of the
+# spell: exactly one row may win, and the losers are recorded as a conflict
+# rather than added.
+#
+# Order, most to least trusted, and why:
+#   db_ascension_gg              hand-curated, three-source-confirmed anchors
+#   ascension_measured_provisional  measured on THIS server from real parses
+#   db_ascension_gg_scraped      states the APPLIED coefficient, and carries an
+#                                enforced check digit (its base value must
+#                                reproduce our independently decoded flat)
+#   dbc_rank_sibling_text        text at the rank a level-60 character casts
+#   dbc_hidden_formula           sub-spell text
+#   export_tooltip               catalog text — LAST because the catalog stores
+#                                the wrong rank for ~half of multi-rank cards
+_COEFF_SOURCE_RANK = {
+    "db_ascension_gg": 0,
+    "ascension_measured_provisional": 1,
+    "db_ascension_gg_scraped": 2,
+    "dbc_rank_sibling_text": 3,
+    "dbc_hidden_formula": 4,
+    "export_tooltip": 5,
+}
+
+
+def _dedupe_coefficients(conn, spell_id):
+    """One coefficient per (term_type, component). Never sum across sources.
+
+    Yields `(term_type, coefficient, source, cp_scaling, rank, component,
+    conflicts)` where `conflicts` lists the rejected `(source, coefficient)`
+    pairs so a disagreement stays visible instead of being averaged away or
+    silently added.
+
+    ⚠ `component` is part of the key on purpose: a spell legitimately states a
+    direct AND a periodic coefficient for the same stat (Pyroblast SP 0.575 +
+    0.025), and those are two different numbers about two different events, not
+    a conflict. Collapsing on term_type alone would throw one away.
+    """
+    rows = conn.execute(
+        "SELECT term_type, coefficient, source, cp_scaling_type, rank, component "
+        "FROM spell_scaling WHERE spell_id = ?", (spell_id,)).fetchall()
+    by_term = {}
+    for term_type, coeff, source, cp, rank, component in rows:
+        by_term.setdefault(term_type, []).append(
+            (term_type, coeff, source, cp, rank, component))
+
+    for term_type in sorted(by_term, key=str):
+        members = by_term[term_type]
+        # ONE SOURCE wins the whole term, and contributes every component it
+        # states. Grouping on (term, component) instead is wrong: a legacy row
+        # has component NULL meaning "unknown", NOT "a different component", so
+        # it would key separately from a scraped 'direct' row and both would
+        # survive — which is precisely the double-count this exists to stop
+        # (Mongoose Bite: scraped AP 0.45/direct + tooltip AP 0.20/NULL = 0.65).
+        best = min(_COEFF_SOURCE_RANK.get(m[2], 99) for m in members)
+        winners = [m for m in members
+                   if _COEFF_SOURCE_RANK.get(m[2], 99) == best]
+        losers = [m for m in members
+                  if _COEFF_SOURCE_RANK.get(m[2], 99) != best]
+        # within the winning source, one row per stated component
+        seen, kept = set(), []
+        for m in sorted(winners, key=lambda m: (str(m[5]), -(m[4] or 0))):
+            if m[5] in seen:
+                continue
+            seen.add(m[5])
+            kept.append(m)
+        for m in kept:
+            conflicts = [(l[2], l[1]) for l in losers
+                         if l[1] is not None and m[1] is not None
+                         and abs(l[1] - m[1]) > 1e-9]
+            yield (*m, conflicts)
+
+
 def _formula_terms(conn, fs, spell_id, level):
     """Magnitude terms: flats from `spell_effect_values`, coefficients from
     `spell_scaling`. Sorted into damage / heal / absorb JSON blocks.
@@ -442,9 +518,8 @@ def _formula_terms(conn, fs, spell_id, level):
         srow = conn.execute("SELECT school_mask FROM spell_dbc_raw WHERE id = ?",
                             (src,)).fetchone()
         src_school = school_name(srow[0]) if srow and srow[0] is not None else None
-        for term_type, coeff, source, cp, rank, component in conn.execute(
-                "SELECT term_type, coefficient, source, cp_scaling_type, rank, "
-                "component FROM spell_scaling WHERE spell_id = ?", (src,)):
+        for term_type, coeff, source, cp, rank, component, conflicts in \
+                _dedupe_coefficients(conn, src):
             entry = {"term": term_type, "coefficient": coeff,
                      "cp_scaling": cp, "source": source, "rank": rank,
                      "via": via, "source_spell_id": src,
@@ -472,6 +547,15 @@ def _formula_terms(conn, fs, spell_id, level):
             if component:
                 entry["note"] += (f"; component '{component}' is STATED by the "
                                   "source, not inferred")
+            if conflicts:
+                # Another source states a DIFFERENT value for this same term.
+                # One wins by precedence; the rest are surfaced, never summed
+                # and never averaged — a disagreement is a finding.
+                entry["coefficient_conflicts"] = [
+                    {"source": s, "coefficient": v} for s, v in conflicts]
+                entry["note"] += ("; ⚠ CONFLICT — also stated as "
+                                  + ", ".join(f"{v:g} by {s}" for s, v in conflicts)
+                                  + f"; '{source}' wins by source precedence")
             if via != "self":
                 # Attributed, not stated on this card: the coefficient belongs
                 # to the trigger target and is reached by the bounded walk.
