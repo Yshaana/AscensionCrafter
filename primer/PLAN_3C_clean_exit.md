@@ -179,6 +179,68 @@ For reference, on that (biased) measure the cohort median is ~0.6 casts/sec and
 1.11 — high activity, so its +3,619% is a genuine sim bug**, which is consistent
 with `sim_magnitude_explosion_absolute_zero` and belongs to T3.
 
+#### ✅ T2 RESOLVED 2026-08-06 by the paired upload (reports 104 + 105)
+
+The owner uploaded two of his own logs, giving the same encounters measured
+twice — locally at ground truth and through the API. Four results, and they
+change T2's conclusions in both directions.
+
+**1. ✅ The site's `casts` IS `SPELL_CAST_SUCCESS`. T2c's worry is RETRACTED.**
+
+| report | content | site casts | log casts | agreement |
+|---|---|---:|---:|---:|
+| 104 | Scarlet Monastery, Whitemane | 54 | 58 | 93% |
+| 105 | Uldaman, 7 bosses | 257 | 250 | **97.3%** |
+
+Per-ability on Whitemane it matches **exactly** on Dawn Strike (12), Dawnreaver
+(9), Holy Finish (2), Judgement of Wisdom (5), Light's Hammer (1), Lightbound
+Cleave (22) and Whirling Light (2). On Uldaman the site reads consistently +1 per
+encounter (a pull-boundary cast). **Crawl casts/sec is a faithful APM measure at
+the character level** — the `casts=0` proc rows are real (those are not casts)
+and do not corrupt the total. The earlier "it would bias against proc builds"
+objection was wrong at this level and is withdrawn.
+
+**2. 🛑 `deaths` is NOT OBTAINABLE. This is a dead end, not a crawler bug.**
+Searched the full API payload for a report we control: **no death-like key and
+no presence/active-time key exists anywhere.** So `encounter_performance.deaths`
+(0 of 19,649) can never be filled from this source. ⚠ A permanently-NULL column
+that looks fillable is the trap this project keeps finding — it should be
+documented as unavailable rather than left looking like a capture gap.
+
+**3. 🚨 The death failure mode is REAL, LARGE, and INVISIBLE — now with ground
+truth.** Elric died **6.1s into the 34.0s Fairbanks encounter** and was dead for
+**82%** of it (log 20:42:05.525 local; site window 19:41:59.392–19:42:33.391Z,
+aligned to 99ms at UTC+1). The site reports him at **481 DPS against 3,473 on
+Mograine — a 7.2× deflation — with `deaths` NULL and `validation_status:
+'valid'`.** A character in that state entering the gate presents as a massive sim
+**over-prediction**, which is precisely the Boomcat / Jamppa / Frediib signature.
+
+**4. ❌ But APM cannot be the filter.** It *does* catch this case — Elric's
+Fairbanks APM is 14.1 against 37–43 elsewhere (ratio **0.38**). Applied across
+the cohort as a within-character rule (gate-encounter APM < 50% of that
+character's own median over other timed encounters), it flags **13 of 41** —
+and the 13 include **Malo, one of only two qualified characters**, plus Chastie.
+Meanwhile it **misses** Mutaforma (ratio 0.99), Jamppa (0.90), Candle (1.05) and
+Striker (0.55). Catching 4 of 8 over-predictors at the cost of a qualifier is not
+a discriminator.
+
+> **T2 verdict: no reliable admissibility filter is constructible from the crawl
+> API.** The one signal that would work is not exposed. Four candidates have now
+> been tested and rejected — wipes, raw DPS, absolute APM, within-character APM.
+> **Nothing is filtered.** The corpus contains an unknown number of
+> death-deflated parses we cannot identify, and that is a stated limitation of
+> the gate rather than something to paper over.
+
+**5. ✅ Mutaforma is confirmed a genuine sim bug**, not a bad parse — normal
+activity (APM ratio 0.99) with a +3,619% delta. It belongs entirely to T3.
+
+**Follow-ups this opens (not blocking):**
+* `damage_taken_rows` may permit *inferring* a death from a killing blow — the
+  only remaining route to presence, worth one session's check.
+* The owner can upload logs, and logs **do** carry `UNIT_DIED`. That is ground
+  truth for any character we hold a log for, but it does not scale to 4,000
+  crawled characters.
+
 #### T2d — What to actually do
 
 1. **Report** wipe status, duration, casts/sec and T1's slice accuracy per

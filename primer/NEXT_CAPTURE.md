@@ -78,6 +78,53 @@ Nothing else. No new run, no stat export needed — ALC already captured the gea
 and board inline, which is the input side `compute_stats` consumes, so this
 tests the real pipeline rather than bypassing it.
 
+### ✅ DONE — reports [104](https://darkmoon.ascensionlogs.gg/reports/104/encounters) (SM) and [105](https://darkmoon.ascensionlogs.gg/reports/105/encounters) (Uldaman)
+
+Both uploaded and crawled 2026-08-06. Results in `PLAN_3C` §T2: the site's
+`casts` is confirmed to be `SPELL_CAST_SUCCESS` (93% and **97.3%** agreement),
+`deaths` is confirmed **unobtainable** (no death or presence key exists anywhere
+in the API payload), and the Fairbanks encounter gave ground truth for the
+death-deflation failure mode — dead 82% of the fight, reported as 481 DPS with
+`validation_status: 'valid'`.
+
+### 🎯 STILL WANTED — the dummy pair (owner offered 2026-08-06)
+
+The dungeon uploads settled the *measurement* questions. They cannot settle
+**slice accuracy**, because a dungeon has phases, adds, movement and deaths. A
+dummy parse is a sustained single-target rotation, which is exactly what the sim
+models — and two logs exist that are uniquely suited.
+
+**1. Primary — `2026-08-05-22.42.20_WoWCombatLog.txt`** (unbuffed, 285.2s,
+**1,555 DPS**)
+
+This is *the* most valuable log in the project. Per its capture README, every
+condition is **verified rather than asserted**:
+
+* **the only log with a same-session stat block AND a non-cycling path** — SP 638
+  on Path of Intelligence, so every sim input is known exactly rather than
+  inferred (this is the one thing no crawled character has);
+* **unbuffed, verified** — all 11 auras on Elric are self-cast, zero external
+  buffs despite ~10 other players present. That removes the sim's weakest layer
+  (derived buffs, ±0–11%) from the comparison entirely;
+* **weapon imbue absent, verified** — Holy SP == all-school SP;
+* **target level +3 (63)**, derived two independent ways (33.6% glancing; 6.0%
+  miss) — the level every hit/crit/glancing constant is anchored to;
+* **single target** — 883 of 887 damage events on one dummy;
+* no deaths, no movement, no phases, no adds.
+
+**2. Second — `2026-08-05-23.10.44_WoWCombatLog.txt`** (buffed, 302s,
+**3,650 DPS**)
+
+Window B: same character, same gear, same rotation, same dummy, buffed. Together
+the pair is a **direct A/B test of `core/sim/buffs.py` through the crawl
+pipeline** — and we already know both answers locally, so any disagreement is
+ours.
+
+⚠ **Expected risk, worth finding out either way:** the site may not classify a
+dummy session as a boss encounter (report 104 contained a `Combat Segment` row).
+If so it will not auto-qualify as a gate candidate — but the `ability_performance`
+rows are still captured, which is most of the value.
+
 ### 🆕 What the logs already told us before uploading anything
 
 **Real in-content APM is ~21–25, not 57.** Measured across all four of the

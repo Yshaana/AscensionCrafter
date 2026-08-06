@@ -1,0 +1,80 @@
+{
+ "generated_at": "2026-08-06T15:40:10.445208+00:00",
+ "note": "Per-report reproducibility manifest for gitignored tier-2 data. Row counts are the durable audit for a re-fetch (crawl_ascensionlogs.py --recrawl-report <id>); payload_sha256 is exact only for the original capture. See this tool's docstring.",
+ "files": {
+  "abilities": {
+   "files": [
+    "abilities.jsonl.gz"
+   ],
+   "records": 13,
+   "payload_rows": 1402
+  },
+  "avoidance": {
+   "files": [
+    "avoidance.jsonl.gz"
+   ],
+   "records": 13,
+   "payload_rows": 6967
+  },
+  "damage_taken": {
+   "files": [
+    "damage_taken.jsonl.gz"
+   ],
+   "records": 13,
+   "payload_rows": 222
+  },
+  "healing": {
+   "files": [
+    "healing.jsonl.gz"
+   ],
+   "records": 13,
+   "payload_rows": 207
+  }
+ },
+ "by_report": {
+  "104": {
+   "abilities": {
+    "records": 4,
+    "payload_rows": 428,
+    "payload_sha256": "d189cb2a404859338701b675f4d79c539d6a8742608d410b8f8ba6c17134d467"
+   },
+   "avoidance": {
+    "records": 4,
+    "payload_rows": 1717,
+    "payload_sha256": "aeaa296724873fc0e3c50d36d59b901f01280cae311f9fd9916a3c43d97047e4"
+   },
+   "damage_taken": {
+    "records": 4,
+    "payload_rows": 67,
+    "payload_sha256": "a526457f4813129a167393149fcaf5a2c8fe1595345d054f9dc6ddf36729b8de"
+   },
+   "healing": {
+    "records": 4,
+    "payload_rows": 75,
+    "payload_sha256": "684e21894e8136c9126c57a711f5b7419b85675897352a4f70202417b6863c2c"
+   }
+  },
+  "105": {
+   "abilities": {
+    "records": 9,
+    "payload_rows": 974,
+    "payload_sha256": "fed621dddec1e8a2225f4fe6c3f1780a77f179a0b14a8fb1d8625b31b8bd9df9"
+   },
+   "avoidance": {
+    "records": 9,
+    "payload_rows": 5250,
+    "payload_sha256": "9733533ec3bed6fee76e473ce8171bf8a01af10eb925d1753a98b1b31d7cb9eb"
+   },
+   "damage_taken": {
+    "records": 9,
+    "payload_rows": 155,
+    "payload_sha256": "b6abcfa2008ff75ccd044e87dc8e5699d8a2cd8434c6758170dbb3ff74fd6ff6"
+   },
+   "healing": {
+    "records": 9,
+    "payload_rows": 132,
+    "payload_sha256": "b3b665ef57b11b5f4a2b6c536697ed2be576bd7023cbac9a8ee06c4b5f4793e6"
+   }
+  }
+ }
+}
