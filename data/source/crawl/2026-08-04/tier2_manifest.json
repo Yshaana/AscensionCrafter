@@ -1,0 +1,631 @@
+{
+ "generated_at": "2026-08-06T06:44:33.615567+00:00",
+ "note": "Per-report reproducibility manifest for gitignored tier-2 data. Row counts are the durable audit for a re-fetch (crawl_ascensionlogs.py --recrawl-report <id>); payload_sha256 is exact only for the original capture. See this tool's docstring.",
+ "files": {
+  "abilities": {
+   "files": [
+    "abilities.jsonl.gz"
+   ],
+   "records": 827,
+   "payload_rows": 119100
+  },
+  "avoidance": {
+   "files": [
+    "avoidance.1.jsonl.gz",
+    "avoidance.jsonl.gz"
+   ],
+   "records": 827,
+   "payload_rows": 350720
+  },
+  "damage_taken": {
+   "files": [
+    "damage_taken.jsonl.gz"
+   ],
+   "records": 827,
+   "payload_rows": 27771
+  },
+  "healing": {
+   "files": [
+    "healing.jsonl.gz"
+   ],
+   "records": 827,
+   "payload_rows": 21828
+  }
+ },
+ "by_report": {
+  "2": {
+   "abilities": {
+    "records": 115,
+    "payload_rows": 20995,
+    "payload_sha256": "6440433501d4cd0ab61d338c7ab3ecaaf1d50388eedf9219bde4e94baacadb11"
+   },
+   "avoidance": {
+    "records": 115,
+    "payload_rows": 74150,
+    "payload_sha256": "d098472ce1153fcc8ef76ea13969bda1d377e1b60bcfe410b20cb1d52a4c5714"
+   },
+   "damage_taken": {
+    "records": 115,
+    "payload_rows": 4169,
+    "payload_sha256": "df6867bfa08f5e5b030a17a64718edde7ed9c8e48f758cc1f486439716b5e7b8"
+   },
+   "healing": {
+    "records": 115,
+    "payload_rows": 3287,
+    "payload_sha256": "cb24a780903a62d5866a9c47fbdd065426ad54c48ff7ceafc13dc718c98da9b2"
+   }
+  },
+  "3": {
+   "abilities": {
+    "records": 75,
+    "payload_rows": 22115,
+    "payload_sha256": "2b297ca58835b2a65489842698260d7768bcd47403164123f50d3b1d44b80453"
+   },
+   "avoidance": {
+    "records": 75,
+    "payload_rows": 66121,
+    "payload_sha256": "892ecb1792aca2a8009d92033feeae4bac0e06856a0a63083add808e9e1ac768"
+   },
+   "damage_taken": {
+    "records": 75,
+    "payload_rows": 6479,
+    "payload_sha256": "1018c2c139a5ab6ec594bd3cbb4ee5d08430c85fbc5bb3b3c7f2655d11fbe634"
+   },
+   "healing": {
+    "records": 75,
+    "payload_rows": 3729,
+    "payload_sha256": "d863c578b781cd1c56e6c83d9b7ed0a8504fbccaa5923a0d886c7daab3cae313"
+   }
+  },
+  "4": {
+   "abilities": {
+    "records": 28,
+    "payload_rows": 1309,
+    "payload_sha256": "a2acde336d091e40d18985e1e2c02dd62099a18339d8597348664b3357a738c0"
+   },
+   "avoidance": {
+    "records": 28,
+    "payload_rows": 4235,
+    "payload_sha256": "6e17b7a3b8c60402560ac63126167aa5f55ed5f2616cb376879827ce66d8a452"
+   },
+   "damage_taken": {
+    "records": 28,
+    "payload_rows": 497,
+    "payload_sha256": "7b003e894f21e8943ab50cfa3d736a6d849ab169849dbe06b335f5b8ea86c824"
+   },
+   "healing": {
+    "records": 28,
+    "payload_rows": 339,
+    "payload_sha256": "2b96960e16569e947c16cf5153eee90313b3062d057fb5052031f70d643e9f60"
+   }
+  },
+  "5": {
+   "abilities": {
+    "records": 43,
+    "payload_rows": 3853,
+    "payload_sha256": "428693fa9100ff4c23afc11367de3b52f7309a9606d31f8fd1d66772143c83c8"
+   },
+   "avoidance": {
+    "records": 43,
+    "payload_rows": 11985,
+    "payload_sha256": "072d056acbd30ea0755e44796e66835604f6995f728284d7162f8adb2834189f"
+   },
+   "damage_taken": {
+    "records": 43,
+    "payload_rows": 1040,
+    "payload_sha256": "baa6f0d7aea9ca8c94f67d2e24d1296d7f5c2f593805c99938d61290eed0c42d"
+   },
+   "healing": {
+    "records": 43,
+    "payload_rows": 685,
+    "payload_sha256": "ed5482dad1d2db6bf3a758d6da9694f10ab66376abe354fd62a0ebc4b5564d15"
+   }
+  },
+  "6": {
+   "abilities": {
+    "records": 29,
+    "payload_rows": 4493,
+    "payload_sha256": "2545e6e9107b53fd16237d3562a00e20cd2526545f185f9e517a5bf6d593b1bb"
+   },
+   "avoidance": {
+    "records": 29,
+    "payload_rows": 10020,
+    "payload_sha256": "d4c36898752c48a557c208b084e76e6ee0d42342c73bc08f84a77962fa0b3f28"
+   },
+   "damage_taken": {
+    "records": 29,
+    "payload_rows": 947,
+    "payload_sha256": "bfeffa4ef96a6c31076dea846363241f97738fbd221adbdc05e7a22d15687366"
+   },
+   "healing": {
+    "records": 29,
+    "payload_rows": 806,
+    "payload_sha256": "05b2298000d218ed22e409839eb5b495148f93218cd7076513acb42c94d3f19a"
+   }
+  },
+  "7": {
+   "abilities": {
+    "records": 11,
+    "payload_rows": 355,
+    "payload_sha256": "c33117eae377f5a37f0dd2629364a047406c0b25f248057f731de76d60719cf4"
+   },
+   "avoidance": {
+    "records": 11,
+    "payload_rows": 2042,
+    "payload_sha256": "6871a75c56d5c96be707122483c2968736bb15770b8c5cc3c8512688782833ca"
+   },
+   "damage_taken": {
+    "records": 11,
+    "payload_rows": 164,
+    "payload_sha256": "da139a11474964de27246496e56f3fffc7ff41a849b09643a3df4eae8193c810"
+   },
+   "healing": {
+    "records": 11,
+    "payload_rows": 79,
+    "payload_sha256": "4fa5fbee9302066e7f3ce33782020af2e4469ea58fc18448267c45b522bad268"
+   }
+  },
+  "8": {
+   "abilities": {
+    "records": 7,
+    "payload_rows": 98,
+    "payload_sha256": "25215101ad54159023faaf91ee444822929c58452784171be22aa9b6d3f2a8d4"
+   },
+   "avoidance": {
+    "records": 7,
+    "payload_rows": 420,
+    "payload_sha256": "3ffa07946bd967b5d4e3f631aa13f82f5d5835697b1bdd0d95922a262f871044"
+   },
+   "damage_taken": {
+    "records": 7,
+    "payload_rows": 63,
+    "payload_sha256": "5d07469b5ad668d9b33b944653747f0155e839cc7901b0f690ab4185ce2c6897"
+   },
+   "healing": {
+    "records": 7,
+    "payload_rows": 12,
+    "payload_sha256": "933b60d87008d044a0ac99a2f03abdaed63b0645d4388e56583eb3cb3046185c"
+   }
+  },
+  "9": {
+   "abilities": {
+    "records": 13,
+    "payload_rows": 148,
+    "payload_sha256": "8bdcbf65257127186133a6670ec4abebfc889658a66e70363a8efb2aa19857c2"
+   },
+   "avoidance": {
+    "records": 13,
+    "payload_rows": 1529,
+    "payload_sha256": "b40c7df21fbe8478fc8fdb8fc42c16767bed7d6faf777fc56c8d1e0261fba6a7"
+   },
+   "damage_taken": {
+    "records": 13,
+    "payload_rows": 136,
+    "payload_sha256": "e1c241ae5c057b8160acfa3b8f042140c5f377e3caeca87fb2e524d02258bb8f"
+   },
+   "healing": {
+    "records": 13,
+    "payload_rows": 19,
+    "payload_sha256": "114ed937fbd4142952b5c4d1d6ade139ae36488d63c7cce300900de740d4121c"
+   }
+  },
+  "10": {
+   "abilities": {
+    "records": 8,
+    "payload_rows": 952,
+    "payload_sha256": "c5faf17a07eec4346c933c2b37b4442025d18ba794105d304025fde85e768c67"
+   },
+   "avoidance": {
+    "records": 8,
+    "payload_rows": 1608,
+    "payload_sha256": "68471dc753394d10c348e48e00729ba2fe2b268ca56245723cd4357e6d72f2ec"
+   },
+   "damage_taken": {
+    "records": 8,
+    "payload_rows": 224,
+    "payload_sha256": "ec054720ac658dfac233852c1161f262d5f22d7f3afb9ce9e9c11f694117ae77"
+   },
+   "healing": {
+    "records": 8,
+    "payload_rows": 161,
+    "payload_sha256": "a0ec5e81226e1c37db8267784fb903004e3a675750cf06ffba26bb7fb905a20d"
+   }
+  },
+  "11": {
+   "abilities": {
+    "records": 11,
+    "payload_rows": 492,
+    "payload_sha256": "6b44ad88837d8328cedd4857767f638714d37a4a00ecfb8dd0057f41504b6ab2"
+   },
+   "avoidance": {
+    "records": 11,
+    "payload_rows": 1646,
+    "payload_sha256": "1f1d8b4af45b9642037c0714e1265d658647017bca47f9a2512c0186b582216f"
+   },
+   "damage_taken": {
+    "records": 11,
+    "payload_rows": 177,
+    "payload_sha256": "c3cbca79af057f7658f82740f2adc4665de75bae460225d95c9649e6cf759bf6"
+   },
+   "healing": {
+    "records": 11,
+    "payload_rows": 130,
+    "payload_sha256": "f6311e4b2dfe0569d8275d8cad965867c2818ec1f1c75bef75b249bdfaf0e2c9"
+   }
+  },
+  "12": {
+   "abilities": {
+    "records": 11,
+    "payload_rows": 467,
+    "payload_sha256": "1870aa1210f17e67df6024f65b9ec25b10c63f0affafe5795921765f9253d527"
+   },
+   "avoidance": {
+    "records": 11,
+    "payload_rows": 1780,
+    "payload_sha256": "d99a172d0fc11e765f9f88f195aa74064b24d65e2af7b60b44085f1e2a63181d"
+   },
+   "damage_taken": {
+    "records": 11,
+    "payload_rows": 207,
+    "payload_sha256": "87c2904a5b0e56a9e8390f08d7f9b804bccfec63638685a01bee27523f66b176"
+   },
+   "healing": {
+    "records": 11,
+    "payload_rows": 109,
+    "payload_sha256": "d04370affd2ad99375c6d1cc1abcaf4555fc47b99228208be8c6051f52d59102"
+   }
+  },
+  "13": {
+   "abilities": {
+    "records": 4,
+    "payload_rows": 164,
+    "payload_sha256": "3b1924d0ee3d5555c92310f4473d1efaf2dba7ee849d21e7e73e72c50c951eea"
+   },
+   "avoidance": {
+    "records": 4,
+    "payload_rows": 567,
+    "payload_sha256": "f76aa6dbbe7efdc2b91b69f195501d7bf4e0af99eb32023964c5d346b4cb7415"
+   },
+   "damage_taken": {
+    "records": 4,
+    "payload_rows": 84,
+    "payload_sha256": "7ba4a6501d89f7f45027a9dca14aaa1466e75a581503e3f75c49ccff72083e40"
+   },
+   "healing": {
+    "records": 4,
+    "payload_rows": 40,
+    "payload_sha256": "bb7c1ac2567cacf89320664f5fb5d6340c918d5e88458a0f1e291a40b47cf067"
+   }
+  },
+  "14": {
+   "abilities": {
+    "records": 8,
+    "payload_rows": 313,
+    "payload_sha256": "d52551fbe96756b2bfa7a807f4133314feccd529117cdc6d2af6cd98db896802"
+   },
+   "avoidance": {
+    "records": 8,
+    "payload_rows": 1162,
+    "payload_sha256": "7623409e1133db14557ab6b9027dbba21784c1461521769f0ac644cda4166e63"
+   },
+   "damage_taken": {
+    "records": 8,
+    "payload_rows": 176,
+    "payload_sha256": "6656fd09392009f20a558d1b551fa98fc506d684ca2888aa66e0020c9cfe7f40"
+   },
+   "healing": {
+    "records": 8,
+    "payload_rows": 70,
+    "payload_sha256": "a3d61cf4d686ffb4d4a901ae6d16a3d3462a44333c804497b21a0efb83e92401"
+   }
+  },
+  "15": {
+   "abilities": {
+    "records": 3,
+    "payload_rows": 61,
+    "payload_sha256": "3b79dd25739a08c20c51135e12996f4c5c21987bc352bf3749c4a5d63b2da1d8"
+   },
+   "avoidance": {
+    "records": 3,
+    "payload_rows": 110,
+    "payload_sha256": "7fadf5452465ae523354de657665d2c2848b2b90d36b584afc4f94286743de94"
+   },
+   "damage_taken": {
+    "records": 3,
+    "payload_rows": 25,
+    "payload_sha256": "31d19602dbbaf6776206307614e2a00a7ce0675c2d4954d712f6154825e7da12"
+   },
+   "healing": {
+    "records": 3,
+    "payload_rows": 10,
+    "payload_sha256": "6fbf1729ff7164ff27afa0c21e81e4046bc76ea9dc08ee97f74160f939649626"
+   }
+  },
+  "16": {
+   "abilities": {
+    "records": 1,
+    "payload_rows": 362,
+    "payload_sha256": "410f356de342621b4d1c4385ab23c66e5367911f1aefa0e214295be7c5e8594f"
+   },
+   "avoidance": {
+    "records": 1,
+    "payload_rows": 245,
+    "payload_sha256": "d3addbfc60a8ad70f7298d9334440309dc90b8f3318df9cae25b12c4fb9ee18d"
+   },
+   "damage_taken": {
+    "records": 1,
+    "payload_rows": 489,
+    "payload_sha256": "6a59e1b1e24da705580ee28ad7bcc526c72b587d8055f0b4449fbe4b77bde016"
+   },
+   "healing": {
+    "records": 1,
+    "payload_rows": 47,
+    "payload_sha256": "72050d03cdc68eeeecdf146e7810cafb42fc459914036d6b03757ed5444c5b04"
+   }
+  },
+  "18": {
+   "abilities": {
+    "records": 9,
+    "payload_rows": 1411,
+    "payload_sha256": "eaedbc0085402909f866f9a683ee30446b65d834babebd2ab1102ccf91810347"
+   },
+   "avoidance": {
+    "records": 9,
+    "payload_rows": 4823,
+    "payload_sha256": "7bcf4496aa06e61b72bd2662fe47734b98ebab7f4b32d71a720c8f113ca29e81"
+   },
+   "damage_taken": {
+    "records": 9,
+    "payload_rows": 431,
+    "payload_sha256": "3a3a6eff0f1c39aa2423811e4f2cba4b2c52dae7252abacb629faccd7e8c253b"
+   },
+   "healing": {
+    "records": 9,
+    "payload_rows": 296,
+    "payload_sha256": "e793f560852369d243defb202427095b733e33a21555e65173b1c6699b5c419c"
+   }
+  },
+  "19": {
+   "abilities": {
+    "records": 75,
+    "payload_rows": 9483,
+    "payload_sha256": "2548b78bbe4a7bfcbc8f32736a355349a14865edec20445c851cc82353f2d601"
+   },
+   "avoidance": {
+    "records": 75,
+    "payload_rows": 25550,
+    "payload_sha256": "e5875aac07fa830b64e5c7023b3ac10510346adc0dc9ffef842c74aaaca321c4"
+   },
+   "damage_taken": {
+    "records": 75,
+    "payload_rows": 1929,
+    "payload_sha256": "d9e067d14c81ce5cfdbf6c7510721b32436c4b6958034d383649a07cacfbb66c"
+   },
+   "healing": {
+    "records": 75,
+    "payload_rows": 2130,
+    "payload_sha256": "73fe8dcb47a2e5bfa689c58d1f94387982346c8ac174759cf2c3d41369e9e535"
+   }
+  },
+  "20": {
+   "abilities": {
+    "records": 76,
+    "payload_rows": 21244,
+    "payload_sha256": "a33a3a513fcd66b2d07a019fb1f34a07dea7169ecd4c505858ea63cde2150e41"
+   },
+   "avoidance": {
+    "records": 76,
+    "payload_rows": 49030,
+    "payload_sha256": "08107823a4e31c8ded88baa72bdcffd007327ad44720431294ce2f04267ec7c7"
+   },
+   "damage_taken": {
+    "records": 76,
+    "payload_rows": 3284,
+    "payload_sha256": "09d29ecd33c49887cd01e3962dd7c75a6f3051d7a8a541e82210e2decb0449f0"
+   },
+   "healing": {
+    "records": 76,
+    "payload_rows": 4802,
+    "payload_sha256": "b7ac7392720035d4ff663e7a27a79d6d9872b9a136ca6e4ab68bd1e43b9770e7"
+   }
+  },
+  "21": {
+   "abilities": {
+    "records": 55,
+    "payload_rows": 4322,
+    "payload_sha256": "f66b9e77d39d8fcc5cb01feb61550fa9bf7b4f066932809b82efba3d094dd90c"
+   },
+   "avoidance": {
+    "records": 55,
+    "payload_rows": 11891,
+    "payload_sha256": "40ef3de9cd019f6117555c8224f3a1732ed4125f922fdb96317b0fd303dcfa0b"
+   },
+   "damage_taken": {
+    "records": 55,
+    "payload_rows": 1200,
+    "payload_sha256": "297845e89b8de3c0318173f0fd63cd64c58b8a79a5efab90d6a5f6cf348ca0d6"
+   },
+   "healing": {
+    "records": 55,
+    "payload_rows": 790,
+    "payload_sha256": "668abfbfc3062232597a1e927a842609dba94a99f4ea906696b124df65ea1a25"
+   }
+  },
+  "22": {
+   "abilities": {
+    "records": 3,
+    "payload_rows": 769,
+    "payload_sha256": "60fd21d23784aedcbec83a14c2e4594210c5069a34207ad8ef89b0c8d7afa9d4"
+   },
+   "avoidance": {
+    "records": 3,
+    "payload_rows": 2415,
+    "payload_sha256": "884b4d97990daf83720d2682bb00e360f4ef622df63e31a33872a4f74cb96f1d"
+   },
+   "damage_taken": {
+    "records": 3,
+    "payload_rows": 145,
+    "payload_sha256": "102812fb15618a89e5ffcff19a0871048995e0f457455d9ba7a0a4b8616ccdeb"
+   },
+   "healing": {
+    "records": 3,
+    "payload_rows": 93,
+    "payload_sha256": "9df9a6c127ca380b979953c7ccc375674d598f4bb84752bec986a9261797cb00"
+   }
+  },
+  "23": {
+   "abilities": {
+    "records": 32,
+    "payload_rows": 1566,
+    "payload_sha256": "c75fd96ca407d9b0c34464352b915b58c75933fa9fe69c46366c1617eb67dc33"
+   },
+   "avoidance": {
+    "records": 32,
+    "payload_rows": 5776,
+    "payload_sha256": "15041f57edb2ee6fe29cfaa2bcbec1686bdb00c10db4cb4936048580cd6e5c4e"
+   },
+   "damage_taken": {
+    "records": 32,
+    "payload_rows": 604,
+    "payload_sha256": "2742a3603bb82233d248bf30de1d221cafbfd0c1b3d281d03f651f279ffd8d11"
+   },
+   "healing": {
+    "records": 32,
+    "payload_rows": 270,
+    "payload_sha256": "eb7043d1b025cbb04ef35f929736ac1ea4ec1d390aad7c42d182cd96b4bb3cc8"
+   }
+  },
+  "24": {
+   "abilities": {
+    "records": 62,
+    "payload_rows": 4032,
+    "payload_sha256": "fa5baff4b96f5d9b6fbd095086cca2fb398503f080e6deae0b3e8225f8d8cad8"
+   },
+   "avoidance": {
+    "records": 62,
+    "payload_rows": 12955,
+    "payload_sha256": "7b11631fdf112d54027c8910b7bd2186babbfced3707d8eba26052bfbf271585"
+   },
+   "damage_taken": {
+    "records": 62,
+    "payload_rows": 972,
+    "payload_sha256": "aa688e10dab32208e9cef16339e6fb520538caa6130839b0e68ad3cec5d7ceaf"
+   },
+   "healing": {
+    "records": 62,
+    "payload_rows": 475,
+    "payload_sha256": "26d130b66cf92b3ed3963059fbb93756aa1867347e3d89b9d4706c7cabafda2c"
+   }
+  },
+  "25": {
+   "abilities": {
+    "records": 9,
+    "payload_rows": 1411,
+    "payload_sha256": "95a679393fca82c7c800e5ba3d0f4e056891b41550017c9dda61a34da2343cf8"
+   },
+   "avoidance": {
+    "records": 9,
+    "payload_rows": 4823,
+    "payload_sha256": "a9a8b3768e311b91a9379a3630acb036cdd28c93063941ecb619e7b238445209"
+   },
+   "damage_taken": {
+    "records": 9,
+    "payload_rows": 431,
+    "payload_sha256": "6f5984b2f9518bd346ee0cfefc0fa5ef42dd9d4a40ea05ad674870db9496c7b9"
+   },
+   "healing": {
+    "records": 9,
+    "payload_rows": 296,
+    "payload_sha256": "41d9249c4c33ee35c029ad38a3a0d457bf56e5a9232026b76abc14984b168048"
+   }
+  },
+  "26": {
+   "abilities": {
+    "records": 14,
+    "payload_rows": 516,
+    "payload_sha256": "6546c8b2c1096f678f28eb06a120fbc0a7848e59857c98da9e88335af9266d4a"
+   },
+   "avoidance": {
+    "records": 14,
+    "payload_rows": 1402,
+    "payload_sha256": "1c3ecc6cf68cdedbca182f7d7afd540db9f84a5c94fb7b206c8bbc429b9a89f0"
+   },
+   "damage_taken": {
+    "records": 14,
+    "payload_rows": 191,
+    "payload_sha256": "ad434a25ff53a8f01f190aca5a4c80e7bb0534c87631f152a37d5699647fbb10"
+   },
+   "healing": {
+    "records": 14,
+    "payload_rows": 88,
+    "payload_sha256": "f733f7d14f56167ec8cd42866e6b62722a231a1b62b54bd46a39ec3c7df83e2c"
+   }
+  },
+  "27": {
+   "abilities": {
+    "records": 25,
+    "payload_rows": 4418,
+    "payload_sha256": "56b129b6a97c7270474ab92c42691685747e1956f2a66b146010ac7b5db3498c"
+   },
+   "avoidance": {
+    "records": 25,
+    "payload_rows": 9840,
+    "payload_sha256": "20cc9fc13204b725ffce1faf978b0ad8ff15a463b6a611f118e170cba8138f79"
+   },
+   "damage_taken": {
+    "records": 25,
+    "payload_rows": 954,
+    "payload_sha256": "543788c722e7b26970071ee11800ef894b809feacf3639c4f2cd6bd832c5fba1"
+   },
+   "healing": {
+    "records": 25,
+    "payload_rows": 1028,
+    "payload_sha256": "3030020f517715e072209503933fedcaf9e38f15d68b176a5eea4178a91e51d2"
+   }
+  },
+  "28": {
+   "abilities": {
+    "records": 50,
+    "payload_rows": 6915,
+    "payload_sha256": "f1544644a7f05078539ace77ebb6a9b62df9830aab0a3da9c5dc04223234a6a2"
+   },
+   "avoidance": {
+    "records": 50,
+    "payload_rows": 22295,
+    "payload_sha256": "ea4c362f07c3cc3e2d8005df35b4cb0144d22cc922b11d2809e946fc1b87fe56"
+   },
+   "damage_taken": {
+    "records": 50,
+    "payload_rows": 1381,
+    "payload_sha256": "99b1be5c37a218e999fe576f42598b5c28f1b8584bf07084b094a1a84b03b493"
+   },
+   "healing": {
+    "records": 50,
+    "payload_rows": 1030,
+    "payload_sha256": "de412e59c1e252f6509b4571b1f5b130746b93cc6743a7a965814d7c5b288cd1"
+   }
+  },
+  "29": {
+   "abilities": {
+    "records": 50,
+    "payload_rows": 6836,
+    "payload_sha256": "6da59ed25257fd0c01c075099b32db89cf5b6da49e9cfc816365d7bf0dc1873f"
+   },
+   "avoidance": {
+    "records": 50,
+    "payload_rows": 22300,
+    "payload_sha256": "c060a623866411fd1cbe351276bedcf251540e6eb0965fd7a09dfbaed876d8ac"
+   },
+   "damage_taken": {
+    "records": 50,
+    "payload_rows": 1372,
+    "payload_sha256": "85a4a1107cde5363748ced38d9e9159db18ada0521ad727e367eae659b75fb42"
+   },
+   "healing": {
+    "records": 50,
+    "payload_rows": 1007,
+    "payload_sha256": "023570c7f92e01ef53d7c4d499338170480f208455f03b42510c34a020e56693"
+   }
+  }
+ }
+}
