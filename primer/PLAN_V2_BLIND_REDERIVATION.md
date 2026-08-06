@@ -10,6 +10,48 @@ scoring is decided after seeing the result measures nothing.
 
 ---
 
+## 🛑 AMENDMENT PENDING — DO NOT RUN v2 AGAINST THIS DOCUMENT AS WRITTEN
+
+**Stamped 2026-08-06 by the monitoring chat, after the `3e` audit
+(`primer/AUDIT_3E_ADVERSARIAL.md` §8), and decided by the owner the same day.**
+
+**The blind test as written is not blind.** Step 2 makes `known_answer` the thing that
+turns this from a demo into a test and fills it from the seeds; Step 3 then lists v2's
+permitted inputs as *"the current capture, **the databases**, the crawl corpus, the sim."*
+**The databases are the answer key.** `RETRACTIONS` names v1's graded claims verbatim and
+by slug — `sword_specialization_zero_output`, `duality_sp_amp_not_applying`,
+`improved_cleave_is_low_value_because_the_flat_is_small`, `art_of_war_dead_slot` — which
+are exactly the ones cited below as v1's known-wrong claims. A v2 session with DB access
+learns, before deriving anything, that Sword Specialization is not zero-output.
+
+**✅ Owner decision, 2026-08-06 — rescope the scoring:**
+
+* **The headline is v1's still-open (⬜) claims only.** They have no answer key anywhere in
+  the tree, and they are scored against the 2026-08-06 Hammerdin proc-retest capture —
+  tier-1 evidence rather than a seeded verdict.
+* **The retracted claims become a labelled sanity check**, reported after the headline and
+  reported *as leaked*: "v2 avoided these; it could also have looked them up."
+* **No DB blinding and no pre-v1 rebuild.** Blinding by exclusion list is an honour system
+  unless a filtered view is built, and this project does not need another guard that is
+  documented rather than implemented. A pre-v1 rebuild would be a real blind but hands v2
+  less knowledge than the current toolkit, so a v2 miss could not be separated from "v2 had
+  less to work with".
+* **Step 4's flagship outcome is RETIRED** — *"v2 reproduces a retracted v1 claim → the
+  single most valuable outcome the test can produce"*. It was never available; the leak had
+  already suppressed it.
+* **Unchanged and still the best guard in this document:** scoring v2's *silence* as an
+  improvement, "or the test rewards overconfidence". That works on open claims.
+
+⚠ **Also wrong below and corrected here: `retractions` holds 32 rows, not 24.** It held 32
+before `3e` started. The count is load-bearing — it is this document's argument for why v1
+is a good evaluation set, and `PLAN_3G:113` sizes its regression suite from it.
+
+**Until `3f` lands the amendment into the body of this plan and into
+`ingest/export/seed_epistemics.py` (`SESSION_3F_PRIMER.md` F8), v2 does not run.** A
+decision that changes what a test measures is not a prose note — *"Prose is not a seed."*
+
+---
+
 ## Why v1 is an unusually good evaluation set
 
 Not sentiment. Three properties, none of which a synthetic benchmark would have:
