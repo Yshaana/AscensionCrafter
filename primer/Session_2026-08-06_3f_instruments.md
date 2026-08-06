@@ -14,7 +14,7 @@ Range: `c942541..HEAD`.
 > **5 of 36 within ±20% · 2 qualified · slice accuracy 64.3% at coverage ≥20%
 > (n=23)**
 
-Reported before and after all six commits, and **identical every time** —
+Reported before and after all **eight** commits, and **identical every time** —
 including across a full 21-step `py cli/rebuild.py`, which is the only run that
 could have moved it through the seed layer the gate reads. Two stronger checks
 than the headline pair: every per-character `delta_pct` and `within_tolerance`
@@ -212,6 +212,35 @@ pet's real `sourceName` is `Water Elemental`, not the README's creature name
 
 ---
 
+## F8c — documents get the lifecycle the claims already have
+
+Added to the work order mid-session. **Every artifact in this project has a
+lifecycle except documents:** claims get retracted, predictions get outcomes,
+bugs get closed with checks, cohorts get superseded — and `primer/` had never
+lost or labelled a file.
+
+**53 files now carry a status line: 13 `LIVE` · 32 `HISTORICAL` · 6
+`FINDING <date>` · 2 flagged uncertain.** Verified programmatically: zero
+files without one. **Additive only** — nothing deleted, nothing moved, no
+historical content rewritten; 188 insertions against 5 deletions, and the 5 are
+one struck-through sentence.
+
+**Two flagged rather than guessed at** (rule 6 — a file mislabelled
+`HISTORICAL` becomes invisible, one mislabelled `LIVE` becomes a trap, and both
+are worse than an open question): `PHASE_2_simulation.md` and
+`ADDENDUM_3E_to_3F.md`. Both are in `PROGRESS.md`'s blocked table with the
+reading taken and why it is uncertain.
+
+**Two rules written into `START_HERE_FOR_CODE.md` and `CLAUDE.md`** so a
+document is *born* with a status: it carries one in the commit that creates it,
+and it declares its **expiry condition** at birth. Plus the owner's second new
+standing rule — *a magnitude never appears in a markdown file except as
+generated output* — whose evidence is four-for-four: every numeric error the
+`3e` audit found in a document was hand-transcribed, and **zero** were in
+numbers a tool emitted.
+
+---
+
 ## Corrections to the record
 
 * **Blizzard's Window C cast count: 305 → 4.** The 305 was a raw grep
@@ -255,8 +284,14 @@ pet's real `sourceName` is `Water Elemental`, not the README's creature name
 | 9 | One `RETRACTIONS` row for the slice-accuracy sign reversal | ✅ |
 | 10 | `phase_label` derived, exclusions counted, `gear.py:409`'s caveat gone | ✅ |
 | 11 | `PLAN_V2` amended, dated, says 32, rescope seeded | ✅ |
+| 12 | Every file in `primer/` carries a status line; nothing deleted or moved; unclear files in the blocked table; born-with-a-status rule in `START_HERE_FOR_CODE.md` + `CLAUDE.md` | ✅ **53 files: 13 LIVE / 32 HISTORICAL / 6 FINDING / 2 flagged** |
+| 13 | `PHASE_4`'s *"`api/` already exists"* premise corrected | ✅ and **sized** — 5 thin functions + 5 CLI re-points |
 
-**10 of 11. The one outstanding is Block C, spilled whole and deliberately.**
+**12 of 13. The one outstanding is Block C, spilled whole and deliberately.**
+
+⚠ Exit conditions 12 and 13 were **added to the work order by the owner at
+00:30 on 2026-08-07** (`b4eea78`), mid-session, along with two new standing
+rules. Both are done, in `83f3d09`.
 
 ---
 
