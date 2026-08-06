@@ -1,3 +1,63 @@
+# 🆕 THE PAIRED DUNGEON RUN — 2026-08-06 (owner-offered; NOT restart-gated)
+
+**Run this whenever convenient — it does not wait on the server restart.** It is
+a *second, independent* ask from the dummy protocol below, and it is cheap: play
+a dungeon you were going to play anyway, with logging on, and upload it.
+
+## Why it is worth a run of its own
+
+The owner has **never uploaded a log**, so his character is absent from the crawl
+corpus. Every crawled character we calibrate against has inputs we *infer* — gear
+resolved through BisBeard, cards resolved through the crosswalk, buffs derived
+from other players' boards, stats computed rather than read. **A dungeon he logs
+locally AND uploads gives the same encounter measured twice**, once by us at
+ground truth and once by the site's API. That is a check digit on the entire
+crawl pipeline, and nothing else available produces one.
+
+What it settles, in rough order of value:
+
+1. **`PLAN_3C` T2c — does the site's `casts` field mean what we think?** Blocking
+   the whole log-admissibility rule. The site reports `casts=0` for proc/DoT
+   damage (Immolation: 0 casts, 47 hits), so crawl casts/sec under-reads
+   proc-heavy kits — Qt logs **9,310 DPS at 0.11 casts/sec**. Comparing the
+   site's count against `SPELL_CAST_SUCCESS` in his own log resolves it in one
+   query.
+2. **A real in-content APM anchor.** His dummy parses give **57.3 / 57.1 APM**
+   (two logs, 0.3% apart) — but that is a stationary dummy with no movement or
+   mechanics, i.e. an *upper bound*. A dungeon number is what an admissibility
+   threshold would actually need.
+3. **The first crawled character with fully known inputs.** Gear, cards, stats,
+   buffs and rotation all verifiable instead of inferred — so for one character
+   we can measure `PLAN_3C`'s **slice accuracy** against ground truth and find
+   out whether the sim's ~50–150% spread is real or an artifact of inferred
+   inputs.
+4. **Does `deaths` ever populate?** It is a declared column with **0 of 19,649**
+   rows filled and the crawler never mentions the field. If *anyone* in the group
+   dies, a report we control tells us whether the data is available at all — a
+   capture bug or a genuinely absent field.
+5. **End-to-end pipeline test:** snapshot matching, gear resolution, card
+   resolution and buff derivation, all checkable against what he knows was true.
+
+## What to do (low friction — normal play, four extra minutes)
+
+1. **Stat export (AscensionCrafterExport) right before you zone in**, and note
+   whether the weapon imbue is on. 🛑 Same-session matters: `2e` showed a stat
+   block from a *different* session is the entire error for weapon-dominated
+   abilities.
+2. **Combat logging on for the whole run** (ALC). Note the log file's exact name.
+3. **Play normally.** Do not optimise for the capture — a representative run is
+   the point. Any dungeon, any difficulty; note which.
+4. **Upload to ascensionlogs.gg and send the report link.** The link is the
+   whole deliverable on the crawl side — it gives us the `report_id`.
+5. **Jot down, roughly:** your character name as logged, the dungeon and
+   difficulty, and **whether anyone in the group died** (that is item 4 above —
+   no need to arrange it, just note it).
+
+⚠ If the restart happens before you run this, note that too — it changes which
+side of the #200295 fix the log sits on.
+
+---
+
 # ONE-SESSION DUMMY PROTOCOL — 2026-08-06 (3b pre-flight; supersedes the list below as the active ask)
 
 **Designed to answer every owner-gated item in one visit: six windows,
