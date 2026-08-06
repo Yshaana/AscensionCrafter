@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-08-06T21:10:01+00:00",
- "git_sha": "c7d28922a45a23b7f87c8d7ba3e3bae3ec191fb6",
- "git_working_tree_dirty": false,
+ "generated_at": "2026-08-06T22:59:09+00:00",
+ "git_sha": "23b4d8274a066fefa9a8473f641c1548d4dda105",
+ "git_working_tree_dirty": true,
  "realm": "Darkmoon",
  "season": "S10",
  "criteria_in_force": {
@@ -28,12 +28,34 @@
   "median_slice_accuracy_pct_at_coverage_ge_20": 64.29871133238616,
   "slice_accuracy_coverage_floor_pct": 20.0,
   "slice_accuracy_by_coverage_band_pct": {
-   ">=0": 163.73492127040677,
-   ">=10": 141.2220541943169,
-   ">=20": 64.29871133238616,
-   ">=30": 63.44885540479892,
-   ">=50": 63.44885540479892
+   ">=0": {
+    "median_pct": 163.73492127040677,
+    "n": 33,
+    "readable": false
+   },
+   ">=10": {
+    "median_pct": 141.2220541943169,
+    "n": 26,
+    "readable": false
+   },
+   ">=20": {
+    "median_pct": 64.29871133238616,
+    "n": 23,
+    "readable": true
+   },
+   ">=30": {
+    "median_pct": 63.44885540479892,
+    "n": 20,
+    "readable": true
+   },
+   ">=50": {
+    "median_pct": 63.44885540479892,
+    "n": 8,
+    "readable": true
+   }
   },
+  "slice_accuracy_band_note": "Only bands at or above the 20% floor are readable as accuracy. Below it the ratio is dominated by its own denominator \u2014 the >=0 band reads ~164% and is the artifact 3e retracted, not a finding that the sim over-produces.",
+  "per_character_slice_accuracy_policy": "ANNOTATED IN PLACE, NOT FLOORED (3f F7). A per-character value below the coverage floor keeps its raw number and carries a sibling `slice_accuracy_caveat` saying it is not a measurement. Flooring would delete the evidence for 3e's own retraction \u2014 Mutaforma's 1,859,400% at 0.2% coverage IS what 'this ratio explodes as coverage -> 0' looks like.",
   "passer_coverage_pct": {
    "Ari": 57.6,
    "Chastie": 4.6,
@@ -58,9 +80,11 @@
   "frozen_at": "2026-08-06",
   "frozen_size": 41,
   "still_qualifying": 41,
+  "scored": 41,
   "dropped": [],
+  "excluded_after_selection": [],
   "qualifying_but_not_frozen_in": 116,
-  "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat."
+  "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat. TWO exits: `dropped` is the completeness filter, `excluded_after_selection` is the scoring loop. frozen_size == still_qualifying + len(dropped), and still_qualifying == scored + len(excluded_after_selection)."
  },
  "holdout": {
   "slug": "holdout_3e_crawled_gate_validation_set",
@@ -72,8 +96,8 @@
    7661
   ],
   "members_scored": 5,
-  "read": true,
-  "note": "split out of the headline in 3e A4. Previously counted in 'n of 41', so any fix that lifted these five moved the headline AND spent the holdout in the same number. Results are REDACTED here unless the run passed --read-holdout.",
+  "read": false,
+  "note": "split out of the headline in 3e A4. Previously counted in 'n of 41', so any fix that lifted these five moved the headline AND spent the holdout in the same number. `read` is whether THIS run read it. A run that did not read it carries the previous reading forward under `results_carried_forward_from` rather than erasing it, and reports REDACTED only when there is no previous reading.",
   "results": [
    {
     "character_id": 460,
@@ -110,7 +134,13 @@
     "modelled_damage_pct": 52.5,
     "within_tolerance": false
    }
-  ]
+  ],
+  "results_carried_forward_from": {
+   "git_sha": "c7d28922a45a23b7f87c8d7ba3e3bae3ec191fb6",
+   "generated_at": "2026-08-06T21:10:01+00:00",
+   "slug": "holdout_3e_crawled_gate_validation_set"
+  },
+  "results_carried_forward_note": "\ud83d\uded1 THESE NUMBERS ARE NOT FROM THIS RUN. They were read at the run stamped above and are carried forward verbatim because this run did not pass --read-holdout. Re-writing them as REDACTED would DESTROY a committed result to record that it was not re-read, which is a worse trade: a holdout is spent once and the record of that reading is the thing worth keeping. Compare git_sha above against results_carried_forward_from before citing them \u2014 if they differ, the model may have moved since they were read."
  },
  "cohort": [
   {
@@ -121,6 +151,7 @@
    "delta_pct": -9.71,
    "modelled_damage_pct": 57.6,
    "slice_accuracy_pct": 156.75,
+   "slice_accuracy_caveat": null,
    "within_tolerance": true
   },
   {
@@ -131,6 +162,7 @@
    "delta_pct": -98.28,
    "modelled_damage_pct": 49.3,
    "slice_accuracy_pct": 3.5,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -141,6 +173,7 @@
    "delta_pct": -75.17,
    "modelled_damage_pct": 47.6,
    "slice_accuracy_pct": 52.16,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -151,6 +184,7 @@
    "delta_pct": -21.57,
    "modelled_damage_pct": 47.9,
    "slice_accuracy_pct": 163.73,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -161,6 +195,7 @@
    "delta_pct": -90.45,
    "modelled_damage_pct": 36.6,
    "slice_accuracy_pct": 26.1,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -171,6 +206,7 @@
    "delta_pct": 68.07,
    "modelled_damage_pct": 28.3,
    "slice_accuracy_pct": 593.89,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -181,6 +217,7 @@
    "delta_pct": -91.18,
    "modelled_damage_pct": 27.5,
    "slice_accuracy_pct": 32.07,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -191,6 +228,7 @@
    "delta_pct": -71.18,
    "modelled_damage_pct": 17.7,
    "slice_accuracy_pct": 162.84,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 17.7%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -201,6 +239,7 @@
    "delta_pct": -72.99,
    "modelled_damage_pct": 53.4,
    "slice_accuracy_pct": 50.58,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -211,6 +250,7 @@
    "delta_pct": -63.57,
    "modelled_damage_pct": 58.2,
    "slice_accuracy_pct": 62.6,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -221,6 +261,7 @@
    "delta_pct": -88.85,
    "modelled_damage_pct": 3.8,
    "slice_accuracy_pct": 293.39,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 3.8%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -231,6 +272,7 @@
    "delta_pct": -44.33,
    "modelled_damage_pct": 37.4,
    "slice_accuracy_pct": 148.84,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -241,6 +283,7 @@
    "delta_pct": -71.97,
    "modelled_damage_pct": 9.9,
    "slice_accuracy_pct": 283.14,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 9.9%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -251,6 +294,7 @@
    "delta_pct": -85.65,
    "modelled_damage_pct": 46.2,
    "slice_accuracy_pct": 31.06,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -261,6 +305,7 @@
    "delta_pct": 20.98,
    "modelled_damage_pct": 48.9,
    "slice_accuracy_pct": 247.41,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -271,6 +316,7 @@
    "delta_pct": 9.09,
    "modelled_damage_pct": 4.6,
    "slice_accuracy_pct": 2371.44,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 4.6%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": true
   },
   {
@@ -281,6 +327,7 @@
    "delta_pct": 641.5,
    "modelled_damage_pct": 82.2,
    "slice_accuracy_pct": 902.07,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -291,6 +338,7 @@
    "delta_pct": -75.47,
    "modelled_damage_pct": 44.5,
    "slice_accuracy_pct": 55.13,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -301,6 +349,7 @@
    "delta_pct": -98.94,
    "modelled_damage_pct": 0.0,
    "slice_accuracy_pct": null,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": null
   },
   {
@@ -311,6 +360,7 @@
    "delta_pct": -79.49,
    "modelled_damage_pct": 10.2,
    "slice_accuracy_pct": 201.06,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 10.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -321,6 +371,7 @@
    "delta_pct": -2.6,
    "modelled_damage_pct": 5.6,
    "slice_accuracy_pct": 1739.2,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 5.6%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": true
   },
   {
@@ -331,6 +382,7 @@
    "delta_pct": -63.13,
    "modelled_damage_pct": 4.2,
    "slice_accuracy_pct": 877.77,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 4.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -341,6 +393,7 @@
    "delta_pct": -83.41,
    "modelled_damage_pct": 37.7,
    "slice_accuracy_pct": 44.01,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -351,6 +404,7 @@
    "delta_pct": -76.19,
    "modelled_damage_pct": 57.8,
    "slice_accuracy_pct": 41.19,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -361,6 +415,7 @@
    "delta_pct": -55.44,
    "modelled_damage_pct": 69.3,
    "slice_accuracy_pct": 64.3,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -371,6 +426,7 @@
    "delta_pct": -77.33,
    "modelled_damage_pct": 3.0,
    "slice_accuracy_pct": 755.8,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 3.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -381,6 +437,7 @@
    "delta_pct": -78.82,
    "modelled_damage_pct": 56.2,
    "slice_accuracy_pct": 37.69,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -391,6 +448,7 @@
    "delta_pct": 146.41,
    "modelled_damage_pct": 32.4,
    "slice_accuracy_pct": 760.54,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -401,6 +459,7 @@
    "delta_pct": 129.4,
    "modelled_damage_pct": 31.5,
    "slice_accuracy_pct": 728.25,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -411,6 +470,7 @@
    "delta_pct": 3618.8,
    "modelled_damage_pct": 0.2,
    "slice_accuracy_pct": 1859400.19,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": false
   },
   {
@@ -421,6 +481,7 @@
    "delta_pct": 707.65,
    "modelled_damage_pct": 0.0,
    "slice_accuracy_pct": null,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": null
   },
   {
@@ -431,6 +492,7 @@
    "delta_pct": -16.63,
    "modelled_damage_pct": 62.4,
    "slice_accuracy_pct": 133.6,
+   "slice_accuracy_caveat": null,
    "within_tolerance": true
   },
   {
@@ -441,6 +503,7 @@
    "delta_pct": -34.6,
    "modelled_damage_pct": 0.0,
    "slice_accuracy_pct": null,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": null
   },
   {
@@ -451,6 +514,7 @@
    "delta_pct": -50.89,
    "modelled_damage_pct": 22.3,
    "slice_accuracy_pct": 220.21,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   },
   {
@@ -461,6 +525,7 @@
    "delta_pct": -11.63,
    "modelled_damage_pct": 13.3,
    "slice_accuracy_pct": 664.45,
+   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 13.3%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
    "within_tolerance": true
   },
   {
@@ -471,6 +536,7 @@
    "delta_pct": 439.86,
    "modelled_damage_pct": 49.9,
    "slice_accuracy_pct": 1081.88,
+   "slice_accuracy_caveat": null,
    "within_tolerance": false
   }
  ]

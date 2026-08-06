@@ -84,12 +84,28 @@ EXPECTED_FAILURES = {
         "Lance. A caster whose whole rotation is fillers is the case where one "
         "spam button absorbing the budget is most visibly wrong",
     "[dot_caster] fast_sim allocates GCDs to more than one filler":
-        "ENGINE_BUGS.md E7 — after B1 and B3 this PASSES on cp_melee (1 of 7 -> "
-        "2 of 7). The DoT caster reads 1 of 8 because its remaining fillers are "
+        "ENGINE_BUGS.md E7 — 0 of 7 fillers cast. Its remaining fillers are "
         "mixed direct+periodic abilities competing in a spam tier where one "
-        "button correctly absorbs the budget. Left registered rather than "
-        "rewritten: declaring a check invalid because it stopped flattering the "
-        "code is what this registry exists to prevent",
+        "button absorbs the budget. Left registered rather than rewritten: "
+        "declaring a check invalid because it stopped flattering the code is "
+        "what this registry exists to prevent",
+    # 🚨 ADDED 3f F3, AND ITS ARRIVAL IS THE FINDING. This entry did not exist
+    # because the check was measuring the WRONG SET: `_filler_ids` classified
+    # on `cooldown_seconds`, the rule `fast_sim` used BEFORE 3e B1, so
+    # cooldown-less bounded abilities were counted as fillers and cp_melee read
+    # "3 of 7 firing" and passed. Against the partition fast_sim actually uses
+    # (`_useful_cast_interval`) the same run reads **1 of 5** and fails.
+    #
+    # Nothing about the sim changed — this is an instrument correction
+    # revealing a pre-existing state. 🛑 CONSEQUENCE: E7 affects ALL THREE
+    # fixtures, not two, and `3e`'s "after B1 and B3 this PASSES on cp_melee
+    # (1 of 7 -> 2 of 7)" was computed over the drifted set and is withdrawn.
+    "[cp_melee] fast_sim allocates GCDs to more than one filler":
+        "ENGINE_BUGS.md E7 — 1 of 5 unbounded fillers casts. Registered in 3f "
+        "F3 when the drifted _filler_ids classifier was corrected; the sim was "
+        "NOT changed and the gate did not move. The four starved entries "
+        "(25286, 275871, 276076, 998107) are the same one-spam-button-absorbs-"
+        "the-budget shape as the other two fixtures",
 }
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
@@ -553,16 +569,33 @@ def _load_fixture(conn, ct, conv, filename):
 
 
 def _filler_ids(conn, apl, level):
-    """On-GCD APL entries with no cooldown — the 'filler' tier fast_sim
-    allocates last. Classified the same way `tiers.py` does, from the resolved
-    ability's own `cooldown_seconds`, so the check cannot drift from the code
-    it tests by re-implementing the rule differently."""
-    from core.sim.tiers import _resolve_all
+    """The UNBOUNDED tier — the spam buttons `fast_sim` allocates last.
+
+    🚨 3f F3 — THIS DOCSTRING USED TO CLAIM THE CHECK "cannot drift from the
+    code it tests by re-implementing the rule differently", AND THEN DID
+    EXACTLY THAT. It classified on `cooldown_seconds`, which is what `tiers.py`
+    used *before* `3e` B1. `fast_sim` now partitions on
+    `_useful_cast_interval` into `cp_gated` / `bounded` / `unbounded` /
+    `off_gcd` (`tiers.py:301-307`), and a cooldown-less **pure DoT** is
+    `bounded` — allocated FIRST, not last — while this function still counted
+    it as a filler. That corrupted the `EXPECTED_FAILURES` bookkeeping text,
+    which quotes counts taken over the wrong set.
+
+    The rule is now IMPORTED rather than restated: an ability is a filler iff
+    `_useful_cast_interval` says nothing bounds it. If B1's partition changes
+    again, this moves with it instead of silently disagreeing.
+
+    🛑 MUTATION THAT MAKES THIS FAIL: change `_useful_cast_interval` to return
+    a positive interval for everything. Every board reports zero fillers, and
+    the vacuity guard in the caller goes red rather than passing on an empty
+    set. *(Verified 3f.)*
+    """
+    from core.sim.tiers import _resolve_all, _useful_cast_interval
     off = {e.spell_id for e in apl.entries if e.off_gcd}
     ids = apl.spell_ids()
     abilities = _resolve_all(conn, ids, level, [])
     return [s for s in ids if s not in off and abilities.get(s)
-            and not (abilities[s].fields.get("cooldown_seconds") or 0)]
+            and _useful_cast_interval(abilities[s])[0] <= 0]
 
 
 def check_nonpaladin_fixtures(conn, ct, conv):
@@ -610,8 +643,22 @@ def check_nonpaladin_fixtures(conn, ct, conv):
         acting = [k for k, r in f.per_ability.items() if r["damage"] > 0]
         fillers = _filler_ids(conn, apl, spec.character_level)
         firing = [s for s in fillers if f.per_ability.get(s, {}).get("casts", 0) > 0.001]
+
+        # 🛑 3f F3 — VACUITY GUARD, separated out. The condition below was
+        # `len(fillers) < 2 or len(firing) >= 2`, which PASSES when `fillers` is
+        # empty — so a renamed field or a failing `_resolve_all` would have
+        # emptied the set and turned this green. On `cp_melee` that entry is not
+        # in EXPECTED_FAILURES, so the vacuous pass would have been silent.
+        # Every one of these three fixtures is known to carry ≥2 fillers.
+        gcheck(f"[{kind}] the board has fillers to allocate at all (guards the "
+              f"allocation check against passing vacuously)",
+              len(fillers) >= 2,
+              f"{len(fillers)} unbounded on-GCD entries"
+              if len(fillers) >= 2 else
+              f"only {len(fillers)} — the allocation check below would pass "
+              f"having tested nothing")
         gcheck(f"[{kind}] fast_sim allocates GCDs to more than one filler",
-              len(fillers) < 2 or len(firing) >= 2,
+              len(fillers) >= 2 and len(firing) >= 2,
               f"{len(firing)} of {len(fillers)} on-GCD fillers received any "
               f"casts ({len(acting)} abilities did damage overall, which is why "
               f"the old form of this check passed). Fillers that never cast: "
@@ -644,30 +691,49 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                   "board's per-combo abilities as finishers, so this check "
                   "could not exercise the bug at all")
 
-            # `tiers.py:198-199` — self_health_pct/target_health_pct are pinned
-            # at 100. 🛑 The failure is NOT "the execute ability never casts" —
-            # it is the opposite: with target health pinned at 100 the window is
-            # unmodelled, so an execute-gated ability is either cast freely (as
-            # if always available) or silently dropped. Either way the sim must
-            # SAY it cannot model the window. Casting it is not a pass.
+            # 🚨 3f F3 — THIS CHECK WAS A CONSTANT `True` AND E2 WAS CLOSED ON
+            # IT. The old form was `warned = any("health" in w.lower() ...)`,
+            # and `3e` B5 appends `EXECUTE_GATING_UNAVAILABLE` UNCONDITIONALLY
+            # from both tiers (`tiers.py:468,686`) with the substring
+            # `AURA_STATE_HEALTHLESS_20_PERCENT` in it. So the predicate was
+            # satisfied for every build, every fixture, forever — revert
+            # `_decay_target_health` entirely, pinning target health back at
+            # 100, and the check still printed PASS.
+            #
+            # It now asserts the DECAY BEHAVIOUR, which is a real property of
+            # the mechanism E2 was closed on: target health at the fight's
+            # midpoint must not still be 100.
+            #
+            # 🛑 MUTATION THAT MAKES THIS FAIL: make `_decay_target_health` a
+            # no-op (or restore `target_health_pct = 100.0`). *(Verified 3f.)*
+            from core.sim.tiers import TimelineState, _decay_target_health
+            _probe = TimelineState(fight_duration=100.0)
+            _probe.now = 50.0
+            _decay_target_health(_probe)
+            decays = _probe.target_health_pct < 99.0
+
+            # `hp_gated` is narrowed to `target_health_pct_below` ONLY.
+            # It used to accept `health_pct_below` as well, which `apl_gen.py`
+            # emits for SELF-SUSTAIN HEALS under solo/dungeon presets — so any
+            # board with a heal satisfied an EXECUTE-WINDOW check. Different
+            # actor, different mechanism.
             hp_gated = {e.spell_id for e in apl.entries
-                        if any(c.get("type") in ("target_health_pct_below",
-                                                 "health_pct_below")
+                        if any(c.get("type") == "target_health_pct_below"
                                for c in (e.conditions or []))}
             hw_casts = m.per_ability.get(24239, {}).get("casts", 0)
-            warned = any("health" in (w or "").lower()
-                         for w in (m.warnings or []) + (f.warnings or []))
+            named = any("TargetAuraState" in (w or "")
+                        for w in (m.warnings or []) + (f.warnings or []))
             gcheck("[cp_melee] the execute window is modelled, or the sim says "
                   "it cannot model it",
-                  warned or bool(hp_gated),
-                  f"Hammer of Wrath (24239) is execute-gated in game and the "
-                  f"sim cast it {hw_casts}x; {len(hp_gated)} APL entries carry "
-                  f"a health condition; a warning names the gap: {warned}. "
-                  f"(3e B5: target health now DECAYS rather than being pinned "
-                  f"at 100, so the window is reachable in both tiers — but "
+                  decays and named,
+                  f"target health at mid-fight = {_probe.target_health_pct:.0f}% "
+                  f"(decays: {decays}); the residual gap is named by "
+                  f"TargetAuraState: {named}; Hammer of Wrath (24239) is "
+                  f"execute-gated in game and the sim cast it {hw_casts}x with "
+                  f"{len(hp_gated)} target-health-gated APL entries — which is "
+                  f"the part that is NOT fixed and is not claimed to be: "
                   f"TargetAuraState is absent from the extract, so WHICH "
-                  f"abilities are execute-gated is not derivable and the sim "
-                  f"says so instead of pretending)")
+                  f"abilities are execute-gated is not derivable")
 
         if kind == "dot_caster":
             # `apl.py:19-32` — no target-debuff / DoT-uptime condition type
@@ -767,8 +833,47 @@ def check_nonpaladin_fixtures(conn, ct, conv):
               f"{len(summons)} summon effect(s) on the board: "
               f"{[s['name'] for s in summons]}")
         if summons:
+            # 🚨 3f F3 — THE OLD FORM COULD NOT FAIL. It computed
+            # `detect_summons(conn, [a["spell_id"] for a in bd["abilities"]])`
+            # and then asserted a warning containing "pet" exists — but
+            # `tiers.py` computes `pet_gap_warning(detect_summons(conn, [c.spell_id
+            # for c in build_spec.abilities]))`, and `_load_fixture` builds
+            # `spec.abilities` 1:1 from `bd["abilities"]`. Same pure function,
+            # same ids, both sides. Given the vacuity guard above passes,
+            # `pet_warned` was NECESSARILY true. B6 added a correct vacuity
+            # guard and then wrote an assertion the guard made unfalsifiable.
+            #
+            # The real property is that the DETECTOR finds this fixture's known
+            # summon BY SPELL ID — which is what rule 5 is about, and what the
+            # name-matching version got wrong in both directions. The id is
+            # named here rather than derived, so a detector that silently
+            # stopped resolving SPELL_EFFECT_SUMMON goes red instead of
+            # agreeing with itself.
+            #
+            # 🛑 MUTATION THAT MAKES THIS FAIL: have `detect_summons` return
+            # rows carrying the WRONG spell_id — non-empty, so the vacuity
+            # guard still passes, but no longer the board's known summon. That
+            # is precisely the case the old check could not see: both sides
+            # would have agreed on the wrong answer together. The three id
+            # assertions go red. *(Verified 3f; returning [] also works, but it
+            # trips the vacuity guard first and so tests less.)*
+            # Read off each fixture once (2026-08-06) and PINNED here, so the
+            # assertion is against a stated fact rather than against whatever
+            # the detector happens to return today. Each is a
+            # SPELL_EFFECT_SUMMON row carrying a creature id:
+            #   282977 Summon Void Zone -> creature 80624   (cp_melee)
+            #   954611 Hand of Gul'dan  -> creature 855350  (dot_caster)
+            #   31687  Summon Water Elemental -> creature 510 (frost_mage,
+            #          and the pet whose 5.0% damage share the capture measures)
+            known = {"cp_melee": 282977, "dot_caster": 954611,
+                     "frost_mage": 31687}.get(kind)
+            found_ids = {s.get("spell_id") for s in summons}
             pet_warned = any("pet" in (w or "").lower()
                              for w in (f.warnings or []) + (m.warnings or []))
+            gcheck(f"[{kind}] the summon detector finds this board's KNOWN "
+                  f"summon by spell id, not by agreeing with itself",
+                  known in found_ids,
+                  f"expected spell {known} among detected {sorted(found_ids)}")
             gcheck(f"[{kind}] pet damage is modelled or explicitly named as a gap",
                   pet_warned,
                   f"board summons {[s['name'] for s in summons]}; a warning "

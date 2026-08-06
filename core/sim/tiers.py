@@ -31,8 +31,23 @@ from .swings import (
 
 # retail_hypothesis: 1.5s base GCD, floored at 1.0s, reduced by spell haste for
 # spells only. Not yet validated on Ascension — a calibration candidate.
+#
+# 🛑 3f F2 — `PROGRESS.md` described this as "a named retail_hypothesis WITH A
+# WARNING, like BASE_GCD", and BASE_GCD emitted no warning at all. Rather than
+# delete the sentence, the warning now exists: it is appended once per sim run
+# by both tiers. It is not per-ability on purpose — every on-GCD ability in
+# every build depends on it, so a per-ability emission would be pure noise
+# while saying nothing extra.
 BASE_GCD = 1.5
 MIN_GCD = 1.0
+
+BASE_GCD_UNVALIDATED = (
+    f"BASE_GCD = {BASE_GCD:g}s (floor {MIN_GCD:g}s) is a retail_hypothesis, NOT "
+    "measured on Ascension. It sets the cast count of every on-GCD ability, so "
+    "it scales this entire result linearly; a server running a different base "
+    "GCD would move every number below by the same ratio. No endpoint or DBC "
+    "field we hold states it — settling it needs a log with dense back-to-back "
+    "instants and their timestamps.")
 
 # retail_hypothesis (3e B4): one combo point per non-finisher damaging cast, and
 # a finisher spends what its APL entry is gated on.
@@ -45,7 +60,37 @@ MIN_GCD = 1.0
 # under a name, with a warning emitted by any sim that relies on it. Same
 # treatment as BASE_GCD above. Open question:
 # `combo_point_generation_absent_from_extract`.
+#
+# 🛑 3f F2 — THAT SENTENCE WAS FALSE WHEN IT WAS WRITTEN, in the tier the gate
+# runs on. The warning sat inside `if window < 1.0:` — the EXECUTE-WINDOW
+# branch — and `_health_gate` only matches `target_health_pct_below`, which
+# `apl_gen` never emits (ENGINE_BUGS E2 says so in its own entry). So for every
+# auto-generated APL, i.e. every gate run and every fixture run, `window` was
+# 1.0, the block never executed, and `fast_sim` scaled finisher cast counts by
+# an unmeasured constant in silence while four documents stated otherwise. It
+# is now emitted from `if cp > 0:` in fast_sim and from medium_sim, which
+# applied the same hypothesis with no warning at all.
 CP_PER_BUILDER_CAST = 1.0
+
+
+def cp_hypothesis_warning(ability_name, cp, casts=None):
+    """The disclosure for `CP_PER_BUILDER_CAST`, emitted wherever it is applied.
+
+    `casts` is the CP-LIMITED count. The old text reported the count AFTER the
+    execute-window multiply at `:375`, so on the rare path where it did fire it
+    named a health-scaled number as the combo-point-limited one.
+
+    Never called with `cp == 0`: the old form printed *"held to 0 combo
+    points"*, which describes an ability that is not a finisher and means
+    nothing.
+    """
+    at = f" and cast {casts:.1f}x" if casts is not None else ""
+    return (f"{ability_name}: held to {cp:g} combo points{at}, assuming "
+            f"{CP_PER_BUILDER_CAST:g} CP per builder cast — a "
+            "retail_hypothesis, NOT measured. SPELL_EFFECT_ADD_COMBO_POINTS "
+            "(effect 40) has zero rows in the extract, so which abilities "
+            "generate combo points, and how many, is not derivable from our "
+            "data at all. This scales the finisher's cast count directly.")
 
 # 3e B5 (ENGINE_BUGS E2) — target health DECAYS linearly from 100% to 0% over the
 # fight, so an execute window is reachable at all. It was pinned at 100.0, which
@@ -367,6 +412,11 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
                 allowed = projected * CP_PER_BUILDER_CAST / (cp + 1)
                 if allowed < casts:
                     casts = allowed
+                # 3f F2 — emitted HERE, where the hypothesis is applied, and
+                # BEFORE the execute-window multiply below so the number quoted
+                # is the CP-limited one. It used to live inside that branch,
+                # which apl_gen can never generate.
+                warnings.append(cp_hypothesis_warning(ab.name, cp, casts))
             window = _health_gate(apl, sid)
             if window < 1.0:
                 # 3e B5 — an execute-gated ability is available only for the
@@ -376,13 +426,6 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
                 warnings.append(
                     f"{ab.name}: gated to the last {window:.0%} of the fight by "
                     f"a target-health condition; cast count scaled accordingly")
-                warnings.append(
-                    f"{ab.name}: held to {cp:g} combo points and cast "
-                    f"{casts:.1f}x, assuming {CP_PER_BUILDER_CAST:g} CP per "
-                    "builder cast — a retail_hypothesis, NOT measured. "
-                    "SPELL_EFFECT_ADD_COMBO_POINTS (effect 40) has zero rows in "
-                    "the extract, so which abilities generate combo points is "
-                    "not derivable from our data at all")
             gcd_budget = max(0.0, gcd_budget - casts * occupancy)
             gcd_actions += casts
 
@@ -423,6 +466,7 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         "fast_sim does not model resources — it cannot see mana/rage/energy "
         "starvation. Use medium_sim for castability")
     warnings.append(EXECUTE_GATING_UNAVAILABLE)
+    warnings.append(BASE_GCD_UNVALIDATED)   # 3f F2
     _pw = pet_gap_warning(detect_summons(
         conn, [c.spell_id for c in build_spec.abilities]))
     if _pw:
@@ -524,6 +568,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
     starved = {}
     maintenance_assumed = set()
     never_cast = set(apl.spell_ids())
+    cp_disclosed = set()        # 3f F2 — one CP_PER_BUILDER_CAST note per spell
     last = -1.0
 
     while st.now < available:
@@ -558,6 +603,13 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             exp = ab.expected_cast(char_state, content, combo_points=cp_cost)
             if cp_cost:
                 st.combo_points = max(0, st.combo_points - cp_cost)
+                # 3f F2 — medium_sim applied CP_PER_BUILDER_CAST with NO
+                # warning at all, while three documents asserted every sim
+                # relying on it emits one. Deduped by spell so a 300s fight
+                # does not repeat it per cast.
+                if entry.spell_id not in cp_disclosed:
+                    cp_disclosed.add(entry.spell_id)
+                    warnings.append(cp_hypothesis_warning(ab.name, cp_cost))
             elif exp.mean > 0:
                 st.combo_points = min(MAX_COMBO_POINTS,
                                       st.combo_points + CP_PER_BUILDER_CAST)
@@ -633,6 +685,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
     dps = total / content.fight_duration if content.fight_duration else 0.0
     saturation = gcd_used / available if available else 0.0
     warnings.append(EXECUTE_GATING_UNAVAILABLE)
+    warnings.append(BASE_GCD_UNVALIDATED)   # 3f F2
     _pw = pet_gap_warning(detect_summons(
         conn, [c.spell_id for c in build_spec.abilities]))
     if _pw:

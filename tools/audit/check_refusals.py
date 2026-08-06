@@ -18,11 +18,14 @@ was worth more than every other error combined).
 🛑 Runs entirely in-process against synthetic inputs. It makes no network
 request, opens no database, and writes nothing.
 """
+import json
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import config  # noqa: E402
 
@@ -261,14 +264,171 @@ def check_stat_block_only_closing_note():
           else note.splitlines()[0][:70])
 
 
+# --------------------------------------------------------------------------
+# F6 / F7 — the committed manifest must not contradict itself, or erase a
+#           reading it did not take
+# --------------------------------------------------------------------------
+def _fake_result(cid, name, cov, delta):
+    return {"character_id": cid, "name": name, "path": "Intelligence",
+            "boss": "b", "delta_pct": delta, "slice_accuracy_pct": 100.0,
+            "within_tolerance": True, "modelled": {"modelled_damage_pct": cov}}
+
+
+def check_manifest_cannot_contradict_itself():
+    """`write_gate_manifest` — every frozen member has exactly one fate.
+
+    The defect this replaces was a committed artifact reading `frozen_size: 41,
+    still_qualifying: 39, dropped: []` — a cohort reporting a size it did not
+    score, with nothing checking the arithmetic, in a file that is the
+    project's only auditable record of a gate run.
+
+    MUTATION THAT MAKES THIS FAIL: delete either `raise SystemExit` in
+    `write_gate_manifest`'s consistency block. The inconsistent manifest is
+    written instead of refused and this goes red. *(Verified 3f.)*
+    """
+    import calibrate_crawled as cc
+
+    tmp = Path(tempfile.mkdtemp(prefix="check_manifest_")) / "m.json"
+    saved = cc.GATE_MANIFEST_PATH
+    try:
+        cc.GATE_MANIFEST_PATH = tmp
+        rows = [_fake_result(1, "A", 60.0, 5.0)]
+        kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 2, 3],
+                  dropped=[], outside=[], cohort_spec={}, read_holdout=False)
+        # 🛑 BOTH assertions get their own case. The first version of this
+        # check only exercised the scoring-loop one, so disabling the
+        # completeness-filter assertion left it green — the same
+        # one-arm-untested shape as everything else in this file.
+        #
+        # Case A, the COMPLETENESS filter, constructed so the SECOND assertion
+        # is SATISFIED and only the first can fire — otherwise disabling the
+        # first leaves this green on the second's back, which is what the first
+        # draft of this case did. 3 frozen; 2 still qualifying (1 scored + 1
+        # excluded, so assertion 2 balances); 0 dropped. 2 + 0 != 3 — one
+        # frozen member has vanished with no fate recorded at all.
+        try:
+            cc.write_gate_manifest(rows, [], rows, rows, True, True,
+                                   n_qualifying=2,
+                                   excluded=[(2, "B", "sim error")], **kw)
+            refused_a = False
+        except SystemExit:
+            refused_a = True
+        check("[F6] a manifest whose frozen members do not add up "
+              "(still_qualifying + dropped != frozen_size) is REFUSED",
+              refused_a and not tmp.exists(),
+              f"refused={refused_a}, file written={tmp.exists()}")
+
+        # Case B, the SCORING loop: 3 frozen, 1 scored, 0 dropped, 0 excluded
+        # -> 2 members vanished between selection and scoring. This is the
+        # exact shape of the live defect: `frozen_size: 41, still_qualifying:
+        # 39, dropped: []`.
+        try:
+            cc.write_gate_manifest(rows, [], rows, rows, True, True,
+                                   n_qualifying=3, excluded=(), **kw)
+            refused = False
+        except SystemExit:
+            refused = True
+        check("[F6] a manifest that scored fewer members than it selected, "
+              "without naming the losses, is REFUSED, not written",
+              refused and not tmp.exists(),
+              f"refused={refused}, file written={tmp.exists()}")
+
+        # And the honest version writes: 3 frozen, 1 scored, 2 named as
+        # excluded after selection.
+        try:
+            cc.write_gate_manifest(
+                rows, [], rows, rows, True, True, n_qualifying=3,
+                excluded=[(2, "B", "sim error"), (3, "C", "no preset")], **kw)
+            wrote, err = tmp.exists(), None
+        except SystemExit as e:
+            wrote, err = False, e
+        check("[F6] ...and the same run WITH the two losses named writes fine "
+              "— the assertion tests the arithmetic, not the loss",
+              wrote, f"written={wrote}" + (f", refused: {err}" if err else ""))
+    finally:
+        cc.GATE_MANIFEST_PATH = saved
+
+
+def check_holdout_reading_is_not_erased():
+    """A run that does not read the holdout must not destroy the run that did.
+
+    Before `3f`, every gate run without `--read-holdout` rewrote the committed
+    manifest's holdout results to "REDACTED" — so `3f`'s own per-commit gate
+    reporting would have deleted `3e`'s close-out reading on its first run.
+
+    MUTATION THAT MAKES THIS FAIL: delete the `carried`/`carried_from`
+    pre-read block in `write_gate_manifest`. The second write below reports
+    REDACTED and this goes red. *(Verified 3f.)*
+    """
+    import calibrate_crawled as cc
+
+    tmp = Path(tempfile.mkdtemp(prefix="check_holdout_")) / "m.json"
+    saved = cc.GATE_MANIFEST_PATH
+    try:
+        cc.GATE_MANIFEST_PATH = tmp
+        rows = [_fake_result(1, "A", 60.0, 5.0)]
+        hold = [_fake_result(9, "H", 30.0, -50.0)]
+        kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 9],
+                  dropped=[], outside=[], cohort_spec={}, n_qualifying=2,
+                  excluded=())
+        cc.write_gate_manifest(rows, hold, rows, rows, True, True,
+                               read_holdout=True, **kw)
+        first = json.loads(tmp.read_text(encoding="utf-8"))["holdout"]
+        check("[F7] a --read-holdout run writes the holdout results",
+              isinstance(first.get("results"), list) and first["read"],
+              f"{len(first['results'])} result(s)"
+              if isinstance(first.get("results"), list) else str(first.get("results")))
+
+        cc.write_gate_manifest(rows, hold, rows, rows, True, True,
+                               read_holdout=False, **kw)
+        second = json.loads(tmp.read_text(encoding="utf-8"))["holdout"]
+        check("[F7] a later run that does NOT read the holdout carries the "
+              "reading forward instead of erasing it",
+              isinstance(second.get("results"), list)
+              and second["results"] == first["results"],
+              f"results now: "
+              f"{second.get('results') if not isinstance(second.get('results'), list) else str(len(second['results'])) + ' preserved'}")
+        check("[F7] ...and the carried-forward reading is STAMPED with the run "
+              "it came from, never presented as current",
+              bool(second.get("results_carried_forward_from"))
+              and second["read"] is False,
+              f"read(this run)={second.get('read')}, "
+              f"from={(second.get('results_carried_forward_from') or {}).get('git_sha')}")
+
+        # 🛑 IT MUST CHAIN. The first implementation carried forward only from
+        # a block with `read: true`, so the reading survived exactly ONE run
+        # and the SECOND unread run redacted it after all. Under 3f's
+        # per-commit gate reporting that is two runs — the record would have
+        # been destroyed the same evening. Caught here, not in review.
+        cc.write_gate_manifest(rows, hold, rows, rows, True, True,
+                               read_holdout=False, **kw)
+        third = json.loads(tmp.read_text(encoding="utf-8"))["holdout"]
+        check("[F7] ...and it survives a THIRD run, keeping the ORIGINAL "
+              "stamp rather than drifting forward one commit at a time",
+              isinstance(third.get("results"), list)
+              and third["results"] == first["results"]
+              and (third.get("results_carried_forward_from")
+                   == second.get("results_carried_forward_from")),
+              f"results: "
+              f"{'preserved' if third.get('results') == first['results'] else third.get('results')}; "
+              f"stamp stable: "
+              f"{third.get('results_carried_forward_from') == second.get('results_carried_forward_from')}")
+    finally:
+        cc.GATE_MANIFEST_PATH = saved
+
+
 def main():
-    print("=== 3f: the guards that must REFUSE (F0 / F4 / F5) ===\n")
+    print("=== 3f: the guards that must not fail open "
+          "(F0 / F4 / F5 / F6 / F7) ===\n")
     check_baseline_phase_refusal()
     print()
     check_session_mismatch_states()
     check_log_started_at_is_total()
     print()
     check_stat_block_only_closing_note()
+    print()
+    check_manifest_cannot_contradict_itself()
+    check_holdout_reading_is_not_erased()
 
     print()
     if FAILURES:

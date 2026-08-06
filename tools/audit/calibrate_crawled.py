@@ -494,6 +494,43 @@ def slice_accuracy_bands(results, bands=SLICE_BANDS):
     return out
 
 
+def slice_accuracy_band_n(results, bands=SLICE_BANDS):
+    """How many characters each band's median was taken over. (`3f` F7)
+
+    🛑 A MEDIAN WITHOUT ITS `n` IS THE DEFECT, NOT A PRESENTATION DETAIL. The
+    generated report carried `n` and the committed manifest did not, so the
+    artifact an auditor actually reads shipped `">=0": 163.7` — a number this
+    project has formally retracted — with no sample size and no caveat, one key
+    away from the good number. `>=50` is a median of 8.
+    """
+    return {b: sum(1 for r in results
+                   if r["slice_accuracy_pct"] is not None
+                   and (r["modelled"] or {}).get("modelled_damage_pct", 0) >= b)
+            for b in bands}
+
+
+def slice_accuracy_caveat(coverage_pct, floor=SLICE_COVERAGE_FLOOR_PCT):
+    """Why a per-character slice accuracy below the floor must not be read.
+
+    🛑 3f F7 — OWNER-VISIBLE DECISION, STATED IN THE MANIFEST: the
+    per-character value is **annotated in place, NOT floored**. Flooring would
+    delete it, and the extreme values ARE the evidence for `3e`'s retraction —
+    `Mutaforma` at 1,859,400% on 0.2% coverage is exactly what "this ratio
+    explodes as coverage -> 0" looks like, and a reader who cannot see it has
+    to take the retraction on trust. What was wrong was never that the number
+    existed; it was that it shipped bare, indistinguishable from a measurement.
+
+    Returns None when the value is above the floor and can be read as-is.
+    """
+    if coverage_pct is None or coverage_pct >= floor:
+        return None
+    return (f"NOT A MEASUREMENT — coverage is {coverage_pct:.1f}%, below the "
+            f"{floor:g}% floor. slice_accuracy = (100 + delta) / coverage has "
+            f"coverage in its denominator, so it explodes as coverage -> 0. "
+            f"This value is a diagnostic of low coverage, not of accuracy, and "
+            f"must never enter an aggregate.")
+
+
 def _decomposition_section(results):
     """The corpus-level answer to 'what is the miss made of', built only from
     per-character verdicts — no apportioning, no fitted scale factor."""
@@ -1046,7 +1083,9 @@ def main():
     write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                         rider_met, slice_bands, corpus_totals(bdb),
                         cohort_ids, dropped, outside, cohort_spec,
-                        read_holdout=args.read_holdout)
+                        read_holdout=args.read_holdout,
+                        n_qualifying=len(rows), excluded=excluded,
+                        band_n=slice_accuracy_band_n(tuning))
     return 0
 
 
@@ -1070,7 +1109,8 @@ def corpus_totals(bdb):
 
 def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                         rider_met, slice_bands, corpus, cohort_ids, dropped,
-                        outside, cohort_spec, read_holdout=False):
+                        outside, cohort_spec, read_holdout=False,
+                        n_qualifying=None, excluded=(), band_n=None):
     """3d E2 — a small COMMITTED record of what a gate run actually measured.
 
     Until now the gate's headline numbers were reproducible only on the owner's
@@ -1092,6 +1132,44 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
     ⚠ Writes `gate_manifest_3e.json` — a NEW name. `gate_manifest.json` is the
     immutable record of the `3d` run the cohort was frozen from.
     """
+    band_n = band_n or {}
+
+    # 🛑 3f F7/Q1 — A RUN THAT DOES NOT READ THE HOLDOUT MUST NOT ERASE THE
+    # RUN THAT DID. Before this, any gate run without --read-holdout rewrote
+    # the committed manifest's holdout block to "REDACTED", deleting `3e`'s
+    # close-out reading. That put every later session in a false dilemma:
+    # report the gate per commit (and destroy the holdout record) or preserve
+    # the record (and never re-run the gate). `3f`'s whole invariant is
+    # per-commit gate reporting, so the dilemma was live and immediate.
+    #
+    # A holdout is spent ONCE. Re-emitting a reading that has already been
+    # taken is not a second read — but it IS a different run, so it is stamped
+    # with the run it came from rather than presented as current.
+    # ⚠ IT HAS TO CHAIN, and the first version did not. Carrying forward only
+    # from a block with `read: true` meant the reading survived exactly ONE
+    # subsequent run: the second run saw the carried block's `read: false` and
+    # redacted it after all. Under 3f's per-commit gate reporting that is two
+    # runs, so the bug would have destroyed the record the same evening.
+    #
+    # A results LIST is the signal, whatever produced it — and the STAMP is
+    # inherited, never re-derived, so the record keeps pointing at the run that
+    # actually read the holdout rather than drifting forward one commit at a
+    # time until it claims to be current.
+    carried = carried_from = None
+    if not read_holdout and GATE_MANIFEST_PATH.exists():
+        try:
+            prev = json.loads(GATE_MANIFEST_PATH.read_text(encoding="utf-8"))
+            ph = prev.get("holdout") or {}
+            if isinstance(ph.get("results"), list):
+                carried = ph["results"]
+                carried_from = ph.get("results_carried_forward_from") or {
+                    "git_sha": prev.get("git_sha"),
+                    "generated_at": prev.get("generated_at"),
+                    "slug": ph.get("slug"),
+                }
+        except (OSError, ValueError):
+            carried = carried_from = None
+
     import subprocess
     try:
         sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=config.REPO,
@@ -1146,8 +1224,26 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             f"median_slice_accuracy_pct_at_coverage_ge_{SLICE_COVERAGE_FLOOR_PCT:g}":
                 slice_bands.get(SLICE_COVERAGE_FLOOR_PCT),
             "slice_accuracy_coverage_floor_pct": SLICE_COVERAGE_FLOOR_PCT,
+            # 3f F7 — `n` BESIDE EVERY BAND, and the caveat in the artifact
+            # rather than only in the generated report. `>=0` is a number this
+            # project has retracted; it must not ship bare next to the good one.
             "slice_accuracy_by_coverage_band_pct": {
-                f">={b:g}": v for b, v in sorted(slice_bands.items())},
+                f">={b:g}": {"median_pct": v, "n": band_n.get(b, 0),
+                             "readable": b >= SLICE_COVERAGE_FLOOR_PCT}
+                for b, v in sorted(slice_bands.items())},
+            "slice_accuracy_band_note":
+                f"Only bands at or above the {SLICE_COVERAGE_FLOOR_PCT:g}% "
+                f"floor are readable as accuracy. Below it the ratio is "
+                f"dominated by its own denominator — the >=0 band reads ~164% "
+                f"and is the artifact 3e retracted, not a finding that the sim "
+                f"over-produces.",
+            "per_character_slice_accuracy_policy":
+                "ANNOTATED IN PLACE, NOT FLOORED (3f F7). A per-character value "
+                "below the coverage floor keeps its raw number and carries a "
+                "sibling `slice_accuracy_caveat` saying it is not a "
+                "measurement. Flooring would delete the evidence for 3e's own "
+                "retraction — Mutaforma's 1,859,400% at 0.2% coverage IS what "
+                "'this ratio explodes as coverage -> 0' looks like.",
             "passer_coverage_pct": {
                 r["name"]: round(
                     (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 1)
@@ -1159,14 +1255,42 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "slug": cohort_spec.get("slug"),
             "frozen_at": cohort_spec.get("frozen_at"),
             "frozen_size": len(cohort_ids),
-            "still_qualifying": len(tuning) + len(holdout),
+            # 🚨 3f F6 — THE FREEZE HAS TWO EXITS AND ONLY ONE WAS REPORTED.
+            # This used to be `len(tuning) + len(holdout)` — the count of
+            # SCORED characters — while `dropped` held only the completeness
+            # filter's losses. A member lost in the SCORING loop (no preset,
+            # unresolvable path, Path of Duality, or ANY sim exception) landed
+            # in `excluded`, which never reached `dropped`, never reached this
+            # file, and was written only to gitignored data/derived/. So two
+            # sim errors produced a committed manifest reading
+            # `frozen_size: 41, still_qualifying: 39, dropped: []` — internally
+            # contradictory — while stdout still printed "41 of 41" and the
+            # headline denominator quietly became 34.
+            #
+            # This was LIVE during 3e: Block B rewrote three sim modules across
+            # five commits and any one raising on one crawled build would have
+            # shrunk the denominator invisibly. It happened not to bite.
+            #
+            # `still_qualifying` is now the completeness filter's answer, and
+            # `scored` is what actually reached the tables. The two are equal
+            # only when nothing was excluded after selection.
+            "still_qualifying": (len(cohort_ids) - len(dropped)
+                                 if n_qualifying is None else n_qualifying),
+            "scored": len(tuning) + len(holdout),
             "dropped": [{"character_id": cid, "name": nm, "reason": why}
                         for cid, nm, why in dropped],
+            "excluded_after_selection": [
+                {"character_id": cid, "name": nm, "reason": why}
+                for cid, nm, why in excluded],
             "qualifying_but_not_frozen_in": len(outside),
             "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen "
                     "member that stops qualifying is reported as dropped with "
                     "its reason and is never substituted; a cohort that quietly "
-                    "shrinks is the sliding-window defect in a different coat.",
+                    "shrinks is the sliding-window defect in a different coat. "
+                    "TWO exits: `dropped` is the completeness filter, "
+                    "`excluded_after_selection` is the scoring loop. "
+                    "frozen_size == still_qualifying + len(dropped), and "
+                    "still_qualifying == scored + len(excluded_after_selection).",
         },
         "holdout": {
             "slug": HOLDOUT_SLUG,
@@ -1175,8 +1299,11 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "read": bool(read_holdout),
             "note": "split out of the headline in 3e A4. Previously counted in "
                     "'n of 41', so any fix that lifted these five moved the "
-                    "headline AND spent the holdout in the same number. Results "
-                    "are REDACTED here unless the run passed --read-holdout.",
+                    "headline AND spent the holdout in the same number. `read` "
+                    "is whether THIS run read it. A run that did not read it "
+                    "carries the previous reading forward under "
+                    "`results_carried_forward_from` rather than erasing it, and "
+                    "reports REDACTED only when there is no previous reading.",
             "results": (sorted(
                 ({"character_id": r["character_id"], "name": r["name"],
                   "delta_pct": round(r["delta_pct"], 2)
@@ -1185,7 +1312,20 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                       (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 2),
                   "within_tolerance": r["within_tolerance"]}
                  for r in holdout), key=lambda d: d["character_id"])
-                if read_holdout else "REDACTED — not read in this run"),
+                if read_holdout else (carried or "REDACTED — not read in this run")),
+            **({} if read_holdout or not carried else {
+                "results_carried_forward_from": carried_from,
+                "results_carried_forward_note":
+                    "🛑 THESE NUMBERS ARE NOT FROM THIS RUN. They were read at "
+                    "the run stamped above and are carried forward verbatim "
+                    "because this run did not pass --read-holdout. Re-writing "
+                    "them as REDACTED would DESTROY a committed result to "
+                    "record that it was not re-read, which is a worse trade: a "
+                    "holdout is spent once and the record of that reading is "
+                    "the thing worth keeping. Compare git_sha above against "
+                    "results_carried_forward_from before citing them — if they "
+                    "differ, the model may have moved since they were read.",
+            }),
         },
         "cohort": sorted(
             ({"character_id": r["character_id"], "name": r["name"],
@@ -1195,9 +1335,37 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                   (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 2),
               "slice_accuracy_pct": round(r["slice_accuracy_pct"], 2)
                                     if r["slice_accuracy_pct"] is not None else None,
+              # 3f F7 — the annotation travels WITH the number, in the same
+              # object, so it cannot be read without it.
+              "slice_accuracy_caveat": slice_accuracy_caveat(
+                  (r["modelled"] or {}).get("modelled_damage_pct")),
               "within_tolerance": r["within_tolerance"]}
              for r in tuning), key=lambda d: d["character_id"]),
     }
+    # 🛑 3f F6 — THE MANIFEST MUST NOT BE ABLE TO CONTRADICT ITSELF. Every
+    # frozen member has exactly one fate: it still qualifies or it is dropped;
+    # if it qualifies it is either scored or excluded after selection. Asserted
+    # rather than trusted, because the defect this replaces was precisely a
+    # committed artifact whose own numbers did not add up (`frozen_size: 41,
+    # still_qualifying: 39, dropped: []`) with nothing checking them.
+    #
+    # RAISES rather than warns: a manifest is a committed record, and one that
+    # is wrong is worse than one that is missing.
+    cd = manifest["cohort_definition"]
+    if cd["still_qualifying"] + len(cd["dropped"]) != cd["frozen_size"]:
+        raise SystemExit(
+            f"🛑 GATE MANIFEST IS INTERNALLY INCONSISTENT and was NOT written: "
+            f"still_qualifying {cd['still_qualifying']} + dropped "
+            f"{len(cd['dropped'])} != frozen_size {cd['frozen_size']}. Every "
+            f"frozen member must have exactly one fate.")
+    if cd["scored"] + len(cd["excluded_after_selection"]) != cd["still_qualifying"]:
+        raise SystemExit(
+            f"🛑 GATE MANIFEST IS INTERNALLY INCONSISTENT and was NOT written: "
+            f"scored {cd['scored']} + excluded_after_selection "
+            f"{len(cd['excluded_after_selection'])} != still_qualifying "
+            f"{cd['still_qualifying']}. A member lost in the scoring loop must "
+            f"be named, not silently removed from the denominator.")
+
     GATE_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     GATE_MANIFEST_PATH.write_text(
         json.dumps(manifest, indent=1) + "\n", encoding="utf-8")

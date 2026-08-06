@@ -1,18 +1,45 @@
 #!/usr/bin/env python3
-"""3d F1 — prove the gate EXCLUDES privileged-input characters. Not prose, a test.
+"""3d F1 / 3f F1 — prove the gate EXCLUDES privileged-input characters.
 
     py tools/audit/check_gate_exclusion.py
 
 `calibrate_crawled.candidates()` filters on level, gear, cards and snapshot lag
 with — until `3d` — **no source filter at all**. So the moment Elric gets a
 `character_snapshots` row from his own ALC capture, he becomes a gate candidate
-automatically and the cohort silently becomes 42, with the one
-privileged-input character inside it. *"He is an instrument, not a count"*
-existed only as a sentence in a handoff.
+automatically and the cohort silently grows, with the one privileged-input
+character inside it. *"He is an instrument, not a count"* existed only as a
+sentence in a handoff. `3f` Block C is the session that finally creates
+owner-derived rows in `builds.db`, so this is the guard that has to be alive.
 
-This test injects exactly that situation into a COPY of the corpus and asserts
-the cohort does not move. It is the acceptance test for F1 and is meant to fail
-loudly if anyone removes the filter.
+🚨 **REWRITTEN in `3f` F1, not repaired.** `3e` A1 changed `candidates()` from
+`(conn, limit, max_lag_hours)` to `(conn, cohort_ids, max_lag_hours)` and this
+file still called it with `limit=120`, so it raised `TypeError` before touching
+the database and **had not run since**. Fixing the signature would not have
+restored it: the old test minted the intruder at `character_id 1` *on purpose*,
+because `candidates()` was `ORDER BY character_id LIMIT N` and a low id landed
+at the front of the window. Under a **frozen id set** id 1 can never appear
+**whatever its `source`** — so the positive assertions would have passed for a
+reason unrelated to `EXCLUDED_SNAPSHOT_SOURCES`, and the control arm ("without
+the filter the SAME character DOES enter") would have failed.
+
+**The design the frozen cohort needs is the opposite one: contaminate a
+character that is ALREADY IN the frozen set.** Then membership is not in
+question and `source` is the only variable, so both arms mean what they say:
+
+* with the filter  -> the contaminated member **leaves** the cohort, and is
+  reported in `dropped` **naming the source**, never silently omitted;
+* without it       -> the same member **returns**, and the cohort is
+  byte-identical to the baseline.
+
+🛑 **MUTATION THAT MAKES THIS FAIL:** set
+`calibrate_crawled.EXCLUDED_SNAPSHOT_SOURCES = ()`. The contaminated member
+stays in the cohort and the two positive checks below go red. *(Verified 3f.)*
+A second mutation: move the source filter out of `_completeness_sql`'s WHERE
+clause into a post-hoc drop — the exclusion then still works but `dropped`
+loses its reason, and the reason check goes red.
+
+🛑 `EXCLUDED_SNAPSHOT_SOURCES` itself is **not touched** by `3f`. This repairs
+its guard, never the filter.
 
 🛑 Runs against a temp copy of `builds.db` and never writes to the real one.
 """
@@ -41,75 +68,29 @@ def check(name, ok, detail=""):
         FAILURES.append(name)
 
 
-def inject_privileged_character(conn):
-    """Clone a real cohort member into a NEW character whose snapshot is
-    `source='own_capture'` — the shape Elric's ALC-derived snapshot will have.
+def contaminate(conn, character_id):
+    """Make EVERY qualifying snapshot of a frozen cohort member look like an
+    owner capture — the shape Elric's ALC-derived snapshot has.
 
-    Cloning a real member rather than synthesising one matters: it guarantees the
-    row passes every OTHER filter (level 60, gear with stats, resolved cards,
-    lag 0, a long non-trash encounter), so if it is still absent from the cohort
-    the ONLY thing that can have excluded it is the source filter. A synthetic
-    row that failed some unrelated check would make this test pass for the wrong
-    reason.
+    This is the `3f` inversion of `3d`'s `inject_privileged_character`. Nothing
+    else about the character changes: same gear, same cards, same encounter,
+    same lag, same level. So if it disappears from the cohort, `source` is the
+    only thing that can have removed it, and if it does NOT disappear the filter
+    is dead. A synthetic row failing some unrelated completeness check would
+    make this test pass for the wrong reason, which is exactly how the previous
+    version would have passed.
+
+    Returns the number of snapshots contaminated.
     """
-    row = conn.execute("""
-        SELECT ep.character_id, ep.snapshot_id, ep.scope_id
-        FROM encounter_performance ep
-        JOIN capture_scopes cs ON cs.scope_id = ep.scope_id
-        JOIN encounters e ON e.encounter_id = cs.encounter_id
-        JOIN characters c ON c.character_id = ep.character_id
-        WHERE ep.snapshot_lag_hours IS NOT NULL AND ep.snapshot_lag_hours <= 0
-          AND ep.dps > 100 AND e.is_trash = 0 AND e.duration_seconds >= 20
-          AND c.level = 60
-          AND EXISTS (SELECT 1 FROM snapshot_gear sg
-                      WHERE sg.snapshot_id = ep.snapshot_id
-                        AND sg.stats_json IS NOT NULL)
-          AND EXISTS (SELECT 1 FROM snapshot_cards sc
-                      WHERE sc.snapshot_id = ep.snapshot_id
-                        AND sc.spell_id IS NOT NULL)
-        ORDER BY ep.character_id LIMIT 1""").fetchone()
-    if row is None:
-        return None
-    src_cid, src_snap, src_scope = row
-
-    # A LOW character_id on purpose. candidates() is ORDER BY character_id
-    # LIMIT N, so id 1 lands at the very front of the window — if the exclusion
-    # were applied after the SELECT instead of inside it, this row would consume
-    # a slot and push a real character out, and the cohort would change size
-    # even though the intruder itself never appeared. That is the failure mode
-    # this id is chosen to catch.
-    new_cid, new_snap = 1, 999999
-    conn.execute("INSERT OR REPLACE INTO characters "
-                 "(character_id, name, realm, guild, level, primary_role, source,"
-                 " first_seen_at, last_seen_at) "
-                 "SELECT ?, 'Elric (injected instrument)', realm, guild, level,"
-                 " primary_role, 'own_capture', first_seen_at, last_seen_at "
-                 "FROM characters WHERE character_id = ?", (new_cid, src_cid))
-    cols = [r[1] for r in conn.execute("PRAGMA table_info(character_snapshots)")]
-    sel = ", ".join(
-        "?" if c in ("snapshot_id", "character_id", "source") else c
-        for c in cols)
-    conn.execute(
-        f"INSERT INTO character_snapshots ({', '.join(cols)}) "
-        f"SELECT {sel} FROM character_snapshots WHERE snapshot_id = ?",
-        (new_snap, new_cid, "own_capture", src_snap))
-    for table, key in (("snapshot_cards", "snapshot_id"),
-                       ("snapshot_gear", "snapshot_id")):
-        tcols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})")]
-        tsel = ", ".join("?" if c == key else c for c in tcols)
-        conn.execute(f"INSERT INTO {table} ({', '.join(tcols)}) "
-                     f"SELECT {tsel} FROM {table} WHERE {key} = ?",
-                     (new_snap, src_snap))
-    ecols = [r[1] for r in conn.execute("PRAGMA table_info(encounter_performance)")]
-    esel = ", ".join(
-        "?" if c in ("character_id", "snapshot_id") else c for c in ecols)
-    conn.execute(
-        f"INSERT INTO encounter_performance ({', '.join(ecols)}) "
-        f"SELECT {esel} FROM encounter_performance "
-        f"WHERE character_id = ? AND snapshot_id = ? AND scope_id = ?",
-        (new_cid, new_snap, src_cid, src_snap, src_scope))
+    snaps = [r[0] for r in conn.execute(
+        "SELECT DISTINCT ep.snapshot_id FROM encounter_performance ep "
+        "WHERE ep.character_id = ? AND ep.snapshot_id IS NOT NULL",
+        (character_id,))]
+    conn.executemany(
+        "UPDATE character_snapshots SET source = 'own_capture' "
+        "WHERE snapshot_id = ?", [(s,) for s in snaps])
     conn.commit()
-    return new_cid
+    return len(snaps)
 
 
 def main():
@@ -118,54 +99,95 @@ def main():
               f"`py cli/rebuild.py --with-corpus` (3d E1)", file=sys.stderr)
         return 1
 
+    cohort_ids, spec = cc.load_frozen_cohort()
+    print(f"frozen cohort: {len(cohort_ids)} ids "
+          f"({spec.get('frozen_at', 'undated')})")
+
     with tempfile.TemporaryDirectory() as tmp:
         copy = Path(tmp) / "builds.db"
         shutil.copy(str(BUILDS_DB_PATH), copy)
         conn = sqlite3.connect(str(copy))
 
-        before = cc.candidates(conn, limit=120, max_lag_hours=0)
-        before_ids = [r[0] for r in before]
-        print(f"baseline cohort: {len(before_ids)} characters")
+        rows, dropped, outside = cc.candidates(conn, cohort_ids, max_lag_hours=0)
+        base_ids = [r[0] for r in rows]
+        print(f"baseline: {len(base_ids)} of {len(cohort_ids)} frozen members "
+              f"qualify, {len(dropped)} dropped, {len(outside)} outside")
 
-        injected = inject_privileged_character(conn)
-        check("a privileged-input character could be injected at all "
+        # 🛑 VACUITY GUARD. If no frozen member qualifies there is nothing to
+        # contaminate and every assertion below would pass having tested
+        # nothing — the failure shape the 3e audit found three times.
+        check("there is a qualifying frozen member to contaminate at all "
               "(guards this test against passing vacuously)",
-              injected is not None,
-              "no cohort member to clone — the test proves nothing"
-              if injected is None else f"character_id {injected}, "
-              f"source='own_capture'")
-        if injected is None:
+              bool(base_ids),
+              f"{len(base_ids)} qualifying"
+              if base_ids else "NO frozen member qualifies — test proves nothing")
+        if not base_ids:
             return 1
 
-        after = cc.candidates(conn, limit=120, max_lag_hours=0)
+        victim = base_ids[0]
+        vname = next(r[1] for r in rows if r[0] == victim)
+        n_snaps = contaminate(conn, victim)
+        check("the victim is INSIDE the frozen cohort, so membership is not "
+              "what is being tested — source is the only variable",
+              victim in cohort_ids and n_snaps > 0,
+              f"character_id {victim} ({vname}), {n_snaps} snapshot(s) "
+              f"-> source='own_capture'")
+
+        after, after_dropped, after_outside = cc.candidates(
+            conn, cohort_ids, max_lag_hours=0)
         after_ids = [r[0] for r in after]
 
-        check("the injected own_capture character is NOT in the cohort",
-              injected not in after_ids,
-              f"character_id {injected} "
-              f"{'LEAKED IN' if injected in after_ids else 'correctly absent'}")
-        check("the cohort is byte-identical — the exclusion did not consume a "
-              "window slot and displace a real character",
-              after_ids == before_ids,
-              f"{len(before_ids)} -> {len(after_ids)}; "
-              f"added {sorted(set(after_ids) - set(before_ids))}, "
-              f"lost {sorted(set(before_ids) - set(after_ids))}")
+        check("a contaminated cohort member is EXCLUDED from the gate",
+              victim not in after_ids,
+              f"character_id {victim} "
+              f"{'LEAKED IN' if victim in after_ids else 'correctly absent'}")
 
-        # And the converse: without the filter it WOULD have got in. Otherwise
-        # this test could pass because the injection was ineffective, not
-        # because the exclusion works.
+        reasons = {cid: reason for cid, _n, reason in
+                   ((d[0], d[1], d[2]) for d in after_dropped)}
+        check("...and it is reported as DROPPED, naming the source — never "
+              "silently omitted",
+              victim in reasons and "source=" in (reasons.get(victim) or ""),
+              reasons.get(victim, "NOT IN dropped — the cohort shrank silently"))
+
+        check("no OTHER cohort member moved — the exclusion did not disturb "
+              "the rest of the frozen set",
+              set(base_ids) - {victim} == set(after_ids),
+              f"{len(base_ids)} -> {len(after_ids)}; "
+              f"unexpectedly added {sorted(set(after_ids) - set(base_ids))}, "
+              f"unexpectedly lost "
+              f"{sorted(set(base_ids) - set(after_ids) - {victim})}")
+
+        # An excluded member must not resurface in `outside` either. `outside`
+        # is printed as "qualifies but was not scored", which would read as a
+        # deliberate omission rather than an exclusion.
+        check("the excluded member is not re-reported as 'qualifying but "
+              "unscored' — an exclusion is not an omission",
+              victim not in after_outside,
+              f"outside grew by "
+              f"{sorted(set(after_outside) - set(outside))}")
+
+        # The converse arm. Without the filter the SAME character comes back —
+        # otherwise this test could be passing because the contamination broke
+        # some unrelated completeness condition rather than because the
+        # exclusion works.
         saved = cc.EXCLUDED_SNAPSHOT_SOURCES
         try:
             cc.EXCLUDED_SNAPSHOT_SOURCES = ()
-            unguarded = [r[0] for r in cc.candidates(conn, limit=120,
-                                                     max_lag_hours=0)]
+            unguarded = [r[0] for r in
+                         cc.candidates(conn, cohort_ids, max_lag_hours=0)[0]]
         finally:
             cc.EXCLUDED_SNAPSHOT_SOURCES = saved
+
         check("without the filter the SAME character DOES enter — so the test "
-              "is exercising the exclusion, not an unrelated rejection",
-              injected in unguarded,
-              f"unguarded cohort {'contains' if injected in unguarded else 'does NOT contain'} "
-              f"character_id {injected}")
+              "exercises the exclusion, not an unrelated rejection",
+              victim in unguarded,
+              f"unguarded cohort "
+              f"{'contains' if victim in unguarded else 'does NOT contain'} "
+              f"character_id {victim}")
+        check("...and without the filter the cohort is otherwise identical to "
+              "the baseline",
+              unguarded == base_ids,
+              f"{len(base_ids)} -> {len(unguarded)}")
 
         conn.close()
 
@@ -173,8 +195,9 @@ def main():
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         return 1
-    print("gate exclusion holds: a privileged-input character cannot become a "
-          "cohort member, and cannot displace one either")
+    print("gate exclusion holds: a privileged-input snapshot removes its "
+          "character from the cohort, with a stated reason, and disturbs "
+          "nothing else")
     return 0
 
 
