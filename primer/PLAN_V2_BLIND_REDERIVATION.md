@@ -10,7 +10,19 @@ scoring is decided after seeing the result measures nothing.
 
 ---
 
-## 🛑 AMENDMENT PENDING — DO NOT RUN v2 AGAINST THIS DOCUMENT AS WRITTEN
+## ✅ AMENDED AND SEEDED — 2026-08-06, session `3f` (F8). This document may now be run.
+
+| | |
+|---|---|
+| **Decision taken** | 2026-08-06, by the owner, **before v2 ran** |
+| **Amendment landed** | session `3f`, 2026-08-06 |
+| **Seed row** | `ingest/export/seed_epistemics.py` → `open_questions.plan_v2_blind_rederivation_scoring_rescoped` |
+| **Status of the unamended version** | superseded; do not run it |
+
+🛑 **The seed row is the pre-registration, not this heading.** A design decision
+that changes what a test measures belongs in the seeds — *"Prose is not a seed"*
+(`/close-session`). If the row is absent from `open_questions` after a rebuild,
+the amendment has not landed and v2 does not run.
 
 **Stamped 2026-08-06 by the monitoring chat, after the `3e` audit
 (`primer/AUDIT_3E_ADVERSARIAL.md` §8), and decided by the owner the same day.**
@@ -46,9 +58,11 @@ learns, before deriving anything, that Sword Specialization is not zero-output.
 before `3e` started. The count is load-bearing — it is this document's argument for why v1
 is a good evaluation set, and `PLAN_3G:113` sizes its regression suite from it.
 
-**Until `3f` lands the amendment into the body of this plan and into
-`ingest/export/seed_epistemics.py` (`SESSION_3F_PRIMER.md` F8), v2 does not run.** A
-decision that changes what a test measures is not a prose note — *"Prose is not a seed."*
+✅ **Both landed in `3f` (F8), 2026-08-06:** the body of this plan below is amended in
+place (Step 4's flagship outcome struck through and replaced, the row count corrected),
+and the rescope is seeded as
+`open_questions.plan_v2_blind_rederivation_scoring_rescoped`. A decision that changes
+what a test measures is not a prose note — *"Prose is not a seed."*
 
 ---
 
@@ -59,11 +73,18 @@ Not sentiment. Three properties, none of which a synthetic benchmark would have:
 1. **It is a complete, committed, dated artifact** — one document, ~20 explicit claims,
    produced by a named method (live tooltips, hand parses, inference; no spell database,
    no simulator, no calibration gate).
-2. **It has already been partially graded.** `retractions` holds 24 rows and several are
+2. **It has already been partially graded.** `retractions` holds **32** rows (⚠ this line
+   read "24" until `3f` F8; the tree held 32 before `3e` started, and the count is
+   load-bearing — it is this section's argument for why v1 is a good evaluation set, and
+   `PLAN_3G:113` sizes its regression suite from it) and several are
    v1's own claims — the Improved Cleave `9 + AP × 1.0` formula, the Duality SP-amp
    reversal, *"Sword Specialization produces zero output"*, the hit/expertise
-   overstatement. **Those have known answers.** A v2 that reproduces a retracted v1 claim
-   has failed a test whose key is already in the repo.
+   overstatement. **Those have known answers** — ⚠ and that is exactly why they are now a
+   labelled SANITY CHECK rather than the headline (see the amendment above): the key is in
+   the repo, and v2 can read it. *"A v2 that reproduces a retracted v1 claim has failed a
+   test whose key is already in the repo"* was this document's original framing and it is
+   retired; the converse — v2 avoiding them — proves nothing, because it could simply have
+   looked them up.
 3. **It records its own uncertainty.** §12 is an assumption register split into resolved,
    retracted and open. That is a scoring rubric someone else already wrote.
 
@@ -122,9 +143,20 @@ Agreements are the least informative cell — two methods can share an error. Th
 interesting cells:
 
 * **v2 disagrees, and the answer is known** → decisive, in whichever direction.
-* **v2 reproduces a *retracted* v1 claim** → 🚨 a regression with a known key. This is the
+* ~~**v2 reproduces a *retracted* v1 claim** → 🚨 a regression with a known key. This is the
   single most valuable outcome the test can produce and it should be treated as a
-  finding, not a footnote.
+  finding, not a footnote.~~
+  🛑 **RETIRED 2026-08-06 (owner decision; landed `3f` F8). This outcome was never
+  available.** The leak had already suppressed it: v2 can look the retracted claims up
+  in `retractions` by slug, so it will avoid them — and that avoidance would have been
+  scored as v2 having improved. Counting it is assumption-laundering, *"v2 read the
+  answer"* recorded as *"v2 measured the answer"*. The retracted claims are now a
+  **labelled sanity check**, run and reported AFTER the headline and reported *as
+  leaked*: "v2 avoided these; it could also have looked them up." A sanity check that
+  says so is worth having; a headline that does not is not.
+* **The headline is v1's still-OPEN (⬜) claims**, which have no answer key anywhere in
+  the tree, scored against the 2026-08-06 Hammerdin proc-retest capture — tier-1
+  evidence rather than a seeded verdict.
 * **v2 is silent where v1 was confident** → often correct behaviour. v1 asserted things
   it could not support; refusing to answer is an improvement, not a gap. **Score it as
   such, or the test rewards overconfidence.**

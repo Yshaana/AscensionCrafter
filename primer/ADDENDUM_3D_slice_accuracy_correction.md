@@ -3,7 +3,12 @@
 **Written by:** the monitoring chat, 2026-08-06, verifying `3d` at `de31da9`.
 **Target:** `predictions/CALIBRATION_TOLERANCE.md` line ~154, and
 `gate_manifest.json`'s `cohort_median_slice_accuracy_pct`.
-**Urgency: before `3e` runs.** The number is now stamped in a criteria file.
+~~**Urgency: before `3e` runs.**~~ ✅ **LANDED in `3e` A2** (marked `3f` F8): the
+floor is implemented, it is in the manifest key name
+(`median_slice_accuracy_pct_at_coverage_ge_20`), and the band table is emitted by
+the tool. `3f` F8 added the missing `RETRACTIONS` row —
+`cohort_slice_accuracy_160pct_means_the_sim_overproduces` — because the reversal had
+been published in three prose documents and seeded in none.
 
 ---
 

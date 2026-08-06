@@ -219,8 +219,22 @@ def main():
             conn,
             build_spec={"holdout_character_ids": HOLDOUT_IDS,
                         "cohort_source": "predictions/gate_manifest.json"},
+            # 🛑 NOT EDITED, and that is deliberate: this is a
+            # PRE-REGISTRATION LEDGER, and rewriting what a prediction said it
+            # was measured under would destroy the only property it has.
+            # `--limit 120` is what the gate was when this holdout was
+            # registered (3d). It was ended by 3e A1 — the cohort is now the
+            # frozen id set in predictions/cohort_frozen_3e.json — and the
+            # superseded-by note lives HERE rather than in a silent edit.
+            # (3f F8.)
             content_profile={"gate": "calibrate_crawled --limit 120 "
-                                     "--max-lag-hours 0"},
+                                     "--max-lag-hours 0",
+                             "superseded_by": "3e A1 replaced --limit 120 with "
+                                              "the frozen cohort "
+                                              "predictions/cohort_frozen_3e.json; "
+                                              "the text above records the gate "
+                                              "AS REGISTERED and is intentionally "
+                                              "not rewritten"},
             **HOLDOUT)
         made += 1
     except PredictionLedgerError:

@@ -32,7 +32,11 @@ and land whenever convenient; the rest is `3e` input.
 ⚠ **PREMISE CORRECTED, `3e` A6 — the first sentence below described a tree that no
 longer exists.** `3d` shipped F2: `calibrate_vs_log.py:429-442` now exposes
 `--ap --sp --weapon-min --weapon-max --weapon-speed`, all `required=True`, so **weapon
-speed is no longer hardcoded at 3.57**. The rest of the section stands untouched and is
+speed is no longer hardcoded at 3.57**. ⚠ **AND THAT WAS FALSIFIED THREE COMMITS
+LATER BY `3e`'s OWN C1** (marked `3f` F8): the five flags are now OVERRIDES, not
+required, and `--stat-block` parses the export directly. The correction A6 made was
+itself out of date before the session ended — which is the argument for running
+doc-drift work at the END of a session, not the start. The rest of the section stands untouched and is
 still the right work — five hand-typed numbers is still a hand transcription of a
 ~40-line export, and the other ~35 fields are still discarded. Per the closing paragraph
 of this section, that makes it **additive `3e` work, not a rework**.

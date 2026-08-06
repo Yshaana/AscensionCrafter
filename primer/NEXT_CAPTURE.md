@@ -81,6 +81,21 @@ tests the real pipeline rather than bypassing it.
 ### ✅ DONE — reports [104](https://darkmoon.ascensionlogs.gg/reports/104/encounters) (SM) and [105](https://darkmoon.ascensionlogs.gg/reports/105/encounters) (Uldaman)
 
 Both uploaded and crawled 2026-08-06. Results in `PLAN_3C` §T2: the site's
+> 🛑 **RETRACTED — marked in `3f` F8, not rewritten.** The claim below that the
+> site's `casts` is `SPELL_CAST_SUCCESS`, and that *"crawl casts/sec is a
+> faithful character-level APM measure"*, was **falsified by the 2026-08-06
+> Frost Mage capture**. `SPELL_CAST_SUCCESS` and `SPELL_CAST_START` are
+> **disjoint by cast type**: Elric's instants log `SUCCESS` and never `START`,
+> his cast-time spells log `START` and never `SUCCESS` — **Frostbolt was cast
+> 74 times and produced ZERO `SPELL_CAST_SUCCESS` events** while landing 52
+> non-crit hits. The 93% / 97.3% agreement was measured on an **all-instant
+> Hammerdin**, where it is correct and does not generalise: for a cast-time
+> caster the site's `casts` counts only the instant portion of the rotation.
+> Measured across the cohort, it fails for **22 of 41** members.
+> Detail: `data/source/captures/2026-08-06_elric_mage_frost/README.md` and
+> `primer/FINDINGS_mage_capture_2026-08-06.md` §1. This document is kept as the
+> record of what was believed at the time.
+
 `casts` is confirmed to be `SPELL_CAST_SUCCESS` (93% and **97.3%** agreement),
 `deaths` is confirmed **unobtainable** (no death or presence key exists anywhere
 in the API payload), and the Fairbanks encounter gave ground truth for the

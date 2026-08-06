@@ -163,13 +163,15 @@ value is in the committed `3d` manifest. A median taken across a cohort spanning
 Restricted to characters the sim actually models, the number is stable and it
 points the other way:
 
-| coverage floor | n (3e tuning set) | median slice accuracy |
-|---:|---:|---:|
-| ≥0% | 33 | 164.7% |
-| ≥10% | 27 | 144.0% |
-| ≥20% | **23** | **64.3%** |
-| ≥30% | 21 | 63.4% |
-| ≥50% | 10 | 63.4% |
+| coverage floor | n (3e tuning set) | median slice accuracy | readable? |
+|---:|---:|---:|:--|
+| ≥0% | 33 | 163.7% | **no** - below the floor |
+| ≥10% | 26 | 141.2% | **no** - below the floor |
+| ≥20% | **23** | **64.3%** | yes |
+| ≥30% | 20 | 63.4% | yes |
+| ≥50% | 8 | 63.4% | yes |
+
+⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** The version committed by `3e` was headed *"n (3e tuning set)"* and carried `3d`'s medians with an `n` column matching neither run - 3 of its 5 sample sizes were wrong (27/21/10 against the true 26/20/8) and ≥0% and ≥10% were off by 1.0 and 2.8 points. Nothing material changed, and that is the point: the project's reference table for its own largest retraction did not describe the run it named. Regenerate with `py tools/audit/calibrate_crawled.py` and copy `result.slice_accuracy_by_coverage_band_pct` out of `predictions/gate_manifest_3e.json`, which now carries `n` and a `readable` flag per band for exactly this reason.
 
 *(Computed independently from the committed `3d` manifest over its own 38-member
 population, the bands read 159.8 / 85.4 / 62.6 / 62.6 / 62.6 — the same shape and

@@ -255,6 +255,17 @@ QUESTIONS = [
      'MEASURED 2026-08-06 at 3e close-out, reading the pre-registered holdout ONCE as designed. 3e closed five of six registered engine defects (E6, E4, E1, E2 fixed; E5 fixed for pure DoTs; E3 named) and the gate did not move at all: 5 of 36 within +/-20% before and after, 2 qualified before and after, slice accuracy 64.3% before and after. The holdout (460, 461, 462, 463, 7661) reads 0 of 5, having moved only +0.0 to +8.0 points and still missing by -45% to -98%. THREE OF THE FIVE CARRY 27-69% COVERAGE, so for them this is not a coverage story but an accuracy one — corroborating 3e A2s finding (the sim under-produces by ~37% on what it DOES model) on characters never tuned against. QUESTION: where is the residual? It is demonstrably NOT in the rotation mechanisms 3e repaired. Per A2s algebra, reaching +/-20% needs slice accuracy ~64% -> ~100% AND coverage ~37% -> ~80%; neither lever alone suffices and 3e moved neither. 🛑 Do not close this by fitting a constant — same rule as 2cs demoted 1.31 and 2es deliberately unseeded Holy residual.',
      'Phase 3 exit; what the next modelling session should actually target',
      'open', None, None, '2026-08-06'),
+
+    # ------------------------------------------------------------- session 3f
+    # 🛑 A DESIGN DECISION THAT CHANGES WHAT A TEST MEASURES BELONGS IN THE
+    # SEEDS, not only in a plan document. /close-session: "Prose is not a
+    # seed." Recorded as a QUESTION rather than a retraction because the plan
+    # has not run yet — this row is the pre-registration of how it will be
+    # scored, and it must exist BEFORE v2 runs or the rescope is unfalsifiable.
+    ('plan_v2_blind_rederivation_scoring_rescoped',
+     'OWNER DECISION 2026-08-06, taken before v2 ran and seeded in 3f (F8). PLAN_V2_BLIND_REDERIVATION as originally written IS NOT BLIND: Step 3 lists the DATABASES among v2s permitted inputs, and the databases ARE the answer key. The retractions table names v1s graded claims verbatim and by slug — sword_specialization_zero_output, duality_sp_amp_not_applying, improved_cleave_is_low_value_because_the_flat_is_small, art_of_war_dead_slot — which are exactly the claims cited as v1s known-wrong ones. A v2 session with DB access learns, before deriving anything, that Sword Specialization is not zero-output. THE RESCOPE: (1) the HEADLINE is scored on v1s still-OPEN claims only, which have no answer key anywhere in the tree and are scored against the 2026-08-06 Hammerdin proc-retest capture (tier-1 evidence, not a seeded verdict); (2) the RETRACTED claims are demoted to a labelled sanity check, run and reported AFTER the headline and reported AS LEAKED — "v2 avoided these; it could also have looked them up"; (3) Step 4s flagship outcome, "v2 reproduces a retracted v1 claim -> the single most valuable outcome the test can produce", is RETIRED — it was never available, because the leak had already suppressed it, and counting its absence as success is assumption-laundering: "v2 read the answer" scored as "v2 measured the answer". REJECTED, with reasons recorded so they are not re-litigated: DB blinding by exclusion list is an honour system unless a filtered view is actually built, and this project does not need another guard that is documented rather than implemented; a pre-v1 rebuild would be a real blind but hands v2 LESS knowledge than the current toolkit, so a v2 miss could not be separated from "v2 had less to work with". KEPT UNCHANGED: scoring v2s SILENCE where v1 was confident as an improvement — v1 asserted things it could not support, and refusing to answer is a gain, or the test rewards overconfidence.',
+     'PLAN_V2 cannot run until this row and the amended plan are both committed',
+     'open', None, None, '2026-08-06'),
 ]
 
 # --------------------------------------------------------------------------
@@ -427,6 +438,19 @@ RETRACTIONS = [
      'The strict lag-0 build-to-parse join yields only ONE level-60 crawled character, because exact-join captures structurally skew toward levelling players — so the calibration gate must loosen its staleness threshold (to 336h) to get a usable n at all.',
      'Measured against a MID-BACKFILL corpus, where the strict filter really did return one level-60 character. A plausible mechanism was available (armory captures fire on levelling milestones), so the starvation was written up as a structural property of the data rather than as a sample-size artifact.',
      'The uncapped backfill completed during the same session and the SAME strict filter returned 41 level-60 characters. It was small-sample, not structure. Generalised (now in calibrate_crawled.py\'s own docstring): a filter that starves on a partial corpus is not evidence that the filter is too strict — re-run on more data before loosening a constraint. The gate now runs at its strictest setting (--max-lag-hours 0) with no staleness caveat, so the correction strengthened the result. Retracted the same session it was made (3a, 2026-08-06); recorded here because the claim had already justified a methodological decision (the 336h loosening), which is exactly the kind of decision a fresh session could re-derive from the prose alone.',
+     None, '2026-08-06'),
+
+    # ------------------------------------------------------------- session 3e
+    # 🛑 Seeded in 3f (F8), not 3e. `3e` published this reversal in THREE prose
+    # documents and added ZERO retraction rows — `git diff` over the session
+    # adds 6 QUESTIONS and 0 retractions. /close-session's own rule: "Prose is
+    # not a seed." It is load-bearing beyond bookkeeping: PLAN_3G designates
+    # RETRACTIONS as the ready-made regression set for 3g, so a retraction that
+    # exists only in prose is a regression test that will never be written.
+    ('cohort_slice_accuracy_160pct_means_the_sim_overproduces',
+     'The cohort median slice accuracy is 160%, so the sim OVER-produces the damage slice it models by about 60% — and coverage work must therefore be throttled, because raising coverage on an already-over-producing slice would overshoot.',
+     'Computed in 3d as a single median over the whole cohort and reported without a coverage floor. The number is arithmetically correct for the population it was taken over, and nothing in the output signalled that the population was inadmissible - the manifest shipped the bare figure with no n and no caveat beside it.',
+     'Session 3e A2. slice_accuracy = (100 + delta) / coverage has COVERAGE IN ITS DENOMINATOR, so it explodes as coverage -> 0 and must never be aggregated across a cohort spanning 0.2% to 82% coverage. Mutaforma reports 1,859,400% at 0.2% coverage, in the committed 3d manifest. Restricted to coverage >= 20% the median is 64.3%, and it is STABLE there - 63.4% at >=30% and again at >=50%. THE SIGN IS THE OPPOSITE OF WHAT WAS PUBLISHED: the sim UNDER-produces on what it models, by about a third. CONSEQUENCE, and it inverts the instruction the claim was used to justify: at ~64% slice accuracy, coverage work ALONE can never reach +/-20%, because delta = 0 requires slice x coverage = 1.0 and at 0.64 that demands coverage above 100%. Both levers must roughly double. The old reading said coverage work would overshoot and should be throttled. GENERAL LESSON: a ratio whose denominator is itself a measured fraction has no meaningful cohort-wide average - report it per band above a stated floor, with n, or not at all.',
      None, '2026-08-06'),
 ]
 

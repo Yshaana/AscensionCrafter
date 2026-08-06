@@ -417,9 +417,83 @@ def check_holdout_reading_is_not_erased():
         cc.GATE_MANIFEST_PATH = saved
 
 
+# --------------------------------------------------------------------------
+# F8b — a capture resolves to exactly one phase, or to none
+# --------------------------------------------------------------------------
+_PHASES = {"phases": [
+    {"id": 1, "name": "Phase 0", "phase_number": 0,
+     "progression_parent_phase_id": None,
+     "start_date": "2026-07-24T00:00:00.000Z"},
+    {"id": 2, "name": "Phase 1 - Zul'Gurub", "phase_number": 1,
+     "progression_parent_phase_id": None,
+     "start_date": "2026-07-31T18:00:00.000Z"},
+    # 🛑 phase_number 2, named "Phase 1.1", CHILD of Phase 1. Reading
+    # phase_number instead of the parent id says the server is on Phase 2,
+    # which is false — PROGRESS.md recorded this trap on 2026-08-04.
+    {"id": 3, "name": "Phase 1.1", "phase_number": 2,
+     "progression_parent_phase_id": 2,
+     "start_date": "2026-08-03T18:00:00.000Z"},
+]}
+
+
+def check_phase_resolution():
+    """`core/builds/phases.py` — derive, or return NULL and say why.
+
+    MUTATION THAT MAKES THIS FAIL: drop `phase_windows`' filter on
+    `progression_parent_phase_id`, so child phases become top-level windows.
+    "Phase 1.1" splits Phase 1 in two and the 2026-08-04 timestamp below
+    resolves to the wrong label. *(Verified 3f.)*
+
+    SECOND MUTATION: drop the `horizon` branch in `resolve_phase`. A capture
+    taken after the payload was fetched resolves to the last known phase
+    instead of NULL — which is exactly how a POST-2026-08-08 snapshot would
+    get silently labelled Phase 1, the failure F8b exists to prevent. The
+    horizon case goes red. *(Verified 3f.)*
+    """
+    from core.builds.phases import phase_windows, resolve_phase
+
+    wins, horizon = phase_windows(_PHASES, "2026-08-06T06:40:10+00:00")
+    check("[F8b] only TOP-LEVEL phases become windows — 'Phase 1.1' is a "
+          "child and must not split Phase 1",
+          [w["label"] for w in wins] == ["Phase 0", "Phase 1 - Zul'Gurub"],
+          str([w["label"] for w in wins]))
+
+    cases = [
+        ("2026-07-26T12:00:00Z", "Phase 0", "inside the first window"),
+        ("2026-07-31T17:59:59Z", "Phase 0", "one second before the boundary"),
+        ("2026-07-31T18:00:00Z", "Phase 1 - Zul'Gurub", "on the boundary"),
+        ("2026-08-04T09:00:00Z", "Phase 1 - Zul'Gurub",
+         "after the CHILD phase started — still Phase 1"),
+        ("2026-07-01T00:00:00Z", None, "before any known phase"),
+        ("2026-08-09T00:00:00Z", None,
+         "AFTER the payload was fetched — the horizon rule"),
+        (None, None, "no timestamp at all"),
+    ]
+    ok, detail = True, []
+    for ts, want, why in cases:
+        got, reason = resolve_phase(ts, wins, horizon)
+        if got != want:
+            ok = False
+            detail.append(f"{why}: got {got!r}, wanted {want!r}")
+        if got is None and not reason:
+            ok = False
+            detail.append(f"{why}: NULL with no stated reason")
+    check("[F8b] every capture resolves to exactly one phase or to NULL WITH "
+          "A REASON — never to the nearest phase",
+          ok, "; ".join(detail) if detail else f"{len(cases)} cases")
+
+    # The one that matters this week, called out separately because it is the
+    # 2026-08-08 case and it is easy to regress into "just use the last phase".
+    got, reason = resolve_phase("2026-08-09T00:00:00Z", wins, horizon)
+    check("[F8b] a capture LATER than the phases payload is NULL, not "
+          "silently labelled with the newest phase the payload knew",
+          got is None and "cannot know" in (reason or ""),
+          f"{got!r} — {(reason or '')[:70]}")
+
+
 def main():
     print("=== 3f: the guards that must not fail open "
-          "(F0 / F4 / F5 / F6 / F7) ===\n")
+          "(F0 / F4 / F5 / F6 / F7 / F8b) ===\n")
     check_baseline_phase_refusal()
     print()
     check_session_mismatch_states()
@@ -429,6 +503,8 @@ def main():
     print()
     check_manifest_cannot_contradict_itself()
     check_holdout_reading_is_not_erased()
+    print()
+    check_phase_resolution()
 
     print()
     if FAILURES:

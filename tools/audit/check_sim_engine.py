@@ -665,7 +665,10 @@ def check_nonpaladin_fixtures(conn, ct, conv):
               f"{sorted(str(s) for s in fillers if s not in firing)[:8]}")
 
         if kind == "cp_melee":
-            # `tiers.py:197` / `apl.py:118` — `combo_points` is never
+            # `TimelineState.combo_points` / `apl.py`'s `combo_points_at_least`
+            # branch (line numbers deliberately dropped in 3f F8 — the ones
+            # here were stale, and A6 introduced fresh stale ones while
+            # fixing older stale ones) — `combo_points` is never
             # incremented anywhere in the tree, so `combo_points_at_least`
             # (which apl_gen.py:91 emits for EVERY finisher) can never be true
             # and those finishers never fire in medium_sim.

@@ -31,6 +31,21 @@ log. 443,505 also reproduces the capture README's own stated ground truth.
 against 3,650 over 302s. Both are right. **Compare damage totals, not DPS,
 unless the window is stated.**
 
+> 🛑 **RETRACTED — marked in `3f` F8, not rewritten.** The claim below that the
+> site's `casts` is `SPELL_CAST_SUCCESS`, and that *"crawl casts/sec is a
+> faithful character-level APM measure"*, was **falsified by the 2026-08-06
+> Frost Mage capture**. `SPELL_CAST_SUCCESS` and `SPELL_CAST_START` are
+> **disjoint by cast type**: Elric's instants log `SUCCESS` and never `START`,
+> his cast-time spells log `START` and never `SUCCESS` — **Frostbolt was cast
+> 74 times and produced ZERO `SPELL_CAST_SUCCESS` events** while landing 52
+> non-crit hits. The 93% / 97.3% agreement was measured on an **all-instant
+> Hammerdin**, where it is correct and does not generalise: for a cast-time
+> caster the site's `casts` counts only the instant portion of the rotation.
+> Measured across the cohort, it fails for **22 of 41** members.
+> Detail: `data/source/captures/2026-08-06_elric_mage_frost/README.md` and
+> `primer/FINDINGS_mage_capture_2026-08-06.md` §1. This document is kept as the
+> record of what was believed at the time.
+
 ## 2. ✅ The site's `casts` IS `SPELL_CAST_SUCCESS`
 
 | report | site casts | log casts | agreement |

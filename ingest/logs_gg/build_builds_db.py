@@ -27,9 +27,40 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import config  # noqa: E402
 from config import BUILDS_DB_PATH, CRAWL_DIR, DB_PATH, ensure_derived_dir  # noqa: E402
 from core.builds import corpus, gear  # noqa: E402
+from core.builds.phases import phase_windows  # noqa: E402
 from core.spells import crosswalk  # noqa: E402
 
 config.ensure_utf8_stdout()
+
+
+def latest_phase_windows():
+    """The most recently captured `/api/phases` payload, as phase windows.
+
+    🛑 `3f` F8b — THE BOUNDARY COMES FROM THE LIVE RESPONSE, cached with its
+    fetch time, never from a date typed into a constant. `season_config.py` is
+    the one place that knows the EXPECTED phase; it is deliberately not the
+    place a phase timeline is read from, and neither is the `user_confirmed`
+    `server_phases` seed (whose Phase 1 has a NULL start, which is why the
+    corpus has been described as "all Phase 1" when 38.6% of it predates
+    Phase 1's actual start).
+
+    The newest capture wins: an older payload knows about fewer phases, and its
+    fetch time becomes the horizon past which nothing can be resolved.
+    """
+    best = None
+    for path in sorted(CRAWL_DIR.glob("*/phases.jsonl.gz")):
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                for line in f:
+                    rec = json.loads(line)
+                    at = rec.get("captured_at")
+                    if at and (best is None or at > best[0]):
+                        best = (at, rec.get("payload") or {})
+        except (OSError, KeyError, json.JSONDecodeError):
+            continue
+    if best is None:
+        return [], None
+    return phase_windows(best[1], best[0])
 
 # Ingestion order matters only mildly (characters before performance makes the
 # character upserts richer first), but reports must precede the per-ability
@@ -151,9 +182,21 @@ def main():
               f"every card left spell_id NULL / 'unresolved'")
 
     print("[post] deduping gear into the items table…")
-    item_stats = gear.build_items_from_gear(conn)
+    windows, horizon = latest_phase_windows()
+    item_stats = gear.build_items_from_gear(
+        conn, phase_windows=windows, phase_horizon=horizon)
     print(f"  {item_stats['items']} items, {item_stats['with_stats']} with resolved "
           f"stat blocks (provenance: {item_stats['provenance']})")
+    if item_stats["phase_labels_derived"]:
+        print(f"  phase_label derived from /api/phases "
+              f"(horizon {horizon:%Y-%m-%d %H:%M}Z): "
+              + ", ".join(f"{k}={v}"
+                          for k, v in item_stats["items_by_phase_label"].items()))
+        for why, n in item_stats["phase_unresolved_by_reason"].items():
+            print(f"    ⚠ {n} unresolved — {why}")
+    else:
+        print("  ⚠ phase_label left NULL on every row — no /api/phases capture "
+              "found under data/source/crawl/*/phases.jsonl.gz")
 
     print("[post] linking performance rows to build snapshots…")
     link = corpus.link_performance_snapshots(conn)

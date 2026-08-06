@@ -464,7 +464,14 @@ input at all.
 
 | Pair | Predicted | Observed | Worst delta |
 |---|---|---|---|
-| Hammer from the Heavens ÷ Hour of Judgement's own tick | **1.718** | 1.697 / 1.773 / 1.685 / 1.771 | **3.2%** over 4 logs |
+| Hammer from the Heavens ÷ Hour of Judgement's own tick | ~~**1.718**~~ → **1.704** | 1.697 / 1.773 / 1.685 / 1.771 | **3.2%** over 4 logs |
+
+⚠ **1.718 was computed from a CONTAMINATED stat block and is superseded by 1.704**
+(re-derived in `3d` at the blockquote below, `:488`). Struck through here in `3f` F8
+because this row is the headline and the correction was visible only inside a
+blockquote 20 lines further down — a reader taking the target from the table got the
+retracted number. Same correction applies at
+`PHASE_2D_residuals_and_scorecard.md:10,158`.
 | Dawnreaver ÷ Whirling Light | **0.769** | 0.768 / 0.720 / 0.757 | **6.4%** over 3 logs |
 
 **These are the targets a talent model must reproduce.** `calibrate_vs_log.py`
@@ -495,9 +502,15 @@ computes them as a first-class report and labels each pair REPRODUCES / MISSES.
 >
 > 🛑 **The stat block is now stated inline, because that is the actual fix.**
 > A target quoted without the inputs that produced it cannot be checked, and
-> `calibrate_vs_log.py` no longer has stat defaults at all — it refuses to run
-> without `--ap --sp --weapon-min --weapon-max --weapon-speed` (`3d` F2). The
-> command that reproduces the right-hand column:
+> `calibrate_vs_log.py` no longer has stat defaults at all. ⚠ **CORRECTED `3f` F8:
+> the five flags are NO LONGER `required=True`.** `3e` C1 demoted them to
+> OVERRIDES and added `--stat-block`, which PARSES the addon export rather than
+> having a human retype five numbers out of it — that hand channel is what
+> produced the `2e` contamination this very section is about. The tool still
+> refuses to run with neither source. The command below still works, but the
+> form that removes the transcription step is
+> `--stat-block <the export .txt>`. The command that reproduces the right-hand
+> column:
 >
 > ```bash
 > py tools/audit/calibrate_vs_log.py --all-logs --ap 141 --sp 638 --weapon-min 543.6 --weapon-max 646.3 --weapon-speed 3.57

@@ -354,6 +354,31 @@ For reference, on that (biased) measure the cohort median is ~0.6 casts/sec and
 1.11 — high activity, so its +3,619% is a genuine sim bug**, which is consistent
 with `sim_magnitude_explosion_absolute_zero` and belongs to C3.
 
+> 🛑 **THE SECTION BELOW IS RETRACTED — marked in `3f` F8, not rewritten. And
+> the section ABOVE it, which it withdrew, was RIGHT.**
+>
+> `3c` measured the site's `casts` against `SPELL_CAST_SUCCESS` at 93% and
+> 97.3% and on that basis withdrew its own objection that `casts` under-reads
+> proc-heavy kits. **Both measurements were taken on an all-instant Hammerdin,
+> where they are correct and do not generalise.** The 2026-08-06 Frost Mage
+> capture falsifies the generalisation: `SPELL_CAST_SUCCESS` and
+> `SPELL_CAST_START` are **disjoint by cast type** — instants log `SUCCESS` and
+> never `START`, cast-time spells log `START` and never `SUCCESS`. **Frostbolt
+> was cast 74 times and produced ZERO `SPELL_CAST_SUCCESS` events** while
+> landing 52 non-crit hits. Measured across the cohort it fails for **22 of
+> 41** members.
+>
+> ⚠ So *"crawl `casts`/sec is a lower bound on true APM, and it under-reads"*
+> — the paragraph immediately above, which this section retracted — **stands**,
+> for a second and independent reason: not only proc/DoT delivery, but every
+> cast-time spell in the rotation. **Do not filter on crawl casts/sec** is
+> still the operative instruction, and it is now better supported than when it
+> was written.
+>
+> Detail: `data/source/captures/2026-08-06_elric_mage_frost/README.md` and
+> `primer/FINDINGS_mage_capture_2026-08-06.md` §1. Kept as the record of what
+> was believed at the time.
+
 #### ✅ C2 RESOLVED 2026-08-06 by the paired upload (reports 104 + 105)
 
 The owner uploaded two of his own logs, giving the same encounters measured

@@ -102,12 +102,30 @@ DBC_STEP = ("ingest/dbc/build_dbc_index.py",
 #
 #     py cli/rebuild.py --with-corpus     # rebuild builds.db too
 #
-# ⚠ The underlying gate defect is NOT fixed here (3d ships no modelling change).
-# It is written up for the owner and for `3e`; the fix is to pin the cohort by
-# id — which is what the gate manifest (E2) now records.
+# ✅ FIXED IN `3e` A1, and this note is corrected in `3f` F13 — the text above
+# describes the WORLD BEFORE THAT FIX and is kept only because it explains why
+# the step is opt-in. `candidates()` is no longer `ORDER BY character_id LIMIT
+# N`: the gate's population is the frozen id set committed in
+# `predictions/cohort_frozen_3e.json`, and a member that stops qualifying is
+# reported as DROPPED WITH ITS REASON, never substituted. Rebuilding the corpus
+# therefore can no longer swap cohort members for one another.
+#
+# 🛑 IT IS STILL OPT-IN, for a narrower but real reason. A frozen member can
+# still stop qualifying — its snapshot lag can change, gear can fail to resolve,
+# a level can move — and that legitimately shrinks the denominator. The gate
+# reports it (`dropped`, and since `3f` F6 `excluded_after_selection` too), so
+# it is now visible rather than silent; but a routine rebuild should still not
+# be able to change what a gate number means without someone asking for it.
+#
+# ⚠ WHERE LOG INGESTION SITS (`3f` F13): AFTER this step, never before. It
+# writes into the same `builds.db` this step rebuilds from scratch, so a log
+# ingested first is destroyed. Its rows carry an EXCLUDED `source`, so they
+# cannot enter the gate cohort — `tools/audit/check_gate_exclusion.py` is what
+# proves that, and it is worth re-running after any ingestion.
 CORPUS_STEP = ("ingest/logs_gg/build_builds_db.py",
-               "builds.db - the normalised crawl corpus. ⚠ REDEFINES THE "
-               "CALIBRATION GATE COHORT (see cli/rebuild.py CORPUS_STEP)")
+               "builds.db - the normalised crawl corpus. ⚠ REBUILDS FROM "
+               "SCRATCH: any log-derived rows must be re-ingested AFTER it "
+               "(see cli/rebuild.py CORPUS_STEP)")
 
 
 def mark_rebuild(step_count, *, started):
@@ -191,10 +209,15 @@ def main():
         # ascension.db chain's timing and failure modes unchanged.
         chain.append(CORPUS_STEP)
         print("⚠ --with-corpus: builds.db will be rebuilt from data/source/crawl/.")
-        print("  The calibration gate's cohort is a function of that corpus "
-              "(ORDER BY character_id LIMIT N over a growing population), so a "
-              "gate result from before this run is NOT comparable to one after "
-              "it. Re-run the gate and re-emit its manifest.")
+        print("  The gate's cohort is FROZEN by id "
+              "(predictions/cohort_frozen_3e.json), so members can no longer "
+              "be swapped for one another by a corpus rebuild — but a frozen "
+              "member can still stop QUALIFYING, which shrinks the "
+              "denominator. Re-run the gate and re-emit its manifest, and "
+              "read `dropped` / `excluded_after_selection` before comparing "
+              "the result to an earlier one.")
+        print("  ⚠ This rebuilds builds.db FROM SCRATCH. Any log-derived rows "
+              "must be re-ingested afterwards.")
 
     failed = []
     for i, (script, why) in enumerate(chain):

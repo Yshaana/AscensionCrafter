@@ -40,6 +40,21 @@ Phase 3 exit criteria, Phase 4 preconditions, PLAN_3C soundness, automation.
 | §0 | "no hooks directory (T7)" | ✅ **CORRECT test** | T7's spec is literally a `SessionStart` hook + `tools/session_hooks/`. Neither exists. `SCHEDULING.md` / `run_crawler.bat` are **T8** (crawler), orthogonal. ~100% remaining, and it hard-depends on T6 |
 | §1 STEP 2 | "rider stamped **before** the re-run ✅" | ⚠️ **PLAUSIBLE, UNVERIFIED — not ✅** | `git log --follow predictions/CALIBRATION_TOLERANCE.md` → the addendum, the `QUALIFIED_COVERAGE_PCT` constants **and** `load_scraped_coefficients.py` all land in the *same commit* `79c6568`. Nothing contradicts the claim; nothing corroborates it either. Also: the file is in `predictions/`, not `primer/` as §6 implies |
 | §1 | Gate = 5 of 41, 2 qualified; median coverage 37%; 323/177 conflicts; 74 proposals | 🔒 **UNVERIFIABLE BY ANY AUDITOR** | `.gitignore:10` excludes `data/derived/`; **no `.db` is committed**. The 323/177 figures exist only as a prose comment at `core/spells/mechanics.py:342-343` — no tool measures them, no test asserts them. See §4.F |
+> 🛑 **RETRACTED — marked in `3f` F8, not rewritten.** The claim below that the
+> site's `casts` is `SPELL_CAST_SUCCESS`, and that *"crawl casts/sec is a
+> faithful character-level APM measure"*, was **falsified by the 2026-08-06
+> Frost Mage capture**. `SPELL_CAST_SUCCESS` and `SPELL_CAST_START` are
+> **disjoint by cast type**: Elric's instants log `SUCCESS` and never `START`,
+> his cast-time spells log `START` and never `SUCCESS` — **Frostbolt was cast
+> 74 times and produced ZERO `SPELL_CAST_SUCCESS` events** while landing 52
+> non-crit hits. The 93% / 97.3% agreement was measured on an **all-instant
+> Hammerdin**, where it is correct and does not generalise: for a cast-time
+> caster the site's `casts` counts only the instant portion of the rotation.
+> Measured across the cohort, it fails for **22 of 41** members.
+> Detail: `data/source/captures/2026-08-06_elric_mage_frost/README.md` and
+> `primer/FINDINGS_mage_capture_2026-08-06.md` §1. This document is kept as the
+> record of what was believed at the time.
+
 | §2 | Four log-upload findings (exactness, `casts`=`SPELL_CAST_SUCCESS`, `deaths` unobtainable, buff layer ×1.45) | ✅ **SOUND, and the best work in the session** | Independent reproduction of the 25.1% figure to one decimal is a genuine check digit |
 | §3a | Coefficient double-count fixed | ⚠️ **PARTIAL** — see §4.B |
 | §3b | Boomcat retracted (APM ratio 0.24 vs Elric's 0.38) | ✅ **CORRECT and correctly retracted** | Rule 7 honoured |

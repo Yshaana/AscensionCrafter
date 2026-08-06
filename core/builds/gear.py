@@ -108,8 +108,26 @@ def init_items_schema(conn):
     conn.executescript(ITEMS_SCHEMA)
 
 
-def build_items_from_gear(conn):
-    """Dedupe `snapshot_gear` by item_id into `items`. Owns its own deletion."""
+def build_items_from_gear(conn, *, phase_windows=None, phase_horizon=None):
+    """Dedupe `snapshot_gear` by item_id into `items`. Owns its own deletion.
+
+    🆕 `3f` F8b — `phase_label` is DERIVED, not written as literal `None`.
+    It is resolved from the item's `first_seen_at` (the earliest capture that
+    carried it), so it means *"the phase this item was first observed in"* —
+    the closest honest reading of the column's own comment, *"server phase this
+    becomes available, when known"*. An item first seen at a timestamp that
+    resolves to no single phase gets NULL, per rule 2, and NULL is excluded
+    from a phase-scoped query rather than being assigned to the nearest phase.
+
+    ⚠ **First-seen is a lower bound on availability, not a proof of it.** An
+    item that existed in Phase 0 but was not crawled until Phase 1 reads as
+    Phase 1. That is a property of the corpus, not of the item, and it is why
+    this is a derived label rather than a claim about the game.
+
+    Called with no windows, every label is NULL and the function says nothing
+    it cannot support.
+    """
+    from .phases import resolve_phase
     init_items_schema(conn)
     conn.execute("DELETE FROM items WHERE provenance = 'crawl_resolved_bisbeard'")
     rows = conn.execute("""
@@ -122,6 +140,18 @@ def build_items_from_gear(conn):
         WHERE sg.item_id IS NOT NULL
         GROUP BY sg.item_id
     """).fetchall()
+    labels, unresolved = [], {}
+    for r in rows:
+        if phase_windows:
+            label, why = resolve_phase(r[10], phase_windows, phase_horizon)
+            if label is None:
+                key = (why or "unresolvable").split(" — ")[0] \
+                    .split(", before")[0].split(", AFTER")[0]
+                unresolved[key] = unresolved.get(key, 0) + 1
+        else:
+            label = None
+        labels.append(label)
+
     conn.executemany(
         """INSERT OR REPLACE INTO items
              (item_id, name, quality, slot, item_level, stats_json, sockets_json,
@@ -129,10 +159,17 @@ def build_items_from_gear(conn):
               first_seen_at, seen_count)
            VALUES (?,?,?,?,?,?,?,?,?,?,?, 'crawl_resolved_bisbeard', ?,?)""",
         [(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9],
-          None, r[10], r[11]) for r in rows])
+          lab, r[10], r[11]) for r, lab in zip(rows, labels)])
+    by_phase = {}
+    for lab in labels:
+        by_phase[lab or "(unresolved)"] = by_phase.get(lab or "(unresolved)", 0) + 1
     return {"items": len(rows),
             "with_stats": sum(1 for r in rows if r[5]),
-            "provenance": "crawl_resolved_bisbeard"}
+            "provenance": "crawl_resolved_bisbeard",
+            "phase_labels_derived": bool(phase_windows),
+            "items_by_phase_label": dict(sorted(by_phase.items())),
+            "phase_unresolved_by_reason": dict(sorted(unresolved.items(),
+                                                      key=lambda kv: -kv[1]))}
 
 
 def normalise_stats(stats_json):
@@ -332,9 +369,9 @@ def slot_budget_medians(conn):
     return out
 
 
-def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),
-                                                          ("mid", 0.50),
-                                                          ("bis", 0.90))):
+def gear_tier_stats(conn, *, path=None, role=None, phase=None,
+                    phase_windows=None, phase_horizon=None,
+                    tiers=(("fresh", 0.25), ("mid", 0.50), ("bis", 0.90))):
     """Fresh / mid / BiS stat blocks, MEASURED from what characters wear.
 
     Not a hand-invented curve: characters are ranked by the **total stat budget
@@ -348,14 +385,49 @@ def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),
     rather than by gear quality — the fresh and mid tiers came back with EMPTY
     stat blocks, which is what caught it.
 
-    ⚠ Phase parameterisation: the corpus is currently all Phase 1, so
-    `phase_label` is NULL everywhere and this function does not filter on it.
-    S10 Phase 2 starts 2026-08-08; once snapshots straddle the flip, tiers MUST
-    be computed per phase or a Phase-1 BiS will be reported as current.
+    🆕 **`3f` F8b — PHASE SCOPING, and it is not optional after 2026-08-08.**
+    Pass `phase` (a phase label as `/api/phases` names it, e.g.
+    `"Phase 1 - Zul'Gurub"`) together with `phase_windows` / `phase_horizon`
+    from `core.builds.phases.phase_windows()`, and only snapshots captured
+    inside that phase are ranked. A snapshot whose capture time resolves to no
+    phase, or to more than one, is **excluded and counted**, never assigned to
+    the nearest — owner decision 2026-08-06, rule 2.
+
+    🛑 The exclusion count is RETURNED, in `phase_scoping`. A phase-scoped BiS
+    built from a silently reduced population is the mixed-phase failure wearing
+    a different coat, and this project has now found four caveats that were
+    printed and not enforced.
+
+    ⚠ **The corpus is NOT single-phase, which every doc said it was.** Against
+    the API's own dates, **182 of 412 snapshots (44.2%)** were captured before
+    Phase 1 started (`2026-07-31T18:00Z`) and belong to **Phase 0**; so do 714
+    of 2,384 items by first sighting. Nothing is unresolvable — it is cleanly
+    two phases. The "currently all Phase 1" claim came from the
+    `user_confirmed` `server_phases` seed, which gives Phase 1 a NULL start and
+    so swallows everything before the flip.
+
+    ✅ **But scoping costs THIS function very little, and the difference is the
+    `pieces >= 12` filter.** Its own population is 223 snapshots — 216 Phase 1
+    and **7** Phase 0 — so `phase="Phase 1 - Zul'Gurub"` drops **3.1%**, not
+    44%. Phase 0 alone falls below the 8-snapshot floor and correctly returns
+    `insufficient_sample` rather than three tiers built on seven characters.
+    The corpus-wide 44.2% is the number to quote about the CORPUS; 3.1% is the
+    number to quote about gear tiers, and conflating them overstates the
+    disruption by 14x. *(Measured 2026-08-06.)*
+
+    🔬 The **gate cohort is effectively unaffected**: 40 of the frozen 41 have
+    their lag-0 snapshot in Phase 1 and exactly one in Phase 0. This changes
+    what a gear tier means; it does not put the calibration gate on both sides
+    of a content boundary.
+
+    Calling with no `phase` keeps the old whole-corpus behaviour, and says so
+    in `phase_scoping` rather than in a hardcoded caveat string.
     """
+    from .phases import resolve_phase
+
     sql = """
         SELECT cs.snapshot_id, cs.character_id, cs.path,
-               COUNT(sg.item_id) AS pieces
+               COUNT(sg.item_id) AS pieces, cs.captured_at
         FROM character_snapshots cs
         JOIN snapshot_gear sg ON sg.snapshot_id = cs.snapshot_id
         WHERE sg.stats_json IS NOT NULL
@@ -371,7 +443,26 @@ def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),
 
     all_unmapped = set()
     scored = []
-    for snapshot_id, character_id, snap_path, pieces in conn.execute(sql, params):
+    excluded_by_phase = {}      # reason -> count, never a silent drop
+    kept_by_phase = 0
+    for (snapshot_id, character_id, snap_path, pieces,
+         captured_at) in conn.execute(sql, params):
+        if phase is not None:
+            label, why = resolve_phase(captured_at, phase_windows or [],
+                                       phase_horizon)
+            if label is None:
+                key = why or "unresolvable"
+                # Collapse the per-timestamp detail to its mechanism so the
+                # report is a count per REASON, not 159 near-identical strings.
+                key = key.split(" — ")[0].split(", before")[0].split(", AFTER")[0]
+                excluded_by_phase[key] = excluded_by_phase.get(key, 0) + 1
+                continue
+            if label != phase:
+                excluded_by_phase[f"captured in {label!r}, not {phase!r}"] = \
+                    excluded_by_phase.get(
+                        f"captured in {label!r}, not {phase!r}", 0) + 1
+                continue
+            kept_by_phase += 1
         block = defaultdict(float)
         for (stats_json,) in conn.execute(
                 "SELECT stats_json FROM snapshot_gear WHERE snapshot_id = ?",
@@ -389,9 +480,28 @@ def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),
         scored.append((budget, snapshot_id, character_id, snap_path, pieces, block))
     scored.sort(key=lambda r: r[0])
 
+    # 3f F8b — reported whether or not it changed anything, and BEFORE the
+    # sample-size return, so a phase scope that starved the population says so
+    # instead of reading as "not enough data in the corpus".
+    phase_scoping = {
+        "phase": phase,
+        "applied": phase is not None,
+        "snapshots_kept": kept_by_phase if phase is not None else len(scored),
+        "snapshots_excluded": sum(excluded_by_phase.values()),
+        "excluded_by_reason": dict(sorted(excluded_by_phase.items(),
+                                          key=lambda kv: -kv[1])),
+        "note": ("no phase scope requested — this pools EVERY phase in the "
+                 "corpus, which mixes gear tiers once snapshots straddle a "
+                 "flip. Pass phase= with phase_windows= to scope it."
+                 if phase is None else
+                 "snapshots that resolve to no phase, or to more than one, are "
+                 "EXCLUDED and counted above — never assigned to the nearest "
+                 "phase (owner decision 2026-08-06, rule 2)."),
+    }
+
     if len(scored) < 8:
         return {"verdict": "insufficient_sample", "population": len(scored),
-                "tiers": {}}
+                "phase_scoping": phase_scoping, "tiers": {}}
 
     out = {}
     for label, pct in tiers:
@@ -403,10 +513,16 @@ def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),
             "gear_stat_budget": round(budget, 1), "pieces": pieces,
             "stats": {k: round(v, 1) for k, v in sorted(block.items())},
         }
+    # 3f F8b — the hardcoded `"caveat": "single-phase corpus; re-derive per
+    # phase after 2026-08-08"` is GONE. It was wrong on both halves: the corpus
+    # is not single-phase (38.6% of snapshots predate Phase 1 by the API's own
+    # dates), and it was a printed caveat with nothing enforcing it — the
+    # fourth of those this project has found. `phase_scoping` replaces it with
+    # what the function actually did.
     return {"verdict": "ok", "population": len(scored), "tiers": out,
             "unmapped_stat_keys": sorted(all_unmapped),
             "provenance": "crawl_resolved_bisbeard",
-            "caveat": "single-phase corpus; re-derive per phase after 2026-08-08"}
+            "phase_scoping": phase_scoping}
 
 
 def export_stat_weights(weights, *, target="bisbeard", normalise_to=None):

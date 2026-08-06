@@ -24,6 +24,50 @@ the build — but the registry is enforced in both directions:
 
 ---
 
+## 🆕 The check registry — every check, and the mutation that turns it red
+
+**Standing rule, adopted `3f`** (`ADDENDUM_3E_to_3F.md` §4, promoted from
+`PLAN_3G:111-112`): *every check carries a registered test that makes it fail.*
+**If you cannot name the mutation, it is not a check.**
+
+It was adopted because the `3e` audit found **four instruments that could not
+fail**, three of which would have been caught by naming a mutation and trying
+it. Two of them had defects CLOSED on their say-so.
+
+🛑 **Naming a mutation is not enough — RUN it.** Every row below was executed
+against the tree and the red checks recorded. Three of my own first attempts in
+`3f` were themselves wrong or vacuous and only running them showed it: a
+mutation that dropped an input id rather than an output row (left the check
+green), a test case that exercised only one of two assertions (left the other's
+mutation green), and an in-process `io.StringIO` stderr that accepts any
+codepoint (made an encoding assertion unfalsifiable).
+
+| # | mutation | red |
+|---|---|---:|
+| M1 | revert `session_mismatch`'s log side to `return None` | 1 |
+| M2 | drop `config.ensure_utf8_stdout()` from `baseline_phase1.py` | 1 |
+| M3 | remove `baseline_phase1`'s `RealmSeasonMismatch` handler | 3 |
+| M4 | remove the `ValueError` guard in `_log_started_at` | 1 |
+| M5 | point `closing_note` back at `args.*` instead of the resolved stats | 1 |
+| M6 | remove `baseline_phase1`'s pre-flight phase assert | 1 |
+| M7 | `EXCLUDED_SNAPSHOT_SOURCES = ()` | 3 |
+| M8 | make `_decay_target_health` a no-op (pin target health at 100) | 1 |
+| M9 | `detect_summons` returns `[]` | 3 |
+| M9b | `detect_summons` returns rows with **wrong** spell ids (non-empty) | 3 |
+| M10 | `_useful_cast_interval` returns a positive interval for everything | 3 |
+| M11a | drop the manifest's frozen-arithmetic assertion | 2 |
+| M11b | drop the manifest's scoring-loop assertion | 1 |
+| M12 | drop the holdout carry-forward | 2 |
+| M13 | treat CHILD phases as top-level in `phase_windows` | 2 |
+| M14 | drop the horizon rule in `resolve_phase` | 2 |
+
+Checks live in `tools/audit/check_sim_engine.py` (the engine harness),
+`tools/audit/check_gate_exclusion.py` (cohort integrity) and
+`tools/audit/check_refusals.py` (guards that must not fail open — new in `3f`).
+Each check's own docstring names its mutation; this table is the index.
+
+---
+
 ## Why these were invisible until now
 
 Every fixture, the whole regression harness, and `calibrate_vs_log.py`'s defaults
@@ -341,7 +385,7 @@ it carries that caveat in its own failure text.
 
 | | |
 |---|---|
-| **Check** | none yet — currently surfaced as a `warnings` entry from `core/sim/tiers.py :: _mixed_damage_warning` |
+| **Check** | ✅ **THREE registered failing checks** — `[cp_melee] / [dot_caster] / [frost_mage] fast_sim allocates GCDs to more than one filler`, all in `EXPECTED_FAILURES` (`check_sim_engine.py:78-102`). Also surfaced per ability as a `warnings` entry from `core/sim/tiers.py :: _mixed_damage_warning`. ⚠ The row read *"none yet"* until `3f` F8, contradicting this file's own line-15 invariant that every entry here IS a failing check |
 | **Where** | `core/sim/ability_model.py :: expected_cast` returns ONE mean for an ability whose events are part direct, part periodic |
 | **Found by** | `3e` B3, while fixing E5 |
 
@@ -380,7 +424,7 @@ channel, see E8), Hydricles and Ice Lance.
 
 | | |
 |---|---|
-| **Check** | none yet — recorded here with the evidence that makes it live |
+| **Check** | 🛑 **STILL NONE — and unlike E7 that is accurate.** `grep -n channel tools/audit/check_sim_engine.py` returns comments only, so E8 is held by prose alone and breaches this file's line-15 invariant. It is NOT registered in `EXPECTED_FAILURES`, because a registry line is a claim that a check exists. **What would close it:** assert that a build containing a channelled ability (Blizzard, 10187 — the Frost Mage fixture already carries it) charges more than one GCD of occupancy for it, or that some warning names the channel. Both fail today. Deliberately not written in `3f`, which fixes no engine defects — see E9–E12, registered on the same terms |
 | **Where** | resolved into the DB at `core/spells/mechanics.py:275` (column at `core/db/schema.py:340`); `grep -rn is_channeled core/sim/` returns **nothing** |
 | **Found by** | `3e` C2, verified 2026-08-06 rather than inherited |
 
@@ -391,11 +435,35 @@ ability is over-credited by roughly `channel_duration / gcd`.
 🔬 **Whether this bites depends on the window, and the Mage capture settles it
 for each:**
 
-| window | Blizzard casts | channel gap |
+| window | Blizzard casts (Elric) | channel gap |
 |---|---:|---|
 | A — unbuffed dummy | **0** | inert |
 | B — buffed dummy | **0** | inert |
-| C — Scarlet Monastery | **305** | **live** |
+| C — Scarlet Monastery | **4** | **live** |
+
+🛑 **CORRECTED in `3f` F8. Window C read `305` and that figure was wrong by
+~76×.** 305 is a raw grep LINE COUNT over every Blizzard-mentioning line, and
+it is not even all Elric's. Re-measured through `combat_log_parser.py`'s named
+fields rather than by grep: **283 parsed Blizzard events — Elric 200, a Scarlet
+Sorcerer 83** (29% of them an enemy's), and Elric's decompose as
+`SPELL_CAST_SUCCESS 4 · SPELL_DAMAGE 134 · SPELL_AURA_APPLIED 31 ·
+SPELL_AURA_REMOVED 31`. **He cast Blizzard four times**, delivering **88,132 of
+940,460** spell damage — **9.4%** of the window.
+
+*(Counted independently in `3f` rather than taken from the audit that flagged
+it. The headline — 4 casts, 9.4% — reproduces exactly; the event decomposition
+differs slightly from the audit's, and the numbers above are the ones actually
+measured here.)*
+
+**The conclusion survives and the entry is not rewritten**: Window C *is*
+E8-exposed and A→B is not, and 9.4% of a window is well worth modelling. But a
+number wrong by 76× was sitting in the durable registry as the SIZING of an
+engine gap, and it was quoted onward into `Session_2026-08-06_3e_modelling.md`
+and `PROGRESS.md` to justify C4's spill. ⚠ **The lesson is the counting method,
+not the number: a line count is not an event count, and a log line naming an
+ability does not say who cast it.** Count `SPELL_CAST_SUCCESS` filtered by
+`sourceName`, through `combat_log_parser.py`'s named fields — the same rule
+CLAUDE.md already states about hand-indexed columns, one level up.
 
 So every A→B comparison in this capture is safe from it, and **anything derived
 from Window C is not** — which is a second reason C4's dungeon `ContentProfile`
@@ -466,7 +534,12 @@ two lines above the code says *"fillers split whatever budget the cooldowns left
 in priority order"* and the code does not do that.
 
 🛑 **This is the tier the calibration gate runs on** — `fast_sim` is imported at
-`calibrate_crawled.py:73` and called at `:465` and `:469` (⚠ this citation read
+`calibrate_crawled.py` and called twice in its scoring loop (⚠ LINE NUMBERS REMOVED
+IN `3f` F8: this citation has now drifted twice — it read `:70,426` until `3e` A6
+'fixed' it to `:73,465,469`, which `3e`'s OWN A1 falsified in the same commit by
+moving them to `:82,658,662`. A line number that has been wrong in two consecutive
+corrections is not worth a third; `grep -n fast_sim tools/audit/calibrate_crawled.py`
+answers it and cannot rot. The original drift note follows:) (⚠ this citation read
 `:70,426` until `3e` A6; it had drifted) —
 so it is the highest-consequence item on this page. Not registered as an expected
 failure because it does not currently fail — but it needs a check that actually
