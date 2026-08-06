@@ -42,6 +42,9 @@ from core.spells.text_extraction import SUBSPELL_REF_PAT  # noqa: E402
 DB_PATH = str(_DB_PATH)  # ephemeral, gitignored
 
 DEFAULT_DATA_PATH = r"E:\Ascension Launcher\resources\ascension-live\Data"
+# Committed so the machine with the game client does not also need builds.db.
+DEFAULT_SCOPE_FILE = (Path(__file__).resolve().parents[2] / "data" / "source"
+                      / "dbc" / "extract_scope_observed_ids.json")
 DEFAULT_STORMLIB_DLL = os.environ.get(
     'ASCENSION_STORMLIB_DLL',
     r"C:\Users\Yshaana\Documents\dbc-extraction-work\refs\stormlib\build\Release\StormLib.dll")
@@ -913,6 +916,10 @@ def main():
     ap.add_argument('--data-path', default=DEFAULT_DATA_PATH, help='Client Data folder')
     ap.add_argument('--stormlib-dll', default=DEFAULT_STORMLIB_DLL, help='Path to a built StormLib.dll')
     ap.add_argument('--db', default=DB_PATH)
+    ap.add_argument('--observed-ids', default=None,
+                    help='JSON file with an "ids" list of log-observed spell ids '
+                         'to add to the extract scope (session 3b). Defaults to '
+                         f'{DEFAULT_SCOPE_FILE.name} in data/derived/ if present.')
     args = ap.parse_args()
 
     if not os.path.isdir(args.data_path):
@@ -1049,12 +1056,35 @@ def main():
             sibling_ref_ids.add(int(m.group(1)))
     sibling_ref_ids -= (catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids)
 
+    # OBSERVED ids (session 3b). Every scope rule above starts from the
+    # CATALOG, so a spell that real characters cast but no catalog card names
+    # is invisible to this extract — which is exactly the 43% of crawled damage
+    # the sim cannot model, and the reason 790 scraped coefficients have no
+    # client-side check digit. The fix is the cheapest robust rule available:
+    # seed the scope from spell ids that were actually OBSERVED dealing damage.
+    #
+    # The list is a committed artifact rather than a live DB query, so this
+    # step does not require builds.db to exist on the machine holding the game
+    # client. Regenerate it with tools/audit/build_extract_scope_request.py.
+    observed_ids = set()
+    scope_file = Path(args.observed_ids) if args.observed_ids else DEFAULT_SCOPE_FILE
+    if scope_file.exists():
+        try:
+            observed_ids = {int(x) for x in
+                            json.loads(scope_file.read_text(encoding='utf-8'))['ids']}
+            print(f'Observed-id scope: {len(observed_ids)} ids from {scope_file.name}')
+        except Exception as e:                       # noqa: BLE001
+            print(f'⚠ could not read {scope_file}: {e} — continuing without it')
+    else:
+        print(f'⚠ {scope_file} not found — extract will NOT cover log-observed '
+              f'ids (see session 3b; run tools/audit/build_extract_scope_request.py)')
+
     relevant_ids = (catalog_ids | hidden_ref_ids | neighbor_ids | sibling_ids
-                    | sibling_ref_ids)
+                    | sibling_ref_ids | observed_ids)
     print(f'Scoping spell_dbc_raw to {len(relevant_ids)} relevant IDs '
           f'({len(catalog_ids)} catalog + {len(hidden_ref_ids)} hidden_refs + '
           f'{len(sibling_ids)} rank siblings + {len(sibling_ref_ids)} rank-sibling '
-          f'sub-spell refs + neighbor buffer)')
+          f'sub-spell refs + {len(observed_ids)} observed + neighbor buffer)')
 
     spell_rows = []
     id_struct = struct.Struct('<I')
