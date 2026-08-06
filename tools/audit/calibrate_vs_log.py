@@ -44,6 +44,8 @@ from core.db.connection import connect  # noqa: E402
 from core.sim.ability_model import resolve_ability, AbilityResolutionError  # noqa: E402
 from core.sim.content import get_preset  # noqa: E402
 from core.builds.stats import CharState  # noqa: E402
+from core.builds.stat_block import (  # noqa: E402
+    StatBlockError, parse_stat_block, session_mismatch)
 
 DEFAULT_LOG_DIR = Path(r"E:\Ascension Launcher\resources\ascension-live\Logs")
 
@@ -399,6 +401,92 @@ def pair_ratios(conn, names, cs, content, level=60):
     return out, resolved
 
 
+def _log_started_at(path):
+    """When did this combat log start? (3e C1)
+
+    Read from the FILENAME, which the client writes as
+    `YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt`. The lines inside carry `8/6
+    19:16:56` — month/day with no year — so the filename is the only place a
+    full date appears, and a year inferred from "now" would be wrong every
+    January. Returns None if the name does not match, and the caller then says
+    it could not check rather than assuming agreement.
+    """
+    import re as _re
+    m = _re.match(r"(\d{4})-(\d{2})-(\d{2})-(\d{2})\.(\d{2})\.(\d{2})",
+                  path.name)
+    if not m:
+        return None
+    from datetime import datetime as _dt
+    return _dt(*(int(g) for g in m.groups()))
+
+
+def resolve_stat_inputs(args):
+    """Stat inputs from --stat-block, from the flags, or a REFUSAL. (3e C1)
+
+    Precedence: the block supplies everything it carries; a flag OVERRIDES it
+    and the disagreement is printed loudly rather than applied quietly. Giving
+    neither is refused — `3d` F2's semantics, now covering both paths.
+
+    Returns `(stats, source_description, parsed_block_or_None)`.
+    """
+    notes = []
+    block = None
+    if args.stat_block:
+        try:
+            block = parse_stat_block(
+                args.stat_block.read_text(encoding="utf-8", errors="replace"))
+        except (OSError, StatBlockError) as e:
+            raise SystemExit(f"--stat-block {args.stat_block}: {e}")
+        notes.append(
+            f"parsed from {args.stat_block.name}"
+            + (f" — {block.get('character')} level {block.get('level')}, "
+               f"exported {block['exported_at_text']}"
+               if block.get("exported_at_text") else
+               " — ⚠ no ExportedAt line (pre-2026-08-06 addon): a block/log "
+               "session mismatch CANNOT be detected on this file"))
+
+    def pick(flag_value, block_value, label):
+        if flag_value is not None and block_value is not None:
+            if abs(flag_value - block_value) > 1e-6:
+                notes.append(
+                    f"🛑 OVERRIDE: {label} — you passed {flag_value:g}, the "
+                    f"stat block says {block_value:g}. Using {flag_value:g}. "
+                    f"An override is a what-if; if this was not deliberate, "
+                    f"drop the flag")
+            return flag_value
+        return flag_value if flag_value is not None else block_value
+
+    w = (block or {}).get("weapon", {}).get("main_hand") or {}
+    stats = {
+        "ap": pick(args.ap, (block or {}).get("attack_power"), "attack power"),
+        "sp": pick(args.sp, (block or {}).get("spell_power"), "spell power"),
+        "weapon_min": pick(args.weapon_min, w.get("min"), "weapon min"),
+        "weapon_max": pick(args.weapon_max, w.get("max"), "weapon max"),
+        "weapon_speed": pick(args.weapon_speed, w.get("speed"), "weapon speed"),
+    }
+    missing = [k for k, v in stats.items() if v is None]
+    if missing:
+        raise SystemExit(
+            f"REFUSING TO RUN — no value for: {', '.join(missing)}.\n"
+            "Pass --stat-block <export.txt> (preferred), or state every one of "
+            "--ap --sp --weapon-min --weapon-max --weapon-speed.\n"
+            "There is deliberately no default: this tool's whole output is a "
+            "function of these numbers, and a defaulted stat block is how the "
+            "`2e` contamination happened.")
+
+    if block and block.get("spell_power_varies_by_school"):
+        notes.append(
+            "⚠ spell power DIFFERS BY SCHOOL in this block, so a single --sp is "
+            f"not well defined: {block['spell_power_by_school']}. The blended "
+            "value is not being used; state --sp explicitly for the school you "
+            "are comparing")
+        stats["sp"] = args.sp
+    stats["notes"] = notes
+    return stats, ("parsed from --stat-block" if block and args.ap is None
+                   else "stated on the command line" if not block
+                   else "--stat-block with command-line overrides"), block
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -426,20 +514,42 @@ def main():
     # silently rebinds to whatever that folder holds later.
     #
     # So: no defaults. State the block or get a refusal.
-    ap.add_argument("--ap", type=float, required=True,
-                    help="attack power. REQUIRED — no default, deliberately")
-    ap.add_argument("--sp", type=float, required=True,
-                    help="spell power. REQUIRED — no default, deliberately")
-    ap.add_argument("--weapon-min", type=float, required=True,
-                    help="main-hand min damage. REQUIRED")
-    ap.add_argument("--weapon-max", type=float, required=True,
-                    help="main-hand max damage. REQUIRED")
+    # 3e C1 — the PREFERRED input: the addon's own export, parsed.
+    #
+    # 3d F2 made the five numbers below `required=True`, which made the hand
+    # transcription COMPULSORY rather than correct — five numbers retyped out of
+    # a ~40-line block, with the other ~35 discarded. That channel is what
+    # produced the contamination `2e` spent a session undoing. Pass the block
+    # itself and the tool reads it, including the one field that matters most:
+    # `ExportedAt`, which is what lets it warn that the block and the log are
+    # from different sessions.
+    ap.add_argument("--stat-block", type=Path, default=None,
+                    help="path to an AscensionCrafterExport stat block. "
+                         "PREFERRED over the individual flags: it carries the "
+                         "weapon, per-school SP and crit, and ExportedAt (so a "
+                         "block/log session mismatch is DETECTED rather than "
+                         "discovered later). Refusal semantics are unchanged — "
+                         "give this or the five flags, never neither")
+    # ⚠ 3e C1 — DEMOTED from required inputs to explicit OVERRIDES. They are no
+    # longer `required=True`; the refusal now lives below and covers both paths,
+    # so "state your inputs or get a refusal" still holds. An override that
+    # disagrees with the block is printed LOUDLY rather than applied quietly.
+    ap.add_argument("--ap", type=float, default=None,
+                    help="attack power. Override for a what-if run; read from "
+                         "--stat-block otherwise. Never defaulted")
+    ap.add_argument("--sp", type=float, default=None,
+                    help="spell power. Override; read from --stat-block")
+    ap.add_argument("--weapon-min", type=float, default=None,
+                    help="main-hand min damage. Override")
+    ap.add_argument("--weapon-max", type=float, default=None,
+                    help="main-hand max damage. Override")
     # Was hardcoded at 3.57 inside main() with no flag at all — so a caster or
     # anyone with a different weapon could not state their own speed even if
     # they knew it.
-    ap.add_argument("--weapon-speed", type=float, required=True,
-                    help="main-hand speed in seconds. REQUIRED (was hardcoded "
-                         "at 3.57 with no flag)")
+    ap.add_argument("--weapon-speed", type=float, default=None,
+                    help="main-hand speed in seconds. Override; read from "
+                         "--stat-block otherwise (was hardcoded at 3.57 with "
+                         "no flag at all before 3d)")
     # ⚠ NAMED GAPS, not silent zeros. These three are real inputs the tool does
     # not take, and the CharState below is constructed with crit at 0.0 — which
     # is fine for a NON-CRIT-average comparison (the whole tool compares against
@@ -487,17 +597,36 @@ def main():
               f"{len(talents.unmodelled())} unmodelled")
         for w in talents.warnings:
             print(f"  ! {w}")
-    cs = CharState(level=60, attack_power=args.ap, spell_power=args.sp,
+    stats, stat_source, block = resolve_stat_inputs(args)
+    cs = CharState(level=60,
+                   attack_power=stats["ap"], spell_power=stats["sp"],
                    spell_crit_pct=0.0, melee_crit_pct=0.0,
-                   main_hand={"min": args.weapon_min, "max": args.weapon_max,
-                              "speed": args.weapon_speed})
+                   main_hand={"min": stats["weapon_min"],
+                              "max": stats["weapon_max"],
+                              "speed": stats["weapon_speed"]})
     # 3d F2 — echo the block back. Every number below is a function of these
     # five, and a run whose stat block is not visible in its own output is a run
     # nobody can check later. This is what pred_2026-08-05_elric_paladin.md:62
     # was missing.
-    print(f"\nSTAT BLOCK (stated, not defaulted): AP {args.ap:g} · "
-          f"SP {args.sp:g} · weapon {args.weapon_min:g}-{args.weapon_max:g} "
-          f"@ {args.weapon_speed:g}s")
+    print(f"\nSTAT BLOCK ({stat_source}): AP {stats['ap']:g} · "
+          f"SP {stats['sp']:g} · weapon "
+          f"{stats['weapon_min']:g}-{stats['weapon_max']:g} "
+          f"@ {stats['weapon_speed']:g}s")
+    for _note in stats["notes"]:
+        print(f"  {_note}")
+    # 3e C1 — THE CHECK `2e` PROVED IS WORTH MORE THAN ALL THE OTHERS COMBINED.
+    # A stat block from a different session is not a degraded input; for
+    # weapon-dominated abilities it is the entire error. The ~1.37x "Holystrike
+    # calibration residual" a whole session was planned around was exactly this,
+    # and with a same-session export the same abilities calibrate at 1.00x and
+    # 0.99x. Both timestamps are client local time on one machine, which is what
+    # makes the comparison meaningful — and useless against anything else.
+    if block is not None:
+        for _p in paths:
+            _mismatch = session_mismatch(block, _log_started_at(_p))
+            if _mismatch:
+                print(f"  {_mismatch}\n    (log: {_p.name})")
+                break
     _gaps = [n for n, v in (("--haste", args.haste),
                             ("--spell-crit", args.spell_crit),
                             ("--ranged-ap", args.ranged_ap)) if v is not None]
