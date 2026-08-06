@@ -1,4 +1,40 @@
-# Project Ascension — Paladin Build Handoff (v14)
+# Project Ascension — Paladin Build Handoff
+
+> # 🧊 FROZEN — v1 ARTIFACT, NOT CURRENT GUIDANCE
+>
+> **Frozen 2026-08-06 by owner decision.** This document is kept deliberately, as the
+> complete output of the **v1 theorycrafter** — the era when this project reasoned from
+> live tooltips, hand parses and inference, before the spell database, the simulator and
+> the calibration gate existed. It is preserved to be **compared against**, not followed.
+>
+> **It describes a character that no longer exists.** As of 2026-08-06 Elric is Path of
+> Intelligence with **AP 134 / SP 612 / Str 115**, main-hand **The Light's Hope**, against
+> this document's AP 546–584, SP 400–533, and Light's Hope still listed as a *chase* item.
+> §10's stat weights put Attack Power at **1.00** — a weight that is meaningless at AP 134.
+> §6's gear state is superseded outright.
+>
+> 🛑 **Do not read this file if you are re-deriving this build.**
+> `primer/PLAN_V2_BLIND_REDERIVATION.md` pre-registers a blind v1-vs-v2 comparison, and
+> that comparison measures nothing if the answer is already in your context. It has been
+> removed from `CLAUDE.md`'s auto-load for the same reason.
+>
+> **What is still live from this document, and where it went:**
+>
+> | Claim | Status |
+> |---|---|
+> | §11 "press Judgement and Holy Shock" | ✅ **correct again** — tracker #200295 fixed and verified 2026-08-06 at 17.2% proc rate (`primer/FINDINGS_hammerdin_fix_verification_2026-08-06.md`) |
+> | §2 class-tag table, Judgement / Holy Shock feed Hammerdin | ✅ correct again, same evidence |
+> | §2 Lightbound Cleave is Warrior-tagged, feeds nothing | ✅ still true, re-measured 2026-08-06 |
+> | §10 stat weights | ❌ **stale — character state changed.** Do not gear by these |
+> | §6 gear state / chase weapons | ❌ superseded; Light's Hope is equipped |
+> | §1 "Path of Duality" identity | ❌ owner plays Path of Intelligence (decision 2026-08-05, `2d`) |
+> | §12 retracted list | ✅ still the record — and now doubles as the scoring key for the v2 comparison |
+>
+> Everything below this box is unchanged from **v14, 2026-08-05**, and is read as history.
+
+---
+
+## v14 (2026-08-05) — the last live revision
 
 **v14 changelog (2026-08-05, from session `2e` — the Path-of-Intelligence
 calibration, a pending un-nerf of the rotation, and one large new unknown):**

@@ -1,8 +1,44 @@
 # Hammerdin never procs from Holy Shock or Judgement
 
+**Status: ✅✅ FIXED AND VERIFIED IN GAME, 2026-08-06.** Reported fixed on
+[tracker #200295](https://ascension.gg/bugtracker/view/200295) the same day it was
+submitted, and **confirmed live by measurement** the following evening.
+
+> **Re-test, 2026-08-06 21:47–21:52.** 39 Holy Shock + 25 Judgement casts, Hour of
+> Judgement deliberately never pressed so every hammer is a proc rather than periodic
+> delivery. **11 distinct Hammerdin procs from 64 casts = 17.2%**, against a stated 20%
+> (expected 12.8 ± 3.2). Compare the pre-fix measurement: **1 proc in 129 casts, 0.8%**.
+>
+> Capture: `data/source/captures/2026-08-06_elric_hammerdin_proc_retest/`.
+> Analysis: `primer/FINDINGS_hammerdin_fix_verification_2026-08-06.md`.
+> ⚠ Per-ability (HS 4/39, Judgement 6/25) does **not** discriminate at this n.
+
+🚨 **The discriminator was run, and the fix is SCOPED, not general.** In a same-session
+Lightbound-Cleave-only window (53 casts, 49 hits, 81 white swings), **Purification By
+Light produced nothing** — while PBL fired in the Hammerdin window 13 minutes later on
+the same board, which is the control. **Primer §4's engine-intake practice stands.**
+
+⚠ **The proposed MECHANISM did not survive, and it is not the same claim as the bug.**
+`2d` theorised that trigger-delivered damage is proc-blind in general. Both PBL triggers
+in the re-test fired on Judgement — whose damage arrives via the seal (`54158`), i.e.
+trigger-delivered — so PBL plainly *can* see it. 🛑 **n = 2. Neither the mechanism nor its
+negation is established.** The cheap decisive test is a **Judgement-only window**;
+until it runs, `hammerdin_trigger_set_excludes_trigger_delivered_damage` closes as
+*"specific bug fixed, general mechanism contradicted once and unresolved"*, never as
+*"mechanism confirmed"*.
+
+⚠ **Also unresolved and newly visible:** PBL's intake in this sample is close to the
+**inverse** of its wording — nothing from 130 white swings or 49 Lightbound Cleave hits,
+two triggers from 25 Judgements. `2d` established what does *not* feed it; what *does*
+is still unmeasured.
+
+<details><summary>Superseded status line (2026-08-05)</summary>
+
 **Status: ✅ FIXED BY ASCENSION 2026-08-05 `[Pending Restart]`** — reported fixed
 on [tracker #200295](https://ascension.gg/bugtracker/view/200295) the same day it
 was submitted. **Not live until the restart; owner will re-test 2026-08-06.**
+
+</details>
 **Found:** 2026-08-05, session `2d`, dedicated 10-minute proc test on training
 dummies + a 5.5-minute log the same evening.
 (Tracker pages are auth-gated — check for dev responses while logged in.)

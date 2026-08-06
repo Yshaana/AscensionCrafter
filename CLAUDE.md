@@ -5,7 +5,18 @@ most sessions, so re-read even if the topic feels familiar from earlier context:
 
 @primer/Ascension_Context_Primer.md
 @primer/INDEX_GUIDE.md
-@builds/my-builds/build_paladin-hammerdin.md
+
+🧊 **`builds/my-builds/build_paladin-hammerdin.md` is NO LONGER auto-loaded, on purpose
+(owner decision 2026-08-06).** It is a **frozen v1 artifact** describing a character
+state that no longer exists — its §10 stat weights carry Attack Power at 1.00 for a
+character now at AP **134**, and its §6 gear state predates Path of Intelligence and The
+Light's Hope. Auto-loading it fed stale weights into every session as if current.
+
+Read it **only** when you need the history, and read its own header first. The current
+character state is
+`data/source/captures/2026-08-06_elric_hammerdin_proc_retest/`. 🛑 **Do not read it at
+all if you are re-deriving this build** — see `primer/PLAN_V2_BLIND_REDERIVATION.md`;
+the comparison it sets up is void if the answer is in your context.
 
 ## 🖥 The owner's machine — read before emitting a single command
 
