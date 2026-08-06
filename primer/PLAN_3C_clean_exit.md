@@ -8,6 +8,156 @@ Current position: **5 of 41 within ±20%, 2 qualified → EXIT NOT MET.**
 
 ---
 
+---
+
+# 🔄 REVISION 2026-08-06 (evening) — after the paired upload and the calibration
+
+The plan below was written before the owner uploaded four of his own logs
+(reports 104–107) and before the verified-input calibration. Both landed the
+same day. **Read this section first; where it differs from the original tasks,
+this wins.** Session records: `Session_2026-08-06_3c_paired_upload.md`,
+`predictions/calib_2026-08-06_3c_verified_inputs.md`.
+
+## What closed
+
+* **T2 is CLOSED as a dead end**, with a negative result worth as much as a fix:
+  no admissibility filter is constructible from the crawl API. `deaths` does not
+  exist in the payload at all, and four candidate discriminators were tested and
+  rejected (wipes, raw DPS, absolute APM, within-character APM). **The corpus
+  retains an unknown number of death-deflated parses we cannot identify.** That
+  is now a stated limitation of the gate.
+
+## ❌ What I got wrong, and it changes T3
+
+The original T3 said over-predictions are *"unambiguous bugs — the sim asserts
+damage that provably did not happen"*, and named **Boomcat (82% coverage) the
+single best clean-qualifier candidate anywhere in the gate.**
+
+**Retracted.** Report 104 established a *second* cause of over-prediction that is
+not a bug at all: a **death-deflated parse**. Elric died 6.1s into the 34.0s
+Fairbanks fight and the site reports 481 DPS against his 3,473 on Mograine —
+a 7.2× deflation, `deaths` NULL, `validation_status: valid`. Against that
+character the sim would "over-predict" by ~7×, and nothing is wrong with the sim.
+
+**Boomcat's within-character APM ratio is 0.24** (17.1 against its own median
+72.5). Elric's *known* death case sits at **0.38**. Boomcat looks like the same
+signature, not a fixable bug — so it is probably **not** a qualifier candidate at
+all, and T3's expected yield is materially lower than the original text claims.
+
+✅ **Mutaforma remains a genuine bug** — APM ratio 0.99, entirely normal activity,
++3,619%. It is the one over-predictor confirmed to be ours.
+
+## 🚨 The strategic consequence
+
+T2's dead end plus T3's weakening means **the crawl cohort may not be able to
+deliver a clean exit on its own**: we cannot separate a model error from an
+invalid parse for any given candidate. Pushing harder on the 41 does not fix
+that.
+
+**The route through it is Elric.** He is now in the corpus (`character_id
+39772`) with **11 valid non-trash boss encounters**, and — uniquely — inputs we
+have *verified* rather than inferred. Any residual on him is unambiguously the
+model's. So:
+
+> **Use Elric to fix the MODEL, then let the corrected model lift the cohort.**
+> That is a cleaner dependency order than the original plan's, which tried to fix
+> the cohort directly while its inputs were unverifiable.
+
+⚠ **Elric cannot satisfy the exit himself** — PHASE_2 §8.2 says ≥3 real
+*characters*, and 11 encounters on one character is not that. He is an
+instrument, not a candidate for the count.
+
+## Revised task list
+
+| # | task | status / change |
+|---|---|---|
+| **T1** | report slice accuracy | unchanged, still pending, still approved |
+| ~~T2~~ | log admissibility | **CLOSED — dead end, documented** |
+| **T3** | fix over-predictions | **narrowed to Mutaforma**; the rest may be undetectable bad parses |
+| **T4** | 43 abilities with a trigger edge (687 pts) | unchanged |
+| **T5** | pets (440 pts) | unchanged |
+| **T6** | conversion mechanics | 🔼 **PROMOTED to first** — see below |
+| **T7** | 54 with magnitude, no edge (1303 pts) | unchanged, still last and still risky |
+| 🆕 **T9** | the ~4.5× out-of-catalog cluster | **new, possibly the biggest lever** |
+| 🆕 **T10** | controlled before/after on the periodic-component change | **new, blocks T9's interpretation** |
+| 🆕 **T11** | make Elric a gate-grade instrument | **new** |
+| 🆕 **T12** | review the 177 export-vs-scraped coefficient conflicts | **new** |
+| 🆕 **T13** | fix `calibrate_vs_log.py`'s wrong defaults | **new, small, urgent** |
+
+### T6 — promoted to first work item
+
+Two independent measurements now agree it is the largest *named* gap:
+* the calibration reads Righteous Vengeance at **228×** (base 1 vs logged 228) —
+  base 1 is the site's nominal `Value: 1`, i.e. there is no coefficient to find;
+* the buffed/unbuffed pair measures it at **×3.18 per hit**, the largest buff
+  response of any ability, because buffed crits are both bigger and more frequent
+  and RV converts crit damage.
+
+It needs **no data**, it affects 9 of the 41 gate characters, and Ignite and
+Deep Wounds are the same shape. Nothing else on the list has this
+evidence-to-cost ratio.
+
+### 🆕 T9 — the ~4.5× out-of-catalog cluster
+
+Five out-of-catalog spells on Elric land within a **±4% band** against base:
+Righteous Smite 4.67×, Holy Shock 4.52×, PBL Consecration 4.46×, Judgement of
+Command 4.35×, Arcing Light 4.33×. Five independent spells agreeing that tightly
+is **one mechanism, not five bugs**.
+
+**Why it may be the biggest lever:** every one of the 88 demand-ranked unmodelled
+abilities in the crawl cohort is **also out-of-catalog**. If a single systematic
+factor explains Elric's cluster, it plausibly reaches the cohort's accuracy
+problem too — the half of the miss that coverage work cannot touch.
+
+🛑 **Blocked on T10, and do not fit it.** Candidate mechanisms to test *before*
+proposing a number: a missing rank redirect (out-of-catalog spells have no rank
+line), unapplied level scaling, or a school-scoped amplifier. Back-solving 4.5
+and seeding it is exactly what `2e` refused to do with the Holy residual.
+
+### 🆕 T10 — the controlled before/after (blocks T9)
+
+This session changed how periodic coefficients route: a scraped row stating
+`periodic` now attaches to the periodic event instead of the direct one. PBL
+Consecration is affected. **So the cluster above cannot be compared with `2e`'s
+2.2× figures** — different measurement (`logged/base` vs `logged/modelled`) *and*
+a changed model in between. Re-run both configurations on identical inputs before
+anyone quotes a movement.
+
+### 🆕 T11 — make Elric a gate-grade instrument
+
+He has 11 valid boss encounters and **zero snapshots** — no gear, no cards,
+`snapshot_id` NULL — so the gate cannot sim him. But his ALC `CI` record carries
+**18 gear pieces (item_id + enchant + gems) and the full `hero_build`
+(entry_id + rank)** inline, plus a same-session stat export.
+
+Build a `character_snapshots` row from the ALC capture, tagged with its own
+provenance (`source='alc_capture'`, never mixed with `crawl_resolved_bisbeard`).
+That yields the project's first character where **input error is zero by
+construction**, so every residual is model error — which is the instrument the
+whole calibration effort has been missing.
+
+### 🆕 T12 — review the coefficient conflicts
+
+177 spells now have `export_tooltip` and the scrape stating **different**
+coefficients (Mongoose Bite 0.20 vs 0.45; Holy Wrath 0.15 vs 0.07). Precedence
+currently prefers the scrape, on the grounds that it states the *applied* value,
+carries an enforced check digit, and the catalog stores the wrong rank for ~half
+of multi-rank cards. **That is a judgement call, and it is now load-bearing on
+177 abilities.** Sample and check some against a third source.
+⚠ Includes the live conflict on Holy Shock (25902): measured-provisional **0.40**
+vs scraped **0.214**, ~2× apart, currently won by the provisional.
+
+### 🆕 T13 — fix the calibration tool's defaults (do this first, it is 10 minutes)
+
+`calibrate_vs_log.py` defaults to **AP 584 / SP 533 / weapon 585–669** — the
+Duality-era block from the 2026-08-03 build doc. Those are wrong for every
+Path-of-Intelligence log, and they change conclusions silently: Hammer from the
+Heavens reads **1.26×** on the defaults and **1.45×** on the real block. Either
+require the stat block explicitly or read it from a named capture; never default
+to a stale one.
+
+---
+
 ## 0. What is fixed and must not move
 
 These are the constraints the plan is written *inside*. Every one of them exists
