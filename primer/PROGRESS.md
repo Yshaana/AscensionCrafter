@@ -1,5 +1,58 @@
 # PROGRESS
 
+> ✅ **2026-08-06 — SESSION `3d` IS DONE. Next session is `3e` (modelling).**
+> Session record: `primer/Session_2026-08-06_3d_hygiene_and_instrument.md`.
+> **Read `primer/ENGINE_BUGS.md` first — it is `3e`'s concrete work list.**
+>
+> **§0 invariant HELD: the gate reads 5 of 41, 2 qualified, opening and
+> closing.** Six commits, one per block: `342b493` A · `47bd374` B · `2d3db19` C
+> · `788a771` D · `a77875e` E · `69f2192` F. All seven `3d` exit criteria met
+> (table in the session record).
+>
+> 🚨 **THE FINDING `3d` DID NOT GO LOOKING FOR: THE GATE'S COHORT MOVES ON ITS
+> OWN.** Rebuilding `builds.db` took the gate from **5 of 41 to 4 of 38 with
+> ZERO code changes** — isolated by restoring the old corpus, which restored
+> 5 of 41. `calibrate_crawled.candidates()` is `ORDER BY character_id LIMIT 120`
+> and the qualifying population grew **157 → 180** when the daily crawler fired,
+> so the limit is not a cost cap but a **sliding window keyed on an arbitrary
+> id**. Four characters left and four entered for no reason but their id.
+> **Two gate results from different days are not comparable even with identical
+> code.** 🛑 Deliberately NOT fixed — changing a gate's population is not a
+> hygiene edit. **It is `3e`'s first job**, and `predictions/gate_manifest.json`
+> now records the cohort by id so the comparison is checkable.
+>
+> ⚠ **Consequence for `3e`:** `build_builds_db.py` is in the chain but **opt-in**
+> (`py cli/rebuild.py --with-corpus`), precisely so a routine rebuild does not
+> silently redefine the gate. Rebuilding the corpus is a deliberate act, like
+> `--with-dbc`, and invalidates comparison against any earlier gate result.
+>
+> 🛑 **Three owner questions, none blocking** (detail in the session record §
+> "For the owner"): the cohort slide above; whether `calibrate_vs_log` should
+> **substitute** the independent Holy Shock coefficient (0.2145) rather than just
+> report it beside the back-solved 0.40 — `3d` reports, because substituting
+> changes a calibration number; and a convention conflict where the `3d` primer
+> said to file engine defects in `bugs/` while `bugs/README.md` says that folder
+> is for **game** bugs only — the repo won, so they are in
+> `primer/ENGINE_BUGS.md`.
+>
+> **What `3e` inherits, ready to use:** two non-paladin fixtures wired into
+> `check_sim_engine.py` with **six real engine defects** registered as XFAILs
+> (`primer/ENGINE_BUGS.md`); slice accuracy reported per character and as a
+> cohort median (**160%**); a **pre-registered, outcome-blind 5-character
+> holdout** (`holdout_3e_crawled_gate_validation_set` — 460, 461, 462, 463,
+> 7661) that must not be tuned against; a dated successor criterion in
+> `CALIBRATION_TOLERANCE.md` effective at the next gate; and
+> `calibrate_vs_log.py` that refuses to run without a stated stat block.
+>
+> ⚠ **E1/E5 are coupled and must be fixed together**: 6 of 7 DoTs on a
+> DoT-caster board are cast ZERO times, which currently MASKS the predicted
+> DoT-recast bug; and `combo_points` never incrementing is masked by `apl_gen`
+> not classifying any per-combo ability as a finisher in the first place.
+>
+> ---
+>
+> <details><summary>Superseded: the <code>3d</code> work-order pointer</summary>
+>
 > 🔴 **2026-08-06 — `3c` is audited and CLOSED. Next session is `3d`.**
 > **Work order: `primer/SESSION_3D_PRIMER.md`. Read it first.**
 > Findings it rests on: `primer/AUDIT_3C_ADVERSARIAL.md` (adversarial audit of
@@ -55,9 +108,17 @@
 > rider stamped before the run. ⚠ The rider's "stamped before" claim is
 > **plausible but unverified** — the addendum, the `QUALIFIED_COVERAGE_PCT`
 > constants and the ingest all land in the same commit `79c6568`.
-> 🔒 That gate result is **not reproducible by anyone but the owner**:
+> ~~🔒 That gate result is **not reproducible by anyone but the owner**:
 > `data/derived/` is gitignored, no `.db` is committed, and `build_builds_db.py`
-> is in no chain and no `.bat`. `SESSION_3D_PRIMER.md` Block E fixes this.
+> is in no chain and no `.bat`. `SESSION_3D_PRIMER.md` Block E fixes this.~~
+> ✅ **Partly addressed in `3d` E1/E2** — the corpus builder is in the chain
+> (opt-in) and `predictions/gate_manifest.json` is committed per run, so a gate
+> result now carries its cohort, criteria, corpus counts and git SHA. ⚠ It is
+> still not *rebuildable* from committed source alone: the corpus's bulk needs
+> gitignored tier-2 crawl data. What an auditor gains is the ability to check
+> whether a claimed result matches the manifest — not to regenerate it.
+>
+> </details>
 
 **Claude Code maintains this file. Update it at the end of every session, before writing the handoff.**
 
@@ -67,6 +128,44 @@ detail belongs in `Session_*.md` handoffs, not here.
 ---
 
 ## Current position
+
+**✅ `3d` IS DONE (2026-08-06) — hygiene + instrument, no modelling change.**
+Session record: `primer/Session_2026-08-06_3d_hygiene_and_instrument.md`.
+The gate is untouched at **5 of 41, 2 qualified**, verified opening and closing.
+
+### 🔴 FIRST ACTIONS NEXT SESSION (`3e`)
+
+1. **Read `primer/ENGINE_BUGS.md`.** Six real engine defects, each a registered
+   XFAIL in `check_sim_engine.py` with file:line. That is the work list.
+   ⚠ **E1 and E5 are each MASKED by a second bug** and must be fixed in pairs —
+   fixing one alone will look like it did nothing.
+2. **Pin the gate cohort by id.** It currently slides as the corpus grows
+   (5-of-41 → 4-of-38 with no code change; see the header). Until it is pinned,
+   no two gate results are comparable, which makes every other `3e` measurement
+   unreadable.
+3. **Righteous Vengeance: un-break AND talent-gate.** `tiers.py:439` reads a
+   `crit_damage` key written nowhere; `_add_swing_sources` is called from
+   `fast_sim` with no check that 61840 is in `build_spec.talents`. Fixing the key
+   without the gate lands ~30% of crit damage on **all 41** characters instead of
+   the 109-of-371 boards that hold it. Measure the cohort-wide delta **before**
+   accepting.
+4. **Report slice accuracy before and after every coverage task.** A task that
+   raises coverage while dropping slice accuracy has moved the metric, not the
+   model. Cohort median today: **160%**.
+5. 🛑 **Do not tune against the holdout** — `holdout_3e_crawled_gate_validation_set`
+   (character ids 460, 461, 462, 463, 7661). Read it once, at the end.
+
+### Still blocked on the owner (unchanged by `3d`)
+
+| Item | Blocking |
+|---|---|
+| Tracker #200295 re-test + PBL × LC discriminator (needs in game) | Build doc §2/§11 revert |
+| Consecrated Holy Weapon (200818) live tooltip | 25.1% of buffed damage, unmodelled |
+| Identify Siphon Health (18652) / Swift Retribution (853484) | Passive-layer completeness |
+
+---
+
+## Superseded: the `3b` critical-path position
 
 **✅ 3B's CRITICAL PATH IS DONE (2026-08-06).** `PLAN_3B_UPDATE.md` §5's
 sequence — fix the gear layer, then re-run the gate with the miss
