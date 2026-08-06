@@ -50,12 +50,15 @@ pass/fail number alone is worth very little.
 import argparse
 import json
 import sqlite3
+import statistics
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import config  # noqa: E402
+import season_config  # noqa: E402  - realm/season constants (3d A1)
 from config import BUILDS_DB_PATH, DATA_DERIVED, DB_PATH  # noqa: E402
 from core.builds.gear import (  # noqa: E402
     gear_coverage, missing_stat_budget_bound, normalise_stats,
@@ -86,6 +89,12 @@ MIN_WITHIN_TOLERANCE = 3           # the ±20% criterion, UNCHANGED (PHASE_2 §8
 QUALIFIED_COVERAGE_PCT = 50.0
 MIN_QUALIFIED = 3
 REPORT_PATH = DATA_DERIVED / "calibration_crawled.md"
+
+# 3d E2 — COMMITTED, unlike everything else this tool writes. Counts, ids and
+# hashes only; no bulk data, so `.gitignore:10` stays exactly as it is. It lives
+# under predictions/ because it is a record of what was measured, alongside the
+# markdown ledgers, not a rebuildable derived artifact.
+GATE_MANIFEST_PATH = config.REPO / "predictions" / "gate_manifest.json"
 
 PATH_TOKEN = {"strength": "Strength", "agility": "Agility", "duality": "Duality",
               "intellect": "Intelligence", "intelligence": "Intelligence",
@@ -470,6 +479,34 @@ def main():
             "warnings": sorted({w for w in res.warnings})[:8],
         })
 
+    # 3d F3 — SLICE ACCURACY, per character and as a cohort median.
+    #
+    #     slice_accuracy = (100 + delta) / coverage
+    #
+    # Algebraically exact, and it separates the two things `delta` alone cannot:
+    # how MUCH of the kit is modelled (coverage) from how WELL the modelled part
+    # is modelled (accuracy). Before this, only coverage was tracked.
+    #
+    # 🛑 PURE INSTRUMENTATION. It changes no verdict — `within_tolerance`,
+    # `passing`, `qualified`, `crit_met` and `rider_met` are computed exactly as
+    # before, and none of them reads this field.
+    #
+    # Why it matters for `3e`: coverage is a MEMBERSHIP TEST, so a spell modelled
+    # at 4.5x-under counts as fully covered. Coverage work therefore mechanically
+    # raises coverage while depressing slice accuracy, and a character can be
+    # LOST from the gate by pure coverage work with no accuracy change at all.
+    # Standing rule from `3e` on: every coverage task reports this before and
+    # after. A task that raises coverage while dropping slice accuracy has moved
+    # the metric, not the model.
+    for r in results:
+        cov_pct = (r["modelled"] or {}).get("modelled_damage_pct")
+        r["slice_accuracy_pct"] = (
+            (100.0 + r["delta_pct"]) / cov_pct * 100.0
+            if cov_pct and r["delta_pct"] is not None and cov_pct > 0 else None)
+    _slices = [r["slice_accuracy_pct"] for r in results
+               if r["slice_accuracy_pct"] is not None]
+    slice_median = statistics.median(_slices) if _slices else None
+
     passing = [r for r in results if r["within_tolerance"]]
     qualified = [r for r in passing
                  if (r["modelled"] or {}).get("modelled_damage_pct", 0)
@@ -483,6 +520,11 @@ def main():
     print(f"[gate] of those, {len(qualified)} also have "
           f"≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage modelled "
           f"(rider: ≥{MIN_QUALIFIED}) -> {'PASS' if rider_met else 'NOT MET'}")
+    # 3d F3 — reported next to coverage, never in place of a verdict.
+    print(f"[slice] cohort median slice accuracy "
+          f"{slice_median:.0f}%" if slice_median is not None
+          else "[slice] cohort median slice accuracy: n/a (no character has "
+               "both a delta and a coverage figure)")
     print(f"[exit] PHASE 3 EXIT: "
           f"{'MET' if (crit_met and rider_met) else 'NOT MET'} — needs both. "
           "Rider stamped 2026-08-06 BEFORE this run "
@@ -628,7 +670,111 @@ def main():
                     "tolerance_pct": AGGREGATE_TOLERANCE_PCT,
                     "passing": len(passing)}, indent=1, default=str),
         encoding="utf-8")
+
+    write_gate_manifest(results, passing, qualified, crit_met, rider_met,
+                        slice_median, corpus_totals(bdb))
     return 0
+
+
+def corpus_totals(bdb):
+    """Row counts for the corpus tables the cohort is drawn from.
+
+    Counts and hashes only — no bulk data. `.gitignore:10` stays as it is; the
+    point is that an auditor with only the repo can tell whether a claimed gate
+    result was produced against the same corpus they hold.
+    """
+    out = {}
+    for t in ("characters", "character_snapshots", "snapshot_cards",
+              "snapshot_gear", "encounters", "capture_scopes",
+              "encounter_performance", "ability_performance"):
+        try:
+            out[t] = bdb.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+        except Exception:                            # noqa: BLE001
+            out[t] = None
+    return out
+
+
+def write_gate_manifest(results, passing, qualified, crit_met, rider_met,
+                        slice_median, corpus):
+    """3d E2 — a small COMMITTED record of what a gate run actually measured.
+
+    Until now the gate's headline numbers were reproducible only on the owner's
+    machine: `data/derived/` is gitignored, no `.db` is committed, and the corpus
+    builder was in no chain. Every figure in this project was a *trust me*.
+
+    🚨 AND IT IS WORSE THAN UNVERIFIABLE — THE COHORT MOVES ON ITS OWN.
+    Measured in `3d`: rebuilding `builds.db` after the daily crawler ran took the
+    gate from **5 of 41 to 4 of 38 with zero code changes**. `candidates()` is
+    `ORDER BY character_id LIMIT N` over a population that grew from 157 to 180,
+    so the limit — intended as a cost cap — is really a SLIDING WINDOW keyed on
+    an arbitrary id. Four characters left and four entered for no reason but
+    their id.
+
+    So a gate result means nothing without the cohort it was measured over. This
+    manifest records that cohort **by character id**, which is what lets `3e`
+    pin it, hold out a named validation subset (F5), and compare two runs
+    honestly. It is small, deterministic and committed.
+    """
+    import subprocess
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=config.REPO,
+                             capture_output=True, text=True,
+                             timeout=30).stdout.strip() or None
+        dirty = bool(subprocess.run(["git", "status", "--porcelain"],
+                                    cwd=config.REPO, capture_output=True,
+                                    text=True, timeout=30).stdout.strip())
+    except Exception:                                # noqa: BLE001
+        sha, dirty = None, None
+
+    manifest = {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "git_sha": sha,
+        "git_working_tree_dirty": dirty,
+        "realm": season_config.REALM,
+        "season": season_config.SEASON,
+        "criteria_in_force": {
+            "aggregate_tolerance_pct": AGGREGATE_TOLERANCE_PCT,
+            "min_within_tolerance": MIN_WITHIN_TOLERANCE,
+            "qualified_coverage_pct": QUALIFIED_COVERAGE_PCT,
+            "min_qualified": MIN_QUALIFIED,
+            "note": "the ±20% pass definition is PHASE_2 §8.2, unchanged; the "
+                    "qualified rider was stamped 2026-08-06 before the run it "
+                    "judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
+        },
+        "result": {
+            "cohort_size": len(results),
+            "within_tolerance": len(passing),
+            "qualified": len(qualified),
+            "criterion_met": crit_met,
+            "rider_met": rider_met,
+            "exit_met": bool(crit_met and rider_met),
+            "cohort_median_slice_accuracy_pct": slice_median,
+        },
+        "corpus_row_counts": corpus,
+        "cohort_warning": (
+            "THE COHORT IS NOT STABLE ACROSS CORPUS GROWTH. candidates() is "
+            "ORDER BY character_id LIMIT N, so characters enter and leave as the "
+            "corpus grows, with no code change. Two gate results are comparable "
+            "ONLY if their `cohort` lists below match. Measured 2026-08-06: "
+            "5-of-41 became 4-of-38 on a corpus that grew from 157 to 180 "
+            "qualifying characters."),
+        "cohort": sorted(
+            ({"character_id": r["character_id"], "name": r["name"],
+              "path": r["path"], "boss": r["boss"],
+              "delta_pct": round(r["delta_pct"], 2) if r["delta_pct"] is not None else None,
+              "modelled_damage_pct": round(
+                  (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 2),
+              "slice_accuracy_pct": round(r["slice_accuracy_pct"], 2)
+                                    if r["slice_accuracy_pct"] is not None else None,
+              "within_tolerance": r["within_tolerance"]}
+             for r in results), key=lambda d: d["character_id"]),
+    }
+    GATE_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    GATE_MANIFEST_PATH.write_text(
+        json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+    print(f"[manifest] {GATE_MANIFEST_PATH} "
+          f"(cohort of {len(results)}, git {sha[:8] if sha else '?'}"
+          f"{', DIRTY tree' if dirty else ''})")
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -75,6 +76,77 @@ CHAIN = [
 DBC_STEP = ("ingest/dbc/build_dbc_index.py",
             "re-extract from the CLIENT; rewrites data/source/dbc/*.json")
 
+# 3d E1 — the crawl corpus. It targets a DIFFERENT database (builds.db), and the
+# gate cohort, the scraper's demand list and pooled inference all depend on it,
+# yet it was in no chain and no .bat: every headline number in this project came
+# from a manual step on one machine.
+#
+# 🛑 OPT-IN, NOT UNCONDITIONAL — and this is a DELIBERATE DEVIATION from the task
+# as written, made because running it revealed a hazard the task did not
+# anticipate. Measured in `3d`:
+#
+#   Rebuilding builds.db MOVED THE CALIBRATION GATE from 5 of 41 to 4 of 38,
+#   with ZERO code changes, purely because the daily crawler had run.
+#
+# Cause: `calibrate_crawled.candidates()` is `ORDER BY character_id LIMIT 120`,
+# and the qualifying population grew from 157 to 180 characters. The limit was
+# meant as a cost cap; what it actually does is take a SLIDING WINDOW over a
+# growing corpus, keyed on an arbitrary id. Four characters left the cohort and
+# four entered, for no reason but their id.
+#
+# So an unconditional chain step would mean every routine `py cli/rebuild.py`
+# silently redefines the gate's population — the opposite of reproducibility,
+# and it would have destroyed this session's own §0 invariant. It is opt-in for
+# the same reason `--with-dbc` is: it rewrites an input that other results are
+# quoted against, so it must be a deliberate act.
+#
+#     py cli/rebuild.py --with-corpus     # rebuild builds.db too
+#
+# ⚠ The underlying gate defect is NOT fixed here (3d ships no modelling change).
+# It is written up for the owner and for `3e`; the fix is to pin the cohort by
+# id — which is what the gate manifest (E2) now records.
+CORPUS_STEP = ("ingest/logs_gg/build_builds_db.py",
+               "builds.db - the normalised crawl corpus. ⚠ REDEFINES THE "
+               "CALIBRATION GATE COHORT (see cli/rebuild.py CORPUS_STEP)")
+
+
+def mark_rebuild(step_count, *, started):
+    """Write or clear the `rebuild_state` marker (3d E3).
+
+    Uses raw sqlite3 rather than `core.db.connection.connect()` for the obvious
+    reason: that function now REFUSES to open a database carrying this marker,
+    and the rebuild is the one caller that must be able to.
+    """
+    import sqlite3
+    if not DB_PATH.exists():
+        return
+    sha = None
+    try:
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO,
+                             capture_output=True, text=True,
+                             timeout=30).stdout.strip() or None
+    except Exception:                                # noqa: BLE001
+        pass
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS rebuild_state (
+            started_at   TEXT NOT NULL,
+            completed_at TEXT,
+            git_sha      TEXT,
+            step_count   INTEGER
+        )""")
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    if started:
+        conn.execute("DELETE FROM rebuild_state")
+        conn.execute("INSERT INTO rebuild_state (started_at, completed_at, "
+                     "git_sha, step_count) VALUES (?, NULL, ?, ?)",
+                     (now, sha, step_count))
+    else:
+        conn.execute("UPDATE rebuild_state SET completed_at = ? "
+                     "WHERE completed_at IS NULL", (now,))
+    conn.commit()
+    conn.close()
+
 
 def run_step(script, why, extra_args=()):
     print(f"\n=== {script}\n    ({why})")
@@ -82,7 +154,13 @@ def run_step(script, why, extra_args=()):
     # PYTHONIOENCODING: several steps print ⚠/✅; when stdout is piped or redirected
     # Python picks cp1252 on Windows and the chain dies at step 1 with a
     # UnicodeEncodeError (pre-existing bug logged in PROGRESS.md, fixed in 1b).
-    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    # ASCENSION_REBUILD_IN_PROGRESS: 3d E3. `core.db.connection.connect()`
+    # refuses to open a database carrying an uncleared rebuild marker — and the
+    # rebuild's own 21 steps are exactly the callers that must be allowed to.
+    # Setting it here beats passing allow_incomplete=True in fifteen files, and
+    # means a new chain step cannot forget.
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8",
+           "ASCENSION_REBUILD_IN_PROGRESS": "1"}
     result = subprocess.run([sys.executable, str(REPO / script), *extra_args],
                             cwd=REPO, env=env)
     print(f"    -> exit {result.returncode} in {time.time() - started:.1f}s")
@@ -94,6 +172,10 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--with-dbc", action="store_true",
                     help="also re-extract from the game client (needs client + StormLib)")
+    ap.add_argument("--with-corpus", action="store_true",
+                    help="also rebuild builds.db from data/source/crawl/. ⚠ This "
+                         "REDEFINES the calibration gate's cohort — see "
+                         "CORPUS_STEP in this file. Deliberate act, like --with-dbc")
     ap.add_argument("--keep-going", action="store_true",
                     help="do not stop at the first failing step")
     args = ap.parse_args()
@@ -103,23 +185,51 @@ def main():
         # after build_index.py (it reads `spells` to scope itself), and before
         # load_extract.py so the freshly written JSON is what gets loaded
         chain.insert(1, DBC_STEP)
+    if args.with_corpus:
+        # LAST: it targets a different database and reads nothing this chain
+        # writes, so its position is free — and putting it last keeps the
+        # ascension.db chain's timing and failure modes unchanged.
+        chain.append(CORPUS_STEP)
+        print("⚠ --with-corpus: builds.db will be rebuilt from data/source/crawl/.")
+        print("  The calibration gate's cohort is a function of that corpus "
+              "(ORDER BY character_id LIMIT N over a growing population), so a "
+              "gate result from before this run is NOT comparable to one after "
+              "it. Re-run the gate and re-emit its manifest.")
 
     failed = []
-    for script, why in chain:
+    for i, (script, why) in enumerate(chain):
         if not (REPO / script).exists():
             print(f"\n=== {script}\n    SKIPPED - not present in this checkout")
             continue
-        if run_step(script, why) != 0:
+        rc = run_step(script, why)
+        # 3d E3 — mark the database MID-REBUILD as soon as one exists, and clear
+        # the mark only on a clean finish. `core.db.connection.connect()` refuses
+        # to open a database carrying an uncleared marker.
+        #
+        # Written AFTER the first step, not before it: `build_index.py` DROPS
+        # and recreates the database (it unlinks first), so a marker written
+        # earlier would simply be deleted. A failure IN step 1 therefore leaves
+        # no marker — and no half-seeded database either, which is the state
+        # this guard exists to catch.
+        if i == 0 and rc == 0:
+            mark_rebuild(len(chain), started=True)
+        if rc != 0:
             failed.append(script)
             if not args.keep_going:
                 print(f"\nSTOPPED at {script}. Fix it, or re-run with --keep-going.")
+                print(f"🛑 {DB_PATH.name} is left MARKED INCOMPLETE and will "
+                      f"refuse to be read until a rebuild finishes cleanly. "
+                      f"That is deliberate: a half-seeded database is readable "
+                      f"and plausible, which is worse than one that errors.")
                 return 1
 
     print(f"\n{'=' * 60}")
     print(f"database: {DB_PATH}")
     if failed:
         print(f"FAILED steps ({len(failed)}): {', '.join(failed)}")
+        print(f"🛑 {DB_PATH.name} stays MARKED INCOMPLETE.")
         return 1
+    mark_rebuild(len(chain), started=False)
     print(f"rebuild OK - {len(chain)} steps")
     return 0
 
