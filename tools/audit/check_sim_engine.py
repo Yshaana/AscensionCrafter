@@ -28,6 +28,41 @@ from core.builds.stats import compute_stats  # noqa: E402
 from core.sim.content import Role  # noqa: E402
 
 FAILURES = []
+GENERALITY_RESULTS = {}     # check name -> bool, for the 3d D1 fixtures only
+
+# 3d D3 — KNOWN engine defects, each an entry in primer/ENGINE_BUGS.md.
+#
+# These are failing checks that name real bugs, which is the deliverable of
+# `3d` Block D. Fixing them is `3e`, so they must not break the build today —
+# but a "known bug" list is exactly the kind of thing that rots into a
+# permanent excuse, so the registry is enforced BOTH ways:
+#
+#   registered + still failing  -> reported as EXPECTED FAIL, does not exit 1
+#   registered + now PASSING    -> HARD FAILURE. Close the ENGINE_BUGS.md entry
+#                                  and delete the line here. A stale registry
+#                                  silently lowers the bar for every later run.
+#   unregistered + failing      -> ordinary failure, exit 1 (a new regression)
+#
+# 🛑 Do not add a line here to silence an inconvenient check. A line is a claim
+# that the defect is written up, with file:line, in primer/ENGINE_BUGS.md.
+EXPECTED_FAILURES = {
+    "[cp_melee] an APL entry gated on combo_points_at_least can ever fire":
+        "ENGINE_BUGS.md E1 — combo_points never incremented, AND is_finisher "
+        "classifies none of this board's per-combo abilities",
+    "[cp_melee] the execute window is modelled, or the sim says it cannot "
+    "model it":
+        "ENGINE_BUGS.md E2 — target_health_pct pinned at 100 (tiers.py:198-199)",
+    "[cp_melee] pet damage is modelled or explicitly named as a gap":
+        "ENGINE_BUGS.md E3 — no pet model, while corpus.py:614 includes pet "
+        "damage in the dps this is calibrated against",
+    "[dot_caster] pet damage is modelled or explicitly named as a gap":
+        "ENGINE_BUGS.md E3 — same defect, second fixture",
+    "[dot_caster] the APL grammar can express DoT uptime":
+        "ENGINE_BUGS.md E4 — no target-debuff condition in apl.py:19-32",
+    "[dot_caster] the board's DoTs enter the rotation at all":
+        "ENGINE_BUGS.md E5 — DoTs are filed behind every cooldown ability and "
+        "the GCD budget never reaches them (6 of 7 cast zero times)",
+}
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
 # zero-damage guard rather than assume it still works.
@@ -57,6 +92,55 @@ def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail else ""))
     if not ok:
         FAILURES.append(name)
+
+
+def gcheck(name, ok, detail=""):
+    """A generality check on the 3d D1 fixtures. Verdict is deferred to
+    `resolve_generality()`, because whether a failure is acceptable depends on
+    the EXPECTED_FAILURES registry, and whether a PASS is acceptable does too."""
+    GENERALITY_RESULTS[name] = ok
+    known = name in EXPECTED_FAILURES
+    if ok:
+        tag = "PASS!" if known else "PASS "
+    else:
+        tag = "XFAIL" if known else "FAIL "
+    print(f"{tag} {name}" + (f"  ({detail})" if detail else ""))
+
+
+def resolve_generality():
+    """Enforce the registry in both directions. See EXPECTED_FAILURES."""
+    unexpected_fail = [n for n, ok in GENERALITY_RESULTS.items()
+                       if not ok and n not in EXPECTED_FAILURES]
+    unexpected_pass = [n for n, ok in GENERALITY_RESULTS.items()
+                       if ok and n in EXPECTED_FAILURES]
+    stale = [n for n in EXPECTED_FAILURES if n not in GENERALITY_RESULTS]
+
+    xfails = [n for n, ok in GENERALITY_RESULTS.items()
+              if not ok and n in EXPECTED_FAILURES]
+    if xfails:
+        print(f"\n{len(xfails)} EXPECTED failure(s) — known engine defects, "
+              f"written up in primer/ENGINE_BUGS.md, scheduled for 3e:")
+        for n in xfails:
+            print(f"    XFAIL  {n}\n           -> {EXPECTED_FAILURES[n]}")
+
+    for n in unexpected_fail:
+        print(f"\n🛑 NEW generality failure, not in EXPECTED_FAILURES: {n}")
+        print("   Either it is a real regression, or it is a new engine defect "
+              "that must be written up in primer/ENGINE_BUGS.md and registered.")
+        FAILURES.append(n)
+    for n in unexpected_pass:
+        print(f"\n🎉 {n}\n   is registered as an EXPECTED FAILURE but now PASSES.")
+        print("   If the defect is fixed: close its primer/ENGINE_BUGS.md entry "
+              "and delete its line from EXPECTED_FAILURES.")
+        print("   If it is not fixed, the check has been weakened and that is "
+              "worse. Either way this is a hard failure — a stale known-bug "
+              "registry lowers the bar for every later run.")
+        FAILURES.append(f"stale EXPECTED_FAILURES entry: {n}")
+    for n in stale:
+        print(f"\n🛑 EXPECTED_FAILURES names a check that did not run: {n}")
+        print("   The check was renamed or removed without updating the "
+              "registry. Fix the registry.")
+        FAILURES.append(f"EXPECTED_FAILURES entry with no matching check: {n}")
 
 
 def main():
@@ -399,12 +483,189 @@ def main():
           d["verdict"] == "inconclusive" and d["winner"] is None,
           f"{d['verdict']}, delta {d['delta']:.1f}")
 
+    # 9 -- 3d D1: THE TWO NON-PALADIN FIXTURES.
+    #
+    # Everything above this line runs on one character. Six real engine bugs sit
+    # in shared code paths that an all-instant, single-filler, no-combo-point,
+    # no-pet melee build is structurally incapable of exposing — so nothing in
+    # this harness would fail if a Rogue or a Warlock produced nonsense.
+    #
+    # 🛑 THESE CHECKS ARE EXPECTED TO FAIL, AND THAT IS THE DELIVERABLE (D3).
+    # Each failure is filed in bugs/ with its file:line. FIXING THEM IS 3e.
+    # Do not "repair" a failure here by weakening the assertion — the assertions
+    # state what the engine claims about itself in its own comments and
+    # docstrings, and a failing one means the code does not do what it says.
+    check_nonpaladin_fixtures(conn, ct, conv)
+    resolve_generality()
+
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         return 1
     print("all sim-engine checks pass")
     return 0
+
+
+def _load_fixture(conn, ct, conv, filename):
+    """A committed fixture -> (BuildSpec, CharState). Same path as the paladin."""
+    import json as _json
+    root = Path(__file__).resolve().parents[2]
+    bd = _json.loads((root / "fixtures" / filename).read_text(encoding="utf-8"))
+    gear = {s: GearItem(item_id=0, name=w.get("item_name", s), slot=s,
+                        stats={}, weapon={k: v for k, v in w.items()
+                                          if k != "item_name"})
+            for s, w in bd["weapons"].items()}
+    spec = BuildSpec(
+        character_level=bd["character_level"], role=Role(bd["role"]),
+        path=bd["path"], gear=gear, stats_override=bd["stats_override"],
+        source=bd.get("source", "crawled"),
+        abilities=[SlottedCard(a["spell_id"], a["rank"]) for a in bd["abilities"]],
+        talents=[SlottedCard(t["spell_id"], t["rank"]) for t in bd["talents"]])
+    return bd, spec, compute_stats(spec, ct, conv, conn=conn)
+
+
+def check_nonpaladin_fixtures(conn, ct, conv):
+    """Generality checks. See §9 above — these are MEANT to fail today."""
+    from core.sim.apl_gen import generate_apl
+    from core.sim.tiers import fast_sim, medium_sim
+
+    print("\n--- 3d D1: non-paladin fixtures — XFAIL = a known engine defect "
+          "written up in primer/ENGINE_BUGS.md, scheduled for 3e ---")
+
+    for filename, kind in (("build_crawled_cp_melee.json", "cp_melee"),
+                           ("build_crawled_dot_caster.json", "dot_caster")):
+        try:
+            bd, spec, cs = _load_fixture(conn, ct, conv, filename)
+        except Exception as e:                      # noqa: BLE001
+            gcheck(f"[{kind}] fixture loads and computes stats", False, repr(e))
+            continue
+        gcheck(f"[{kind}] fixture loads and computes stats", True,
+              f"{len(spec.abilities)} abilities, {len(spec.talents)} talents")
+
+        apl = generate_apl(conn, spec, ct, cs)
+        f = fast_sim(conn, spec, ct, cs, apl=apl)
+        m = medium_sim(conn, spec, apl, ct, cs)
+
+        # --- the generic property every build must satisfy --------------------
+        # `tiers.py:137-141` — in fast_sim the FIRST filler is given the entire
+        # remaining GCD budget (`gcd_budget = 0.0` after it), so every later
+        # filler gets 0 casts. The comment two lines above says "fillers split
+        # whatever budget the cooldowns left, in priority order." This is the
+        # tier the calibration gate runs on.
+        acting = [k for k, r in f.per_ability.items() if r["damage"] > 0]
+        gcheck(f"[{kind}] fast_sim allocates GCDs to more than one filler",
+              len(acting) >= 5, f"{len(acting)} abilities did damage: "
+              f"{sorted(map(str, acting))[:6]}")
+
+        if kind == "cp_melee":
+            # `tiers.py:197` / `apl.py:118` — `combo_points` is never
+            # incremented anywhere in the tree, so `combo_points_at_least`
+            # (which apl_gen.py:91 emits for EVERY finisher) can never be true
+            # and those finishers never fire in medium_sim.
+            #
+            # ⚠ Test the CONDITION, not merely "did a finisher cast". A finisher
+            # apl_gen did not recognise as one gets `always` and casts freely,
+            # which would pass a naive check while the actual bug is untouched.
+            # The precise claim is: an entry GATED on combo_points_at_least never
+            # becomes true.
+            cp_gated = {e.spell_id for e in apl.entries
+                        if any(c.get("type") == "combo_points_at_least"
+                               for c in (e.conditions or []))}
+            fired = {sid for sid in cp_gated
+                     if m.per_ability.get(sid, {}).get("casts", 0) > 0}
+            gcheck("[cp_melee] an APL entry gated on combo_points_at_least can "
+                  "ever fire",
+                  bool(cp_gated) and bool(fired),
+                  f"{len(cp_gated)} CP-gated entries "
+                  f"({sorted(cp_gated)}), {len(fired)} ever cast — "
+                  f"combo_points is never incremented anywhere in core/sim"
+                  if cp_gated else
+                  "NO entry is CP-gated: apl_gen did not classify any of this "
+                  "board's per-combo abilities as finishers, so this check "
+                  "could not exercise the bug at all")
+
+            # `tiers.py:198-199` — self_health_pct/target_health_pct are pinned
+            # at 100. 🛑 The failure is NOT "the execute ability never casts" —
+            # it is the opposite: with target health pinned at 100 the window is
+            # unmodelled, so an execute-gated ability is either cast freely (as
+            # if always available) or silently dropped. Either way the sim must
+            # SAY it cannot model the window. Casting it is not a pass.
+            hp_gated = {e.spell_id for e in apl.entries
+                        if any(c.get("type") in ("target_health_pct_below",
+                                                 "health_pct_below")
+                               for c in (e.conditions or []))}
+            hw_casts = m.per_ability.get(24239, {}).get("casts", 0)
+            warned = any("health" in (w or "").lower()
+                         for w in (m.warnings or []) + (f.warnings or []))
+            gcheck("[cp_melee] the execute window is modelled, or the sim says "
+                  "it cannot model it",
+                  warned or bool(hp_gated),
+                  f"Hammer of Wrath (24239) is execute-gated in game and the "
+                  f"sim cast it {hw_casts}x with target_health_pct pinned at "
+                  f"100.0; {len(hp_gated)} APL entries carry a health "
+                  f"condition and no warning mentions health")
+
+        if kind == "dot_caster":
+            # `apl.py:19-32` — no target-debuff / DoT-uptime condition type
+            # exists in the grammar, and apl_gen gives fillers `always`. So a
+            # DoT is re-cast every GCD with its entire duration's damage
+            # re-scored each time.
+            from core.sim.apl import CONDITION_TYPES
+            gcheck("[dot_caster] the APL grammar can express DoT uptime",
+                  any("dot" in t or "debuff" in t for t in CONDITION_TYPES),
+                  f"condition types: {sorted(CONDITION_TYPES)}")
+
+            # `apl_gen.py:62-63` — fillers are sorted by damage PER CAST, not
+            # per GCD/cast-time, contradicting apl_gen's own docstring line 10.
+            # On this board that penalises 1.5s fillers against a 5s Pyroblast.
+            board = {a["spell_id"] for a in bd["abilities"]}
+            marks = ",".join("?" * len(board))
+            periodic = {r[0] for r in conn.execute(
+                f"SELECT spell_id FROM spell_mechanics WHERE is_periodic = 1 "
+                f"AND spell_id IN ({marks})", tuple(board))}
+            # 🛑 A vacuous pass here is worse than a failure: if `periodic` came
+            # back empty the check would report "DoTs are not re-cast" while
+            # having tested nothing. Assert the fixture actually has DoTs first.
+            gcheck("[dot_caster] the fixture's DoTs are identifiable at all "
+                  "(guards this check against passing vacuously)",
+                  len(periodic) >= 2,
+                  f"{len(periodic)} periodic abilities on the board: "
+                  f"{sorted(periodic)}")
+            casts = {sid: m.per_ability.get(sid, {}).get("casts", 0)
+                     for sid in periodic}
+            never = {sid for sid, n in casts.items() if n == 0}
+            # 🚨 NOT ON THE AUDIT'S PREDICTED LIST — found by this fixture.
+            # Before asking whether DoTs are re-cast too often, ask whether they
+            # are cast at all. On this board 6 of 7 are cast ZERO times: they
+            # carry no cooldown, so apl_gen files them last behind every
+            # cooldown ability, and the GCD budget is gone before the rotation
+            # reaches them. A DoT caster whose DoTs never enter the rotation is
+            # a bigger error than one that refreshes them too eagerly — and it
+            # would have made the next check pass for the wrong reason.
+            gcheck("[dot_caster] the board's DoTs enter the rotation at all",
+                  not never,
+                  f"{len(never)} of {len(periodic)} periodic abilities are cast "
+                  f"ZERO times: {sorted(never)}; casts = {casts}")
+            recast = {sid: n for sid, n in casts.items() if n > 5}
+            gcheck("[dot_caster] DoTs that DO cast are not re-cast every GCD",
+                  not recast,
+                  f"re-cast >5x in one fight: {recast} — no DoT-uptime "
+                  f"condition exists, so apl_gen gives them 'always' and each "
+                  f"recast re-scores the whole duration's damage. ⚠ Reads clean "
+                  f"today only because {len(never)} of {len(periodic)} never "
+                  f"cast at all — see the check above.")
+
+        # No pet model exists in core/sim while corpus.py:614 computes
+        # dps = (total_damage + pet_damage)/duration, so any pet class is
+        # guaranteed to miss low against the corpus it is calibrated on.
+        pets = [a["name"] for a in bd["abilities"]
+                if "summon" in (a["name"] or "").lower()]
+        if pets:
+            gcheck(f"[{kind}] pet damage is modelled or explicitly named as a gap",
+                  any("pet" in (w or "").lower() for w in (f.warnings or [])
+                      + (m.warnings or [])),
+                  f"board summons {pets} and no warning mentions pets — the "
+                  f"corpus dps this is calibrated against INCLUDES pet damage")
 
 
 if __name__ == "__main__":
