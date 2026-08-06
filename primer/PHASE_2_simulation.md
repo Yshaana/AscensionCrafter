@@ -470,6 +470,46 @@ input at all.
 **These are the targets a talent model must reproduce.** `calibrate_vs_log.py`
 computes them as a first-class report and labels each pair REPRODUCES / MISSES.
 
+> ✅ **RE-DERIVED 2026-08-06 (`3d` F2b) — and the contamination the `3c` audit
+> predicted is REAL but NEGLIGIBLE, which is worth stating as plainly as a
+> retraction would have been.**
+>
+> The audit (§4.H) flagged both numbers as *"a function of the wrong stat
+> block"*: they were produced by a `--all-logs` run with no stat flags, i.e. the
+> since-deleted defaults **AP 584 / SP 533 / weapon 585–669** (a
+> Path-of-Duality-era, mixed-date sheet), while the verified same-session block
+> is **AP 141 / SP 638 / weapon 543.6–646.3**
+> (`predictions/calib_2026-08-05_2e_poi.md:9-13`). AP is out by a factor of four.
+>
+> Measured at both blocks rather than assumed:
+>
+> | Pair | at AP 584 / SP 533 | at **AP 141 / SP 638** | move | why |
+> |---|---|---|---|---|
+> | HftH ÷ HoJ tick | 1.718 | **1.704** | **−0.83%** | both sides are flat + SP/AP in *nearly the same proportions*, so most of the stat term cancels |
+> | Dawnreaver ÷ Whirling Light | 0.769 | **0.769** | **0.00%** | both sides are pure weapon-percent, so the ratio is k₁/k₂ — a constant, independent of every stat |
+>
+> **So the audit was right to flag the risk and wrong about the size.** One
+> target does not move at all, and the other moves by a quarter of the tolerance
+> it already reproduces to (−0.83% against a 3.2% worst observed delta). Both
+> stand as regression targets.
+>
+> 🛑 **The stat block is now stated inline, because that is the actual fix.**
+> A target quoted without the inputs that produced it cannot be checked, and
+> `calibrate_vs_log.py` no longer has stat defaults at all — it refuses to run
+> without `--ap --sp --weapon-min --weapon-max --weapon-speed` (`3d` F2). The
+> command that reproduces the right-hand column:
+>
+> ```bash
+> py tools/audit/calibrate_vs_log.py --all-logs --ap 141 --sp 638 --weapon-min 543.6 --weapon-max 646.3 --weapon-speed 3.57
+> ```
+>
+> ⚠ **Why the pairs are robust, generalised:** a weapon-free pair was chosen so
+> a wrong *weapon* input cancels. It turns out the same construction also makes
+> them nearly immune to a wrong *AP/SP* input — pure-weapon-percent pairs
+> exactly, and same-school flat pairs approximately. That is a stronger property
+> than the pairs were designed for and is the reason they survived a stat block
+> that was wrong by 4× on AP.
+
 ⚠ **To un-confound the ABSOLUTE numbers later, and it is free:** capture a
 character-sheet screenshot (weapon damage, AP, SP) at the start of the next
 logged session, so one parse finally has a same-moment stat block.

@@ -197,13 +197,25 @@ def check_alignment(dmg):
                     "field misalignment")
     if not anchors_checked:
         present = sorted({v["name"] for v in dmg.values() if v.get("name")})
+        anchor_names = sorted(ALIGNMENT_ZERO_CRIT) + ["Melee", "Lightbound Cleave"]
+        # Be precise about WHY it could not run — "absent" and "present but too
+        # few samples" are different problems with different fixes, and saying
+        # the wrong one sends the next reader looking in the wrong place.
+        thin = []
+        for name in anchor_names:
+            v = _by_name(dmg, name)
+            if v:
+                thin.append(f"{name} ({len(v['hit']) + len(v['crit'])} events)")
+        reason = (f"the anchors present are all BELOW their sample thresholds "
+                  f"(20 events for a 0%-crit periodic, 30 for a crit-rate "
+                  f"check): {', '.join(thin)}" if thin else
+                  f"NONE of the anchor abilities appears in this log at all")
         raise AlignmentUncheckable(
-            "no anchor ability present in this log, so field alignment COULD "
-            "NOT BE CHECKED — this is not a pass. Anchors are "
-            f"{sorted(ALIGNMENT_ZERO_CRIT) + ['Melee', 'Lightbound Cleave']}, "
-            f"all paladin; this log contains {len(present)} ability names "
+            f"field alignment COULD NOT BE CHECKED — {reason}. This is NOT a "
+            f"pass. Anchors are {anchor_names}, all paladin; this log contains "
+            f"{len(present)} ability names "
             f"({', '.join(present[:8])}{'…' if len(present) > 8 else ''}). "
-            "Refusing rather than reporting an unverified alignment as OK.")
+            f"Refusing rather than reporting an unverified alignment as OK.")
     return problems, anchors_checked
 
 
@@ -394,10 +406,56 @@ def main():
     ap.add_argument("--character", default="Elric")
     ap.add_argument("--all-logs", action="store_true")
     ap.add_argument("--log-dir", default=str(DEFAULT_LOG_DIR))
-    ap.add_argument("--ap", type=float, default=584.0)
-    ap.add_argument("--sp", type=float, default=533.0)
-    ap.add_argument("--weapon-min", type=float, default=585.0)
-    ap.add_argument("--weapon-max", type=float, default=669.0)
+    # 🛑 3d F2 — THE STAT BLOCK IS REQUIRED. The defaults are DELETED, not
+    # corrected.
+    #
+    # These carried AP 584 / SP 533 / weapon 585-669 from the 2026-08-03 build
+    # doc — a Path-of-Duality-era, mixed-date sheet. The verified block from the
+    # same-session capture is AP 141 / SP 638 / 543.6-646.3
+    # (predictions/calib_2026-08-05_2e_poi.md:9-13). AP was out by a factor of
+    # four, and any run that omitted the flags silently used the wrong numbers
+    # while printing results that looked exactly like the right ones. That
+    # happened: pred_2026-08-05_elric_paladin.md:62 records a --all-logs run with
+    # no stat flags at all.
+    #
+    # Swapping in the correct defaults was the obvious fix and is the wrong one.
+    # Rule 2 is *unconfirmed = flagged, never silently defaulted* — and a default
+    # is a claim about a character's stats at a moment in time, which is exactly
+    # the kind of thing that goes stale without anyone noticing. PLAN_3C's
+    # alternative ("read it from a named capture folder") is worse still: it
+    # silently rebinds to whatever that folder holds later.
+    #
+    # So: no defaults. State the block or get a refusal.
+    ap.add_argument("--ap", type=float, required=True,
+                    help="attack power. REQUIRED — no default, deliberately")
+    ap.add_argument("--sp", type=float, required=True,
+                    help="spell power. REQUIRED — no default, deliberately")
+    ap.add_argument("--weapon-min", type=float, required=True,
+                    help="main-hand min damage. REQUIRED")
+    ap.add_argument("--weapon-max", type=float, required=True,
+                    help="main-hand max damage. REQUIRED")
+    # Was hardcoded at 3.57 inside main() with no flag at all — so a caster or
+    # anyone with a different weapon could not state their own speed even if
+    # they knew it.
+    ap.add_argument("--weapon-speed", type=float, required=True,
+                    help="main-hand speed in seconds. REQUIRED (was hardcoded "
+                         "at 3.57 with no flag)")
+    # ⚠ NAMED GAPS, not silent zeros. These three are real inputs the tool does
+    # not take, and the CharState below is constructed with crit at 0.0 — which
+    # is fine for a NON-CRIT-average comparison (the whole tool compares against
+    # non-crit means) but would be wrong for anything else. Naming them here is
+    # cheaper than rediscovering them.
+    ap.add_argument("--haste", type=float, default=None,
+                    help="NOT MODELLED YET — accepted and reported as a gap. "
+                         "Haste changes cast/swing counts, not the per-hit base "
+                         "this tool compares, so it is safe to omit here and "
+                         "wrong to omit in a DPS comparison")
+    ap.add_argument("--spell-crit", type=float, default=None,
+                    help="NOT MODELLED YET — this tool compares NON-CRIT means, "
+                         "so crit does not enter. Reported as a gap")
+    ap.add_argument("--ranged-ap", type=float, default=None,
+                    help="NOT MODELLED YET — no ranged attack table exists "
+                         "(weights.py:28-42). Reported as a gap")
     ap.add_argument("--min-hits", type=int, default=15)
     ap.add_argument("--build", default="fixtures/build_elric_paladin.json",
                     help="build whose TALENTS are modelled on top of the base "
@@ -432,7 +490,21 @@ def main():
     cs = CharState(level=60, attack_power=args.ap, spell_power=args.sp,
                    spell_crit_pct=0.0, melee_crit_pct=0.0,
                    main_hand={"min": args.weapon_min, "max": args.weapon_max,
-                              "speed": 3.57})
+                              "speed": args.weapon_speed})
+    # 3d F2 — echo the block back. Every number below is a function of these
+    # five, and a run whose stat block is not visible in its own output is a run
+    # nobody can check later. This is what pred_2026-08-05_elric_paladin.md:62
+    # was missing.
+    print(f"\nSTAT BLOCK (stated, not defaulted): AP {args.ap:g} · "
+          f"SP {args.sp:g} · weapon {args.weapon_min:g}-{args.weapon_max:g} "
+          f"@ {args.weapon_speed:g}s")
+    _gaps = [n for n, v in (("--haste", args.haste),
+                            ("--spell-crit", args.spell_crit),
+                            ("--ranged-ap", args.ranged_ap)) if v is not None]
+    if _gaps:
+        print(f"  ⚠ {', '.join(_gaps)} accepted but NOT MODELLED — this tool "
+              f"compares non-crit per-hit bases, where none of them enter. "
+              f"Stated so the value is not silently discarded.")
 
     pooled = collections.defaultdict(
         lambda: {"hit": [], "crit": [], "name": None})

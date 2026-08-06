@@ -105,6 +105,28 @@ PATH_TOKEN = {"strength": "Strength", "agility": "Agility", "duality": "Duality"
 WEAPON_SLOTS = {16: "main_hand", 17: "off_hand"}
 
 
+# 🛑 3d F1 — snapshot sources that may NEVER enter the gate cohort.
+#
+# The gate measures whether the sim reproduces characters whose inputs it had to
+# INFER from a public crawl. A character whose stat block, board and weapon we
+# captured ourselves — Elric, from his own ALC export — is a different kind of
+# object: an INSTRUMENT with privileged inputs, useful precisely because its
+# error is not input error. Scoring it alongside 41 crawled strangers would
+# inflate the gate with the one case that was never in question.
+#
+# "He is an instrument, not a count" existed only in prose. `candidates()`
+# filters on level, gear, cards and lag with NO source filter, so the moment
+# Elric gets a `character_snapshots` row he becomes a candidate automatically and
+# the cohort silently becomes 42 — with the privileged-input character inside it.
+#
+# ⚠ APPLIED IN SQL, BEFORE THE LIMIT, not as a post-hoc drop. `candidates()` is
+# `ORDER BY character_id LIMIT N`, so a filtered-out character that is still
+# SELECTed would consume a slot and push a real one out of the window — turning
+# an exclusion into a silent cohort change. Filtering in the WHERE clause means
+# an excluded character is invisible to the window entirely.
+EXCLUDED_SNAPSHOT_SOURCES = ("own_capture",)
+
+
 def candidates(conn, limit, max_lag_hours=0.0):
     """Selection is by DATA COMPLETENESS ONLY — never by sim agreement.
 
@@ -118,7 +140,8 @@ def candidates(conn, limit, max_lag_hours=0.0):
     parse against level-60 magnitudes is the pooled-crawl error from `1x`
     (a level-scaled magnitude cannot be compared across unknown levels).
     """
-    return conn.execute("""
+    excl = ",".join("?" * len(EXCLUDED_SNAPSHOT_SOURCES))
+    return conn.execute(f"""
         SELECT ep.character_id, c.name, ep.snapshot_id, ep.dps, ep.path,
                e.boss_name, e.content_type, e.duration_seconds, e.encounter_id,
                ep.snapshot_lag_hours, c.level, ep.scope_id,
@@ -132,6 +155,12 @@ def candidates(conn, limit, max_lag_hours=0.0):
           AND ep.dps IS NOT NULL AND ep.dps > 100
           AND e.is_trash = 0 AND e.duration_seconds >= 20
           AND c.level = 60                          -- level-60 model only
+          -- 3d F1: privileged-input characters are INSTRUMENTS, not cohort
+          -- members. Filtered here, before the LIMIT, so an excluded character
+          -- cannot consume a window slot. See EXCLUDED_SNAPSHOT_SOURCES.
+          AND NOT EXISTS (SELECT 1 FROM character_snapshots s
+                           WHERE s.snapshot_id = ep.snapshot_id
+                             AND s.source IN ({excl}))
           AND EXISTS (SELECT 1 FROM snapshot_gear sg
                        WHERE sg.snapshot_id = ep.snapshot_id
                          AND sg.stats_json IS NOT NULL)
@@ -140,7 +169,8 @@ def candidates(conn, limit, max_lag_hours=0.0):
                          AND sc.spell_id IS NOT NULL)
         GROUP BY ep.character_id
         ORDER BY ep.character_id
-        LIMIT ?""", (max_lag_hours, limit)).fetchall()
+        LIMIT ?""",
+        (max_lag_hours, *EXCLUDED_SNAPSHOT_SOURCES, limit)).fetchall()
 
 
 # content_type -> the sim preset that matches it. Simming a dungeon parse

@@ -141,6 +141,60 @@ OUTCOMES = [
 ]
 
 
+# --- 3d F5: the HOLDOUT SET, pre-registered before 3e starts ------------------
+#
+# There was no overfitting control anywhere in PLAN_3C: its final task is a
+# post-hoc read of the SAME 41 characters the fixes were tuned to lift. So a
+# model that lifts the cohort and a model that is fitted to it are
+# indistinguishable by construction.
+#
+# 🛑 SELECTION IS OUTCOME-BLIND, AND THAT IS THE WHOLE POINT. The rule is fixed
+# and mechanical: **one character per Path with the LOWEST character_id, plus the
+# next-lowest character_id overall.** character_id is assigned by the crawler's
+# discovery order, which knows nothing about sim agreement. Nobody picked these
+# for being easy, hard, passing or failing.
+#
+# Pinned BY ID, not by re-running a limit — `3d` measured that the gate cohort
+# slides as the corpus grows (5-of-41 became 4-of-38 with no code change), so a
+# holdout defined by "the first N of the cohort" would not be the same set twice.
+#
+# ✅ None of the 5 is a current passer, so holding them out removes no pass from
+# the headline. That is a consequence of the rule, not a goal of it. `3e`'s job
+# is to LIFT characters, so a holdout of currently-failing characters is exactly
+# the right instrument: if the fixes generalise, some of these should improve
+# without ever having been looked at.
+#
+# ⚠ Both `3d` fixture characters were checked against the cohort and are OUTSIDE
+# it (Ash = 22714, Buttchopper = 9903), so fixing the bugs they expose is not
+# tuning on cohort members either.
+HOLDOUT_SLUG = "holdout_3e_crawled_gate_validation_set"
+HOLDOUT = {
+    "slug": HOLDOUT_SLUG,
+    "predicted_value": 0.0,      # not a DPS prediction — see note
+    "primary_metric": "DAMAGE_DONE",
+    "sim_version": "3d",
+    "data_version": "gate_manifest 2026-08-06 (cohort of 41)",
+    "character_name": "HOLDOUT SET (5 characters, not one)",
+    "notes": (
+        "HOLDOUT SET, not a value prediction. predicted_value is 0.0 because "
+        "this row exists to make the MEMBERSHIP immutable, and the ledger's one "
+        "real property is that it refuses to overwrite a slug. The five "
+        "character_ids below are excluded from ALL tuning in 3e and are read "
+        "only once, after the modelling work is done. "
+        "Members: 460 Qt (Intelligence), 461 Ryno (Strength), "
+        "462 Billyeye (Agility), 463 Wynta (Intelligence), "
+        "7661 Iwannakissms (Healing). "
+        "Rule: lowest character_id per Path, plus the next-lowest overall — "
+        "outcome-blind by construction. "
+        "State at registration (2026-08-06, none within tolerance): "
+        "Qt delta -85.5%/cov 27.9%, Ryno -67.8%/69.1%, Billyeye -45.7%/51.0%, "
+        "Wynta -98.0%/1.3%, Iwannakissms -87.4%/52.5%. "
+        "🛑 If a later session needs to change this set, that is a NEW slug with "
+        "its reason recorded — never an edit to this one."),
+}
+HOLDOUT_IDS = [460, 461, 462, 463, 7661]
+
+
 def main():
     conn = sqlite3.connect(str(DB_PATH))
     create_phase1_schema(conn)
@@ -156,6 +210,21 @@ def main():
             # Already present: correct behaviour on a re-run. The ledger
             # refuses to rewrite a prediction, which is what makes it a ledger.
             skipped += 1
+
+    # 3d F5 — the holdout membership, registered through the same ledger for the
+    # same reason: `record_prediction` refuses to overwrite a slug, and that
+    # refusal IS the pre-registration.
+    try:
+        record_prediction(
+            conn,
+            build_spec={"holdout_character_ids": HOLDOUT_IDS,
+                        "cohort_source": "predictions/gate_manifest.json"},
+            content_profile={"gate": "calibrate_crawled --limit 120 "
+                                     "--max-lag-hours 0"},
+            **HOLDOUT)
+        made += 1
+    except PredictionLedgerError:
+        skipped += 1
 
     outcomes = 0
     for oc in OUTCOMES:

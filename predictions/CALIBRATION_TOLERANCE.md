@@ -128,3 +128,80 @@ teeth.
 allowed, doing it silently is not. A change needs its own dated entry here with
 its reason — and, given what it gates, a reason that does not reduce to "the
 current number did not clear it".
+
+---
+
+## Addendum 2026-08-06 (session `3d`, F4) — a SUCCESSOR criterion, recorded early
+
+**This entry changes nothing that is currently in force.** The ±20% pass
+definition and the ≥3-qualified-at-≥50% rider both stand exactly as written
+above. It is recorded now, before `3e` does the modelling work that will be
+judged against it, so that it can never be mistaken for a threshold chosen after
+seeing a result — the same reason the 50% rider was stamped before its own run.
+
+🛑 **It takes effect AT THE NEXT GATE, NOT THIS ONE.**
+
+### The successor: report slice accuracy, and read coverage against it
+
+> From `3e` onward, every gate run reports **slice accuracy** per character and
+> as a cohort median, alongside coverage — and **every coverage task reports it
+> before and after.** A task that raises coverage while dropping slice accuracy
+> has moved the metric, not the model.
+
+Implemented in `3d` (`tools/audit/calibrate_crawled.py`, F3) as pure
+instrumentation: it changes no verdict, and the gate was byte-identical with it
+in place. First measurement, 2026-08-06: **cohort median 160%** — the modelled
+slice is over-produced by about 60% while only part of each kit is modelled.
+
+### The ~80% coverage figure, and why it is NOT a floor
+
+The decomposition is algebraically exact:
+
+```
+slice_accuracy = (100 + delta) / coverage
+```
+
+Set slice accuracy = 100 ⇒ `delta = coverage − 100` ⇒ `|delta| ≤ 20 ⇒ coverage ≥ 80`.
+So ~80% coverage is where a *truthful* model lands inside ±20%, and the figure
+reproduces independently. **It is nonetheless neither necessary nor sufficient,
+and must not be adopted as a threshold:**
+
+* **Not necessary.** 110% slice accuracy at 73% coverage gives −19.7% — a pass,
+  below 80.
+* **Not sufficient.** 80% coverage at 60% slice accuracy gives −52% — a fail, at
+  80.
+* It is **one point on a 2-D curve**, valid only at *exactly* 100% slice
+  accuracy, which `PLAN_3C` §4 says will not happen.
+
+### And the trajectory assumption behind it is unsafe
+
+The formula assumes the unmodelled slice is predicted at **zero** — true today
+by construction. The risky step is assuming damage *added* by the reachability
+tasks arrives at ~100% fidelity. Our own data refutes that: the out-of-catalog
+cluster reads **4.3–4.7× logged/base**, i.e. ~22% fidelity. Covering the residual
+42% at 22% fidelity buys roughly **9 delta points, not 42**.
+
+Worse, **coverage is a MEMBERSHIP TEST** (`modelled_damage_share`,
+`calibrate_crawled.py:171-224`), so a spell modelled at 4.5×-under counts as
+*fully covered*. Coverage work therefore **mechanically raises coverage while
+depressing slice accuracy**, and a currently-passing character can be LOST by
+pure coverage work with no accuracy change at all — Ari (156%) and Malo (131%)
+are both over-producers today and are the ones at risk.
+
+**Therefore: 80% is a diagnostic landmark, not a bar.** Nothing may fail a gate
+for being below it, and nothing may pass for being above it.
+
+### 🚨 A separate finding that this criterion cannot fix, recorded here because it changes what any of these numbers mean
+
+Measured in `3d`: rebuilding `builds.db` after the daily crawler ran moved the
+gate from **5 of 41 to 4 of 38 with zero code changes**.
+`calibrate_crawled.candidates()` is `ORDER BY character_id LIMIT 120` over a
+population that grew from **157 to 180** qualifying characters, so the limit —
+written as a cost cap — is really a **sliding window keyed on an arbitrary id**.
+Four characters left the cohort and four entered for no reason but their id.
+
+**Consequence: two gate results are comparable only if their cohorts match.**
+`predictions/gate_manifest.json` (`3d` E2) now records the cohort by character id
+on every run, which is what makes the comparison checkable — and what makes the
+holdout set below pinnable. **Fixing the sliding window is `3e` work**; `3d`
+ships no change to the gate's population, deliberately.
