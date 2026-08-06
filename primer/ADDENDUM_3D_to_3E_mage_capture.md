@@ -62,9 +62,20 @@ computed from the wrong stat block. Re-derive them.
 
 ---
 
-## 3. Incoming: a three-way controlled capture, non-paladin
+## 3. ✅ LANDED — a three-way controlled capture, non-paladin
 
-The owner is capturing a **Frost Mage, Path of Intelligence**, in three conditions:
+> **Captured 2026-08-06 19:15–19:56.** Bundle:
+> **`data/source/captures/2026-08-06_elric_mage_frost/`** (provenance table in its
+> `README.md`). Analysis: **`primer/FINDINGS_mage_capture_2026-08-06.md`**.
+>
+> 🚨 **It overturned a `3c` conclusion on arrival.** `SPELL_CAST_SUCCESS` and
+> `SPELL_CAST_START` are **disjoint by cast type** on this client — instants log the
+> former, cast-time spells the latter, with zero overlap. So the site's `casts` column
+> counts only instants, and `3c`'s withdrawal of its own "`casts` under-reads the corpus"
+> objection holds for the all-instant Hammerdin it was measured on and **not** for casters.
+> This lands directly on C2's APM-based admissibility filter. FINDINGS §1.
+
+The owner captured a **Frost Mage, Path of Intelligence**, in three conditions:
 
 | # | Condition | What it isolates |
 |---|---|---|

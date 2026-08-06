@@ -1,0 +1,120 @@
+=== Elric - Darkmoon - Season 10 Wildcard ===
+Level: 60
+ExportedAt: 2026-08-06 19:15:41 (client local time)
+Strength: 50
+Agility: 28
+Stamina: 240
+Intellect: 321
+Spirit: 77
+AttackPower: 30
+RangedAttackPower: 0
+PowerType: MANA
+PowerMax: 6097 (current 6097)
+ManaMax: 6097
+ManaRegen_raw: 20.2764 not-casting / 10.7160 casting (RAW API return, unconverted)
+SpellPower_Holy: 780
+SpellPower_Fire: 780
+SpellPower_Nature: 780
+SpellPower_Frost: 780
+SpellPower_Shadow: 780
+SpellPower_Arcane: 780
+BonusHealing: 306
+MeleeCrit: 16.63%
+RangedCrit: 16.63%
+SpellCrit_Holy: 19.62%
+SpellCrit_Fire: 19.62%
+SpellCrit_Nature: 19.62%
+SpellCrit_Frost: 19.62%
+SpellCrit_Shadow: 19.62%
+SpellCrit_Arcane: 19.62%
+MeleeHaste_raw_UNVERIFIED: 1.08% (GetMeleeHaste)
+Rating_HitMelee: 36 (3.60%)
+Rating_HitRanged: 36 (3.60%)
+Rating_HitSpell: 36 (4.50%)
+Rating_CritMelee: 133 (9.50%)
+Rating_CritRanged: 133 (9.50%)
+Rating_CritSpell: 133 (9.50%)
+Rating_HasteMelee: 47 (6.11%)
+Rating_HasteRanged: 47 (4.70%)
+Rating_HasteSpell: 47 (4.70%)
+Rating_Expertise: 0 (0.00%)
+Rating_ArmorPen: 0 (0.00%)
+Armor: 2321
+MainHandDamage: 227.7-253.7 (speed 1.66)
+OffHandDamage: none (no off-hand equipped)
+--- GetSpellInfo signature probe (raw returns by POSITION) ---
+  [25304] Frostbolt R11 - normal cast, expect nonzero cast time
+     1=Frostbolt | 2=Rank 11 | 3=Interface\Icons\Spell_Frost_FrostBolt02 | 4=152 | 5=false | 6=0 | 7=1545 | 8=0 | 9=36
+  [300909] Ice Lance R5 - INSTANT, expect ZERO cast time
+     1=Ice Lance | 2=Rank 5 | 3=Interface\Icons\Spell_Frost_FrostBlast | 4=83 | 5=false | 6=0 | 7=0 | 8=0 | 9=36
+  [10187] Blizzard R6 - channel, expect nonzero
+     1=Blizzard | 2=Rank 6 | 3=Interface\Icons\Spell_Frost_IceStorm | 4=1028 | 5=false | 6=0 | 7=0 | 8=0 | 9=36
+--- Spellbook (173 known) ---
+  1005008:Apprentice Woodworking, 6603:Auto Attack, 818:Basic Campfire, 107:Block(Passive), 2550:Cooking(Apprentice), 92840:Devastating Spells
+  13262:Disenchant, 81:Dodge(Passive), 674:Dual Wield(Passive), 13920:Enchanting(Artisan), 2481:Find Treasure(Racial), 109498:Find Trees
+  3273:First Aid(Apprentice), 7620:Fishing(Apprentice), 101101:For the Alliance!, 20596:Frost Resistance(Racial Passive), 20595:Gun Specialization(Racial Passive), 84421:High-Risk (PvP)
+  59224:Mace Specialization(Racial Passive), 9930874:Mercenary for Hire!, 3127:Parry(Passive), 84866:Path of Intelligence, 84422:PvE Mode, 979700:Resilient Constitution
+  84433:Resurrect in Capital City, 84423:Resurrect in Closest Town, 3018:Shoot, 979993:Specialization I, 979994:Specialization II, 979995:Specialization III
+  979996:Specialization IV, 979997:Specialization V, 979986:Specialization VI, 20594:Stoneform(Racial), 12180:Tailoring(Artisan), 2764:Throw
+  5019:Wand, 84420:War Mode (PvP), 93539:Wildcard Flying Mount, 91944:Wildcard Mount, 13977860:Woodcutting, 12000116:Adventurer's Grey Backpack
+  500297:Comical Banner: Ghosted, 500228:Comical Banner: Khadgar, 916037:Hollowed Furbolg Food Pack, 902229:Stargazer's Blessing, 1777086:Stone of Retreat: Goldshire, 777000:Stone of Retreat: Orgrimmar
+  777003:Stone of Retreat: Stormwind, 280010:Defiance, 29166:Innervate, 285148:Absolute Zero, 23028:Arcane Brilliance(Rank 1), 1459:Arcane Intellect(Rank 1)
+  1460:Arcane Intellect(Rank 2), 1461:Arcane Intellect(Rank 3), 10156:Arcane Intellect(Rank 4), 10157:Arcane Intellect(Rank 5), 276743:Arctis(Rank 1), 276763:Arctis(Rank 2)
+  276764:Arctis(Rank 3), 276765:Arctis(Rank 4), 276766:Arctis(Rank 5), 276767:Arctis(Rank 6), 276768:Arctis(Rank 7), 276769:Arctis(Rank 8)
+  1953:Blink, 10:Blizzard(Rank 1), 6141:Blizzard(Rank 2), 8427:Blizzard(Rank 3), 10185:Blizzard(Rank 4), 10186:Blizzard(Rank 5)
+  10187:Blizzard(Rank 6), 11958:Cold Snap, 120:Cone of Cold(Rank 1), 182:Cone of Cold(Rank 2), 8492:Cone of Cold(Rank 3), 10159:Cone of Cold(Rank 4)
+  10160:Cone of Cold(Rank 5), 10161:Cone of Cold(Rank 6), 44572:Deep Freeze(Rank 1), 44665:Deep Freeze(Rank 2), 44666:Deep Freeze(Rank 3), 168:Frost Armor(Rank 1)
+  7300:Frost Armor(Rank 2), 7301:Frost Armor(Rank 3), 271936:Frost Bomb(Rank 1), 271966:Frost Bomb(Rank 2), 271967:Frost Bomb(Rank 3), 271968:Frost Bomb(Rank 4)
+  271969:Frost Bomb(Rank 5), 271970:Frost Bomb(Rank 6), 122:Frost Nova(Rank 1), 865:Frost Nova(Rank 2), 6131:Frost Nova(Rank 3), 10230:Frost Nova(Rank 4)
+  116:Frostbolt(Rank 1), 205:Frostbolt(Rank 2), 837:Frostbolt(Rank 3), 7322:Frostbolt(Rank 4), 8406:Frostbolt(Rank 5), 8407:Frostbolt(Rank 6)
+  8408:Frostbolt(Rank 7), 10179:Frostbolt(Rank 8), 10180:Frostbolt(Rank 9), 10181:Frostbolt(Rank 10), 25304:Frostbolt(Rank 11), 760014:Frozen Orb(Rank 1)
+  760019:Frozen Orb(Rank 2), 760020:Frozen Orb(Rank 3), 760021:Frozen Orb(Rank 4), 284177:Glacial Spike(Rank 1), 284186:Glacial Spike(Rank 2), 284179:Glacial Spike(Rank 3)
+  284180:Glacial Spike(Rank 4), 284181:Glacial Spike(Rank 5), 284182:Glacial Spike(Rank 6), 284854:Hydricles(Rank 1), 284856:Hydricles(Rank 2), 284857:Hydricles(Rank 3)
+  284858:Hydricles(Rank 4), 284859:Hydricles(Rank 5), 284860:Hydricles(Rank 6), 284861:Hydricles(Rank 7), 284862:Hydricles(Rank 8), 284863:Hydricles(Rank 9)
+  284864:Hydricles(Rank 10), 284865:Hydricles(Rank 11), 281696:Ice Age, 7302:Ice Armor(Rank 1), 7320:Ice Armor(Rank 2), 10219:Ice Armor(Rank 3)
+  10220:Ice Armor(Rank 4), 11426:Ice Barrier(Rank 1), 11427:Ice Barrier(Rank 2), 13031:Ice Barrier(Rank 3), 13032:Ice Barrier(Rank 4), 13033:Ice Barrier(Rank 5)
+  30455:Ice Lance(Rank 1), 30483:Ice Lance(Rank 2), 30484:Ice Lance(Rank 3), 300908:Ice Lance(Rank 4), 300909:Ice Lance(Rank 5), 12472:Icy Veins
+  11419:Portal: Darnassus, 11416:Portal: Ironforge, 984513:Ray of Frost, 31687:Summon Water Elemental, 3565:Teleport: Darnassus, 3562:Teleport: Ironforge
+  284298:Unstable Evocation, 272031:Water Nova, 52127:Water Shield(Rank 1), 52129:Water Shield(Rank 2), 52131:Water Shield(Rank 3), 52134:Water Shield(Rank 4)
+  52136:Water Shield(Rank 5), 52138:Water Shield(Rank 6), 274734:Elemental Immolate(Rank 1), 274756:Elemental Immolate(Rank 2), 274757:Elemental Immolate(Rank 3), 274758:Elemental Immolate(Rank 4)
+  274759:Elemental Immolate(Rank 5), 274760:Elemental Immolate(Rank 6), 274761:Elemental Immolate(Rank 7), 274762:Elemental Immolate(Rank 8), 1454:Life Tap(Rank 1), 1455:Life Tap(Rank 2)
+  1456:Life Tap(Rank 3), 11687:Life Tap(Rank 4), 11688:Life Tap(Rank 5), 11689:Life Tap(Rank 6), 469:Commanding Shout(Rank 1)
+--- Cast/cost probes, max rank per name (positions 4 and 7) ---
+  10187:Blizzard[4=1028,7=0], 979994:Specialization II[4=0,7=5000], 979986:Specialization VI[4=0,7=5000]
+  1953:Blink[4=318,7=0], 284865:Hydricles[4=83,7=1273], 10230:Frost Nova[4=97,7=0]
+  11416:Portal: Ironforge[4=273,7=9091], 760021:Frozen Orb[4=194,7=0], 300909:Ice Lance[4=83,7=0]
+  984513:Ray of Frost[4=431,7=0], 274762:Elemental Immolate[4=236,7=0], 285148:Absolute Zero[4=375,7=0]
+  101101:For the Alliance![4=0,7=5455], 271970:Frost Bomb[4=278,7=1364], 777000:Stone of Retreat: Orgrimmar[4=0,7=9091]
+  13033:Ice Barrier[4=292,7=0], 9930874:Mercenary for Hire![4=0,7=9091], 3018:Shoot[4=0,7=1403]
+  272031:Water Nova[4=97,7=0], 10161:Cone of Cold[4=347,7=0], 3562:Teleport: Ironforge[4=120,7=9091]
+  3565:Teleport: Darnassus[4=120,7=9091], 31687:Summon Water Elemental[4=222,7=0], 979995:Specialization III[4=0,7=5000]
+  12472:Icy Veins[4=41,7=0], 818:Basic Campfire[4=0,7=2000], 10157:Arcane Intellect[4=469,7=0]
+  281696:Ice Age[4=97,7=0], 284182:Glacial Spike[4=347,7=0], 23028:Arcane Brilliance[4=1227,7=0]
+--- Talents (standard API): none returned (expected on a classless server) ---
+--- Action bars (38 bound; resolved via spellbook index) ---
+  10187:Blizzard(Rank 6)@1, 284865:Hydricles(Rank 11)@2, 25304:Frostbolt(Rank 11)@3, 760021:Frozen Orb(Rank 4)@4, 10161:Cone of Cold(Rank 6)@5, 285148:Absolute Zero@6
+  281696:Ice Age@7, 300909:Ice Lance(Rank 5)@8, 44666:Deep Freeze(Rank 3)@9, 984513:Ray of Frost@10, 11958:Cold Snap@11, 31687:Summon Water Elemental@12
+  item818046@13, item134985@19, 272031:Water Nova@22, item1913517@24, 12180:Tailoring(Artisan)@35, 13920:Enchanting(Artisan)@36
+  777003:Stone of Retreat: Stormwind@37, item6948@38, item8950@47, item3927@48, 29166:Innervate@49, 1953:Blink@50
+  284182:Glacial Spike(Rank 6)@51, 13262:Disenchant@62, 280010:Defiance@64, 12472:Icy Veins@65, 52138:Water Shield(Rank 6)@66, 11689:Life Tap(Rank 6)@67
+  11958:Cold Snap@68, 13033:Ice Barrier(Rank 5)@69, 284298:Unstable Evocation@70, macro8:Duel@71, 23028:Arcane Brilliance(Rank 1)@90, 31687:Summon Water Elemental@91
+  469:Commanding Shout(Rank 1)@95, 10157:Arcane Intellect(Rank 5)@96
+Pet: none
+--- Gear ---
+[Head] Insightful Hood | ITEM_MOD_CRIT_RATING_SHORT:17, ITEM_MOD_INTELLECT_SHORT:23, ITEM_MOD_POWER_REGEN0_SHORT:17, ITEM_MOD_SPELL_POWER_SHORT:31, ITEM_MOD_STAMINA_SHORT:19, PVE_POWER:38, PVP_POWER:0, RESISTANCE0_NAME:352
+[Neck] Dark Advisor's Pendant | ITEM_MOD_CRIT_RATING_SHORT:11, ITEM_MOD_INTELLECT_SHORT:8, ITEM_MOD_SPELL_POWER_SHORT:13, ITEM_MOD_STAMINA_SHORT:6, PVE_POWER:20, PVP_POWER:0
+[Shoulder] Zandalar Demoniac's Mantle | ITEM_MOD_HASTE_RATING_SHORT:7, ITEM_MOD_INTELLECT_SHORT:16, ITEM_MOD_SPELL_POWER_SHORT:16, ITEM_MOD_STAMINA_SHORT:18, PVE_POWER:25, PVP_POWER:0, RESISTANCE0_NAME:251
+[Chest] Mindsurge Robe | ITEM_MOD_CRIT_RATING_SHORT:16, ITEM_MOD_HASTE_RATING_SHORT:14, ITEM_MOD_INTELLECT_SHORT:10, ITEM_MOD_SPELL_POWER_SHORT:16, ITEM_MOD_STAMINA_SHORT:9, PVE_POWER:38, PVP_POWER:0, RESISTANCE0_NAME:340
+[Waist] Dreadmist Belt | ITEM_MOD_CRIT_RATING_SHORT:8, ITEM_MOD_HASTE_RATING_SHORT:6, ITEM_MOD_INTELLECT_SHORT:8, ITEM_MOD_SPELL_POWER_SHORT:27, ITEM_MOD_STAMINA_SHORT:10, PVE_POWER:25, PVP_POWER:0, RESISTANCE0_NAME:193
+[Legs] Leggings of Torment | ITEM_MOD_HASTE_RATING_SHORT:13, ITEM_MOD_HIT_RATING_SHORT:9, ITEM_MOD_INTELLECT_SHORT:15, ITEM_MOD_SPELL_POWER_SHORT:19, ITEM_MOD_STAMINA_SHORT:13, PVE_POWER:38, PVP_POWER:0, RESISTANCE0_NAME:286
+[Feet] Riptide Shoes | ITEM_MOD_CRIT_RATING_SHORT:15, ITEM_MOD_INTELLECT_SHORT:15, ITEM_MOD_SPELL_POWER_SHORT:12, PVE_POWER:25, PVP_POWER:0, RESISTANCE0_NAME:235
+[Wrist] Bracers of Prosperity | ITEM_MOD_CRIT_RATING_SHORT:9, ITEM_MOD_INTELLECT_SHORT:6, ITEM_MOD_SPELL_POWER_SHORT:15, ITEM_MOD_SPIRIT_SHORT:8, PVE_POWER:20, PVP_POWER:0, RESISTANCE0_NAME:183
+[Hands] Dreadmist Wraps | ITEM_MOD_HIT_RATING_SHORT:7, ITEM_MOD_INTELLECT_SHORT:11, ITEM_MOD_SPELL_POWER_SHORT:28, ITEM_MOD_STAMINA_SHORT:16, PVE_POWER:25, PVP_POWER:0, RESISTANCE0_NAME:214
+[Ring1] Zanzil's Band | ITEM_MOD_INTELLECT_SHORT:14, ITEM_MOD_POWER_REGEN0_SHORT:5, ITEM_MOD_SPELL_POWER_SHORT:17, ITEM_MOD_STAMINA_SHORT:9, PVE_POWER:20, PVP_POWER:0
+[Ring2] Amalgam's Band | ITEM_MOD_HIT_RATING_SHORT:10, ITEM_MOD_SPELL_PENETRATION_SHORT:15, ITEM_MOD_SPELL_POWER_SHORT:16, ITEM_MOD_STAMINA_SHORT:10, PVE_POWER:20, PVP_POWER:0
+[Trinket1] Witching Hourglass | ITEM_MOD_CRIT_RATING_SHORT:24, PVE_POWER:20, PVP_POWER:0
+[Trinket2] Pimgib's Collar | ITEM_MOD_CRIT_RATING_SHORT:16, ITEM_MOD_SPELL_POWER_SHORT:15, PVE_POWER:20, PVP_POWER:0
+[Back] Gracious Cape | ITEM_MOD_HIT_RATING_SHORT:10, ITEM_MOD_INTELLECT_SHORT:10, ITEM_MOD_SPELL_POWER_SHORT:12, ITEM_MOD_STAMINA_SHORT:9, PVE_POWER:20, PVP_POWER:0, RESISTANCE0_NAME:161
+[MainHand] Blade of the New Moon | ITEM_MOD_CRIT_RATING_SHORT:9, ITEM_MOD_DAMAGE_PER_SECOND_SHORT:31.599998474121, ITEM_MOD_INTELLECT_SHORT:19, ITEM_MOD_SPELL_POWER_SHORT:41, PVE_POWER:48, PVP_POWER:0
+[OffHand] Beauty's Favorite Bone | ITEM_MOD_CRIT_RATING_SHORT:8, ITEM_MOD_HASTE_RATING_SHORT:7, ITEM_MOD_INTELLECT_SHORT:7, ITEM_MOD_SPELL_POWER_SHORT:12, ITEM_MOD_STAMINA_SHORT:8, PVE_POWER:48, PVP_POWER:0
+[Ranged] Lethtendris's Wand | ITEM_MOD_DAMAGE_PER_SECOND_SHORT:70.170677185059, ITEM_MOD_SPELL_POWER_SHORT:16, PVE_POWER:45, PVP_POWER:0
