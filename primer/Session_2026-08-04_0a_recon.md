@@ -1,5 +1,7 @@
 # Session 0a — Recon (Phase 0 Tasks 1–5, 7, 8, 9)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-04 · **Session ID:** `0a` · **Status:** ✅ done
 **Deliverable:** `primer/RECON_FINDINGS.md` — one verdict per task, with evidence.
 **Phase 0 is complete.** Phase 1 is no longer gated.

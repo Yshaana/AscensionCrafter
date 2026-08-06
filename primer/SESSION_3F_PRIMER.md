@@ -1,5 +1,7 @@
 # SESSION `3F` PRIMER — repair the instruments, then build the writer
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Work order for Claude Code.** Written by the monitoring chat 2026-08-06, against a fresh
 clone at `c86eb7f`, after `3e` closed and was audited. Read this first, then
 `primer/AUDIT_3E_ADVERSARIAL.md` (the `file:line` evidence for everything below), then

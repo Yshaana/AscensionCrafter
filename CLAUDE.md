@@ -159,6 +159,23 @@ Schema in `INDEX_GUIDE.md`.
 
 ## Repo conventions
 
+- 🆕 **Every file in `primer/` carries a STATUS LINE, and only `LIVE` documents may be
+  cited as current truth** (`3f` F8c, 2026-08-07). `LIVE` = must be true today ·
+  `HISTORICAL` = a past session or completed phase, **may contain claims that are false
+  today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
+  date, not maintained. Today: 13 / 32 / 0 / 6, plus 2 flagged uncertain in `PROGRESS.md`'s
+  blocked table. **A new document is born with a status line and with its expiry condition
+  stated** — *"superseded when X lands"* — in the commit that creates it. Status acquired
+  in a later cleanup is status nobody trusted in between. Full rule in
+  `primer/START_HERE_FOR_CODE.md`.
+- 🆕 **A magnitude never appears in a markdown file except as generated output, pasted with
+  its provenance.** Every numeric error the `3e` audit found in a document was
+  hand-transcribed — **four for four, and zero errors in numbers a tool emitted**. If a
+  number belongs in a document, have the tool print it and paste that. Where no tool prints
+  it, the number has no owner.
+- 🆕 **Every check carries a registered test that makes it fail** — name the mutation, and
+  **run it**. `3f` found four of its own checks vacuous only by running the mutation.
+  Registry: `primer/ENGINE_BUGS.md`. If you cannot name one, it is not a check.
 - **Layout** (Phase 1 T1, 2026-08-04): `core/` is pure logic — no `print()`, no
   `argparse`, no paths, takes a connection as a parameter. Only `config.py` knows
   where files live, and `core/` may not import it. `tools/audit/check_core_purity.py`

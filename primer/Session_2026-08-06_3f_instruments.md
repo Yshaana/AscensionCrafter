@@ -1,5 +1,7 @@
 # Session `3f` — repair the instruments, and what the repaired instruments found
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **2026-08-06/07, overnight, unattended.** Work order:
 `primer/SESSION_3F_PRIMER.md`. Evidence it rests on:
 `primer/AUDIT_3E_ADVERSARIAL.md`, `primer/ADDENDUM_3E_to_3F.md`.

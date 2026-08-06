@@ -1,5 +1,7 @@
 # Audit primer — session `3c`, 2026-08-06
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **For the monitoring-chat audit.** Written the way the incoming `3c` primer was:
 claims first, with the commits and commands to reproduce them, and the things I
 am *least* sure about flagged rather than buried.

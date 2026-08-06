@@ -1,5 +1,7 @@
 # Session 2c — Calibration gates, talent modelling, Phase 2 close-out
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-05 · **Scope:** the `2c` addendum's gates G0–G4, then PHASE_2
 T4b, T8, T9, T10, T11 · **Status:** ✅ complete — **Phase 2 is done**, with one
 exit criterion deliberately moved to 3a.

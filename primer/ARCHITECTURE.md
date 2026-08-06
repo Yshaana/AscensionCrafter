@@ -1,5 +1,7 @@
 # AscensionCrafter — Architecture & Build Order (v2)
 
+> **`LIVE`** — the layering and repo constraints in force. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Status:** supersedes `prompt_for_code_spell_infrastructure.md`,
 `prompt_for_code_simulation_engine.md`, `prompt_for_code_scouted_data_pipeline.md`, and v1 of this
 document. Where this and any older doc disagree, **this wins.**

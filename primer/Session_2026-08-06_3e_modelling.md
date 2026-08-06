@@ -1,5 +1,7 @@
 # Session `3e` — modelling, on a frozen cohort
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **2026-08-06.** Work order: `primer/SESSION_3E_PRIMER.md`. Predecessor:
 `primer/Session_2026-08-06_3d_hygiene_and_instrument.md`.
 

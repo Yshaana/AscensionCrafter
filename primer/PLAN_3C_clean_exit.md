@@ -1,5 +1,7 @@
 # PLAN 3C — reaching the Phase 3 exit *cleanly*
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written 2026-08-06**, immediately after the audit-gated coefficient ingest
 (`79c6568`). Supersedes nothing; it is the work plan for the exit rider stamped
 that day in `predictions/CALIBRATION_TOLERANCE.md`.

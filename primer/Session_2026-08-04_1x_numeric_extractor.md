@@ -1,5 +1,7 @@
 # Session `1x` — numeric-field DBC extractor, and the rank question settled (2026-08-04)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Scope:** the task Phase 0 discovered and the original chunking never named — resolve
 the blocked hidden-formula spells from the client's **numeric** DBC fields, and settle
 *"do coefficients scale with rank?"* (a `PHASE_1` T4 blocker).

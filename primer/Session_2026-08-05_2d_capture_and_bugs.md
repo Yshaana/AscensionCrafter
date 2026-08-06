@@ -1,5 +1,7 @@
 # Session 2d — the capture bundle, and three things the game got wrong
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-05 (evening) · **Scope:** `PHASE_2D` T0–T1, then wherever the
 evidence led · **Status:** ⚠ partial — T1 consumed and far exceeded, **T2–T10 not
 started** and carried into `PHASE_2E_buffs_and_carryover.md`.

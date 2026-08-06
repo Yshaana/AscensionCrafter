@@ -1,5 +1,7 @@
 # Session `2e` — buff model, sim gaps, recalibration under PoI, carry-over
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Origin:** session `2d` (2026-08-05) spent its budget on an unusually productive
 owner-in-the-loop testing run and did not reach its own code tasks. This file
 carries the untouched `2d` work forward and adds what `2d`'s findings created.

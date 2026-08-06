@@ -1,5 +1,7 @@
 # Adversarial audit — session `3c`, and the Phase 4 readiness question
 
+> **`FINDING 2026-08-06`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Auditor:** monitoring chat, 2026-08-06. **Method:** full clone of `main` at `a36f666`,
 code read directly. Six parallel deep-dives: coefficient ingest, class generality,
 Phase 3 exit criteria, Phase 4 preconditions, PLAN_3C soundness, automation.

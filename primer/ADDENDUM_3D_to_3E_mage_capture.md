@@ -1,5 +1,7 @@
 # Addendum — mid-`3d`, folding into `3e`
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06, after `3d` had already started.
 Companion to `primer/SESSION_3D_PRIMER.md` and `primer/AUDIT_3C_ADVERSARIAL.md`.
 **Nothing here changes `3d`'s scope or its §0 invariant.** Two items are owner-side

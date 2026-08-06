@@ -1,5 +1,7 @@
 # PHASE 4 — The Lego Box & The Theorycrafter (Layers 4 & 5) — v2
 
+> **`LIVE`** — the next phase plan; not yet started. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Read `00_ARCHITECTURE.md` and Phases 1–3 first.**
 
 > **🆕 Terminology (2e D6, owner decision 2026-08-05): "lego" is renamed
@@ -383,6 +385,23 @@ per-user data is `user_id`-scoped, and roles/content types are modelled rather t
 interactive builder becomes a UI over existing functions plus **live medium-sim feedback as the
 player slots cards** — which is exactly why medium sim was worth building.
 
-Ordering when that time comes: FastAPI over `api/` → SQLite→Postgres (already designed for) → builder
-UI → accounts → sharing. **None of it requires rewriting layers 1–4**, which is the entire point of
-the §2.7 constraints.
+Ordering when that time comes: **build `api/`** → FastAPI over it → SQLite→Postgres (already
+designed for) → builder UI → accounts → sharing. **None of it requires rewriting layers 1–4**, which
+is the entire point of the §2.7 constraints.
+
+> 🆕 **SIZED, `3f` F8, because the correction above said the layer was absent without saying what
+> filling it costs — and an uncosted gap in a plan's premise is still a gap.** Re-measured at `3f`
+> HEAD, not inherited: **`api/` holds 0 functions, nothing in the tree imports it, and 5 of 7 `cli/`
+> entry points import `core/` directly** (`crosswalk`, `mechanics`, `profile`, `relationships`,
+> `sim`; the other two are `rebuild`, a subprocess runner, and `browse`, which shells out to
+> Datasette).
+>
+> **The work is 5 thin functions plus 5 CLI re-points, and it is small for one specific reason:
+> `core/` purity is real and enforced** (50 files, 0 violations at `3f`) — no logic has to be
+> extracted from a CLI first, because none of it is in a CLI. Each `api/` function is the argument
+> marshalling a CLI already does, minus the printing. **The honest statement is that `core/` is the
+> reusable layer today and `api/` is a reserved name**; whoever first needs a served function should
+> build it there and route one CLI through it, converting the reservation into a boundary.
+>
+> 🛑 **Do not budget Phase 4 as though this is done.** It is cheap, not free, and it is a
+> precondition of everything in the ordering line above.

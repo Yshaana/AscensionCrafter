@@ -1,5 +1,7 @@
 # CHAT MONITORING PRIMER v2 — AscensionCrafter
 
+> **`LIVE`** — v2, the current monitoring-chat primer. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Paste this at the start of a fresh monitoring chat.** Supersedes v1. Written
 2026-08-06 evening, at the end of the session that audited `3c`, specified and
 verified `3d`, and analysed the first non-paladin capture.

@@ -1,5 +1,7 @@
 # Session 0b — Crawler + Changelog Fetcher (Phase 0 Task 6)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-04 · **Session ID:** `0b` · **Status:** ✅ done
 **Scope:** Phase 0 Task 6 (crawler, changelog fetcher, Phase 1 baseline), plus the slice of
 Task 2 that Task 6 depends on.

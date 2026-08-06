@@ -1,5 +1,7 @@
 # Session 2a — Sim Foundation: Combat Engine, Content Profiles, Ability Model, BuildSpec
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-05 · **Scope:** PHASE_2 T1–T4 · **Status:** ✅ complete
 
 Phase 2 begins. Four new modules land the simulation foundation; no game-mechanic

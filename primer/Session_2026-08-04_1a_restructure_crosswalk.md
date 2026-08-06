@@ -1,5 +1,7 @@
 # Session `1a` — restructure, patch tracking, ID crosswalk (2026-08-04)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Scope:** Phase 1 Tasks 1–3, plus `TASK_automate_daily_crawler.md` (owner-supplied
 mid-session, independent of the schema work).
 

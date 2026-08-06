@@ -1,5 +1,7 @@
 # 🆕 THE PAIRED DUNGEON RUN — 2026-08-06 (owner-offered; NOT restart-gated)
 
+> **`LIVE`** — the standing capture request to the owner. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Run this whenever convenient — it does not wait on the server restart.** It is
 a *second, independent* ask from the dummy protocol below, and it is cheap: play
 a dungeon you were going to play anyway, with logging on, and upload it.

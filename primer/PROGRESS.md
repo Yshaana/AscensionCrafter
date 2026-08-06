@@ -1,5 +1,7 @@
 # PROGRESS
 
+> **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 > ✅ **2026-08-07 — SESSION `3f` IS DONE. Next session is `3g`.**
 > Session record: `primer/Session_2026-08-06_3f_instruments.md`.
 > Work order it ran: `primer/SESSION_3F_PRIMER.md`.
@@ -1190,6 +1192,7 @@ they're answered.
 
 | Item | Blocking | Asked on |
 |---|---|---|
+| 🆕 **`3f` F8c — TWO documents whose status I could not determine, flagged rather than guessed** (rule 6; a file mislabelled `HISTORICAL` becomes invisible, one mislabelled `LIVE` becomes a trap, and both are worse than an open question). **(a) `PHASE_2_simulation.md`** — Phase 2 is complete so it is the record of a finished phase, but it is still cited for sim DESIGN decisions and carries the pair-ratio calibration targets that other work reads as current. Marked `HISTORICAL`. **(b) `ADDENDUM_3E_to_3F.md`** — a session-to-session handover, consumed by `3f`, but you added §3.7 and a NEW STANDING RULE to it on 2026-08-07, and a standing rule is live content. Marked `HISTORICAL`; its §4 standing rules should probably move somewhere `LIVE` | Whether either can be cited as current truth | 2026-08-07 (`3f` F8c) |
 | 🆕 **`3f` Q1 — the gate manifest vs the holdout.** Running the gate used to rewrite the committed manifest's holdout block to REDACTED, so `3f`'s own per-commit gate reporting would have destroyed `3e`'s close-out reading on its first run. **Default taken:** a run without `--read-holdout` now CARRIES THE PREVIOUS READING FORWARD, stamped with the commit that took it (`c7d2892`) and marked as not from this run. Reversible — confirm, or say you would rather it redact and the gate be run less often | Nothing today; it is implemented and tested. Confirmation only | 2026-08-06 (`3f` start) |
 | 🆕 **`3f` Q2 — the corpus is TWO phases, not one.** Against `/api/phases`' own dates, **182 of 412 snapshots (44.2%) are Phase 0**, not Phase 1. Every doc said otherwise because the `user_confirmed` `server_phases` seed gives Phase 1 a NULL start. **Default taken:** F8b implemented as written — derive from the live API, report the split. Gear tiers lose only 3.1% (their `pieces >= 12` population is 216/7) and the gate cohort is 40/1, so nothing is disrupted; but "the corpus is all Phase 1" is now false project-wide, and you may want the seeded timeline corrected too | Any phase-scoped reading of the corpus. Not blocking the gate | 2026-08-06 (`3f` start) |
 | 🆕 **`3f` Q3 — does the first log ingestion write a `prediction_outcomes` row at all?** The four registered predictions are all sim predictions against `raid_boss` / `mythic_dungeon` profiles, while every capture folder is a **training-dummy** parse. Writing an outcome across that content mismatch is a fabricated comparison. **Default:** build the path and have it REFUSE with a named reason when no prediction matches the capture's content profile | `3g` Block C's exit condition 8 | 2026-08-06 (`3f` start) |

@@ -1,5 +1,7 @@
 # Session 2026-08-06 — 3b pre-flight (BEFORE_3B checklist)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 Ran the owner's `BEFORE_3B.md` pre-flight: §2 green preconditions, §1 audit
 remediations, §0.3 (the derived buff layer + calibration-gate re-run). This is
 carryover and hygiene, **not 3b scope** — 3b proper has not started. §4

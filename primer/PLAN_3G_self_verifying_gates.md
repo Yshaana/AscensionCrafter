@@ -1,5 +1,7 @@
 # PLAN `3G` — the gate contract: instruments that cannot fail open
 
+> **`LIVE`** — a plan that has NOT run; amend per ADDENDUM_3E_to_3F §3.1 before running. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Candidate session, written 2026-08-06 by the monitoring chat.** Not scheduled yet —
 `PROGRESS.md` decides. Owner decision 2026-08-06: **this gets its own session rather
 than being folded into `3e`.**

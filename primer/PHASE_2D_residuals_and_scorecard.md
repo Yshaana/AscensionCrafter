@@ -1,5 +1,7 @@
 # Session `2d` — Residuals, buff model, scorecard spec (slots BEFORE `3a`)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Origin:** chat review session 2026-08-05 (post-`2c` audit + halfway confidence analysis).
 **Status:** planned · **Blocks:** `3a` must not start until 2d's T1–T5 are done or explicitly
 deferred with a recorded reason.

@@ -1,5 +1,7 @@
 # Findings — `3e` preflight audit
 
+> **`FINDING 2026-08-06`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06 evening, against a fresh clone at
 `91d8f92`. Everything below was measured from committed artifacts. Nothing here
 is inherited from prose.

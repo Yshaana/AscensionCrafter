@@ -1,5 +1,7 @@
 # Session `3a` — the builds corpus, pooled inference, gear, and the calibration gate
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **2026-08-06, overnight autonomous run.** Phase 3 Tasks 1, 2, 3, 4, 8 plus the
 inherited ≥3-character calibration gate and one owner-decided seed.
 

@@ -1,5 +1,7 @@
 # Session Primer — 2026-08-03: Scouted-Builds DB Split (v2 amendment)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **What this is:** a handoff for the *next* session, covering one amendment landed today. Pair with `Ascension_Context_Primer.md` (v16) for general systems rules and `INDEX_GUIDE.md` (v5) for the schema/query reference — this doc is the "what happened and why" for one session, not standing background.
 
 **Source brief:** `claude_code_task_scouting_v2_amendment.md` (Claude Project handoff, delivered as a zip: the amendment doc + two new scripts + two filled write-ups + one template). Supersedes part of `d2f7b03` (the original scouting-tooling commit from earlier the same day) — that commit merged `scouted_*` tables straight into `ascension_index.db`; this amendment splits them back out before any real scouting data accumulated on top of the mistake.

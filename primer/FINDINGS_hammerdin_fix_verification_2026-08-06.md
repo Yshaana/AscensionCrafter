@@ -1,5 +1,7 @@
 # Findings — tracker #200295 verified, and what it did NOT fix
 
+> **`FINDING 2026-08-06`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06 late evening, from the owner's paired
 capture. Bundle and provenance:
 `data/source/captures/2026-08-06_elric_hammerdin_proc_retest/README.md`.

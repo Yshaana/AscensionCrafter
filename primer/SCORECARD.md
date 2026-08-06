@@ -1,5 +1,7 @@
 # SCORECARD — the ten-axis build rating (spec v1, session `2e`)
 
+> **`LIVE`** — a SPEC awaiting implementation in Phase 4. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Status: SPEC ONLY.** Implementation lands with Phase 4; this document exists
 now so `3a` knows what population data it must produce. Source of the design:
 `PHASE_2D` T6 (owner decisions D1/D2, 2026-08-05).

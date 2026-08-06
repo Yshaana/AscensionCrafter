@@ -1,5 +1,7 @@
 # Session record — 2026-08-06 `3c`: the paired upload
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 The owner uploaded four of his own logs to ascensionlogs.gg, giving — for the
 first time — **the same combat measured twice**: locally at ground truth and
 through the site's API. Everything below is measured, not inferred.

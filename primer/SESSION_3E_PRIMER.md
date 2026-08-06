@@ -1,5 +1,7 @@
 # SESSION `3E` PRIMER — modelling, on a frozen cohort
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Work order for Claude Code.** Written by the monitoring chat 2026-08-06 evening,
 against a fresh clone at `91d8f92`, after `3d` closed. Read this first, then
 `primer/ENGINE_BUGS.md`, then `primer/FINDINGS_3e_preflight_2026-08-06.md`.

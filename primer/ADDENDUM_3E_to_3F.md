@@ -1,5 +1,9 @@
 # Addendum — `3e` → `3f`: ordering, and amendments to the standing plans
 
+> **`HISTORICAL`** — describes a past state. It may contain claims that are FALSE TODAY, and that is correct rather than a defect. **Never citable as current truth.**
+>
+> ⚠ **STATUS UNCERTAIN, and deliberately not guessed at:** it was consumed by `3f` — but the owner added §3.7 and a NEW STANDING RULE to it on 2026-08-07, and a standing rule is live content. Marked HISTORICAL because the document is a session-to-session handover; **raised in PROGRESS.md's blocked table** because its §4 standing rules should probably move somewhere LIVE. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06, after auditing `3e` against a fresh
 clone at `c86eb7f`. Companion to `primer/AUDIT_3E_ADVERSARIAL.md`, which carries the
 `file:line` evidence for everything asserted here.

@@ -1,5 +1,7 @@
 # Session `1c` — 2026-08-05 — T6–T10: epistemics, profile, audit, browsing, volatility
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Phase 1 is complete.** All five remaining tasks landed, plus the four carry-overs from
 `1b`. No game-mechanic verdict changed — this was a tooling session. Rebuild is **18
 steps (~90s)**; every exit criterion in `PHASE_1_spell_database.md` is checked and

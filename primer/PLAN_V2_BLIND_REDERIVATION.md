@@ -1,5 +1,7 @@
 # PLAN — the blind v1-vs-v2 re-derivation
 
+> **`LIVE`** — a plan that has NOT run; amended and seeded in 3f, so it may now be run. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Owner decision, 2026-08-06.** `builds/my-builds/build_paladin-hammerdin.md` is frozen
 as a **v1 artifact** rather than maintained. When Phase 4's theorycrafter can design a
 build, it re-derives this one **blind**, and the two are compared.

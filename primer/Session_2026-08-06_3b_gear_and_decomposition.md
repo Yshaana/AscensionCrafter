@@ -1,5 +1,7 @@
 # Session 2026-08-06 — 3b: the gear layer, and the decomposed calibration gate
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 Phase 3b proper, driving `PLAN_3B_UPDATE.md`'s critical path (§5): fix the gear
 / stats layer, then re-run the calibration gate with the miss **decomposed**
 rather than attributed wholesale. Owner scoping decision at session start:

@@ -1,5 +1,7 @@
 # Findings — the Frost Mage capture, 2026-08-06
 
+> **`FINDING 2026-08-06`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Analysed by:** the monitoring chat, from the owner's three logs + two stat blocks.
 **Capture bundle: `data/source/captures/2026-08-06_elric_mage_frost/`** — its `README.md`
 carries the provenance table; this file carries the analysis.

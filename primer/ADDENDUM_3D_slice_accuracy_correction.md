@@ -1,5 +1,7 @@
 # Addendum — correction to `3d`'s slice-accuracy reading
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06, verifying `3d` at `de31da9`.
 **Target:** `predictions/CALIBRATION_TOLERANCE.md` line ~154, and
 `gate_manifest.json`'s `cohort_median_slice_accuracy_pct`.

@@ -1,5 +1,7 @@
 # Engine bugs — defects in OUR code, found by the regression harness
 
+> **`LIVE`** — the defect registry, ENFORCED in both directions by check_sim_engine.py. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Not game bugs.** `bugs/` is for Ascension's bugs, staged for submission, and its
 README says so explicitly: *"These are **game** bugs, not this repo's bugs.
 Problems with our own code go in `PROGRESS.md`'s plan-changes table or a session

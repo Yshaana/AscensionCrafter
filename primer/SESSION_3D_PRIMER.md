@@ -1,5 +1,7 @@
 # Session `3d` primer — harden the harness, then build the instrument
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Written by:** the monitoring chat, 2026-08-06, after an adversarial audit of `3c`
 against a full clone of `main` at `a36f666`. Findings doc: `primer/AUDIT_3C_ADVERSARIAL.md`.
 **Read that file when a task below says "see §x" — do not re-derive its findings.**

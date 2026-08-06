@@ -1,5 +1,7 @@
 # Session Primer — 2026-08-03: Index Improvement Batch v1
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **What this is:** a handoff for the *next* session, covering everything built today. Pair with `Ascension_Context_Primer.md` (v14) for the general systems rules and `INDEX_GUIDE.md` (v3) for the schema/query reference — this doc is the "what happened and why" for one session, not standing background.
 
 **Source brief:** `index_improvements_v1.md` (Claude Project handoff, six numbered items). All six landed; nothing half-finished, but three items diverged from the brief's assumptions in ways worth knowing before trusting the new tables (§2 below).

@@ -1,5 +1,7 @@
 # Adversarial audit — session `3e`
 
+> **`FINDING 2026-08-06`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Auditor:** monitoring chat, 2026-08-06. **Method:** fresh clone of `main` at `c86eb7f`,
 code read directly, `3e` = `200f79f..c86eb7f`. Five parallel deep-dives (Block A, Block B,
 Block C, fail-open instruments, standing threads), then every 🔴 finding re-verified by hand

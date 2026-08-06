@@ -1,5 +1,7 @@
 # Session 2e — the PoI calibration, the buff layer measured, and a resolver widening
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Date:** 2026-08-05 (late night) · **Scope:** `PHASE_2E` T1–T4, T6–T11 (T5
 deferred; T3b half-deferred, reasons recorded) · **Status:** ✅ complete.
 

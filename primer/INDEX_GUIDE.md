@@ -1,5 +1,7 @@
 # Ascension Spell/Card Index — Guide (v20)
 
+> **`LIVE`** — index mechanics and schema; auto-loaded by CLAUDE.md every session. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **v20 changelog (2026-08-06, session `3b` — the `--with-dbc` run).** Counts
 moved; no schema changed. The 20-step rebuild is unchanged.
 

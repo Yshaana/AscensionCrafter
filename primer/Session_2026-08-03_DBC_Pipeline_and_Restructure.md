@@ -1,5 +1,7 @@
 # Session Primer — 2026-08-03: DBC Extraction Pipeline + Repo Restructure
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **What this is:** a handoff for the *next* session, covering everything built today. Pair with `Ascension_Context_Primer.md` (v12) for the general systems rules and `INDEX_GUIDE.md` for the schema/query reference — this doc is the "what happened and why" for one long session, not standing background.
 
 **Commits, in order:** `be2abc2` (initial project layout) → `e0438fb` (DBC pipeline) → `52598c7` (pipeline follow-up) → `4fa6b20` (Fel Cleave seed) → `15f1de7` (repo restructure, current HEAD).

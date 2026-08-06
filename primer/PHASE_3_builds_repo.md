@@ -1,5 +1,7 @@
 # PHASE 3 — The Builds Repo (Layer 2) — v2
 
+> **`LIVE`** — the CURRENT phase; its exit criteria are still open. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Read `00_ARCHITECTURE.md`, Phase 1, and Phase 2 first.**
 
 The crude crawler has run since Phase 0; raw NDJSON has been accumulating. This phase turns that pile

@@ -1,5 +1,9 @@
 # PHASE 2 — Simulation Engine (Layer 3) — v4
 
+> **`HISTORICAL`** — describes a past state. It may contain claims that are FALSE TODAY, and that is correct rather than a defect. **Never citable as current truth.**
+>
+> ⚠ **STATUS UNCERTAIN, and deliberately not guessed at:** Phase 2 is complete, so this is the record of a finished phase — but it is still cited for sim DESIGN decisions and it carries calibration targets (the pair ratios) that other work reads as current. Marked HISTORICAL because its phase closed; **raised in PROGRESS.md's blocked table** because that may be the wrong call. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Read `00_ARCHITECTURE.md` and Phase 1 first. Hard dependency: `spell_mechanics` (Phase 1 T4) and
 `spell_profile()` (Phase 1 T7). A sim built before those simulates placeholders.**
 

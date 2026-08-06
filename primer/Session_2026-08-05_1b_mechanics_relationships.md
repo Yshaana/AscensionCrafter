@@ -1,5 +1,7 @@
 # Session `1b` — `spell_mechanics` (T4) + relationship graph (T5) — 2026-08-05
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 Overnight autonomous session (owner asleep; two decisions taken before bed, below).
 Phase 1 T4 and T5 are **done**: the resolved truth table, the relationship graph, the
 bounded trigger attribution, the `spell_scaling` rank migration, and the pre-`1b`

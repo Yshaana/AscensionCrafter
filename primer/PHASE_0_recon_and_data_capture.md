@@ -1,5 +1,7 @@
 # PHASE 0 — Recon & Start Capturing (v3)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Read `ARCHITECTURE.md` first.**
 
 ---

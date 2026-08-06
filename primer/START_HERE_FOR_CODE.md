@@ -1,5 +1,7 @@
 # START HERE — Orientation for Claude Code
 
+> **`LIVE`** — orientation, read first every session. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+
 Read this file first, every session. It is deliberately short. It tells you what the project is, what
 you're allowed to assume, and **which other files to read for the work in front of you.**
 
@@ -36,6 +38,44 @@ hard-won rules), `primer/INDEX_GUIDE.md` (existing schema and conventions), and 
 
 **GitHub is the source of truth.** Fetch fresh rather than trusting a summary. Memory and handoff
 prose lag behind commits — this has produced a confidently wrong answer in this project before.
+
+### 🆕 EVERY FILE IN `primer/` CARRIES A STATUS LINE. Read it before citing the file.
+
+Added `3f` F8c, 2026-08-07, because 53 files sat in one namespace with identical
+formatting and **nothing on a file said which kind of file it was** — so a session reading
+`PLAN_3C_clean_exit.md` got a *retracted* claim stated as settled. The information loss a
+destructive cleanup was feared to cause was already happening, and it was caused by the
+absence of labels rather than the presence of files.
+
+| status | meaning |
+|---|---|
+| `LIVE` | describes the current tree and **must be true today**. **Only these are citable as current truth** |
+| `HISTORICAL` | a past session or a completed phase. Immutable, and **may contain claims that are false today — that is correct, not a defect** |
+| `SUPERSEDED BY <path>` | pointer only; read the successor |
+| `FINDING <date>` | point-in-time analysis, true as of its date and not maintained since |
+
+Today: **13 LIVE · 32 HISTORICAL · 6 FINDING · 2 flagged uncertain** (the uncertain two are
+in `PROGRESS.md`'s blocked table, deliberately not guessed at — rule 6).
+
+🛑 **Two rules that follow, and they are how the classification stays true:**
+
+1. **A new document is BORN with a status line**, in the commit that creates it. A status
+   acquired in a later cleanup is a status nobody trusted in between.
+2. **A new document declares its EXPIRY CONDITION at birth** — *"superseded when X lands"*.
+   `ADDENDUM_3D_slice_accuracy_correction.md` carried a natural expiry (*"before `3e`
+   runs"*) that nobody ever closed, because nothing was watching for one.
+
+### 🆕 A MAGNITUDE NEVER APPEARS IN A MARKDOWN FILE EXCEPT AS GENERATED OUTPUT
+
+Standing rule, adopted `3f` (`ADDENDUM_3E_to_3F.md` §4). **Every numeric error the `3e`
+audit found in a document was hand-transcribed — four for four, and zero errors in numbers
+a tool emitted**: the `1.718` pair target, `CALIBRATION_TOLERANCE.md`'s `n` column,
+"Blizzard 305 casts", `PLAN_V2`'s "24 rows". Same defect class as `3e` C1, which fixed
+transcription **into the simulator** and left transcription **into the documentation**
+unguarded.
+
+If a number belongs in a document, **have the tool print it and paste the tool's output,
+with its provenance.** Where no tool prints it, that is a signal the number has no owner.
 
 ---
 

@@ -1,5 +1,7 @@
 # RECON FINDINGS — Phase 0 (v1)
 
+> **`FINDING 2026-08-04`** — point-in-time analysis, true as of its date and **not maintained since**. Not citable as current truth without re-checking against the tree. *(Classified `3f` F8c, 2026-08-07.)*
+
 **Produced by session `0a`, 2026-08-04.** One section per Phase 0 task, each ending in a
 **CONFIRMED / DISPROVEN / PARTIAL / BLOCKED** verdict with the evidence behind it.
 

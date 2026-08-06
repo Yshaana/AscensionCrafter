@@ -1,5 +1,7 @@
 # Session `3d` — hygiene + instrument (2026-08-06)
 
+> **`HISTORICAL`** — the record of a past session or a completed phase. Immutable. It **may contain claims that are false today**, and that is correct rather than a defect — it records what was believed at the time. **Never citable as current truth.** *(Classified `3f` F8c, 2026-08-07.)*
+
 **Work order:** `primer/SESSION_3D_PRIMER.md`. **Findings it rests on:**
 `primer/AUDIT_3C_ADVERSARIAL.md`. **Scope fence:** no modelling changes; new
 fixture failures are recorded, not fixed (those are `3e`).
