@@ -477,6 +477,121 @@ data is there; the sim simply never asks for it.
 
 ---
 
+## E9–E12 — four defects in the code `3e` wrote. REGISTERED IN `3f`, NOT FIXED 🆕
+
+🛑 **Each would move the gate, so each belongs in a modelling session with a
+before/after pair** — `3d`'s D3 discipline, and `3f`'s invariant is that no
+commit moves the gate. All four now carry a check that FAILS
+(`check_sim_engine.py`, `EXPECTED_FAILURES`). Do not close one by weakening its
+assertion.
+
+### E9 — a THIRD DoT discriminator, in the layer that decides priority
+
+| | |
+|---|---|
+| **Check** | `[engine] E9: medium_sim routes a DoT by the SAME discriminator apl_gen and _useful_cast_interval use` |
+| **Where** | `core/sim/tiers.py` medium_sim's cast path (`dur and tick_interval_seconds`) vs `core/sim/apl_gen.py` and `tiers._useful_cast_interval` (both `_is_pure_periodic`) |
+
+`apl_gen.py` states *"Shares `tiers._is_pure_periodic` so the two layers cannot
+drift apart"*, and `1c07bab`'s commit message asserts the routing uses *"the
+same mechanical discriminator `_useful_cast_interval` uses"*. **It does not**,
+and it stopped being true the moment B3 added `_is_pure_periodic` to
+`_useful_cast_interval`.
+
+**Failure scenario, asserted directly by the check:** an ability with a
+periodic aura whose `EffectAmplitude` is 0 gets `is_periodic=True, tick=None`.
+`_is_pure_periodic` → `True`, so `apl_gen` files it in the **maintained tier at
+the top of the APL** gated on `debuff_remaining_below 1.5`; the routing test
+→ `False`, so it lands in `st.buffs`; `debuff_remaining()` then returns `0.0`
+forever; `0.0 < 1.5` is always true; **the entry wins every priority scan and
+consumes the whole rotation.** That is the Seal-of-Command 47-of-47-GCDs
+failure, re-created at the top of the list.
+
+### E10 — target-health decay is capped by `movement_pct`
+
+| | |
+|---|---|
+| **Check** | `[engine] E10: target health decays to ~0 by the end of the fight, as _decay_target_health's own docstring says it does` |
+| **Where** | `core/sim/tiers.py :: _decay_target_health` vs `_effective_time` |
+
+The decay divides by `st.fight_duration` while the timeline loop is bounded by
+`fight_duration × (1 − movement_pct)`, so **target health floors at
+`100 × movement_pct`** — and every preset sets `movement_pct` 0.05–0.20.
+Measured on `world_boss` (0.20): the floor is exactly **20.0%**, so
+`target_health_pct_below: 20` is **permanently false in `medium_sim`** — E2's
+original symptom, unfixed on that profile — while `fast_sim` credits the
+ability 20% of its casts. The two tiers disagree by up to 1.8×, and the
+fast-vs-medium agreement guard runs on the Paladin fixture only.
+
+⚠ **The check's own first version passed on floating-point luck** (`< 20.0`
+against a floor of exactly 20.0) and was rewritten to assert the property the
+docstring actually claims — that health reaches ~0. A knife-edge assertion is
+not an assertion.
+
+### E11 — `self_health_pct` is declared, read, and written nowhere
+
+| | |
+|---|---|
+| **Check** | `[engine] E11: the PLAYER's health moves, so a self-sustain heal gated on health_pct_below can fire` |
+| **Where** | `core/sim/tiers.py` (declared), `core/sim/apl.py` (read), **no writer anywhere in the tree** |
+
+`apl_gen` emits `health_pct_below` for every healing ability when
+`content.self_sustain_required` (`mythic_dungeon_aoe`, `solo_grind`), so those
+entries can **never** fire in `medium_sim`; in `fast_sim`, `_health_gate` does
+not match `health_pct_below` at all, so the same heal is cast at the **full**
+rate. *"Unmodelled in both directions at once, and silent about it"* — E2's own
+words, on the player side, while E2's registry line was being deleted.
+`content.incoming_damage_dps` (150–300 on those presets) sits unused.
+
+### E12 — `roll_hit` / `roll_cast` never received `combo_points`
+
+| | |
+|---|---|
+| **Check** | `[engine] E12: slow_sim rolls a finisher at the combo points medium_sim spent on it` |
+| **Where** | `core/sim/ability_model.py` (the RNG path calls `_components()` with the default `combo_points=0`), consumed by `slow_sim` |
+
+B4 threaded `combo_points` through `_components → expected_hit →
+expected_cast` but not through the RNG path. `slow_sim` builds its skeleton
+from `medium_sim` — which casts at 5 CP — and then rolls **every cast at 0
+CP**. **Measured on the combo-point fixture: the finisher (904965) scores 197
+at 0 CP and 328 at 5 CP, a 1.7× difference**, so a combo-point build's
+Monte-Carlo mean and 95% band are centred *below* the medium-sim answer they
+claim to be the variance of. The docstring still asserts convergence is
+*"asserted by check_sim_engine.py"*; that assertion runs at `combo_points=0`
+and passes vacuously.
+
+### Also recorded, without checks — smaller, verified, and each a real defect
+
+* **`_is_pure_periodic` fails OPEN into the over-count.** `except Exception:
+  return False`, and `bool(evs) and all(...)` — so *"I could not tell"* and
+  *"I have no events"* both return the same value as *"definitely not a DoT"*,
+  routing the ability into the **unbounded spam** tier. The safe default is the
+  bounded one; the code picked the over-counting one and says nothing. Rule 2.
+* **The `starved` warning asserts a cause it did not check** — *"higher-priority
+  abilities consumed the whole GCD budget"* — when zero casts also come from
+  `occupancy == 0`, `window == 0.0` or the CP cap. Nine lines later the same run
+  can print *"Xs of GCD budget went UNUSED"*: two contradictory claims in one
+  output.
+* **`_cp_gate` / `_health_gate` are first-match-wins on duplicate spell
+  entries.** *Rupture at 5 CP* **and** *Rupture at 1 CP when falling off* — the
+  natural way to write a real rotation — scores every cast at whichever is
+  listed first and charges the budget twice, warning about neither.
+* **`combo_points_at_least.value` is unvalidated** against `MAX_COMBO_POINTS`.
+  A hand-authored `50` gives `medium_sim` zero casts (fail-closed) and
+  `fast_sim` a `cp_scaling × 2500` (it squares it). The two do not cancel.
+* **The quadratic CP multiplier (25× at 5 CP) is applied silently**; its warning
+  fires only in the branch where it is *not* applied.
+* **Combo points are granted from idle scans and off-GCD entries** — the grant
+  sits before the `if not entry.off_gcd:` guard, so an `always` off-GCD entry
+  saturates CP within two scans.
+* **The pet warning block is duplicated verbatim** in `medium_sim`, DB round-trip
+  included. Deduped downstream, so cosmetic.
+* **`stat_block.py` silently merges two concatenated blocks last-wins**
+  (verified: unbuffed+buffed → AP 30 / SP 840 / the later `ExportedAt`, no
+  warning). That is the contamination shape the module exists to prevent.
+
+---
+
 ## E13 — every white swing is ~78x over: `probabilities()` returns PERCENTS, `expected_swing` multiplies by them as FRACTIONS 🆕🚨
 
 | | |

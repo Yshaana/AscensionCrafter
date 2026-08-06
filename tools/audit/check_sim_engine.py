@@ -121,6 +121,45 @@ EXPECTED_FAILURES = {
         "and the fixture models ~373 DPS against 1,382, i.e. -73% — the "
         "ordinary under-production family. FIXING EITHER MOVES THE GATE, so "
         "both are registered here and left alone per 3f's invariant",
+    # 🛑 3f F10 — E9..E12 REGISTERED, NOT FIXED. Each is a real defect in the
+    # code 3e wrote, each would move the gate, and each therefore belongs in a
+    # modelling session with a before/after pair. 3d's D3 discipline: entries
+    # first, fixes second. Do NOT close one of these by weakening its check.
+    "[engine] E9: medium_sim routes a DoT by the SAME discriminator apl_gen "
+    "and _useful_cast_interval use":
+        "ENGINE_BUGS.md E9 — a THIRD DoT discriminator exists, in the layer "
+        "that decides PRIORITY. apl_gen and _useful_cast_interval both use "
+        "_is_pure_periodic; medium_sim's cast path uses `dur and "
+        "tick_interval_seconds`. apl_gen's own comment claims the two layers "
+        "cannot drift apart, and 1c07bab's commit message asserts they use the "
+        "same test. An ability with a periodic aura at EffectAmplitude 0 lands "
+        "in the MAINTAINED tier at the top of the APL, is routed to st.buffs, "
+        "has debuff_remaining() return 0.0 forever, and wins every priority "
+        "scan — the Seal of Command 47-of-47-GCDs failure re-created",
+    "[engine] E10: target health decays to ~0 by the end of the fight, as "
+    "_decay_target_health's own docstring says it does":
+        "ENGINE_BUGS.md E10 — the decay divides by st.fight_duration while the "
+        "timeline is bounded by fight_duration x (1 - movement_pct), so target "
+        "health FLOORS at 100 x movement_pct on every preset (0.05-0.20). On "
+        "world_boss that is 20.0, so `target_health_pct_below: 20` is "
+        "permanently false in medium_sim while fast_sim credits 20% of casts",
+    "[engine] E11: the PLAYER's health moves, so a self-sustain heal gated on "
+    "health_pct_below can fire":
+        "ENGINE_BUGS.md E11 — self_health_pct is declared on TimelineState, "
+        "READ by apl.py, and WRITTEN NOWHERE. apl_gen emits health_pct_below "
+        "for every heal under a self_sustain_required preset, so those entries "
+        "can never fire in medium_sim, while fast_sim's _health_gate does not "
+        "match the condition at all and casts them at full rate. E2's twin on "
+        "the player side, unfixed and unnamed while E2 was closed",
+    "[engine] E12: slow_sim rolls a finisher at the combo points medium_sim "
+    "spent on it":
+        "ENGINE_BUGS.md E12 — B4 threaded combo_points through _components -> "
+        "expected_hit -> expected_cast but NOT through the RNG path, so "
+        "slow_sim builds its skeleton from medium_sim at 5 CP and then rolls "
+        "every cast at 0 CP. Measured on the fixture: the finisher scores 197 "
+        "at 0 CP and 328 at 5 CP, a 1.7x difference, so the Monte-Carlo mean "
+        "and 95% band are centred BELOW the answer they claim to be the "
+        "variance of",
     "[frost_mage] every well-sampled ability's modelled per-cast mean is "
     "within ±25% of its measured non-crit mean":
         "The ordinary under-production, now MEASURED per ability against a "
@@ -623,6 +662,128 @@ def _filler_ids(conn, apl, level):
             and _useful_cast_interval(abilities[s])[0] <= 0]
 
 
+def check_registered_defects(conn, kind, spec, apl, f, m):
+    """`3f` F10 — E9–E12, each with a check that FAILS. None is fixed here.
+
+    `3d`'s D3 discipline: registry entries first, fixes second. Every one of
+    these is a real defect in the code `3e` wrote, every one would move the
+    gate, and every one therefore belongs in a modelling session with a
+    before/after pair — not in an instrument session whose invariant is that
+    the gate does not move.
+
+    🛑 Each assertion is written to fail on the DEFECT, not on a symptom that
+    might have another cause, so that closing the defect is what turns it
+    green. Where a defect is not reachable on the three committed fixtures the
+    check asserts the mechanism directly rather than pretending a fixture
+    exercises it.
+    """
+    from core.sim import tiers as T
+    from core.sim.apl import APL, APLEntry
+
+    if kind != "cp_melee":
+        return      # one board is enough to hold these; they are not per-fixture
+
+    # ---- E9: a THIRD DoT discriminator, in the layer that decides priority --
+    # apl_gen.py and tiers.py:_useful_cast_interval both use _is_pure_periodic;
+    # medium_sim's buff/debuff routing uses `dur and tick_interval_seconds`.
+    # apl_gen's own comment claims "the two layers cannot drift apart".
+    class _FakeAb:
+        name = "synthetic mixed direct+periodic, EffectAmplitude 0"
+        fields = {"duration_seconds": 12.0, "tick_interval_seconds": None}
+
+        def events(self):
+            class E:
+                kind = "periodic"
+            return [E()]
+
+    ab = _FakeAb()
+    pure = T._is_pure_periodic(ab)
+    routed_as_debuff = bool(ab.fields.get("duration_seconds")
+                            and ab.fields.get("tick_interval_seconds"))
+    gcheck("[engine] E9: medium_sim routes a DoT by the SAME discriminator "
+          "apl_gen and _useful_cast_interval use",
+          pure == routed_as_debuff,
+          f"_is_pure_periodic says DoT={pure} (so apl_gen files it in the "
+          f"MAINTAINED tier at the top of the APL, gated on "
+          f"debuff_remaining_below); medium_sim's `dur and "
+          f"tick_interval_seconds` says debuff={routed_as_debuff} (so it goes "
+          f"to st.buffs, debuff_remaining() returns 0.0 forever, 0.0 < 1.5 is "
+          f"always true, and the entry wins EVERY priority scan) — the Seal of "
+          f"Command 47-of-47-GCDs failure re-created at the top of the list")
+
+    # ---- E10: target-health decay is capped by movement_pct ----------------
+    # _decay_target_health divides by st.fight_duration while the timeline is
+    # bounded by fight_duration * (1 - movement_pct), so health FLOORS at
+    # 100 * movement_pct.
+    from core.sim.content import get_preset
+    wb = get_preset("world_boss")
+    st = T.TimelineState(fight_duration=wb.fight_duration)
+    st.now = T._effective_time(wb)          # the LAST instant the loop reaches
+    T._decay_target_health(st)
+    # 🛑 The assertion is that health reaches ~ZERO, not that it dips under 20.
+    # The first version of this check compared `< 20.0` against a floor of
+    # exactly 20.0 and PASSED on floating-point luck — a knife-edge assertion
+    # is not an assertion. The real property is the one _decay_target_health's
+    # docstring claims: "target health falls linearly to 0 across the fight".
+    # It does not; it stops at 100 * movement_pct, on EVERY preset.
+    gcheck("[engine] E10: target health decays to ~0 by the end of the fight, "
+          "as _decay_target_health's own docstring says it does",
+          st.target_health_pct < 1.0,
+          f"on world_boss (movement_pct {wb.movement_pct:g}) target health "
+          f"FLOORS at {st.target_health_pct:.1f}% — the timeline is bounded by "
+          f"{T._effective_time(wb):.0f}s while the decay divides by the full "
+          f"{wb.fight_duration:.0f}s, so it can never fall below "
+          f"100 x movement_pct. `target_health_pct_below: 20` is therefore "
+          f"PERMANENTLY FALSE here in medium_sim while fast_sim credits the "
+          f"ability 20% of its casts — E2's original symptom, unfixed on this "
+          f"profile, and the two tiers disagree by up to 1.8x")
+
+    # ---- E11: self_health_pct is declared, read, and written nowhere -------
+    st2 = T.TimelineState(fight_duration=100.0)
+    st2.now = 50.0
+    T._decay_target_health(st2)
+    gcheck("[engine] E11: the PLAYER's health moves, so a self-sustain heal "
+          "gated on health_pct_below can fire",
+          st2.self_health_pct < 100.0,
+          f"self_health_pct is still {st2.self_health_pct:.0f} at mid-fight — "
+          f"declared on TimelineState, READ by apl.py's health_pct_below "
+          f"branch, and WRITTEN NOWHERE in the tree. apl_gen emits "
+          f"health_pct_below for every heal under a self_sustain_required "
+          f"preset, so those entries can never fire in medium_sim, while "
+          f"fast_sim's _health_gate does not match the condition at all and "
+          f"casts them at FULL rate. E2's twin, on the player side")
+
+    # ---- E12: roll_hit/roll_cast never received combo_points ---------------
+    # slow_sim builds its skeleton from medium_sim (which casts at 5 CP) and
+    # then rolls every cast at 0 CP, so a combo-point build's Monte-Carlo mean
+    # is centred BELOW the medium-sim answer it claims to be the variance of.
+    finisher = next((e.spell_id for e in apl.entries
+                     if any(c.get("type") == "combo_points_at_least"
+                            for c in (e.conditions or []))), None)
+    if finisher is not None:
+        from core.sim.ability_model import resolve_ability
+        ab2 = resolve_ability(conn, finisher, level=spec.character_level)
+        cs = m.content if hasattr(m, "content") else None
+        at0 = ab2.expected_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], combo_points=0)
+        at5 = ab2.expected_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], combo_points=5)
+        differs = abs(at5.mean - at0.mean) > 0.01
+        rolled = T._roll_uses_combo_points() if hasattr(T, "_roll_uses_combo_points") else False
+        gcheck("[engine] E12: slow_sim rolls a finisher at the combo points "
+              "medium_sim spent on it",
+              rolled or not differs,
+              f"finisher {finisher} scores {at0.mean:.0f} at 0 CP and "
+              f"{at5.mean:.0f} at 5 CP (a {at5.mean / at0.mean:.1f}x "
+              f"difference), and roll_hit/roll_cast call _components() with the "
+              f"DEFAULT combo_points=0 — so slow_sim's mean and 95% band are "
+              f"centred below the medium_sim answer they claim to be the "
+              f"variance of. The docstring still asserts convergence is "
+              f"'asserted by check_sim_engine.py'; that assertion runs at "
+              f"combo_points=0 and passes vacuously")
+
+
+_CS_FOR_E12 = (None, None)      # filled by check_nonpaladin_fixtures
+
+
 def check_ground_truth(kind, bd, f, m):
     """`3f` F9 — compare a MODELLED magnitude to a MEASURED one.
 
@@ -978,6 +1139,9 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                   f"creature stats are not in any client DBC")
 
         check_ground_truth(kind, bd, f, m)
+        global _CS_FOR_E12
+        _CS_FOR_E12 = (cs, ct)
+        check_registered_defects(conn, kind, spec, apl, f, m)
 
 
 if __name__ == "__main__":
