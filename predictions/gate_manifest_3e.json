@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-08-06T21:08:24+00:00",
- "git_sha": "5cad1e25f07611bd8fd144d2bb6c6c8719e4b95a",
- "git_working_tree_dirty": true,
+ "generated_at": "2026-08-06T21:10:01+00:00",
+ "git_sha": "c7d28922a45a23b7f87c8d7ba3e3bae3ec191fb6",
+ "git_working_tree_dirty": false,
  "realm": "Darkmoon",
  "season": "S10",
  "criteria_in_force": {
@@ -72,9 +72,45 @@
    7661
   ],
   "members_scored": 5,
-  "read": false,
+  "read": true,
   "note": "split out of the headline in 3e A4. Previously counted in 'n of 41', so any fix that lifted these five moved the headline AND spent the holdout in the same number. Results are REDACTED here unless the run passed --read-holdout.",
-  "results": "REDACTED \u2014 not read in this run"
+  "results": [
+   {
+    "character_id": 460,
+    "name": "Qt",
+    "delta_pct": -84.56,
+    "modelled_damage_pct": 27.9,
+    "within_tolerance": false
+   },
+   {
+    "character_id": 461,
+    "name": "Ryno",
+    "delta_pct": -67.77,
+    "modelled_damage_pct": 69.1,
+    "within_tolerance": false
+   },
+   {
+    "character_id": 462,
+    "name": "Billyeye",
+    "delta_pct": -45.25,
+    "modelled_damage_pct": 51.0,
+    "within_tolerance": false
+   },
+   {
+    "character_id": 463,
+    "name": "Wynta",
+    "delta_pct": -98.05,
+    "modelled_damage_pct": 1.3,
+    "within_tolerance": false
+   },
+   {
+    "character_id": 7661,
+    "name": "Iwannakissms",
+    "delta_pct": -79.41,
+    "modelled_damage_pct": 52.5,
+    "within_tolerance": false
+   }
+  ]
  },
  "cohort": [
   {

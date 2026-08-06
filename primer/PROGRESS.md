@@ -1,5 +1,110 @@
 # PROGRESS
 
+> ✅ **2026-08-06 — SESSION `3e` IS DONE. Next session is `3f`** (PHASE_3 T6,
+> log ingestion) — **unless the owner takes `PLAN_3G` first; see below.**
+> Session record: `primer/Session_2026-08-06_3e_modelling.md`.
+>
+> 🚨 **THE HEADLINE IS NOT THE GATE NUMBER. `3e` FIXED FIVE OF SIX REGISTERED
+> ENGINE DEFECTS AND THE ANSWER DID NOT MOVE.**
+>
+> | | pre-`3e` | post-`3e` |
+> |---|---:|---:|
+> | within ±20% (tuning set of 36) | 5 | **5** |
+> | qualified (≥50% coverage) | 2 | **2** |
+> | slice accuracy at ≥20% coverage | 64.3% | **64.3%** |
+> | **holdout, read once at close-out** | — | **0 of 5** |
+>
+> The pre-registered holdout moved **+0.0 to +8.0 points** and every member is
+> still **−45% to −98%**. Three of the five carry **27–69% coverage**, so for
+> them this is not a coverage story — it is an accuracy story. **That is
+> evidence about where the error is NOT**, and it is the session's most useful
+> result. Recorded unsoftened, as the work order asked in advance.
+>
+> 🚨 **AND A READING THIS PROJECT WAS ACTING ON WAS BACKWARDS.** `3d`'s "cohort
+> median slice accuracy 160%, the slice is over-produced by 60%" is a
+> low-coverage artifact — the ratio has coverage in its denominator and explodes
+> as coverage → 0 (Mutaforma: **1,859,400%** at 0.2% coverage, a value sitting in
+> the committed `3d` manifest). Above a real floor it is stable and points the
+> other way: **64.3% at ≥20% coverage, 63.4% at ≥30% and ≥50%.** **The sim
+> UNDER-produces on what it models, by about a third.**
+> ⚠ **This inverts the instruction.** At ~64%, coverage work *alone* can never
+> reach ±20% — `delta = 0` needs `slice × coverage = 1.0`, so at 0.64 that
+> demands coverage above 100%. Both levers must roughly double. The old reading
+> said coverage work would *overshoot* and should be throttled.
+>
+> ✅ **The cohort is FROZEN and the gate is finally comparable across runs.**
+> `predictions/cohort_frozen_3e.json` (41 ids, copied verbatim from the `3d`
+> manifest so it was fixed before the next result was seen). A frozen member
+> that stops qualifying is reported **dropped with its reason**, never
+> substituted; 116 qualifying characters are named as deliberately unscored.
+> Runs now write **`gate_manifest_3e.json`** — `gate_manifest.json` is immutable.
+>
+> 🛑 **STAMPED FOR THE NEXT GATE, owner decision 2026-08-06, taken before this
+> run's result: a 20% coverage floor on `within_tolerance` itself.** Justified by
+> slice-accuracy stability (flat across ≥20/≥30/≥50, unstable below), not by a
+> wanted number. **Under it this run reads 2 of 36, so the criterion will FAIL
+> when it takes effect.** That is the intended direction; it should not be a
+> surprise.
+>
+> **Engine defects: 5 of 6 closed, 1 partly, 2 new** (`primer/ENGINE_BUGS.md`).
+> E6, E4, E1, E2 fixed; E5 fixed for *pure* DoTs; E3 closed only at the "named
+> as a gap" bar. 🆕 **E7** — a mixed direct+periodic ability has no correct
+> single cast rate. 🆕 **E8** — the sim never reads `is_channeled`; the Mage
+> capture settles where it bites (Blizzard casts 0 / 0 / **305** across Windows
+> A / B / C, so Window C-derived work is affected and A→B is not).
+>
+> 🛑 **THREE DATA GAPS, each named rather than papered over — and one cannot be
+> closed by any extract you can run:**
+> * `SPELL_EFFECT_ADD_COMBO_POINTS` (effect 40): **zero rows.** Which abilities
+>   generate combo points is not derivable; `CP_PER_BUILDER_CAST` is a named
+>   `retail_hypothesis` with a warning, like `BASE_GCD`.
+> * `TargetAuraState`: **absent from the extract.** Which abilities are
+>   execute-gated is not derivable. Target health now decays so the window is
+>   *reachable*; both tiers say what they cannot know.
+> * **Creature stats are in NO client DBC.** They live in the server's
+>   `creature_template`, so **`--with-dbc` cannot reach them.** The owner's
+>   chosen pet scope was therefore not buildable; the route is logs
+>   (`ability_performance.is_pet`), i.e. `3f`.
+>
+> 🔬 **A rule-5 violation was found inside the harness that polices rule 5:** it
+> identified pets by **string-matching "summon" in the ability name**. Against
+> the mechanical detector the two disagree in **both** directions — the name
+> match misses `Roll the Bones` entirely and invents two "Summon …" titles that
+> carry no summon effect.
+>
+> ⚠ **`3e` did NOT finish Block C. C3 and C4 spilled WHOLE to `3f`**, per the
+> work order's "whole blocks, never half a block":
+> * **C3** (caster buff layer per ability) is blocked because
+>   `calibrate_vs_log` **refuses to run on any non-paladin log** — its
+>   field-alignment anchors are five Paladin abilities. The refusal is
+>   **fail-closed and correct**; it is also a hard blocker, and it is
+>   `PLAN_3G`'s territory.
+> * **C4** (dungeon `ContentProfile`) is blocked on segmenting Window C into
+>   `boss_single` / `trash_bundle` — the work order's own "hard part" — and now
+>   additionally on E8's 305 channel casts inside that window.
+>
+> 📌 **`primer/PLAN_3G_self_verifying_gates.md` gained a third live example this
+> session** (the Paladin-only anchors above, alongside `check_alignment()` being
+> vacuous off-Hammerdin and `within_tolerance` having had no coverage floor).
+> 🛑 **Its ordering against `3f` is an OPEN OWNER QUESTION** stated in that doc:
+> `3f` builds a writer from logs into `builds.db`, and gates exist to stop bad
+> numbers reaching a database — so there is a real argument for gates first.
+>
+> ✅ **Owner-blocked item CLEARED during the session:** the Hammerdin proc-retest
+> capture landed and **tracker #200295 is verified fixed** — combined proc rate
+> **0.8% → 17.2%**, 11 procs / 64 casts against a stated 20%, inside one standard
+> deviation (`primer/FINDINGS_hammerdin_fix_verification_2026-08-06.md`). This
+> unblocks the `build_paladin-hammerdin.md` §2/§11 revert.
+>
+> **PHASE_3 exit, re-read honestly: four unmet, one improved-not-met, two met.**
+> `3e` moved criterion 2 slightly and nothing else — consistent with the holdout
+> result, because Phase 3's exit is gated on magnitudes and coverage rather than
+> on the mechanisms `3e` repaired. Table in the session record.
+>
+> ---
+>
+> <details><summary>Superseded: the <code>3e</code> work-order pointer</summary>
+>
 > ✅ **2026-08-06 — SESSION `3d` IS DONE. Next session is `3e` (modelling).**
 > Session record: `primer/Session_2026-08-06_3d_hygiene_and_instrument.md`.
 > **Read `primer/ENGINE_BUGS.md` first — it is `3e`'s concrete work list.**
@@ -150,9 +255,33 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**✅ `3d` IS DONE (2026-08-06) — hygiene + instrument, no modelling change.**
-Session record: `primer/Session_2026-08-06_3d_hygiene_and_instrument.md`.
-The gate is untouched at **5 of 41, 2 qualified**, verified opening and closing.
+**✅ `3e` IS DONE (2026-08-06) — modelling, on a frozen cohort.**
+Session record: `primer/Session_2026-08-06_3e_modelling.md`.
+Gate: **5 of 36 tuning set, 2 qualified, slice 64.3% at ≥20% coverage.
+Holdout 0 of 5.** Blocks A and B complete; Block C partial (C1, C2, C5 landed;
+**C3 and C4 spilled whole to `3f`**).
+
+### 🔴 FIRST ACTIONS NEXT SESSION (`3f`)
+
+1. 🛑 **Answer the ordering question first:** `3f` (PHASE_3 T6, log ingestion)
+   or **`primer/PLAN_3G_self_verifying_gates.md`**? `3f` builds a writer from
+   logs *into* `builds.db`, and gates exist to stop bad numbers reaching a
+   database. `3e` added a third live example to `PLAN_3G`'s list.
+2. **Take the holdout result seriously before writing more sim code.**
+   `engine_fixes_did_not_move_the_holdout` is the open question that should
+   shape the next modelling session. Six defects fixed, answer unmoved.
+3. **C3 is blocked by a real defect, not by effort:** `calibrate_vs_log`
+   refuses to run on any non-paladin log (five Paladin field-alignment anchors).
+   Fail-closed and correct, and a hard blocker for every caster measurement.
+4. **C4 needs Window C segmented** into `boss_single` / `trash_bundle` *and*
+   now carries E8 (305 channel casts inside it).
+5. **The 20% coverage floor takes effect at the next gate.** It reads 2 of 36
+   today. Expect the criterion to fail; that is the stamped intent.
+6. ⚠ **`--all-logs` globs `"* WoWCombatLog.txt"` (space)** and the `2e` capture
+   folder uses `_WoWCombatLog.txt` (underscore), so it silently matches nothing
+   there. `3f` owns log ingestion and should fix the convention.
+
+<details><summary>Superseded: the <code>3e</code> first actions</summary>
 
 ### 🔴 FIRST ACTIONS NEXT SESSION (`3e`)
 
@@ -176,11 +305,13 @@ The gate is untouched at **5 of 41, 2 qualified**, verified opening and closing.
 5. 🛑 **Do not tune against the holdout** — `holdout_3e_crawled_gate_validation_set`
    (character ids 460, 461, 462, 463, 7661). Read it once, at the end.
 
-### Still blocked on the owner (unchanged by `3d`)
+</details>
+
+### Still blocked on the owner
 
 | Item | Blocking |
 |---|---|
-| Tracker #200295 re-test + PBL × LC discriminator (needs in game) | Build doc §2/§11 revert |
+| ~~Tracker #200295 re-test~~ ✅ **DONE 2026-08-06 — VERIFIED FIXED**, 0.8% → 17.2% combined proc rate (`primer/FINDINGS_hammerdin_fix_verification_2026-08-06.md`). The PBL × LC discriminator half is still outstanding | Build doc §2/§11 revert is now **unblocked** |
 | Consecrated Holy Weapon (200818) live tooltip | 25.1% of buffed damage, unmodelled |
 | Identify Siphon Health (18652) / Swift Retribution (853484) | Passive-layer completeness |
 
