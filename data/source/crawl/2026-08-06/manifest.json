@@ -1,11 +1,11 @@
 {
  "date": "2026-08-06",
- "captured_at": "2026-08-06T15:46:38.860691+00:00",
+ "captured_at": "2026-08-06T15:50:23.829138+00:00",
  "realm": "darkmoon",
  "season": 10,
  "patch_date": "2026-08-05",
  "new_report_ids": [
-  106
+  107
  ],
  "reports_known": 78,
  "characters_known": 390,
@@ -15,33 +15,33 @@
    "file": "abilities.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 14,
-   "bytes_gz": 84008,
-   "sha256": "cdf192d4eb3f0a1a683670869e2411b96ff4634ba2b9a6aa1adf1411bf11098d"
+   "records": 15,
+   "bytes_gz": 105228,
+   "sha256": "caa904d1b4a76f7d42b58f5db63fd26b703103abeff9dd84d6a6f1ffaf6ef02c"
   },
   {
    "file": "avoidance.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 14,
-   "bytes_gz": 162040,
-   "sha256": "458dac89b9e14284beb8a1aabb0d6d3c9b7053226af44e783eb2be90c63e0109"
+   "records": 15,
+   "bytes_gz": 164587,
+   "sha256": "08f600c93c35650fca91e52f5bf8765774199f3f4c3d9d76b4a7c7d2069b2935"
   },
   {
    "file": "damage_taken.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 14,
-   "bytes_gz": 13012,
-   "sha256": "11f44e2c9aab53812dd0cb651f370fe10352ab9bda565743e848defb16f1ed6c"
+   "records": 15,
+   "bytes_gz": 13574,
+   "sha256": "50825323c040d64475e628166fabf27b01f9a4bd9aea0b08d85e1dec779c8f53"
   },
   {
    "file": "healing.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 14,
-   "bytes_gz": 32918,
-   "sha256": "a62cc9f3833360fabd8b5d4f4dab8d56f7b5d5a53f9bc772e8659d0b21ebe1b4"
+   "records": 15,
+   "bytes_gz": 37520,
+   "sha256": "26c2bcb3fee1fe10c12bf7dfa0d3fb69a9dd8e26abeef3d76af43385b649c897"
   },
   {
    "file": "leaderboards.jsonl.gz",
@@ -63,9 +63,9 @@
    "file": "reports.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 3,
-   "bytes_gz": 4124,
-   "sha256": "db744a824bc9f68e312a16587b464683b094530830119c2c5e232a3edad75ceb"
+   "records": 4,
+   "bytes_gz": 4799,
+   "sha256": "27a156e3a7db9331d316149c18594837855107d674c22d804e842f3fff83a6df"
   }
  ]
 }
