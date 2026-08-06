@@ -180,7 +180,16 @@ class ResolvedAbility:
             via = t.get("via") or "self"
             direct_k = key_for(src, "direct", via)
             periodic_k = key_for(src, "periodic", via)
-            if direct_k in groups:
+            # A STATED binding beats the guess. Only db.ascension.gg-sourced
+            # rows carry one ("to direct component" / "per tick"); text-derived
+            # rows leave it None because tooltip text cannot bind a term to an
+            # effect slot. This is what stops a DoT's coefficient from being
+            # applied to the direct hit on the 294 spells that state both.
+            stated = t.get("component")
+            stated_k = key_for(src, stated, via) if stated in ("direct", "periodic") else None
+            if stated_k is not None and stated_k in groups:
+                k = stated_k
+            elif direct_k in groups:
                 k = direct_k
                 if periodic_k in groups:
                     notes_by_key.setdefault(k, []).append(
@@ -189,6 +198,17 @@ class ResolvedAbility:
                         "has a periodic component — tooltip text cannot bind a "
                         "coefficient to an effect slot, so this split is an "
                         "assumption, not a reading")
+                if stated == "periodic":
+                    # 🛑 Do NOT invent a periodic event here. `kind='periodic'`
+                    # asserts cannot-miss and (by default) cannot-crit, so
+                    # synthesising one from a coefficient with no decoded
+                    # periodic flat would manufacture mechanics from nothing.
+                    notes_by_key.setdefault(k, []).append(
+                        f"coefficient term {t.get('term')} is STATED as the "
+                        f"periodic component of spell {src}, but no periodic "
+                        "flat was decoded for it — attached to the direct event "
+                        "rather than inventing a periodic one. Real gap: the "
+                        "tick this scales is not in our data")
             elif periodic_k in groups:
                 k = periodic_k
             else:

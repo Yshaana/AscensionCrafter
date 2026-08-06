@@ -442,24 +442,36 @@ def _formula_terms(conn, fs, spell_id, level):
         srow = conn.execute("SELECT school_mask FROM spell_dbc_raw WHERE id = ?",
                             (src,)).fetchone()
         src_school = school_name(srow[0]) if srow and srow[0] is not None else None
-        for term_type, coeff, source, cp, rank in conn.execute(
-                "SELECT term_type, coefficient, source, cp_scaling_type, rank "
-                "FROM spell_scaling WHERE spell_id = ?", (src,)):
+        for term_type, coeff, source, cp, rank, component in conn.execute(
+                "SELECT term_type, coefficient, source, cp_scaling_type, rank, "
+                "component FROM spell_scaling WHERE spell_id = ?", (src,)):
             entry = {"term": term_type, "coefficient": coeff,
                      "cp_scaling": cp, "source": source, "rank": rank,
                      "via": via, "source_spell_id": src,
                      "source_school": src_school,
                      "trigger_delivery": delivery_for(via, chain),
-                     # Coefficients come from tooltip TEXT, which cannot bind a
-                     # term to an effect slot — so a coefficient's direct-vs-
-                     # periodic binding is genuinely unknown, not merely
-                     # unrecorded. The ability model attaches it to the source's
-                     # direct event when one exists and warns when both exist.
-                     "is_periodic": None,
+                     # Most coefficients come from tooltip TEXT, which cannot
+                     # bind a term to an effect slot — so the direct-vs-periodic
+                     # binding is genuinely unknown, not merely unrecorded, and
+                     # stays None. `ability_model` then attaches the term to the
+                     # source's direct event and warns when both exist.
+                     #
+                     # db.ascension.gg is the one source that STATES the binding
+                     # ("+29.00% of spell power to direct component" / "per
+                     # tick"), so a scraped row carries `component` and the
+                     # guess is not needed. This is also why those rows are not
+                     # summed per term_type: a spell can state a direct AND a
+                     # periodic coefficient for the same stat.
+                     "is_periodic": (None if component is None
+                                     else component == "periodic"),
+                     "component": component,
                      "confidence": "inferred",
                      "note": ("tier-6 tooltip text; coefficients can ramp with "
                               "rank (1x: 169/1,580 lines vary) — check rank "
                               "before trusting")}
+            if component:
+                entry["note"] += (f"; component '{component}' is STATED by the "
+                                  "source, not inferred")
             if via != "self":
                 # Attributed, not stated on this card: the coefficient belongs
                 # to the trigger target and is reached by the bounded walk.

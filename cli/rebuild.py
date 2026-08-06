@@ -54,6 +54,12 @@ CHAIN = [
     ("ingest/export/seed_cp_scaling.py", "combo-point scaling types"),
     ("ingest/export/seed_hand_coefficients.py",
      "tier-3 hand-seeded coefficients on trigger TARGETS (owner decision 2026-08-05)"),
+    # AFTER the hand seed, and owning a DIFFERENT source string. Both delete by
+    # source before inserting, so sharing one key would make the surviving rows
+    # depend on this order — and would flatten a three-source calibration anchor
+    # into the bulk tier. Before cli/mechanics.py, which rank-keys spell_scaling.
+    ("ingest/ascension_db/load_scraped_coefficients.py",
+     "bulk db.ascension.gg coefficients, agree-verdict rows only (recomputed live)"),
     ("ingest/export/seed_predictions.py",
      "predictions ledger (T9) - migrated rows keep their ORIGINAL stamps"),
     ("ingest/changelog/ingest_changelog.py", "patches, patch_entries, seasons, server_phases"),

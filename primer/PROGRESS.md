@@ -28,6 +28,11 @@ and every weapon-percent ability. It is parsed from the rendered item
 description and **self-checked against that description's own stated DPS**,
 849 of 849 agreeing within 3%; a parse that fails the check returns nothing.
 
+> ⚠ **Superseded 2026-08-06 by the audit-gated ingest session: the gate now
+> reads 5 of 41, 2 qualified, and Phase 3 EXIT is NOT MET** under the coverage
+> rider stamped before that run. The reading below stands as the record of why
+> the rider exists.
+
 ### 🛑 But read the pass with its coverage — it is not clean
 
 Only **one** of the four passes (Ari, −10.3%) also has ≥50% of its real damage
@@ -101,12 +106,53 @@ is **resolved** — all five ids it named now decode (200818 → 1, 20424 → 35
 That division of labour is now the settled model — client for flats, scrape
 for coefficients.
 
+### ✅ DONE 2026-08-06 (the audit-gated ingest session) — items 1 and the gate
+
+1. ~~**Ingest the scrape**~~ **DONE.** 3,446 coefficients across 1,617 spells at
+   `source='db_ascension_gg_scraped'`, verdicts **recomputed against the live
+   extract** (2,692 agree / 8 disagree, reproducing the audit exactly).
+   ⚠ **Correction to this line as written:** it said `unverifiable` rows *"land
+   at a weaker confidence"*, which contradicted the 3b handoff's *"unverifiable
+   stays out"*. **Settled: they stay OUT.** No check digit means no basis for
+   trust, and `spell_scaling` has no confidence column — the source string *is*
+   the provenance. They remain in the committed ndjson and are promoted for
+   free when an extract decodes their flat, which is what happened to 767.
+   🚨 **And the second half of this line was wrong on its facts: the ingest was
+   NEVER going to move magnitude coverage, and it did not — still a median 37%.**
+   Coverage is gated on *magnitudes*, and the settled division of labour is that
+   the **client** supplies those; a coefficient source can only make abilities we
+   already model more accurate. It did exactly that: the gate went **4 of 41 →
+   5 of 41**, qualified **1 → 2**. See the new finding below for where the
+   coverage bottleneck actually is.
+### 🚨 THE COVERAGE BOTTLENECK IS UNREACHABLE IDS, NOT MISSING NUMBERS
+
+Measured immediately after the ingest, over the **88 demand-ranked unmodelled
+abilities** the gate itself names:
+
+- **83 of 88 already have a magnitude**, and **51 now have a coefficient**
+  (50 of them from this ingest). **The numbers are not the bottleneck.**
+- **All 88 are OUT OF CATALOG** — not one is a card the sim could press.
+- **57 of 88 have no card AND no incoming trigger edge**, so no route the sim
+  walks reaches them at all.
+
+Worked case: the log reports Devour Mind damage under **287865**, while the sim
+presses catalog card **285133** whose bounded walk reaches sibling **287860**.
+The two siblings hold **identical decoded magnitudes and identical scraped
+coefficients** (SP 0.08 / AP 0.055) — but only 287860 has a trigger edge, so
+287865 scores as unmodelled. `20467` (the judgement damage spell the seal
+selects) and `25902` (Holy Shock's damage sub-spell, which already carries a
+seeded coefficient) are both in the unreachable 57.
+
+**So coverage is an ATTRIBUTION/REACHABILITY problem, not a data-acquisition
+one.** This generalises `2e`'s `dbc_only` finding — extracted-but-never-read
+because the resolver only walked catalog routes — from magnitudes to the whole
+routing layer. Open question
+`unmodelled_damage_is_unreachable_ids_not_missing_numbers`.
+🛑 **Do not close it by matching ids on name or by numeric proximity** — 287860
+vs 287865 is exactly the shape rule 5 forbids. The join has to be mechanical.
+
 ### 🔴 FIRST ACTIONS NEXT SESSION
 
-1. **Ingest the scrape** into `spell_scaling` / `spell_effect_values` at a
-   distinct provenance tier, **`agree`-verdict rows only**; `unverifiable` rows
-   land at a weaker confidence and are never silently promoted. Then **re-run
-   the gate** — this is where the median 37% magnitude coverage should move.
 2. **Implement damage-CONVERSION mechanics** (Righteous Vengeance's
    30%-of-crit-damage class, 9 characters in the gate). We already hold the
    fact; the sim cannot express it. **No data needed** — pure sim work.
@@ -132,6 +178,15 @@ for coefficients.
 | db.ascension.gg scraper | **Build it** — polite, cross-validated, demand-scoped, resumable |
 | Pets in the sim | **Model them** |
 | Phase 3 exit criterion | **Keep ±20%, report coverage beside it** — do not move a gate after seeing its number |
+
+### Decisions taken 2026-08-06 (the audit-gated ingest session)
+
+| Decision | Call |
+|---|---|
+| `unverifiable` rows in `spell_scaling` | **OUT**, not "weaker confidence" — settles the PROGRESS-vs-handoff contradiction |
+| Bulk scrape provenance | **Its own source string** `db_ascension_gg_scraped`; the hand-curated anchor partition is untouched |
+| Phase 3 exit | **±20% unchanged, plus a ≥3-qualified rider at ≥50% coverage** — stamped *before* the re-run |
+| The site's 329 trigger edges | **All 329 were already carried by the client's `EffectTriggerSpell`; 0 new.** Not a failure — two independent sources agreeing on the whole trigger graph. The client wins any collision by insert order. |
 
 ---
 

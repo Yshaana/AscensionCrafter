@@ -72,6 +72,19 @@ from core.sim.tiers import fast_sim  # noqa: E402
 config.ensure_utf8_stdout()
 
 AGGREGATE_TOLERANCE_PCT = 20.0     # predictions/CALIBRATION_TOLERANCE.md
+MIN_WITHIN_TOLERANCE = 3           # the ±20% criterion, UNCHANGED (PHASE_2 §8.2)
+
+# Phase 3 EXIT rider, stamped 2026-08-06 BEFORE the scraped-coefficient ingest
+# was re-run through this gate (CALIBRATION_TOLERANCE.md addendum). It does not
+# touch the ±20% pass definition; it adds a second condition on the exit.
+#
+# Why: of the 4 characters inside ±20%, only 1 also had ≥50% of its damage
+# modelled. The other 3 agree on the TOTAL while the sim reproduces 5-13% of the
+# kit — compensating error, which an aggregate criterion is structurally blind
+# to. Set while coverage was a median 37% and the post-ingest number was still
+# unknown, so it is a stricter bar that cannot have been fitted to a result.
+QUALIFIED_COVERAGE_PCT = 50.0
+MIN_QUALIFIED = 3
 REPORT_PATH = DATA_DERIVED / "calibration_crawled.md"
 
 PATH_TOKEN = {"strength": "Strength", "agility": "Agility", "duality": "Duality",
@@ -281,21 +294,23 @@ def _decomposition_section(results):
     # seeing the result is how a gate stops meaning anything.
     passing = [r for r in results if r["within_tolerance"]]
     qualified = [r for r in passing
-                 if (r["modelled"] or {}).get("modelled_damage_pct", 0) >= 50]
+                 if (r["modelled"] or {}).get("modelled_damage_pct", 0)
+                 >= QUALIFIED_COVERAGE_PCT]
     lines = [
         "", "## Miss decomposition (PLAN_3B §5.2)", "",
         f"🛑 **Read the pass with its coverage.** {len(passing)} characters are "
         f"within ±{AGGREGATE_TOLERANCE_PCT:g}%, but only **{len(qualified)}** of "
-        f"them are within tolerance *while the sim also reproduces ≥50% of the "
-        f"damage they actually dealt*"
+        f"them are within tolerance *while the sim also reproduces "
+        f"≥{QUALIFIED_COVERAGE_PCT:g}% of the damage they actually dealt*"
         + (": " + ", ".join(
             f"{r['name']} ({r['delta_pct']:+.0f}%, "
             f"{r['modelled']['modelled_damage_pct']:.0f}% modelled)"
             for r in qualified) if qualified else "")
         + ". The rest agree on the total while missing most of the kit — the "
         "modelled slice happens to sum to about the right number. The ±20% "
-        "criterion cannot distinguish that from calibration, so the qualified "
-        "count is reported next to it and neither replaces the other.", "",
+        "criterion cannot distinguish that from calibration, which is why the "
+        "qualified count is now a **Phase 3 exit rider** (stamped 2026-08-06, "
+        "before this run) rather than only a reported companion.", "",
         "The one-directional negative delta is decomposed into the three "
         "mechanisms that each produce it, so no single cause is credited "
         "wholesale. Each leg gets a **verdict on whether it is capable of "
@@ -457,12 +472,23 @@ def main():
 
     passing = [r for r in results if r["within_tolerance"]]
     qualified = [r for r in passing
-                 if (r["modelled"] or {}).get("modelled_damage_pct", 0) >= 50]
+                 if (r["modelled"] or {}).get("modelled_damage_pct", 0)
+                 >= QUALIFIED_COVERAGE_PCT]
+    crit_met = len(passing) >= MIN_WITHIN_TOLERANCE
+    rider_met = len(qualified) >= MIN_QUALIFIED
     print(f"[gate] {len(passing)} of {len(results)} simmed characters within "
           f"±{AGGREGATE_TOLERANCE_PCT:g}%  "
-          f"(criterion: ≥3)  -> {'PASS' if len(passing) >= 3 else 'NOT MET'}")
-    print(f"[gate] of those, {len(qualified)} also have ≥50% of their real "
-          f"damage modelled — the rest pass by compensating error")
+          f"(criterion: ≥{MIN_WITHIN_TOLERANCE})  "
+          f"-> {'PASS' if crit_met else 'NOT MET'}")
+    print(f"[gate] of those, {len(qualified)} also have "
+          f"≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage modelled "
+          f"(rider: ≥{MIN_QUALIFIED}) -> {'PASS' if rider_met else 'NOT MET'}")
+    print(f"[exit] PHASE 3 EXIT: "
+          f"{'MET' if (crit_met and rider_met) else 'NOT MET'} — needs both. "
+          "Rider stamped 2026-08-06 BEFORE this run "
+          "(predictions/CALIBRATION_TOLERANCE.md addendum); a character passing "
+          "±20% while the sim reproduces a fraction of its kit is compensating "
+          "error, not calibration.")
 
     lines = [
         "# Calibration gate — crawled characters",
@@ -472,7 +498,31 @@ def main():
         "(`predictions/CALIBRATION_TOLERANCE.md`, unchanged).",
         "",
         f"**Result: {len(passing)} of {len(results)} within tolerance — "
-        f"{'PASS' if len(passing) >= 3 else 'NOT MET'}.**",
+        f"{'PASS' if crit_met else 'NOT MET'}.**",
+        "",
+        "## Phase 3 exit criterion",
+        "",
+        "🛑 **The ±20% pass definition above is unchanged.** A rider was added "
+        "to the *exit* on **2026-08-06, before the scraped-coefficient ingest "
+        "was re-run through this gate** — a stricter bar than what passed at "
+        "the time, stamped while the number it judges was still unknown "
+        "(`predictions/CALIBRATION_TOLERANCE.md` addendum).",
+        "",
+        f"> Phase 3 exits only when **≥{MIN_WITHIN_TOLERANCE} characters are "
+        f"within ±{AGGREGATE_TOLERANCE_PCT:g}%** AND **≥{MIN_QUALIFIED} of "
+        f"those also have ≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage "
+        "modelled**.",
+        "",
+        f"| condition | required | actual | |", "|---|---:|---:|---|",
+        f"| within ±{AGGREGATE_TOLERANCE_PCT:g}% | ≥{MIN_WITHIN_TOLERANCE} | "
+        f"{len(passing)} | {'✅' if crit_met else '❌'} |",
+        f"| of those, ≥{QUALIFIED_COVERAGE_PCT:g}% damage modelled | "
+        f"≥{MIN_QUALIFIED} | {len(qualified)} | {'✅' if rider_met else '❌'} |",
+        "",
+        f"**PHASE 3 EXIT: {'MET' if (crit_met and rider_met) else 'NOT MET'}.** "
+        "The rider exists because an aggregate criterion cannot distinguish "
+        "calibration from a modelled slice that happens to sum to about the "
+        "right number.",
         "",
         "Candidates were selected by data completeness only (level 60, resolved "
         "gear stats, resolved cards, a non-trash encounter ≥20s), never by how "

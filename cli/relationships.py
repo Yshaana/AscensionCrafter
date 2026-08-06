@@ -13,12 +13,14 @@ borrowing, and the bounded trigger walk must attribute Hammer from the Heavens
 (`282987`, raw 2–25 +2.4/level) to its cards — the project's known worked
 example (PHASE_1 T4/T5).
 """
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import config  # noqa: E402
 from config import DB_PATH  # noqa: E402
 from core.db.connection import connect, table_exists, transaction  # noqa: E402
 from core.db.schema import create_phase1_schema  # noqa: E402
@@ -26,6 +28,26 @@ from core.spells import relationships as rel  # noqa: E402
 
 REALM = "Darkmoon"
 SEASON = "S10"
+
+SCRAPE = config.DATA_SOURCE / "ascension_db" / "spell_pages.ndjson"
+
+
+def load_scraped_records():
+    """The committed db.ascension.gg capture, or [] if this clone lacks it.
+
+    Absent is not an error — the edges it adds are additive, and every other
+    source still builds. `core/` cannot read this itself (it takes data, not
+    paths), so the file IO lives here.
+    """
+    if not SCRAPE.exists():
+        return []
+    out = []
+    with SCRAPE.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                out.append(json.loads(line))
+    return out
 
 
 def latest_patch_id(conn):
@@ -94,8 +116,9 @@ def main():
     stamp = {"realm": REALM, "season": SEASON, "patch_id": latest_patch_id(conn)}
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
+    scraped = load_scraped_records()
     with transaction(conn):
-        stats = rel.populate_all(conn, stamp, now)
+        stats = rel.populate_all(conn, stamp, now, scraped_records=scraped)
 
     total = conn.execute("SELECT COUNT(*) FROM spell_relationships").fetchone()[0]
     by_type = conn.execute(
@@ -104,6 +127,10 @@ def main():
     print(f"spell_relationships: {total} edges")
     for relation, count in by_type:
         print(f"  {relation}: {count}")
+    st = stats["scraped_triggers"]
+    print(f"db.ascension.gg trigger edges: {st['new']} NEW "
+          f"({st['already_known']} already carried by the client's own "
+          f"EffectTriggerSpell, which wins the row)")
     amp = stats["amplifiers"]
     print(f"amplifier staging rows skipped pending manual review: "
           f"{amp['skipped_review']}")

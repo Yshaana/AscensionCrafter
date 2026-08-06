@@ -253,6 +253,59 @@ def populate_triggers(conn, stamp):
     return n
 
 
+def populate_scraped_triggers(conn, stamp, records):
+    """db.ascension.gg's stated `Trigger Spell` links → `triggers` edges.
+
+    🛑 **Must run AFTER `populate_triggers`.** The client's numeric field is the
+    stronger source, and `_INSERT` is `INSERT OR IGNORE` against
+    `UNIQUE (source_spell_id, target_spell_id, target_name, relation_type)`, so
+    whichever runs first wins the row. Client first means the scrape can only
+    ever *add* an edge the client does not carry, never restate one at a weaker
+    tier.
+
+    ⚠ `target_name` is deliberately left NULL even though the page shows one.
+    It participates in the UNIQUE key, so setting it would make an otherwise
+    identical scraped edge look distinct from the client's and duplicate it.
+    The name is recorded in `evidence_ref`, where it is readable without being
+    load-bearing — and the edge itself is keyed on the id from the page's own
+    `?spell=` href, never on the name (primer §4, the never-relate-by-name rule).
+
+    `records` are already-parsed dicts, passed in by the caller: `core/` takes
+    data, not paths.
+    """
+    stats = {"new": 0, "already_known": 0, "self_loops_skipped": 0}
+    for rec in records or ():
+        src = rec.get("spell_id")
+        if not src or not rec.get("parsed_ok"):
+            continue
+        for eff in rec.get("effects") or ():
+            if not eff.get("is_trigger_spell"):
+                continue
+            for trig in eff.get("triggers") or ():
+                target = trig.get("spell_id")
+                if not target or target == src:
+                    stats["self_loops_skipped"] += target == src
+                    continue
+                known = conn.execute(
+                    "SELECT 1 FROM spell_relationships WHERE source_spell_id = ? "
+                    "AND target_spell_id = ? AND relation_type = 'triggers' "
+                    "LIMIT 1", (src, target)).fetchone()
+                if known:
+                    stats["already_known"] += 1
+                    continue
+                name = (trig.get("name_on_page") or "").strip()
+                _edge(conn, stamp, src, "triggers", target_id=target,
+                      condition={"effect_index": eff.get("effect_index")},
+                      source_tier="db_ascension_gg",
+                      evidence_ref=(
+                          f"db.ascension.gg ?spell={src} effect "
+                          f"#{eff.get('effect_index')} Trigger Spell -> {target}"
+                          + (f" ({name})" if name else ""))[:200],
+                      confidence="confirmed")
+                stats["new"] += 1
+    return stats
+
+
 # ------------------------------------------------- bounded trigger attribution
 
 def trigger_chains(conn, card_id, max_depth=MAX_TRIGGER_DEPTH):
@@ -341,8 +394,16 @@ def attribute_trigger_magnitudes(conn, stamp, now):
     return stats
 
 
-def populate_all(conn, stamp, now):
-    """Full relationship build. Owns deletion of the whole table (one writer)."""
+def populate_all(conn, stamp, now, scraped_records=None):
+    """Full relationship build. Owns deletion of the whole table (one writer).
+
+    ⚠ That `DELETE` is deliberately unscoped, which is only safe because this
+    function is the table's ONLY writer. A new edge source belongs *here*, as
+    another `populate_*` call — a separate script writing to
+    `spell_relationships` would either be wiped by this delete or need its own
+    scoped one, which is the `resolve_numeric_formulas.py` bug (2c) waiting to
+    happen a second time.
+    """
     conn.execute("DELETE FROM spell_relationships")
     stats = {
         "borrows_modifiers": populate_borrows(conn, stamp),
@@ -351,5 +412,8 @@ def populate_all(conn, stamp, now):
         "triggers": populate_triggers(conn, stamp),
         "hand_seeded": populate_hand_seeded(conn, stamp),
     }
+    # after populate_triggers, so the client's numeric field wins any collision
+    stats["scraped_triggers"] = populate_scraped_triggers(
+        conn, stamp, scraped_records)
     stats["trigger_attribution"] = attribute_trigger_magnitudes(conn, stamp, now)
     return stats

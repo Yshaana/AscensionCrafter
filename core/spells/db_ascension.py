@@ -138,6 +138,31 @@ def parse_spell_page(html, spell_id):
     }
 
 
+def decoded_flats_by_spell(conn):
+    """`{spell_id: [(flat_min, flat_max), ...]}` — the check digit, per slot.
+
+    🛑 Keyed and grouped **exactly** as `tools/scrapers/scrape_ascension_db.py`
+    did when it wrote the committed verdicts. The ingest recomputes verdicts
+    against a *fresher extract*, which is the point; it must not also change the
+    *method*, or the recomputed tally stops being comparable with the committed
+    one and the check has effectively been redefined after seeing its result.
+
+    ⚠ Note for a future session, deliberately NOT acted on here: this keys on
+    `spell_id`, so a card's list also carries flats decoded from its
+    `hidden_ref`/`trigger_hop` sub-spells. Since `cross_check` accepts a match
+    against ANY slot, that is marginally *permissive* — keying on
+    `source_spell_id` (the record actually decoded) would be stricter. Changing
+    it is a real question, but it is a change to the check, so it belongs in a
+    session that re-runs and re-reports the whole tally, not in an ingest.
+    """
+    out = {}
+    for sid, lo, hi in conn.execute(
+            "SELECT spell_id, flat_min, flat_max FROM spell_effect_values "
+            "WHERE flat_min IS NOT NULL"):
+        out.setdefault(sid, []).append((lo, hi))
+    return out
+
+
 def cross_check(record, our_effect_values, *, tolerance=0.02):
     """🛑 The gate on trusting a scraped coefficient.
 

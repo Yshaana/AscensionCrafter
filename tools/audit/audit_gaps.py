@@ -247,16 +247,24 @@ def outlier_coefficient_sweep(conn, deep):
 def autofix(conn):
     """Mechanical fixes only (see module docstring). Returns what was done."""
     fixed = []
-    # exact-duplicate spell_scaling rows from any historical double-ingest
+    # exact-duplicate spell_scaling rows from any historical double-ingest.
+    # ⚠ `component` is part of the identity, not decoration: a spell can state
+    # the SAME coefficient for its direct and its periodic component (25309:
+    # SP 0.1 direct AND SP 0.1 periodic). Without it in the key those two are
+    # indistinguishable and one is destroyed as a "duplicate" — measured, 44
+    # rows across 22 spells. Adding a column to spell_scaling means adding it
+    # here; same family as "add a writer, scope its delete".
     dupes = conn.execute("""
         SELECT COUNT(*) - COUNT(DISTINCT spell_id || '|' || term_type || '|' ||
-               COALESCE(coefficient,'') || '|' || source || '|' || rank)
+               COALESCE(coefficient,'') || '|' || source || '|' || rank || '|' ||
+               COALESCE(component,''))
         FROM spell_scaling""").fetchone()[0]
     if dupes:
         conn.execute("""
             DELETE FROM spell_scaling WHERE rowid NOT IN (
                 SELECT MIN(rowid) FROM spell_scaling
-                GROUP BY spell_id, term_type, coefficient, source, rank)""")
+                GROUP BY spell_id, term_type, coefficient, source, rank,
+                         component)""")
         fixed.append(f"deduplicated {dupes} exact-duplicate spell_scaling rows")
     # NOTE: a "mark crosswalk rows whose target vanished" fix was built and
     # withdrawn in the same session: without history, absent-from-extract is

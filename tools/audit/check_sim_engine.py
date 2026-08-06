@@ -30,14 +30,27 @@ from core.sim.content import Role  # noqa: E402
 FAILURES = []
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
-# zero-damage guard rather than assume it still works. Thorns states `$s1 Nature
-# damage` in its tooltip and resolves to no events at all — the same state Holy
-# Shock was in until 2c's G4 fix, and the state the guard exists to catch.
+# zero-damage guard rather than assume it still works.
 # ⚠ Do not swap this for an ability that merely has a zero *component*: Blades of
 # Light looks like a candidate and is not one — its own effect is zero but its
 # trigger-reached components resolve, so the ability-level guard correctly stays
 # quiet and only the per-event warning fires.
-ZERO_DAMAGE_SPELL_ID = 467  # Thorns
+#
+# 🆕 2026-08-06: was Thorns (467), and the swap is a RESULT, not a repair. The
+# db.ascension.gg ingest gave Thorns SP 0.0182 / AP 0.0118, so it resolves to a
+# damage event now and can no longer exercise a zero-damage guard. The fixture's
+# premise was retired by the data improving underneath it. 🛑 The guard itself
+# was never in question — the correct response is a still-valid fixture, never a
+# weakened assertion.
+#
+# Execution Sentence is a durable replacement because its emptiness has a
+# documented CAUSE rather than being an accident of coverage: all three of its
+# `EffectBasePoints` are the DBC "no value" sentinel (-1) and its
+# `EffectTriggerSpell` is empty, so its real formula lives outside the effect
+# slots this extract captures — a hardcoded script trigger
+# (build_paladin-hammerdin.md §8, chase item 2). No wider extract or scrape
+# fills that in; only a live tooltip would.
+ZERO_DAMAGE_SPELL_ID = 954817  # Execution Sentence
 
 
 def check(name, ok, detail=""):

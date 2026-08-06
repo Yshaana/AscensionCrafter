@@ -75,3 +75,56 @@ What `2c` delivers instead, and it is the stronger evidence of the two:
 
 ⚠ Anyone reading Phase 2's exit criteria should read this decision alongside
 them. Phase 2 exits without the ≥3-character check; 3a owns it.
+
+---
+
+## Addendum 2026-08-06 — the Phase 3 exit gains a coverage rider
+
+**Stamped BEFORE the scraped-coefficient ingest was re-run through the gate.**
+That timing is the whole point: the rider is a *stricter* bar than what
+currently passes, set while the number it will judge is still unknown.
+
+### The ±20% pass definition is UNCHANGED
+
+`≥3 characters within ±20% aggregate DPS` still means exactly what it meant. It
+is not re-derived, not widened, not tightened. Everything above this line
+stands.
+
+### What is added: a qualified-coverage rider on the EXIT
+
+> **Phase 3 exits only when ≥3 characters are within ±20% AND at least 3 of
+> those also have ≥50% of their real damage modelled.**
+
+At the time of writing: **4 pass, 1 qualified → exit NOT met.**
+
+### Why
+
+`3b` measured the problem the aggregate criterion cannot see. Of the four
+characters inside ±20%, **one** (Ari, −10.3%) also has ≥50% of its damage
+modelled; the other three (Chastie 5%, Zaczao 6%, Xoller 13%) agree on the total
+while the sim reproduces almost none of their kit. That is **compensating
+error** — a modelled slice that happens to sum to about the right number — and
+an aggregate criterion is structurally blind to it.
+
+The honest fix is not to move the gate. It is to say out loud that agreeing on a
+total while modelling 6% of a kit is not calibration, and to make the exit
+depend on that. The qualified count was already computed and reported next to
+the criterion (`3b`); this promotes it from a companion metric to a rider with
+teeth.
+
+### Why 50%, and why now
+
+* **Now**, because coverage sits at a median 37% and the ingest is expected to
+  move it. Setting the floor after seeing the post-ingest number would be
+  choosing a threshold to fit a result — the exact failure this file exists to
+  prevent. Set while the number is unknown, it cannot be gamed in either
+  direction.
+* **50%**, because below half the kit modelled, the unmodelled remainder is
+  large enough to absorb an arbitrary error in the modelled part, which is the
+  compensating-error case. It is a floor on *interpretability*, not a target
+  fitted to any character's coverage.
+
+⚠ Same standing rule as the rest of this file: changing this rider later is
+allowed, doing it silently is not. A change needs its own dated entry here with
+its reason — and, given what it gates, a reason that does not reduce to "the
+current number did not clear it".

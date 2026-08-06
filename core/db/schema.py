@@ -56,7 +56,19 @@ CREATE TABLE IF NOT EXISTS spell_scaling (
     coefficient REAL,  -- NULL for WEAPON (normalized, no fixed coeff in text)
     source TEXT DEFAULT 'export_tooltip',
     cp_scaling_type TEXT,   -- 'linear' | 'quadratic' | NULL (seed_cp_scaling.py)
-    rank INTEGER NOT NULL DEFAULT 0
+    rank INTEGER NOT NULL DEFAULT 0,
+    -- 'direct' | 'periodic' | NULL. NULL means UNKNOWN, never "direct":
+    -- tooltip TEXT cannot bind a coefficient to an effect slot, which is why
+    -- `_formula_terms` records is_periodic=None for every text-derived row and
+    -- `ability_model` warns when it has to guess. db.ascension.gg STATES the
+    -- binding ("to direct component" / "per tick"), so scraped rows can fill
+    -- it in — the only source in the stack that can.
+    -- 🛑 This column is why scraped coefficients are NOT summed per term_type:
+    -- Pyroblast states SP 0.575 direct AND SP 0.025 periodic, and adding them
+    -- would apply the DoT's coefficient to the direct hit. That is the
+    -- "an aggregate across effect slots mixes units" rule (primer v30 §5),
+    -- one layer up from the Lightbound Cleave 62-65 case that found it.
+    component TEXT
 );
 
 -- NO foreign key on spellId, deliberately. `Cards.txt` is a CLIENT export and the
