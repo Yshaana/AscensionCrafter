@@ -38,23 +38,61 @@ What it settles, in rough order of value:
 5. **End-to-end pipeline test:** snapshot matching, gear resolution, card
    resolution and buff derivation, all checkable against what he knows was true.
 
-## What to do (low friction — normal play, four extra minutes)
+## ✅ NO NEW RUN NEEDED — the log we want already exists
 
-1. **Stat export (AscensionCrafterExport) right before you zone in**, and note
-   whether the weapon imbue is on. 🛑 Same-session matters: `2e` showed a stat
-   block from a *different* session is the entire error for weapon-dominated
-   abilities.
-2. **Combat logging on for the whole run** (ALC). Note the log file's exact name.
-3. **Play normally.** Do not optimise for the capture — a representative run is
-   the point. Any dungeon, any difficulty; note which.
-4. **Upload to ascensionlogs.gg and send the report link.** The link is the
-   whole deliverable on the crawl side — it gives us the `report_id`.
-5. **Jot down, roughly:** your character name as logged, the dungeon and
-   difficulty, and **whether anyone in the group died** (that is item 4 above —
-   no need to arrange it, just note it).
+Owner's improvement on the original ask (2026-08-06): upload an **existing**
+dungeon log instead of playing a new one. Reviewing
+`E:\Ascension Launcher\resources\ascension-live\Logs`, one candidate wins on
+every axis.
 
-⚠ If the restart happens before you run this, note that too — it changes which
-side of the #200295 fix the log sits on.
+### 🎯 Upload this one
+
+> **`2026-08-04-20.37.12 WoWCombatLog.txt`** — Scarlet Monastery, 7.8 min
+
+| why it wins | detail |
+|---|---|
+| **Path of INTELLIGENCE** | ALC's `CI` record reads `primary_stat: intellect`. ⚠ **This is the deciding factor.** The Uldaman run 30 minutes earlier (`20.07.21`) is on **`duality`**, and Duality is the broken path whose AP cycles mid-fight — the owner's own standing decision is that **PoD parses are unusable for absolute calibration**. |
+| **It has player DEATHS** | Elric died **2×**, plus Spishtar, ruffyQT, Shaka, Mizmo and Aezneri. The only candidate that can test whether `deaths` populates — and it is *also* ground truth for the exact "died mid-fight" failure mode T2 needs to detect. |
+| **Inputs are captured INLINE** | The `CI` record carries 18 **gear** pieces (item_id + enchant + gems + suffix), the full **`hero_build`** (entry_id + rank per card), level, race, path, and `instance: Scarlet Monastery`, snapshotted **per pull** (`captured_for_pull_id`). This is the "fully known inputs" no crawled character has. |
+| **Most recent real content** | Gear closest to current. |
+| **A second cross-check character** | **Spishtar** (277 casts) is already in the crawl corpus as `character_id 14773`. |
+| **Clean bosses** | Mograine, Whitemane, Fairbanks. |
+| **Good activity sample** | 190 Elric casts / 7.8 min = **24.3 APM**. |
+
+### Optional second: `2026-08-04-20.07.21` (Uldaman, 20.4 min)
+
+Bigger sample — 503 Elric casts, 60k events, APM 24.7 — and **zero player
+deaths**, so it is the clean *control* against Scarlet Monastery's death case.
+🛑 But it is on **Duality**, so use it only for the cast-count, APM and `deaths`
+questions — **never for calibration.** `Neroxa` (id 10567) is already in the
+crawl.
+
+### What you do
+
+1. Upload `2026-08-04-20.37.12 WoWCombatLog.txt` to ascensionlogs.gg.
+2. **Send the report link.** That is the whole deliverable — it gives us the
+   `report_id` to crawl.
+3. Optionally repeat for the Uldaman log.
+
+Nothing else. No new run, no stat export needed — ALC already captured the gear
+and board inline, which is the input side `compute_stats` consumes, so this
+tests the real pipeline rather than bypassing it.
+
+### 🆕 What the logs already told us before uploading anything
+
+**Real in-content APM is ~21–25, not 57.** Measured across all four of the
+owner's real runs: Stratholme 20.9, Uldaman 24.1, Uldaman 24.7, Scarlet
+Monastery 24.3 — tight, and **less than half** the 57.3/57.1 measured at the
+dummy. The dummy figure is a stationary upper bound, exactly as suspected.
+
+🚨 **And this substantially weakens the "low activity = invalid parse"
+hypothesis.** The crawl cohort's median is ~0.6 casts/sec = **36 APM**, *higher*
+than the owner's real dungeon play. Several over-predictors sit inside his
+normal range (Striker 24.6, Boomcat 17.4). **An APM floor drawn from real play
+would not cleanly separate them** — which is another reason `PLAN_3C` T2 does not
+filter yet, and why the paired upload matters: it is the only way to learn
+whether the site's `casts` and a log's `SPELL_CAST_SUCCESS` are even the same
+measurement.
 
 ---
 
