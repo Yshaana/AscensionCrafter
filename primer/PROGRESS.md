@@ -82,16 +82,24 @@ now do, **scoped by measured demand and never by enumeration**: 285 ids cover
 90% of all logged damage, 2,902 cover everything observed (~2 h at a 2s delay).
 
 🛑 **A scraped coefficient is trusted only where the page's stated base value
-reproduces the flat we decoded from the client's numeric fields** — 14,100
-spells give that check digit; a disagreement REFUSES the coefficients.
-**FINAL, full run of 2,902 records: 66.3% agree (1,925), 33.5% unverifiable,
-0.2% disagree (6); 1,634 spells state a coefficient; 329 trigger edges.**
-Agreement rose monotonically with sample size while disagreements stayed flat.
+reproduces the flat we decoded from the client's numeric fields**; a
+disagreement REFUSES the coefficients. Full run of 2,902 records, **after the
+2026-08-06 `--with-dbc`**: **2,692 agree / 202 unverifiable / 8 disagree**;
+1,634 spells state a coefficient; **329 trigger edges**.
 
-⚠ **Consequence: the widened `--with-dbc` run DROPS OFF the critical path.** It
-has been the top structural ask since `2e` and needs the owner's client plus a
-built StormLib; the web source reaches most of the same spells without him.
-Keep it opportunistic after a client patch.
+✅ **The `--with-dbc` run landed and validated the source at scale.**
+`spell_dbc_raw` 16,566 → **17,400** (+834); check digits 14,100 → **14,913**.
+**769 of the 971 unverifiable rows gained a verdict and 767 AGREE — 99.7% on
+the newly-checkable set**, from two completely independent derivations. **The
+scraped coefficients are safe to ingest.**
+
+✅ **The widened `--with-dbc` run is DONE** (owner, 2026-08-06, via the new
+double-click `run_dbc_extract.bat`). `extract_scope_missing_log_observed_ids`
+is **resolved** — all five ids it named now decode (200818 → 1, 20424 → 35,
+954923 → 140 +1.2/lvl, 907790 → 65, 18652 → 30). ⚠ None carries a
+`spell_scaling` row: the client supplies **magnitudes, never coefficients**.
+That division of labour is now the settled model — client for flats, scrape
+for coefficients.
 
 ### 🔴 FIRST ACTIONS NEXT SESSION
 
@@ -106,9 +114,12 @@ Keep it opportunistic after a client patch.
    currently scored as zero, which quietly biases the corpus against
    pet-carrying builds.
 4. **The owner's in-game capture** — `primer/NEXT_CAPTURE.md`, gated on the
-   server restart. **200818 is confirmed unreachable by every automated route**
-   (the site gives it `Value: 1`, no scaling), so its live tooltip stays the
-   one genuine owner-only ask.
+   server restart. 🚨 **200818 SURVIVED the `--with-dbc` run**: the client
+   decodes it to a flat of **1**, matching the site's `Value: 1`. Two
+   independent sources agreeing on a nominal 1 confirms its damage is
+   enchant-delivered and lives in `SpellItemEnchantment.dbc`, still
+   unextracted. Its live tooltip stays the one genuine owner-only ask, and is
+   still 25.1% of the owner's buffed damage.
 5. ⚠ **`BEFORE_3B` §3's two "blocked" questions are already answered** — the
    `WoWCombatLog` naming convention and `ReloadUI()` availability were both
    resolved 2026-08-04 and are written up in `PHASE_3_builds_repo.md` T5/T6.
@@ -733,6 +744,10 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-06 (3b) | ✅ **The `--with-dbc` run landed: +834 spells, and 769 of 971 unverifiable coefficients resolved at 99.7% agreement** | Owner ran it via the new double-click `run_dbc_extract.bat`. `spell_dbc_raw` 16,566 → **17,400**; check digits 14,100 → **14,913**; the observed-id scope engaged as designed. Scrape verdicts moved **1,925 → 2,692 agree**, **971 → 202 unverifiable**, 6 → 8 disagree: of the 769 newly checkable, **767 agree**. Our client-decoded flats and db.ascension.gg's stated values come from completely independent routes, so agreement at that scale is real corroboration — **the scraped coefficients are safe to ingest**. `extract_scope_missing_log_observed_ids` **resolved**: all five named ids decode. ⚠ None carries a `spell_scaling` row — the client gives magnitudes, never coefficients, which is now the settled division of labour |
+| 2026-08-06 (3b) | 🚨 **A code path only an OWNER-GATED run exercises can stay broken for sessions while everything reports green** | `export_ascension_extract_json` summed `len(v['rows'])` over every payload value including the `_extracted_at` **string** added in `2e` → `TypeError`. It fired **after** `write_text`, so both extracts were complete and valid and only the summary died — but the non-zero exit stopped the whole 20-step chain. Latent since `2e` because **nothing had run `--with-dbc` in between**, and the routine rebuild never touches that exporter, so 20/20 passing said nothing about it. **When a step is gated behind hardware, credentials or another person, its last SUCCESSFUL run is the real staleness clock — not the last commit that touched it.** Fixed by skipping `_`-prefixed keys, the convention `load_extract.py` already used |
+| 2026-08-06 (3b) | ⚠ **A guard that cannot run must say so — never report the condition it failed to test** | `run_dbc_extract.bat`'s game-running check **failed OPEN**: if Git for Windows' `usrin` precedes `System32` on PATH, its Unix `find` shadows the Windows one, the check errors, and the script printed *"OK - game is closed"* without having checked. Caught in a dry run before the owner saw it; now uses absolute `System32` paths and warns explicitly when it cannot check. Same run also fixed a garbled log (`tee` does not exist in cmd; PowerShell 5.1's `Tee-Object` writes UTF-16 — precisely the file a failing user would send back) |
+| 2026-08-06 (3b) | 🚨 **200818 SURVIVED the extract — the live-tooltip ask stands** | Consecrated Holy Weapon decodes to a flat of **1**, matching db.ascension.gg's `Value: 1`. Two independent sources agreeing on a nominal 1 confirms the damage is **not in its own record**: it is delivered through the weapon enchant, and `SpellItemEnchantment.dbc` is still unextracted. The run was expected to retire this ask and did the opposite. Still 25.1% of the owner's buffed damage. Separately **Ignite (12654) decodes to no flat at all**, which is what `sim_cannot_express_damage_conversion_mechanics` predicts for that family — a confirmation, not a gap |
 | 2026-08-06 (3b) | 🆕 **db.ascension.gg is a systematised SOURCE now, and the widened `--with-dbc` run leaves the critical path** | A consolidation review classified every unmodelled damage row: **42.9%** absent from our extract, **41.1%** magnitude-but-no-coefficient, 9.1% autos, **5.5%** a real resolver/APL gap. The client **structurally cannot** fix the 41% — Ascension keeps applied coefficients in tooltip text, not numeric fields. The site states them (`Icy Penance: Value 284 · SP 29.0% · AP 7.8%`, against our decoded flat of exactly 284) **and** states `EffectTriggerSpell` links, so relationship discovery is a byproduct (HoJ → HftH off the page's own href; 154 edges in the first 39%). Used by hand once in `1x` and never systematised until now. **Cheaper routes checked and rejected first**: `?spell=X&power` returns a 583-byte JS object but **no `Scaling` lines**; `sitemap.xml` has no per-spell URLs. `robots.txt` is `Allow: /`, no `Crawl-delay`, disallowing only admin/account/compare/filter/search — we are stricter anyway (sequential, 2s, contact UA, stop on 403/429). **Scoped by measured demand, never enumeration.** 🛑 Coefficients trusted only where the page's base value reproduces our client-decoded flat (14,100 check digits); disagreement REFUSES them. **FINAL 2,902/2,902: 66.3% agree, 0.2% disagree (6, all diagnosed and still refused — the tolerance was NOT widened to absorb them), 1,634 coefficients, 329 trigger edges** |
 | 2026-08-06 (3b) | ⚠ **An aggregate across EFFECT SLOTS is not a property of the spell — it mixes units** | The scrape's cross-check first aggregated `MIN/MAX` across slots, so Lightbound Cleave's effect 0 (flat **62**) and effect 1 (**65% weapon damage**, the `EFFECT_WEAPON_PCT` trap from INDEX_GUIDE v13) merged into "62–65" — a range belonging to no effect — and falsely contradicted the page's correct `Value: 62`. Caught because the check disagreed with a source that turned out to be right. Now compared per slot: 6 agree / 0 disagree on the pilot. **The check found a bug in our code before it found one in the data, which is the argument for having it** |
 | 2026-08-06 (3b) | 🎉 **The inherited exit gate now PASSES — 4 of 41 within ±20% — and the cause was ONE missing input, not a fitted constant: weapon damage is in NO stat block** | `resolved_bisbeard.damage` is NULL on **all 1,413** weapon-slot entries and `stats` never carries it, so `build_spec_for` was constructing every crawled character with `weapon=None` — the sim gave all 41 candidates **no weapon at all**, zeroing white swings and every weapon-percent ability. Found by DECOMPOSING the miss (PLAN_3B §5.2) rather than attributing it: gear resolution **eliminated** for 30 of 41 (median 100% coverage, still −92%), buffs **median +0.0%**, leaving per-ability coverage — sim damage for a median **20%** of real damage, **37%** after the fix. Weapon numbers exist only in the rendered item description and are parsed **with the same string's stated DPS as an enforced check digit**, 849/849 within 3%; a failing parse returns nothing. 🛑 **Read the pass with its coverage: only 1 of the 4 (Ari) is inside tolerance while ≥50% of its damage is modelled** — the others agree on the total while the sim reproduces 5–13% of the kit, i.e. compensating error, which an aggregate criterion is blind to. The criterion was **not** redefined after the result was seen; the qualified count is reported beside it and the question is the owner's (`crawled_gate_passes_by_compensating_error`) |

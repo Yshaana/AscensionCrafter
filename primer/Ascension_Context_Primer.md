@@ -1,8 +1,46 @@
-# Project Ascension — Systems Primer v30 (Context for Claude)
+# Project Ascension — Systems Primer v31 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v31 changelog (2026-08-06, session `3b` — the `--with-dbc` run).** Detail in
+`primer/Session_2026-08-06_3b_gear_and_decomposition.md` §8.
+
+- ✅ **v30's new source is now VALIDATED AT SCALE, and the two sources have a
+  settled division of labour.** The widened extract landed (`spell_dbc_raw`
+  16,566 → **17,400**), and **769 of the 971 unverifiable scraped coefficients
+  gained a verdict — 767 of them AGREE, 99.7%.** Client-decoded flats and
+  db.ascension.gg's stated values come from completely independent routes, so
+  agreement at that scale is real corroboration rather than a shared error.
+  🆕 **The division of labour: the CLIENT supplies magnitudes, the SITE supplies
+  coefficients.** Every one of the five long-missing ids now decodes a flat and
+  **none** carries a `spell_scaling` row — which is v21's finding
+  (*Ascension keeps applied coefficients in tooltip text*) confirmed from the
+  other direction.
+- 🚨 **NEW §5 PRACTICE: A CODE PATH ONLY AN OWNER-GATED RUN EXERCISES CAN STAY
+  BROKEN FOR SESSIONS WHILE EVERYTHING REPORTS GREEN.** The extract's own
+  exporter had crashed on a string added in `2e`, and nothing ran `--with-dbc`
+  between then and now. The routine `py cli/rebuild.py` never touches that
+  path, so 20/20 steps passing said nothing about it. **When a step is gated
+  behind hardware, credentials or another person, its last SUCCESSFUL run is
+  the real staleness clock — not the last commit that touched it.** Same family
+  as `2c`'s "our hard rules apply to our own tools", aimed at *coverage* rather
+  than correctness.
+- 🧠 **NEW §5 PRACTICE: A GUARD THAT CANNOT RUN MUST SAY SO — never report the
+  condition it failed to test.** The owner-facing extract wrapper's
+  "is the game closed?" check **failed OPEN**: Git for Windows' Unix `find`
+  shadowed the Windows one on PATH, the check errored, and it printed *"OK -
+  game is closed"* without having checked. A guard that silently passes when it
+  breaks is worse than no guard, because it manufactures confidence. Caught in
+  a dry run; absolute paths now, and an explicit warning when it cannot check.
+- ⚠ **§2: 200818 SURVIVED the run, and the live-tooltip ask stands.**
+  Consecrated Holy Weapon decodes to a flat of **1**, matching the site's
+  `Value: 1` — two independent sources agreeing on a nominal 1 proves the
+  damage **is not in its own record**. It is enchant-delivered, and
+  `SpellItemEnchantment.dbc` remains unextracted. The run was expected to
+  retire this ask and did the opposite. **Before assuming a wider extract will
+  reach a value, check whether the value lives in that DBC at all.**
 
 **v30 changelog (2026-08-06, session `3b` consolidation review).** A source this
 project had used once and never systematised. Detail in

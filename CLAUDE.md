@@ -64,6 +64,14 @@ py cli/rebuild.py
 One command for the whole chain, into `data/derived/ascension.db`. Run it after any
 seed/schema change.
 
+⚠ **`--with-dbc` is OWNER-GATED, and a path only it exercises can stay broken
+for sessions while every routine rebuild reports green** (measured: its exporter
+crashed from `2e` to 2026-08-06 undetected). Its last **successful** run is the
+staleness clock, not its last commit. The owner runs it by double-clicking
+`run_dbc_extract.bat`; its scope now includes
+`data/source/dbc/extract_scope_observed_ids.json` (log-observed ids — every
+other scope rule starts from the catalog and misses what players actually cast).
+
 Add `--with-dbc` **only** after a client patch: that step needs the game client plus
 a built StormLib, and it rewrites the two committed extracts in `data/source/dbc/`.
 It is what produces the client-derived tables — `dbc_character_advancement` (the

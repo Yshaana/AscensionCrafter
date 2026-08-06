@@ -282,6 +282,90 @@ result" error the gate discipline forbids. The site agrees with our `+1` decode
 in **1,925** cases, so these are anomalies, not a convention difference — six
 refusals out of 2,902 is the check working, not the check being wrong.
 
+## 8. The `--with-dbc` run — and 99.7% independent agreement
+
+The owner ran it via a new double-click wrapper, `run_dbc_extract.bat`.
+
+**What it recovered:** `spell_dbc_raw` **16,566 → 17,400** (+834); spells with
+a decoded flat **14,100 → 14,913**. The observed-id scope engaged as designed
+(`Observed-id scope: 2902 ids from extract_scope_observed_ids.json`).
+
+**What it did to the scrape's verdicts:**
+
+| verdict | before | after |
+|---|---:|---:|
+| agree | 1,925 | **2,692** |
+| unverifiable | 971 | **202** |
+| disagree | 6 | 8 |
+
+**769 of the 971 unverifiable rows gained a verdict, and 767 agree — 99.7% on
+the newly-checkable set.** This is the strongest validation the source has:
+our client-decoded flats and db.ascension.gg's stated values are derived by
+completely independent routes, and at that scale they agree. **The scraped
+coefficients are safe to ingest.**
+
+The 2 new disagreements are familiar shapes and stay refused: Death and Decay
+(page 1 vs our 2 — the `base_points+1` off-by-one) and Melt Reality (page 336
+vs our 771 — a rank mismatch).
+
+✅ **`extract_scope_missing_log_observed_ids` is RESOLVED.** All five ids it
+named now decode: 200818 → 1, **20424 → 35**, 954923 → 140 +1.2/level,
+907790 → 65, 18652 → 30. ⚠ None carries a `spell_scaling` row — the client
+supplies magnitudes, never coefficients, exactly as `1x` established. The
+coefficients come from the scrape.
+
+### 🚨 200818 — the client agrees with the site, and the ask stands
+
+Consecrated Holy Weapon decodes to a flat of **1**, matching db.ascension.gg's
+`Value: 1`. Two independent sources agreeing on a nominal 1 confirms its real
+damage is **not in its own record** — it is delivered through the weapon
+enchant (`SpellItemEnchantment.dbc`, still unextracted). **The live-tooltip ask
+therefore survives this run**, which is the opposite of what it was expected to
+do. It remains the single largest unmodelled source in the owner's own build at
+25.1%.
+
+Separately, **Ignite (12654) decodes to no flat at all** — which is what
+`sim_cannot_express_damage_conversion_mechanics` predicts for that family, so
+it is a small confirmation rather than a gap.
+
+### 🚨 The bug the run found, and why it had survived three sessions
+
+`export_ascension_extract_json` summed `len(v['rows'])` over **every** payload
+value, including the `_extracted_at` **string** added in `2e` →
+`TypeError: string indices must be integers`. It fired **after** `write_text`,
+so both extracts were complete and valid on disk and only the summary died —
+but the non-zero exit stopped the whole 20-step rebuild chain.
+
+**It had been latent since `2e` because nothing had run `--with-dbc` in
+between.** Generalises, and it is the sharper lesson of this session:
+
+> 🛑 **A code path that only an owner-gated run exercises can stay broken
+> indefinitely, and every session in between will report green.** The routine
+> `py cli/rebuild.py` never touches this exporter, so 20/20 steps passing said
+> nothing about it. When a step is gated behind hardware, credentials or
+> another person, its last *successful* run is the real staleness clock — not
+> the last commit that touched it.
+
+Fixed by skipping `_`-prefixed keys, the convention `load_extract.py` already
+used on the reading side. The sibling exporter names its keys explicitly and
+was never affected.
+
+### The wrapper, and a guard that lied
+
+`run_dbc_extract.bat` (owner-facing, double-click; matches `run_crawler.bat`'s
+style) checks the game is closed, pulls, verifies the scope file, runs the
+extract with live progress, and writes a UTF-8 log.
+
+⚠ Two defects were caught in dry runs *before* the owner saw them, and one is
+worth recording as a practice: **the game-running check failed OPEN.** If Git
+for Windows' `usr\bin` precedes `System32` on PATH, its Unix `find` shadows the
+Windows one, the check errors, and the script printed *"OK - game is closed"*
+**without having checked anything**. A guard that cannot run must say so —
+never report the condition it failed to test. Now uses absolute `System32`
+paths and warns explicitly if they are unavailable. (The other: `tee` does not
+exist in cmd, and PowerShell 5.1's `Tee-Object` writes UTF-16, which garbled
+the very log a failing user would be sending back.)
+
 ## What did NOT happen
 
 - **3b T5 (addon), T6 (log ingestion), T7 (session automation)** — deferred by
