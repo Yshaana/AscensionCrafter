@@ -16,12 +16,19 @@ reference state for Elric as of Phase 1.
 
 ## Files
 
-| File | What |
-|---|---|
-| `stat_export_21.47.06.txt` | AscensionCrafterExport, **before** window A |
-| `stat_export_21.52.16.txt` | AscensionCrafterExport, **after** window A (combat end) |
-| `2026080621.34.18 WoWCombatLog.txt` | **Window B — Lightbound Cleave isolation**, 235.2 s |
-| `2026080621.47.49 WoWCombatLog.txt` | **Window A — Holy Shock + Judgement**, 258.5 s |
+| File | Bytes | What |
+|---|---:|---|
+| `stat_export_21.47.06.txt` | 11,307 | AscensionCrafterExport, **before** window A |
+| `stat_export_21.52.16.txt` | 11,306 | AscensionCrafterExport, **after** window A (combat end) |
+| `2026-08-06-21.34.18 WoWCombatLog.txt` | 2,848,214 | **Window B — Lightbound Cleave isolation**, 235.2 s, 17,902 events |
+| `2026-08-06-21.47.49 WoWCombatLog.txt` | 2,215,684 | **Window A — Holy Shock + Judgement**, 258.5 s, 14,263 events |
+
+⚠ **Both logs are shared training-dummy areas** — several other players are logging in the
+same file. Every figure in this record and in the findings doc is filtered to
+`sourceName = "Elric"`. The raw event counts above are the whole file, not Elric's share
+(Elric contributes 1,074 and 1,389 events respectively).
+
+*Byte counts are a check digit: the analysed copies matched these exactly.*
 
 ⚠ **Window B has no stat block of its own.** It ran 13 minutes before the 21:47:06
 export, on the same gear and the same unbuffed state (its self-auras are a strict subset
