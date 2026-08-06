@@ -20,7 +20,7 @@ import random
 from dataclasses import dataclass, field
 
 from .ability_model import resolve_ability, AbilityResolutionError
-from .apl import APL, entry_ready
+from .apl import APL, MAX_COMBO_POINTS, entry_ready
 from .content import ContentProfile, Metric, PRIMARY_METRIC_BY_ROLE, SimResult
 from .swings import (
     swing_events, expected_swing, seal_procs, righteous_vengeance_damage,
@@ -32,6 +32,19 @@ from .swings import (
 # spells only. Not yet validated on Ascension — a calibration candidate.
 BASE_GCD = 1.5
 MIN_GCD = 1.0
+
+# retail_hypothesis (3e B4): one combo point per non-finisher damaging cast, and
+# a finisher spends what its APL entry is gated on.
+#
+# 🛑 THIS IS A HYPOTHESIS BECAUSE THE DATA IS ABSENT, and the absence is the
+# finding. `SPELL_EFFECT_ADD_COMBO_POINTS` is effect type 40, and
+# `spell_effect_values` holds **ZERO rows** of it — nothing in the extract says
+# which abilities generate combo points or how many. So "which buttons are
+# builders" cannot be derived today, only assumed, and it is assumed HERE, once,
+# under a name, with a warning emitted by any sim that relies on it. Same
+# treatment as BASE_GCD above. Open question:
+# `combo_point_generation_absent_from_extract`.
+CP_PER_BUILDER_CAST = 1.0
 
 
 def _gcd_for(ability, char_state):
@@ -74,6 +87,26 @@ def _effective_time(content: ContentProfile):
     """Seconds actually available to act. movement_pct is time spent not
     casting; treating it as free is the commonest way a sim overstates DPS."""
     return content.fight_duration * (1.0 - max(0.0, min(1.0, content.movement_pct)))
+
+
+def _cp_gate(apl, spell_id):
+    """Combo points this entry is HELD TO by its own APL gate, else 0.
+
+    3e B4 — the sim reads the rotation's own stated intent rather than
+    re-deriving "is this a finisher", so the gate and the damage cannot disagree
+    about how many combo points were spent. `apl_gen` holds finishers to
+    MAX_COMBO_POINTS; a hand-authored APL can say something else and this
+    follows it.
+    """
+    if not apl:
+        return 0
+    for e in apl.entries:
+        if e.spell_id != spell_id:
+            continue
+        for c in (e.conditions or []):
+            if c.get("type") == "combo_points_at_least":
+                return int(c.get("value") or 0)
+    return 0
 
 
 def _is_pure_periodic(ability):
@@ -202,18 +235,27 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
     # nothing. An interval-bounded ability cannot monopolise the budget (it
     # takes only `available / interval` casts), so allocating it first is safe
     # in exactly the way allocating a cooldown first is.
+    #
+    # 3e B4 — CP-gated finishers are allocated LAST among on-GCD entries,
+    # because their cast count is a function of how many builder casts happened
+    # in front of them. Allocating one early would let it spend combo points
+    # nothing had generated yet.
     off_gcd_ids = {e.spell_id for e in apl.entries if e.off_gcd} if apl else set()
     on_gcd = [s for s in ids if s not in off_gcd_ids and abilities.get(s)]
-    bounded = [s for s in on_gcd if _useful_cast_interval(abilities[s])[0] > 0]
-    unbounded = [s for s in on_gcd if _useful_cast_interval(abilities[s])[0] <= 0]
-    ordered = bounded + unbounded + [s for s in ids if s in off_gcd_ids]
+    cp_gated = [s for s in on_gcd if _cp_gate(apl, s) > 0]
+    rest = [s for s in on_gcd if s not in cp_gated]
+    bounded = [s for s in rest if _useful_cast_interval(abilities[s])[0] > 0]
+    unbounded = [s for s in rest if _useful_cast_interval(abilities[s])[0] <= 0]
+    ordered = (bounded + cp_gated + unbounded
+               + [s for s in ids if s in off_gcd_ids])
     gcd_actions = 0.0
 
     for sid in ordered:
         ab = abilities.get(sid)
         if ab is None:
             continue
-        exp = ab.expected_cast(char_state, content)
+        cp = _cp_gate(apl, sid)
+        exp = ab.expected_cast(char_state, content, combo_points=cp)
         warnings.extend(exp.warnings)
         gcd = _gcd_for(ab, char_state)
         occupancy = max(gcd, _cast_time(ab, char_state))
@@ -249,6 +291,31 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
                         "the budget ran out first")
             else:
                 casts = gcd_budget / occupancy if occupancy else 0.0
+            if cp > 0:
+                # 3e B4 — a finisher is limited by the COMBO POINTS in front of
+                # it, not by the GCD budget: it can be spent once per `cp`
+                # builder casts. Before this, finishers were CP-gated in the APL
+                # (medium_sim) and completely ungated here, so fast_sim cast
+                # them as ordinary fillers at whatever rate the budget allowed —
+                # while scoring them at 0 CP.
+                #
+                # The cycle is `cp` builder GCDs plus the finisher's own, so out
+                # of N total actions a finisher fires N / (cp + 1) times. N is
+                # actions already allocated plus what the remaining budget could
+                # still buy — an UPPER bound on builders, so this is an upper
+                # bound on the finisher too, and it is stated as one.
+                projected = gcd_actions + (gcd_budget / occupancy
+                                           if occupancy else 0.0)
+                allowed = projected * CP_PER_BUILDER_CAST / (cp + 1)
+                if allowed < casts:
+                    casts = allowed
+                warnings.append(
+                    f"{ab.name}: held to {cp:g} combo points and cast "
+                    f"{casts:.1f}x, assuming {CP_PER_BUILDER_CAST:g} CP per "
+                    "builder cast — a retail_hypothesis, NOT measured. "
+                    "SPELL_EFFECT_ADD_COMBO_POINTS (effect 40) has zero rows in "
+                    "the extract, so which abilities generate combo points is "
+                    "not derivable from our data at all")
             gcd_budget = max(0.0, gcd_budget - casts * occupancy)
             gcd_actions += casts
 
@@ -408,7 +475,20 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
                     continue
                 st.resources[rtype] -= cost
 
-            exp = ab.expected_cast(char_state, content)
+            # 3e B4 (ENGINE_BUGS E1) — the combo-point economy, finally
+            # reachable. `combo_points` was declared on TimelineState and
+            # incremented NOWHERE in the tree, so `combo_points_at_least` could
+            # never be true and any finisher gated on it never cast. Fixing that
+            # alone would have done nothing, because `is_finisher` also
+            # classified none of a real board's per-combo abilities — detection
+            # had to be fixed first (apl_gen), and only then does this bite.
+            cp_cost = _cp_gate(apl, entry.spell_id)
+            exp = ab.expected_cast(char_state, content, combo_points=cp_cost)
+            if cp_cost:
+                st.combo_points = max(0, st.combo_points - cp_cost)
+            elif exp.mean > 0:
+                st.combo_points = min(MAX_COMBO_POINTS,
+                                      st.combo_points + CP_PER_BUILDER_CAST)
             if entry.spell_id in never_cast:
                 warnings.extend(exp.warnings)
                 never_cast.discard(entry.spell_id)

@@ -53,9 +53,11 @@ GENERALITY_RESULTS = {}     # check name -> bool, for the 3d D1 fixtures only
 # 🛑 Do not add a line here to silence an inconvenient check. A line is a claim
 # that the defect is written up, with file:line, in primer/ENGINE_BUGS.md.
 EXPECTED_FAILURES = {
-    "[cp_melee] an APL entry gated on combo_points_at_least can ever fire":
-        "ENGINE_BUGS.md E1 — combo_points never incremented, AND is_finisher "
-        "classifies none of this board's per-combo abilities",
+    # E1 CLOSED in 3e B4 — is_finisher now reads `per_combo` as well as
+    # `cp_scaling` (all 4 of this board's per-combo abilities are gated, was 0),
+    # finishers have their own APL tier above the fillers so a gated entry
+    # actually gets a turn, and combo_points is generated and spent in
+    # medium_sim. Line deleted per the registry's own rule.
     "[cp_melee] the execute window is modelled, or the sim says it cannot "
     "model it":
         "ENGINE_BUGS.md E2 — target_health_pct pinned at 100 (tiers.py:198-199)",

@@ -359,7 +359,8 @@ class ResolvedAbility:
         warnings.extend(table.warnings)
         return table
 
-    def _components(self, ev, char_state, warnings, include_healing=False):
+    def _components(self, ev, char_state, warnings, include_healing=False,
+                    combo_points=0):
         """Per-term damage/healing contributions FOR ONE EVENT. Returns
         (damage_min, damage_max, healing_avg, components).
 
@@ -419,10 +420,21 @@ class ResolvedAbility:
                     continue
                 cp = t.get("per_combo")
                 if cp:
-                    warnings.append(
-                        f"{self.name}: per-combo flat term present — combo "
-                        "points not yet parameterised in expected_hit (2a); "
-                        "term included at 0 CP")
+                    # 3e B4 — parameterised. `per_combo` is EffectPointsPerCombo,
+                    # a decoded flat added per combo point spent, so the term is
+                    # `flat + per_combo * cp`. Before this it was scored at 0 CP
+                    # unconditionally: a finisher contributed its base and
+                    # nothing else, which is most of a combo-point build's
+                    # damage missing.
+                    lo = lo + cp * combo_points
+                    if hi is not None:
+                        hi = hi + cp * combo_points
+                    if not combo_points:
+                        warnings.append(
+                            f"{self.name}: per-combo flat term ({cp:g} per CP) "
+                            "scored at 0 COMBO POINTS — this activation was not "
+                            "told what CP it was spent at, so the finisher's "
+                            "own scaling contributes nothing")
                 dmin += lo
                 dmax += (hi if hi is not None else lo)
                 comps.append({"kind": "flat", "min": lo, "max": hi, "via": via,
@@ -472,12 +484,19 @@ class ResolvedAbility:
                         "contributes 0, named not silent (extend the term "
                         "vocabulary here if the extractor learned a new one)")
                     continue
-                if t.get("cp_scaling"):
+                cps = t.get("cp_scaling")
+                if cps and not combo_points:
                     warnings.append(
-                        f"{self.name}: {term} carries cp_scaling="
-                        f"{t['cp_scaling']} — combo points not parameterised "
-                        "in 2a; coefficient applied WITHOUT the CP factor")
+                        f"{self.name}: {term} carries cp_scaling={cps} and this "
+                        "activation was scored at 0 COMBO POINTS — the "
+                        "coefficient is applied WITHOUT its CP factor")
                 contrib = stat * coeff
+                if cps and combo_points:
+                    # 3e B4 — the primer's rule is structural, not a preference:
+                    # a QUADRATIC finisher goes ~2.8x from 3 CP to 5 CP, not
+                    # 1.67x, which is why "never dump below max CP" is a rule.
+                    contrib *= (combo_points ** 2 if cps == "quadratic"
+                                else combo_points)
                 dmin += contrib
                 dmax += contrib
                 comps.append({"kind": "coefficient", "term": term,
@@ -626,8 +645,16 @@ class ResolvedAbility:
     # ------------------------------------------------------------- public API
 
     def expected_hit(self, char_state, content: ContentProfile,
-                     rng=None, event=None) -> ExpectedHitResult:
+                     rng=None, event=None, combo_points=0) -> ExpectedHitResult:
         """Expected value/variance for ONE OCCURRENCE of ONE event.
+
+        `combo_points` (3e B4) is the CP the activation is spent at. It defaults
+        to **0**, which is what every caller did implicitly before — a finisher's
+        `per_combo` flat and its `cp_scaling` coefficient were both scored as if
+        the ability were pressed at zero combo points, i.e. a finisher's entire
+        reason for existing contributed nothing. The value comes from the APL's
+        own gate, not from a guess: `apl_gen` holds finishers to
+        `MAX_COMBO_POINTS`, so that is what they are scored at.
 
         ⚠ 2b changed what this means. In 2a it summed every damage term the
         card could reach — its own direct hit, its own DoT tick and any
@@ -687,7 +714,8 @@ class ResolvedAbility:
 
         primary = self._primary_event()
         dmin, dmax, heal, comps = self._components(
-            ev, char_state, warnings, include_healing=(ev is primary))
+            ev, char_state, warnings, include_healing=(ev is primary),
+            combo_points=combo_points)
         mitigation = self._mitigation(ev, char_state, content, warnings)
         buckets = self._damage_buckets(ev, char_state, warnings)
         bucket_mult = 1.0
@@ -799,19 +827,23 @@ class ResolvedAbility:
 
     # ------------------------------------------------------- per-cast totals
 
-    def expected_cast(self, char_state, content: ContentProfile
-                      ) -> ExpectedCastResult:
+    def expected_cast(self, char_state, content: ContentProfile,
+                      combo_points=0) -> ExpectedCastResult:
         """One full activation: every event at its own occurrence count.
 
         Variance sums across events under an INDEPENDENCE assumption (each
         event rolls its own avoidance and crit). That is right for a DoT tick
         vs a direct hit; it would understate variance if two events shared a
         roll, which nothing in the current data does.
+
+        `combo_points` (3e B4) is passed through to every event — see
+        `expected_hit`. Default 0 preserves every existing caller's behaviour.
         """
         total = var = heal = 0.0
         per_event, unresolved, warnings = [], [], []
         for ev in self.events():
-            res = self.expected_hit(char_state, content, event=ev)
+            res = self.expected_hit(char_state, content, event=ev,
+                                    combo_points=combo_points)
             warnings.extend(res.warnings)
             n, note = self.occurrences_per_cast(ev)
             if note:

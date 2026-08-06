@@ -42,7 +42,46 @@ bugs, not green tests. Do not "repair" a failure by weakening its assertion.
 
 ---
 
-## E1 — `combo_points` is never incremented, and `is_finisher` never fires either
+## E1 — `combo_points` is never incremented, and `is_finisher` never fires either — ✅ FIXED (`3e` B4)
+
+> ### ✅ Closed 2026-08-06, session `3e` Block B4. Fixed in the order this entry demanded, and each step was necessary.
+>
+> **1. Detection.** `is_finisher` read `t.get("cp_scaling")` alone. Every real
+> per-combo term on this board carries **`per_combo`** instead —
+> `EffectPointsPerCombo`, a decoded flat per combo point — while `cp_scaling` is
+> set only on **coefficient** terms parsed from tooltip text, and is `None` even
+> there. Reading both takes the board from **0 CP-gated entries to 4**
+> (Rupture 11275, Panache 277038, Aether Rupture 904965, Crimson Tempest 954886).
+>
+> **2. Placement — necessary, and not predicted by this entry.** With detection
+> fixed the finisher still cast **zero** times: it sat among the *fillers*, and a
+> higher-damage filler carrying `always` won every priority scan, so the gated
+> entry never got a turn. Finishers now have their own APL tier **above** the
+> fillers. It is safe there for the same reason a maintained debuff is — it is
+> gated, and unavailable until the combo points exist.
+>
+> **3. The economy.** `combo_points` is generated and spent in `medium_sim`, and
+> `fast_sim` limits a finisher to `N / (cp + 1)` casts (the cycle is `cp` builder
+> GCDs plus the finisher's own). `expected_hit`/`expected_cast` now take
+> **`combo_points`**, read from the APL's own gate rather than re-derived, so the
+> gate and the damage cannot disagree about what was spent. Before this a
+> finisher's `per_combo` flat and its `cp_scaling` coefficient were **both scored
+> at 0 CP** — a finisher's entire reason for existing contributed nothing.
+>
+> 🛑 **The generation rate is a `retail_hypothesis`, because the data is absent —
+> and the absence is itself a finding.** `SPELL_EFFECT_ADD_COMBO_POINTS` is
+> effect type 40 and `spell_effect_values` holds **zero rows** of it. Nothing in
+> the extract says which abilities generate combo points or how many. So
+> `CP_PER_BUILDER_CAST = 1.0` is assumed **once, under a name, with a warning
+> emitted by any sim that relies on it** — the same treatment `BASE_GCD` gets.
+> Open question: `combo_point_generation_absent_from_extract`.
+>
+> **Gate impact (B3 → B4): unchanged at 5 of 36, qualified 2, slice 64.3%.**
+> 7 of 36 characters moved, none across the boundary — finishers now fire less
+> often but each one is worth its combo points, and on this cohort the two
+> roughly cancel.
+
+<details><summary>The original E1 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -65,6 +104,8 @@ Two consequences for `3e`: incrementing `combo_points` alone fixes nothing, and
 a naive check ("does a finisher ever cast?") would have PASSED while both bugs
 were live. `is_finisher` detection has to be fixed first, and then the CP economy
 becomes reachable — at which point the *original* bug starts biting.
+
+</details>
 
 ---
 

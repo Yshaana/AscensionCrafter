@@ -51,6 +51,13 @@ _REFUSED = {
 }
 
 
+# 3e B4 — the combo-point cap lives here, in the layer BOTH `apl_gen` (which
+# writes the gate) and `tiers` (which spends against it) already depend on.
+# It was defined in `apl_gen` alone, and `tiers` cannot import that module —
+# `apl_gen` imports `tiers`, so the arrow only points one way.
+MAX_COMBO_POINTS = 5
+
+
 class APLError(Exception):
     """A malformed APL. Raised, never worked around: a silently-dropped entry
     changes the rotation being simulated without saying so."""

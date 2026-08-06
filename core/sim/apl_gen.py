@@ -28,10 +28,9 @@ Priority rules, in order:
 orderings, and a hand-authored APL will usually beat it.
 """
 from .ability_model import resolve_ability, AbilityResolutionError
-from .apl import APL, APLEntry
+from .apl import APL, APLEntry, MAX_COMBO_POINTS
 from .tiers import _is_pure_periodic
 
-MAX_COMBO_POINTS = 5
 SELF_SUSTAIN_HEALTH_PCT = 50.0
 
 # 3e B3 — how close to expiry a maintained debuff is refreshed. One GCD's worth,
@@ -74,8 +73,19 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
             # `tiers._is_pure_periodic` so the two layers cannot drift apart.
             "debuff_duration": (
                 dur if (dur > 0 and _is_pure_periodic(ab)) else 0.0),
+            # 3e B4 (ENGINE_BUGS E1) — this read `cp_scaling` ALONE, and on a
+            # real combo-point board that classified NONE of the four abilities
+            # carrying a genuine per-combo term as finishers: Rupture, Crimson
+            # Tempest, Panache and Aether Rupture all carry `per_combo` (a
+            # decoded flat per combo point, EffectPointsPerCombo) while
+            # `cp_scaling` is set only on COEFFICIENT terms parsed from tooltip
+            # text — and is None even there on this board. So zero APL entries
+            # were CP-gated and the finishers cast freely as ordinary fillers,
+            # which is why a naive "does a finisher ever cast?" check would have
+            # passed while both halves of E1 were live.
             "is_finisher": any(
-                t.get("cp_scaling") for t in ab.damage_terms),
+                t.get("per_combo") or t.get("cp_scaling")
+                for t in ab.damage_terms),
             "is_quadratic": any(
                 t.get("cp_scaling") == "quadratic" for t in ab.damage_terms),
             "heals": exp.mean_healing > 0,
@@ -98,6 +108,15 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
     maintained = sorted([s for s in on_gcd if s["debuff_duration"] > 0],
                         key=lambda s: -s["mean"])
     rest = [s for s in on_gcd if s["debuff_duration"] <= 0]
+    # 3e B4 — FINISHERS get their own tier, ABOVE ordinary fillers.
+    # Detection alone was not enough: with the finisher left among the fillers,
+    # a higher-damage filler carrying `always` won every scan and the CP-gated
+    # entry never got a turn, so it still cast zero times after `is_finisher`
+    # was fixed. It is safe up here for the same reason a maintained debuff is —
+    # it is gated, and unavailable until the combo points are actually there.
+    finishers = sorted([s for s in rest if s["is_finisher"]],
+                       key=lambda s: -s["mean"])
+    rest = [s for s in rest if not s["is_finisher"]]
     cds = sorted([s for s in rest if s["cooldown"] > 0],
                  key=lambda s: -s["cooldown"])
     fillers = sorted([s for s in rest if not s["cooldown"]],
@@ -125,16 +144,36 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
         # high priority safe: the entry is unavailable for all but the last
         # ~1.5s of the debuff, so it refreshes without clipping and cannot
         # monopolise the priority list.
+        conds = [{"type": "debuff_remaining_below",
+                  "spell_id": s["spell_id"],
+                  "value": DEBUFF_REFRESH_WINDOW_S}]
+        # A maintained debuff can ALSO be a finisher — Rupture and Aether
+        # Rupture are both. It then carries both gates, because both are true
+        # of it: refresh near expiry, and only at max combo points.
+        if s["is_finisher"]:
+            conds.append({"type": "combo_points_at_least",
+                          "value": MAX_COMBO_POINTS})
         entries.append(APLEntry(
             spell_id=s["spell_id"],
-            conditions=[{"type": "debuff_remaining_below",
-                         "spell_id": s["spell_id"],
-                         "value": DEBUFF_REFRESH_WINDOW_S}],
+            conditions=conds,
             comment=(f"{s['ability'].name}: maintained debuff "
                      f"({s['debuff_duration']:g}s), refreshed under "
                      f"{DEBUFF_REFRESH_WINDOW_S:g}s remaining"
                      + (f"; own cooldown {s['cooldown']:g}s"
-                        if s["cooldown"] else ""))))
+                        if s["cooldown"] else "")
+                     + (f"; ALSO a finisher, held to {MAX_COMBO_POINTS} CP"
+                        if s["is_finisher"] else ""))))
+
+    for s in finishers:
+        comment = (f"{s['ability'].name}: finisher held to "
+                   f"{MAX_COMBO_POINTS} CP")
+        if s["is_quadratic"]:
+            comment += " — QUADRATIC CP scaling, never dump below max"
+        entries.append(APLEntry(
+            spell_id=s["spell_id"],
+            conditions=[{"type": "combo_points_at_least",
+                         "value": MAX_COMBO_POINTS}],
+            comment=comment))
 
     for s in cds:
         entries.append(APLEntry(
@@ -142,17 +181,9 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
             comment=f"{s['ability'].name}: on cooldown ({s['cooldown']:g}s)"))
 
     for s in fillers:
-        conds = [{"type": "always"}]
-        comment = f"{s['ability'].name}: filler"
-        if s["is_finisher"]:
-            conds = [{"type": "combo_points_at_least",
-                      "value": MAX_COMBO_POINTS}]
-            comment = (f"{s['ability'].name}: finisher held to "
-                       f"{MAX_COMBO_POINTS} CP")
-            if s["is_quadratic"]:
-                comment += " — QUADRATIC CP scaling, never dump below max"
-        entries.append(APLEntry(spell_id=s["spell_id"], conditions=conds,
-                                comment=comment))
+        entries.append(APLEntry(
+            spell_id=s["spell_id"], conditions=[{"type": "always"}],
+            comment=f"{s['ability'].name}: filler"))
 
     prov = (f"auto-generated by apl_gen for content={content.name}; "
             f"{len(entries)} entries")
