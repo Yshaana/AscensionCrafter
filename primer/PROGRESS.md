@@ -16,6 +16,11 @@ purity 0/45, all sim-engine checks pass.
 
 ### 🔴 FIRST ACTIONS NEXT SESSION
 
+0. **Rebuild the corpus first: `py ingest/logs_gg/build_builds_db.py`.** The
+   uncapped backfill ran through session `3a` and was still going when it
+   ended, so `builds.db`'s counts below are a mid-backfill snapshot. Every
+   figure in the inference report and the calibration gate improves with the
+   larger corpus — re-run both after rebuilding.
 1. **The re-tests are STILL outstanding** — they were 2e's first action, and
    `3a` could not run them (they need the owner in game). Re-test tracker
    #200295 after the server restart: Hammerdin procs from Judgement/Holy Shock
