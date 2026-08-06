@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import (  # noqa: E402
     DBC_ASCENSION_EXTRACT_JSON, DBC_EXTRACT_JSON, DB_PATH as _DB_PATH,
 )
+import season_config  # noqa: E402  - realm/season constants (3d A1)
 from core.spells.text_extraction import SUBSPELL_REF_PAT  # noqa: E402
 
 DB_PATH = str(_DB_PATH)  # ephemeral, gitignored
@@ -507,7 +508,19 @@ def resolve_hidden_formula_spells(cur):
         if found_terms:
             resolved_count += 1
             for rid, term_type, coeff in found_terms:
-                new_rows.append((sid, term_type, coeff, 'dbc_hidden_formula'))
+                # 3d C1 — provenance stated per row. This writer DOES know the
+                # sub-spell id (`rid`), unlike load_extract.py replaying the
+                # exported payload, so the evidence_ref names it exactly.
+                # source_tier is 'dbc_description_text', not the tier-4
+                # 'dbc_numeric_field': this is regex extraction from a
+                # description string, and labelling it tier 4 would borrow the
+                # authority of a numeric field for a tooltip template.
+                new_rows.append((
+                    sid, term_type, coeff, 'dbc_hidden_formula',
+                    'dbc_description_text',
+                    f'dbc:Spell.dbc:{rid}:description'
+                    f' (hidden sub-spell referenced by {sid}\'s tooltip)',
+                    'inferred', season_config.REALM, season_config.SEASON))
             # surprise check: does an existing confirmed_facts row already
             # assert a coefficient for one of these spells that now conflicts?
             cur.execute('SELECT name FROM spells WHERE id=?', (sid,))
@@ -536,8 +549,10 @@ def resolve_hidden_formula_spells(cur):
             note = ' | DBC lookup: ' + '; '.join(detail)
             cur.execute('UPDATE spells SET notes=COALESCE(notes,"")||? WHERE id=?', (note, sid))
 
-    cur.executemany('INSERT INTO spell_scaling (spell_id, term_type, coefficient, source) VALUES (?,?,?,?)',
-                     new_rows)
+    cur.executemany(
+        'INSERT INTO spell_scaling (spell_id, term_type, coefficient, source, '
+        'source_tier, evidence_ref, confidence, realm, season) '
+        'VALUES (?,?,?,?,?,?,?,?,?)', new_rows)
 
     print(f'\nhas_hidden_formula spells resolved into spell_scaling: {resolved_count} / {len(targets)}')
     print(f'left flagged (no SP/AP/RAP/weapon term found in hidden sub-spell text): {len(unresolved)}')

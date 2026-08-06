@@ -54,7 +54,17 @@ CREATE TABLE IF NOT EXISTS spell_scaling (
     spell_id INTEGER,
     term_type TEXT,    -- SP / AP / RAP / WEAPON
     coefficient REAL,  -- NULL for WEAPON (normalized, no fixed coeff in text)
-    source TEXT DEFAULT 'export_tooltip',
+    -- 🛑 NOT NULL as of 3d C1. This used to read
+    --      source TEXT DEFAULT 'export_tooltip'
+    -- — nullable, WITH a default — so a writer that omitted `source` did not
+    -- get a NULL it could be caught on, it got a **fabricated tier-6
+    -- provenance**. That happened in the tree: seed_cp_scaling.py hand-inserted
+    -- Holy Finish's SP/AP 0.02 with no source and they were stamped as having
+    -- come from the catalog tooltip — which is the exact opposite of true, since
+    -- the reason they are hand-seeded is that the extractor CANNOT read that
+    -- tooltip's compound ($AP+$SP)*n*n*0.02 form. Rule 1 is "a number with no
+    -- source cannot be inserted"; a default makes that unenforceable.
+    source TEXT NOT NULL,
     cp_scaling_type TEXT,   -- 'linear' | 'quadratic' | NULL (seed_cp_scaling.py)
     rank INTEGER NOT NULL DEFAULT 0,
     -- 'direct' | 'periodic' | NULL. NULL means UNKNOWN, never "direct":
@@ -68,7 +78,36 @@ CREATE TABLE IF NOT EXISTS spell_scaling (
     -- would apply the DoT's coefficient to the direct hit. That is the
     -- "an aggregate across effect slots mixes units" rule (primer v30 §5),
     -- one layer up from the Lightbound Cleave 62-65 case that found it.
-    component TEXT
+    component TEXT,
+
+    -- provenance (§2.1 / rule 1) — added 3d C1.
+    --
+    -- Until 2026-08-06 this table had NONE of these, while carrying the
+    -- coefficients that 177 source-conflict judgements and every sim
+    -- coefficient term rest on. It was the LEAST provenance-enforced table in
+    -- the schema and the most load-bearing — compare spell_effect_values
+    -- (:258-264) and spell_mechanics (:355-363), which have enforced this since
+    -- Phase 1.
+    --
+    -- 🛑 These were backfilled by STATING each existing writer's real evidence,
+    -- one writer at a time — never by defaulting. `source_tier` is a §2.2 tier
+    -- label; `evidence_ref` points at the specific text, page or measurement the
+    -- number came from, not at "the DBC" or "the site" in general.
+    source_tier TEXT NOT NULL,   -- §2.2: export_tooltip / dbc_description_text /
+                                 -- db_ascension_gg / own_parse_measurement
+    evidence_ref TEXT NOT NULL,  -- e.g. export:spell-export.json:<id>:tooltip
+                                 --      dbc:Spell.dbc:<id>:description
+                                 --      https://db.ascension.gg/?spell=<id>
+    confidence TEXT NOT NULL,    -- 'confirmed' | 'inferred' | 'provisional'
+    realm TEXT NOT NULL,
+    season TEXT NOT NULL,
+    -- ⚠ NULLABLE, deliberately, mirroring spell_effect_values:263 — the table
+    -- the 3c audit itself holds up as the compliant precedent. A patch id is a
+    -- rebuild-scoped autoincrement that does not exist for text-derived rows,
+    -- and inventing one to satisfy NOT NULL would fabricate exactly the
+    -- precision rule 2 forbids. NULL here reads "patch not tracked for this
+    -- source", never "verified at patch 0".
+    verified_at_patch INTEGER
 );
 
 -- NO foreign key on spellId, deliberately. `Cards.txt` is a CLIENT export and the

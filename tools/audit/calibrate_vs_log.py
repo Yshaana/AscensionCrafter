@@ -144,13 +144,43 @@ def _by_name(dmg, name):
     return merged if (merged["hit"] or merged["crit"]) else None
 
 
+class AlignmentUncheckable(RuntimeError):
+    """The alignment gate had no anchor ability in this log and could not run."""
+
+
 def check_alignment(dmg):
-    """Refuse to report unless doc-confirmed facts reproduce."""
+    """Refuse to report unless doc-confirmed facts reproduce.
+
+    🔴 3d D2 — THIS GATE USED TO FAIL OPEN, and off-Elric it always did.
+    Every anchor it checks is a paladin ability (`ALIGNMENT_ZERO_CRIT`, plus
+    "Melee" and "Lightbound Cleave"). When none of them appear it `continue`d
+    past each one and returned an EMPTY problem list — which the caller reads as
+    *"alignment OK"*. So for a Mage log, a Rogue log, or any log that is not
+    this project's one paladin, the field-alignment check **passed vacuously and
+    said so out loud**, printing "alignment OK" for a check that never ran.
+
+    That is exactly the failure mode the primer names: *a guard that cannot run
+    must SAY SO — never report the condition it failed to test.* It is the same
+    shape as the extract wrapper's "is the game closed?" check that errored and
+    printed "OK - game is closed" (primer v31 §5), implemented here.
+
+    Now: if no anchor is present in sufficient quantity, this RAISES
+    `AlignmentUncheckable` rather than returning `[]`. "I could not check" and
+    "I checked and it was fine" are different answers and must not share a
+    return value.
+
+    ⚠ The anchor set is still paladin-only. Making this gate work for other
+    classes needs doc-confirmed 0%-crit periodics and plausible-crit-rate
+    anchors for those kits, which do not exist yet. Refusing is the honest
+    interim state — it converts a silent false pass into a visible gap.
+    """
     problems = []
+    anchors_checked = []
     for name in ALIGNMENT_ZERO_CRIT:
         v = _by_name(dmg, name)
         if not v or (len(v["hit"]) + len(v["crit"])) < 20:
             continue
+        anchors_checked.append(f"{name} (0%-crit periodic)")
         if v["crit"]:
             problems.append(
                 f"{name} shows {len(v['crit'])} crits — it is a doc-confirmed "
@@ -159,12 +189,22 @@ def check_alignment(dmg):
     for label in ("Melee", "Lightbound Cleave"):
         v = _by_name(dmg, label)
         if v and (len(v["hit"]) + len(v["crit"])) >= 30:
+            anchors_checked.append(f"{label} (plausible crit rate)")
             rate = len(v["crit"]) / (len(v["hit"]) + len(v["crit"]))
             if not 0.05 < rate < 0.95:
                 problems.append(
                     f"{label} crit rate {rate:.1%} is implausible — suspect "
                     "field misalignment")
-    return problems
+    if not anchors_checked:
+        present = sorted({v["name"] for v in dmg.values() if v.get("name")})
+        raise AlignmentUncheckable(
+            "no anchor ability present in this log, so field alignment COULD "
+            "NOT BE CHECKED — this is not a pass. Anchors are "
+            f"{sorted(ALIGNMENT_ZERO_CRIT) + ['Melee', 'Lightbound Cleave']}, "
+            f"all paladin; this log contains {len(present)} ability names "
+            f"({', '.join(present[:8])}{'…' if len(present) > 8 else ''}). "
+            "Refusing rather than reporting an unverified alignment as OK.")
+    return problems, anchors_checked
 
 
 def _pick_event(ab, pick):
@@ -193,6 +233,61 @@ def resolve_for(conn, logged_id, level=60):
     if ev is None:
         return None, "resolves to NO EVENTS (no known magnitude)"
     return ab, ev
+
+
+# 🛑 3d C4 — the circularity guard that was DOCUMENTED AND NEVER IMPLEMENTED.
+#
+# `seed_epistemics.py:143` asserts, in prose, that *"Holy Shock is EXCLUDED from
+# the Holy-group constant, same treatment as Consecration."* It was not. Grep
+# found `ascension_measured_provisional` in exactly two files — the seeder and
+# the precedence dict — and ZERO times under `tools/`. So `sim_base()` embedded
+# Holy Shock's 0.40 SP coefficient, `emit()` pooled Holy Shock into the Holy
+# school group, and the group median was then used to judge... the parses that
+# 0.40 was back-solved from in the first place. A documented-but-absent guard is
+# worse than a missing one: it reads as satisfied to the next session.
+#
+# Derived, not hardcoded. Any coefficient whose `source` marks it as back-solved
+# from our own parses makes its spell ineligible for a group constant. Listing
+# spell id 25902 literally would go stale the moment a second provisional value
+# is seeded — and the seeding path for one already exists.
+CIRCULAR_COEFF_SOURCES = {"ascension_measured_provisional"}
+
+
+def circular_terms(ev):
+    """Back-solved coefficient terms in a resolved event, if any.
+
+    A spell carrying one cannot contribute to a school-group constant that is
+    itself compared against the parses the coefficient came from. It is still
+    REPORTED per ability — the number is informative — it just cannot vote.
+    """
+    out = []
+    for t in (ev.terms or []):
+        if t.get("source") in CIRCULAR_COEFF_SOURCES:
+            out.append((t.get("term"), t.get("coefficient"), t.get("source")))
+    return out
+
+
+def independent_alternative(conn, source_spell_id, term_type):
+    """The best NON-circular coefficient for this term, if any source states one.
+
+    Reported next to a circular term so the operator can see that an independent
+    check exists — Holy Shock's SP is provisional 0.40 (back-solved) but
+    db.ascension.gg separately STATES 0.2145, roughly half.
+
+    🛑 REPORTED, NOT SUBSTITUTED. Swapping the tool's arithmetic onto the
+    independent value is defensible and is arguably what "then the scraped 0.214
+    stands in calibration" asks for — but it changes a calibration number, and
+    `3d` ships no such change (§8 scope fence). Surfacing it lets `3e` make that
+    call deliberately, with both numbers in front of it, instead of inheriting a
+    silent rebind from a hygiene session.
+    """
+    row = conn.execute(
+        "SELECT coefficient, source FROM spell_scaling "
+        "WHERE spell_id = ? AND term_type = ? AND source NOT IN "
+        "(" + ",".join("?" * len(CIRCULAR_COEFF_SOURCES)) + ") "
+        "ORDER BY coefficient DESC LIMIT 1",
+        (source_spell_id, term_type, *sorted(CIRCULAR_COEFF_SOURCES))).fetchone()
+    return (row[0], row[1]) if row else (None, None)
 
 
 def sim_base(conn, logged_id, cs, content, level=60, talents=None):
@@ -350,7 +445,14 @@ def main():
         if not dmg:
             print(f"  {p.name}: no {args.character} damage events, skipped")
             continue
-        problems = check_alignment(dmg)
+        try:
+            problems, anchors = check_alignment(dmg)
+        except AlignmentUncheckable as e:
+            # 3d D2 — "could not check" is its own outcome, not a pass.
+            print(f"🛑 {p.name}: FIELD ALIGNMENT COULD NOT BE CHECKED, "
+                  f"refusing to report")
+            print(f"     {e}")
+            continue
         if problems:
             print(f"🛑 {p.name}: FIELD ALIGNMENT FAILED, refusing to report")
             for pr in problems:
@@ -362,7 +464,8 @@ def main():
             pooled[k]["crit"].extend(v["crit"])
             pooled[k]["name"] = v["name"]
         n = sum(len(v["hit"]) + len(v["crit"]) for v in dmg.values())
-        print(f"  {p.name}: {n:,} damage events, alignment OK")
+        print(f"  {p.name}: {n:,} damage events, alignment OK "
+              f"(anchors checked: {', '.join(anchors)})")
 
     if not per_log:
         print("nothing usable")
@@ -381,6 +484,13 @@ def main():
                 "the base is computed at 0 CP — and its CP term is QUADRATIC",
         20375: "seals are per-swing riders; the sim scores them per cast",
         31801: "seals are per-swing riders; the sim scores them per cast",
+        # 3d C4: named here because the audit found it absent. It no longer
+        # reaches this bucket (the circular check runs first), but if the
+        # circularity is ever resolved and the exclusion lifted, the ratio is
+        # still ~5x and the cause below is what to look at.
+        25902: "Holy Shock: resolves to a base far below its own rank-4 flat "
+               "(562-608 per the captured tooltip) — a resolver/rank issue, "
+               "separate from the SP-coefficient circularity. 3e.",
     }
 
     def label_of(sid, v):
@@ -392,6 +502,7 @@ def main():
         print(f"{'ability [spell id]':38}{'school':12}{'n':>6}{'base':>8}"
               f"{'+talents':>9}{'logged':>9}{'vs base':>9}{'vs model':>9}")
         by_school, broken, unresolved = collections.defaultdict(list), [], []
+        circular = []
         for sid, v in sorted(dmg_map.items(),
                              key=lambda kv: -len(kv[1]["hit"])):
             if len(v["hit"]) < args.min_hits:
@@ -405,14 +516,53 @@ def main():
             modelled, _ = sim_base(conn, sid, cs, content, talents=talents)
             ratio = logged / base
             model_ratio = logged / modelled if modelled else ratio
+            # 3d C4 — a spell whose coefficient was back-solved from these very
+            # parses is REPORTED but may not vote in its school's constant.
+            _, ev_c = resolve_for(conn, sid)
+            circ = circular_terms(ev_c) if ev_c is not None and hasattr(
+                ev_c, "terms") else []
+            if circ:
+                # Checked BEFORE the broken filter on purpose. A circular
+                # coefficient is the more important fact about the row, and
+                # burying it under "sim base is wrong, cause unknown" is how it
+                # stayed invisible in the first place. Either way it does not
+                # vote — this just makes the reason visible.
+                circular.append((lab, school, ratio, len(v["hit"]), circ,
+                                 getattr(ev_c, "source_spell_id", sid)))
+                continue
             if ratio > BROKEN_ABOVE or ratio < 0.5:
                 broken.append((sid, lab, ratio, base, logged, len(v["hit"])))
                 continue
+            mark = ""
             print(f"{lab[:37]:38}{str(school)[:11]:12}{len(v['hit']):>6}"
                   f"{base:>8,.0f}{modelled:>9,.0f}{logged:>9,.0f}"
-                  f"{ratio:>8.2f}x{model_ratio:>8.2f}x")
+                  f"{ratio:>8.2f}x{model_ratio:>8.2f}x{mark}")
             by_school[school].append((sid, lab, ratio, len(v["hit"]),
                                       model_ratio))
+
+        if circular:
+            print("\n--- ⊘ EXCLUDED from every school group: CIRCULAR "
+                  "coefficient (3d C4) ---")
+            for lab, school, r, n, terms, src_sid in circular:
+                print(f"  {lab[:34]:36}{r:>8.2f}x  ({n} hits, {school})")
+                for t, coeff, s in terms:
+                    alt, alt_src = independent_alternative(conn, src_sid, t)
+                    print(f"      {t} {coeff:g} via '{s}' — BACK-SOLVED from "
+                          f"this project's own parses. Pooling it into a group "
+                          f"constant that is then checked against those same "
+                          f"parses is circular, so it is reported and never "
+                          f"averaged in.")
+                    if alt is not None:
+                        print(f"      ↳ an INDEPENDENT source states {t} "
+                              f"{alt:g} ('{alt_src}'), {alt / coeff:.2f}x the "
+                              f"back-solved value. Reported, NOT substituted — "
+                              f"swapping the tool onto it changes a calibration "
+                              f"number, which is a 3e decision, not a hygiene "
+                              f"session's.")
+                    else:
+                        print(f"      ↳ NO independent source states {t} — the "
+                              f"back-solved value is the only one there is, so "
+                              f"this ability cannot check anything today.")
 
         print("\n--- by school (groups are never averaged together) ---")
         for school, rows in sorted(by_school.items(),

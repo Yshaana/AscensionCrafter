@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from config import CARDS_FILE, DB_PATH, SPELL_EXPORT, ensure_derived_dir  # noqa: E402
 import config  # noqa: E402
+import season_config  # noqa: E402
 
 # Piped/redirected stdout defaults to cp1252 on Windows and this file
 # prints non-ASCII; without this it dies with UnicodeEncodeError only when
@@ -52,15 +53,29 @@ def build(conn, spell_export_path, cards_path):
             1 if hidden_refs else 0, ",".join(map(str, hidden_refs)),
             1 if unresolved_pct else 0, None, None, None, None,
         ))
-        scaling_rows.extend((s["id"], term_type, coeff) for term_type, coeff in terms)
+        # Provenance stated per row, never defaulted (3d C1). The evidence for
+        # one of these coefficients is the specific catalog tooltip it was
+        # regex-extracted from, so evidence_ref names that entry — a reader can
+        # go to `spell-export.json`, find this id, and see the `$SP*x` literal.
+        # confidence='inferred': the extraction is mechanical but the SOURCE is
+        # tier-6 text at whatever rank the catalog happens to store, which for
+        # ~half of multi-rank cards is Rank 1 — the deepest point of retail's
+        # low-rank ramp. That uncertainty belongs on the row.
+        scaling_rows.extend(
+            (s["id"], term_type, coeff, "export_tooltip", "export_tooltip",
+             f"export:spell-export.json:{s['id']}:tooltip", "inferred",
+             season_config.REALM, season_config.SEASON)
+            for term_type, coeff in terms)
 
     conn.executemany(
         "INSERT INTO spells (id, type, name, rank, tooltip, schools, mechanics, "
         "has_hidden_formula, hidden_refs, has_unresolved_pct, class_origin, "
         "class_confidence, best_fit_path, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         spell_rows)
-    conn.executemany("INSERT INTO spell_scaling (spell_id, term_type, coefficient) "
-                     "VALUES (?,?,?)", scaling_rows)
+    conn.executemany(
+        "INSERT INTO spell_scaling (spell_id, term_type, coefficient, source, "
+        "source_tier, evidence_ref, confidence, realm, season) "
+        "VALUES (?,?,?,?,?,?,?,?,?)", scaling_rows)
 
     with open(cards_path, encoding="utf-8") as f:
         cards = json.load(f)

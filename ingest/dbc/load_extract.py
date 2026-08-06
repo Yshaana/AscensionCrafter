@@ -35,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import (  # noqa: E402
     DBC_ASCENSION_EXTRACT_JSON, DBC_EXTRACT_JSON, DB_PATH, ensure_derived_dir,
 )
+import season_config  # noqa: E402  - realm/season constants (3d A1)
 from core.db.connection import connect, transaction  # noqa: E402
 
 # columns whose values are stored as JSON/text and must not be coerced
@@ -111,10 +112,34 @@ def load_spell_extract(conn, path):
         conn.execute("UPDATE spell_scaling SET source = 'export_tooltip' "
                      "WHERE source IS NULL")
         conn.execute("DELETE FROM spell_scaling WHERE source = 'dbc_hidden_formula'")
+        # 3d C1 — provenance stated per row.
+        # 🛑 source_tier is 'dbc_description_text', NOT the 'dbc_numeric_field'
+        # tier 4 that spell_effect_values carries. These coefficients are
+        # regex-extracted from a sub-spell's DESCRIPTION STRING, which is the
+        # weakest thing the client offers, not the strongest. Labelling them
+        # tier 4 would claim the authority of a numeric field for a tooltip
+        # template — the Titanic Mutilate trap, in provenance form. (This does
+        # not violate "never read a magnitude from a description": spell_scaling
+        # holds COEFFICIENTS, and Ascension keeps applied coefficients in
+        # tooltip text — that is the whole reason this route exists.)
         conn.executemany(
-            "INSERT INTO spell_scaling (spell_id, term_type, coefficient, source) "
-            "VALUES (?,?,?, 'dbc_hidden_formula')",
-            [(r["spell_id"], r["term_type"], r.get("coefficient")) for r in scaling])
+            "INSERT INTO spell_scaling (spell_id, term_type, coefficient, source,"
+            " source_tier, evidence_ref, confidence, realm, season) "
+            "VALUES (?,?,?, 'dbc_hidden_formula', 'dbc_description_text',"
+            " ?, 'inferred', ?, ?)",
+            # ⚠ The evidence_ref names the ROUTE, not a sub-spell id, because
+            # this payload does not carry one — `hidden_formula_scaling` records
+            # only {spell_id, term_type, coefficient}. Writing
+            # `dbc:Spell.dbc:<spell_id>:description` would be actively WRONG:
+            # the coefficient is not in that spell's own description, it is in a
+            # sub-spell the tooltip references. Naming what we know and naming
+            # the gap beats inventing an id that would not resolve.
+            [(r["spell_id"], r["term_type"], r.get("coefficient"),
+              f"dbc:Spell.dbc:<hidden sub-spell of {r['spell_id']}>:description"
+              f" — resolved by build_dbc_index.py's hidden-formula pass; the"
+              f" candidate ids are in spells.hidden_refs for {r['spell_id']}."
+              f" The exact sub-spell id is NOT carried in the extract payload.",
+              season_config.REALM, season_config.SEASON) for r in scaling])
         loaded["spell_scaling (dbc_hidden_formula)"] = len(scaling)
     return loaded
 

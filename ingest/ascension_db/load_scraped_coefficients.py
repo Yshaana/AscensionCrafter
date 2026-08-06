@@ -69,6 +69,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import config  # noqa: E402
+import season_config  # noqa: E402  - realm/season constants (3d A1)
 from config import DATA_DERIVED, DB_PATH  # noqa: E402
 from core.spells.db_ascension import cross_check, decoded_flats_by_spell  # noqa: E402
 
@@ -158,7 +159,18 @@ def main():
             component = s.get("component")
             if component not in ("direct", "periodic"):
                 component = None
-            rows.append((sid, term, float(coeff), SOURCE, rank, component))
+            # 3d C1 — provenance stated per row. evidence_ref carries the exact
+            # page AND the check digit that made the row admissible: this source
+            # is trusted ONLY because the page's own stated base value reproduced
+            # the flat we decoded independently from the client's numeric fields,
+            # and `detail` is that comparison. A reader can re-run the check from
+            # what is written here.
+            evidence = (f"{rec.get('source_url') or f'db.ascension.gg spell {sid}'}"
+                        f" — scraped {rec.get('fetched_at')}; cross_check=agree"
+                        f" ({detail})")
+            rows.append((sid, term, float(coeff), SOURCE, rank, component,
+                         "db_ascension_gg", evidence, "confirmed",
+                         season_config.REALM, season_config.SEASON))
 
     spells = len({r[0] for r in rows})
     print(f"[scope]     {len(records)} scraped records")
@@ -183,7 +195,8 @@ def main():
     cur.execute("DELETE FROM spell_scaling WHERE source = ?", (SOURCE,))
     cur.executemany(
         "INSERT INTO spell_scaling (spell_id, term_type, coefficient, source, "
-        "rank, component) VALUES (?,?,?,?,?,?)", rows)
+        "rank, component, source_tier, evidence_ref, confidence, realm, season) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
     conn.commit()
 
     held = cur.execute("SELECT COUNT(*) FROM spell_scaling WHERE source = ?",

@@ -127,8 +127,22 @@ def main():
         return 1
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
+    # 3d C2 — every `spell_scaling.source` must have a deliberate precedence
+    # position. An unranked source does not fail, it ranks BELOW export_tooltip,
+    # and two unranked sources tie and are both emitted and SUMMED. Checked
+    # before the resolver runs, so the failure names the cause rather than
+    # surfacing later as a silently doubled coefficient.
+    try:
+        known = mech.validate_coefficient_sources(conn)
+    except mech.UnrankedCoefficientSource as e:
+        print(f"COEFFICIENT SOURCE VALIDATION FAILED:\n  {e}", file=sys.stderr)
+        return 1
+    print(f"coefficient sources validated: {len(known)} distinct, all ranked "
+          f"({', '.join(known)})")
+
     with transaction(conn):
-        migration = mech.migrate_spell_scaling_ranks(conn)
+        migration = mech.migrate_spell_scaling_ranks(conn, realm=REALM,
+                                                     season=SEASON)
         stats = mech.populate(conn, REALM, SEASON, patch_id, now)
 
     print(f"spell_scaling rank migration: {migration['sibling_rows']} level-60 "
@@ -137,8 +151,17 @@ def main():
           "coefficient differs from the one cast)")
     print(f"spell_mechanics: {stats['rows']} rows resolved "
           f"({stats['empty']} population targets had no resolvable field)")
+    # 3d C3 — this line used to print `with_conflict` alone and call it "rows
+    # with a source conflict", while coefficient disagreements never reached
+    # `fs.conflicts` at all. The number was wrong by ~177 and read as if those
+    # conflicts did not exist. Both kinds are now counted and named.
     print(f"  rows with a source conflict (§2.3, surfaced not resolved): "
           f"{stats['with_conflict']}")
+    print(f"    of which FIELD conflicts (we do not know which value is right, "
+          f"row confidence downgraded): {stats['with_field_conflict']}")
+    print(f"    of which COEFFICIENT conflicts (two sources state different "
+          f"coefficients; resolved by owner-approved source precedence, "
+          f"recorded not re-decided): {stats['with_coefficient_conflict']}")
     print(f"  rows whose spell is not what a level-60 character casts "
           f"(explicit rank gap): {stats['with_rank_gap']}")
     print(f"  ambiguous rank lines contributing no sibling row: "

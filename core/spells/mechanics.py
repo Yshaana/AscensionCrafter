@@ -35,6 +35,13 @@ from .ranks import DEFAULT_LEVEL, rank_for_level
 from . import dbc_numeric as dn
 
 REALM_DEFAULT = "Darkmoon"   # single-realm database today; parameterised for §2.5
+SEASON_DEFAULT = "S10"
+# ⚠ These two mirror `season_config.py`, which `core/` may NOT import (rule 8 —
+# no config imports in the pure layer). They are DEFAULTS for callers that do
+# not pass realm/season; every ingest/cli caller passes the real values through
+# from season_config, so a season roll is still a one-file edit there. If you
+# change season_config, change these to match — nothing enforces it across the
+# purity boundary, which is the cost of keeping core/ importable standalone.
 
 # --- §2.2 source tiers, low ordinal = stronger ---------------------------------
 TIER_ORDER = {
@@ -165,6 +172,42 @@ class _FieldSet:
                     "low": None, "high": None,
                     "basis": f"default_confidence_mapping({confidence}) — non-numeric",
                 }
+
+    def note_coefficient_conflict(self, *, source_spell_id, term_type, component,
+                                  winner_source, winner_value, losers):
+        """Record a coefficient disagreement so it reaches `conflicts_json`.
+
+        🛑 3d C3 — rule 3 was HALF satisfied here and the operator saw a wrong
+        number. Both disagreeing rows do persist in `spell_scaling` (each writer
+        deletes only its own source partition), so "record both" held. But the
+        disagreement never entered `_FieldSet.conflicts`, so `conflicts_json` was
+        NULL for all ~177 of them and `stats["with_conflict"]` — which counts
+        only `fs.conflicts` — omitted every one. `cli/mechanics.py` then printed
+        "rows with a source conflict (surfaced not resolved)" against a number
+        that was wrong by ~177. A conflict visible only to someone who parses a
+        JSON blob by hand is not surfaced.
+
+        ⚠ Deliberately does NOT set `confidence='conflict'` on any field, unlike
+        `set()`. The two are different situations: `set()`'s conflict means *we
+        do not know which value is right*, whereas a coefficient conflict has an
+        owner-APPROVED precedence resolving it (prefer the scrape — it states the
+        applied value and carries a check digit). Marking the whole mechanics row
+        'conflict' would claim the spell's mechanics are undecided when they are
+        decided, and would fire `ability_model`'s conflict warning on ~177
+        spells that are behaving exactly as intended. The decision is recorded
+        and made visible; it is not re-made here.
+        """
+        key = f"coefficient:{term_type}:{component or 'unbound'}@{source_spell_id}"
+        self.conflicts[key] = [
+            {"value": winner_value, "source_tier": winner_source,
+             "evidence_ref": f"spell_scaling row for spell {source_spell_id}, "
+                             f"term {term_type} — WINS by source precedence",
+             "resolution": "won"},
+            *({"value": v, "source_tier": s,
+               "evidence_ref": f"spell_scaling row for spell {source_spell_id}, "
+                               f"term {term_type} — rejected, never summed",
+               "resolution": "rejected"} for s, v in losers),
+        ]
 
     def row_confidence(self):
         if any(c == "conflict" for c in self.confidence.values()):
@@ -366,6 +409,47 @@ _COEFF_SOURCE_RANK = {
 }
 
 
+class UnrankedCoefficientSource(RuntimeError):
+    """A `spell_scaling.source` exists that the precedence table does not rank."""
+
+
+def validate_coefficient_sources(conn):
+    """Every distinct `spell_scaling.source` must appear in `_COEFF_SOURCE_RANK`.
+
+    🛑 3d C2 — this closes the hole the dedupe fix left open in itself.
+    `_dedupe_coefficients` selects on `_COEFF_SOURCE_RANK.get(source, 99)`, so an
+    unranked source does not fail, it silently ranks **last** — behind
+    `export_tooltip`, the weakest source in the stack. Worse, **two** unranked
+    sources TIE at 99: both survive as `winners`, and if their `component`
+    differs (or one is NULL, which means "unknown" rather than "a different
+    component") **both are emitted and the engine sums them.** That is the
+    Mongoose Bite double-count — the exact bug the dedupe was written to fix —
+    reachable again the moment someone adds a better source and forgets this
+    dict.
+
+    So: adding a source without ranking it is a **hard failure at build time**,
+    not a silent demotion. `core/sim/cache.py:84-87` already warns for the
+    analogous case (a sim input table missing from the cache key); this is the
+    same pattern with teeth, because the consequence here is a wrong number
+    rather than a stale one.
+
+    Raises `UnrankedCoefficientSource`. Returns the sorted list of known sources
+    actually present, so a caller can report what it validated.
+    """
+    present = [r[0] for r in conn.execute(
+        "SELECT DISTINCT source FROM spell_scaling ORDER BY source")]
+    unranked = [s for s in present if s not in _COEFF_SOURCE_RANK]
+    if unranked:
+        raise UnrankedCoefficientSource(
+            f"spell_scaling contains {len(unranked)} source(s) with no entry in "
+            f"_COEFF_SOURCE_RANK: {unranked}. An unranked source does not fail "
+            f"loudly — it ranks 99, i.e. BELOW export_tooltip, and two unranked "
+            f"sources TIE and are both emitted and SUMMED. Add each to "
+            f"core/spells/mechanics.py::_COEFF_SOURCE_RANK at a deliberate "
+            f"precedence position (and document why, next to the others).")
+    return present
+
+
 def _dedupe_coefficients(conn, spell_id):
     """One coefficient per (term_type, component). Never sum across sources.
 
@@ -400,10 +484,23 @@ def _dedupe_coefficients(conn, spell_id):
                    if _COEFF_SOURCE_RANK.get(m[2], 99) == best]
         losers = [m for m in members
                   if _COEFF_SOURCE_RANK.get(m[2], 99) != best]
-        # within the winning source, one row per stated component
-        seen, kept = set(), []
+        # Within the winning source, one row per stated component — highest rank
+        # first, so a level-60 sibling beats a Rank-1 row of the same source.
+        #
+        # 🛑 3d C2: a same-source duplicate that states a DIFFERENT coefficient
+        # used to be dropped here in silence. `migrate_spell_scaling_ranks`
+        # demonstrably produces them (`rank_scaling.catalog_coefficient_gaps`
+        # can yield several coefficients for one term_type), and a silent drop is
+        # exactly what schema.py's `component` comment says must never happen —
+        # the direct/periodic pair is two numbers about two events, not a
+        # duplicate. The row still loses (one coefficient per component is the
+        # invariant that stops the sum), but it is now RECORDED as a conflict
+        # instead of vanishing, so rule 3 holds for same-source disagreement too
+        # and not only for cross-source.
+        seen, kept, same_source_losers = set(), [], []
         for m in sorted(winners, key=lambda m: (str(m[5]), -(m[4] or 0))):
             if m[5] in seen:
+                same_source_losers.append(m)
                 continue
             seen.add(m[5])
             kept.append(m)
@@ -411,6 +508,12 @@ def _dedupe_coefficients(conn, spell_id):
             conflicts = [(l[2], l[1]) for l in losers
                          if l[1] is not None and m[1] is not None
                          and abs(l[1] - m[1]) > 1e-9]
+            # same-source, same-component, different value — tagged so the
+            # operator can tell it apart from a cross-source disagreement
+            conflicts += [(f"{l[2]} (same source, rank {l[4]})", l[1])
+                          for l in same_source_losers
+                          if l[5] == m[5] and l[1] is not None
+                          and m[1] is not None and abs(l[1] - m[1]) > 1e-9]
             yield (*m, conflicts)
 
 
@@ -556,6 +659,12 @@ def _formula_terms(conn, fs, spell_id, level):
                 entry["note"] += ("; ⚠ CONFLICT — also stated as "
                                   + ", ".join(f"{v:g} by {s}" for s, v in conflicts)
                                   + f"; '{source}' wins by source precedence")
+                # 3d C3 — and route it to the row's own conflicts, so it lands in
+                # conflicts_json and is counted, instead of being visible only
+                # inside this terms blob.
+                fs.note_coefficient_conflict(
+                    source_spell_id=src, term_type=term_type, component=component,
+                    winner_source=source, winner_value=coeff, losers=conflicts)
             if via != "self":
                 # Attributed, not stated on this card: the coefficient belongs
                 # to the trigger target and is reached by the bounded walk.
@@ -741,7 +850,16 @@ def populate(conn, realm, season, patch_id, now, level=DEFAULT_LEVEL):
     placeholders = ",".join("?" * len(COLUMNS))
     sql = f"INSERT INTO spell_mechanics ({','.join(COLUMNS)}) VALUES ({placeholders})"
 
-    stats = {"rows": 0, "with_conflict": 0, "with_rank_gap": 0,
+    # 3d C3: `with_conflict` counts rows carrying ANY conflict; the two kinds are
+    # also counted separately, because they mean different things and collapsing
+    # them is what made the operator-facing number wrong.
+    #   field_conflict       — two sources disagree and we do NOT know which is
+    #                          right; the row's confidence is downgraded.
+    #   coefficient_conflict — two sources state different coefficients and an
+    #                          owner-APPROVED precedence resolves it; recorded and
+    #                          visible, not undecided.
+    stats = {"rows": 0, "with_conflict": 0, "with_field_conflict": 0,
+             "with_coefficient_conflict": 0, "with_rank_gap": 0,
              "ambiguous_lines_skipped": ambiguous, "empty": 0}
     for spell_id in sorted(targets):
         resolved = resolve_spell_mechanics(conn, spell_id, level=level)
@@ -750,14 +868,19 @@ def populate(conn, realm, season, patch_id, now, level=DEFAULT_LEVEL):
             continue
         conn.execute(sql, mechanics_row(resolved, realm, season, patch_id, now))
         stats["rows"] += 1
-        stats["with_conflict"] += bool(resolved["conflicts"])
+        conflicts = resolved["conflicts"] or {}
+        coeff_keys = [k for k in conflicts if k.startswith("coefficient:")]
+        stats["with_conflict"] += bool(conflicts)
+        stats["with_field_conflict"] += bool(set(conflicts) - set(coeff_keys))
+        stats["with_coefficient_conflict"] += bool(coeff_keys)
         stats["with_rank_gap"] += bool(resolved["rank_gap"])
     return stats
 
 
 # ------------------------------------------- spell_scaling rank migration (T4)
 
-def migrate_spell_scaling_ranks(conn, level=DEFAULT_LEVEL):
+def migrate_spell_scaling_ranks(conn, level=DEFAULT_LEVEL,
+                                realm=REALM_DEFAULT, season=SEASON_DEFAULT):
     """Rank-key `spell_scaling` (1x verdict: coefficients DO scale with rank).
 
     1. Stamp every existing row with its spell's own rank label from
@@ -790,10 +913,21 @@ def migrate_spell_scaling_ranks(conn, level=DEFAULT_LEVEL):
             differing += 1
         for term_type, coeffs in (gap["live_text"] or {}).items():
             for coeff in coeffs:
+                # 3d C1 — provenance stated per row. The evidence is the level-N
+                # rank SIBLING's own description text (a different spell id from
+                # the catalog entry that redirects to it), so evidence_ref names
+                # the sibling and the rank, which is the whole point of these
+                # rows: Sun Down's catalog Rank-1 entry says SP 0.4 and the rank
+                # a level-60 character actually casts says 1.3.
                 conn.execute(
                     "INSERT INTO spell_scaling (spell_id, term_type, coefficient,"
-                    " source, rank) VALUES (?,?,?,?,?)",
+                    " source, rank, source_tier, evidence_ref, confidence,"
+                    " realm, season) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     (live_id, term_type, coeff, "dbc_rank_sibling_text",
-                     live_rank))
+                     live_rank, "dbc_description_text",
+                     f"dbc:Spell.dbc:{live_id}:description (rank {live_rank},"
+                     f" the rank a level-{level} character casts; catalog entry"
+                     f" {gap.get('catalog_spell_id')} stores a different rank)",
+                     "inferred", realm, season))
                 inserted += 1
     return {"sibling_rows": inserted, "differing_lines": differing}

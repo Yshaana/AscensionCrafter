@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from config import DB_PATH  # noqa: E402  - repo-root path resolution (see config.py)
+import season_config  # noqa: E402  - realm/season constants (3d A1)
 conn = sqlite3.connect(str(DB_PATH))
 cur = conn.cursor()
 
@@ -50,9 +51,40 @@ holy_finish_id = spell_id_unique('Holy Finish')
 if holy_finish_id is not None:
     cur.execute('SELECT COUNT(*) FROM spell_scaling WHERE spell_id=?', (holy_finish_id,))
     if cur.fetchone()[0] == 0:
-        cur.executemany('INSERT INTO spell_scaling (spell_id, term_type, coefficient, cp_scaling_type) VALUES (?,?,?,?)',
-                         [(holy_finish_id, 'SP', 0.02, 'quadratic'),
-                          (holy_finish_id, 'AP', 0.02, 'quadratic')])
+        # 🛑 3d C1 — these two rows are the reason `source` stopped being
+        # nullable-with-a-default. They were inserted with NO source, so the
+        # DEFAULT stamped them 'export_tooltip' — claiming they came from the
+        # catalog's own extracted text. That is precisely backwards: they exist
+        # BECAUSE build_index.py's regex cannot read Holy Finish's compound
+        # "($AP+$SP)*n*n*0.02" form. A tier-6 provenance was being fabricated for
+        # a hand-transcription.
+        #
+        # The real evidence, stated: the number IS in Holy Finish's own catalog
+        # tooltip, in the per-combo-point tier lines — it is the EXTRACTION that
+        # is manual, not the source. So `source` stays 'export_tooltip', which is
+        # accurate, and `evidence_ref` records that it was hand-read and why.
+        #
+        # Deliberately NOT given a new source string like
+        # 'hand_read_export_tooltip': a new string would need a position in
+        # `_COEFF_SOURCE_RANK` (C2), i.e. a precedence decision, and this session
+        # makes none. The distinction between an automated and a hand extraction
+        # is real but belongs in evidence_ref, not in a precedence order that no
+        # row can ever exercise — this branch only fires when the spell has ZERO
+        # existing rows, so these two can never contend with an automated one.
+        _EV = (f'export:spell-export.json:{holy_finish_id}:tooltip'
+               ' — compound ($AP+$SP)*n*n*0.02 per-combo-point form, HAND-READ.'
+               ' build_index.py extracts only standalone $SP*x/$AP*x, so the'
+               ' automated pass yields nothing for this spell.')
+        cur.executemany(
+            'INSERT INTO spell_scaling (spell_id, term_type, coefficient, '
+            'cp_scaling_type, source, source_tier, evidence_ref, confidence, '
+            'realm, season) VALUES (?,?,?,?,?,?,?,?,?,?)',
+            [(holy_finish_id, 'SP', 0.02, 'quadratic', 'export_tooltip',
+              'export_tooltip', _EV, 'inferred',
+              season_config.REALM, season_config.SEASON),
+             (holy_finish_id, 'AP', 0.02, 'quadratic', 'export_tooltip',
+              'export_tooltip', _EV, 'inferred',
+              season_config.REALM, season_config.SEASON)])
         print(f"Holy Finish (id {holy_finish_id}): NOT found in spell_scaling (extractor gap, compound (AP+SP) form) - "
               "hand-inserted 2 rows (SP 0.02, AP 0.02, cp_scaling_type='quadratic'). "
               "Formula (AP+SP) x CP^2 x 0.02, primer §1/handoff §11.")
