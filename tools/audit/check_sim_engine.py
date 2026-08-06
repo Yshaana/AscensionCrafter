@@ -69,14 +69,18 @@ EXPECTED_FAILURES = {
     # target debuffs tracked separately from player buffs. Line deleted rather
     # than left as a comment-out, per the registry's own rule.
     "[dot_caster] the board's DoTs enter the rotation at all":
-        "ENGINE_BUGS.md E5 — DoTs are filed behind every cooldown ability and "
-        "the GCD budget never reaches them (6 of 7 cast zero times)",
+        "ENGINE_BUGS.md E5 PARTLY FIXED in 3e B3 — pure DoTs now enter the "
+        "rotation (Corruption 0 -> 4 casts, once per its own 18s duration). The "
+        "5 that still read zero are NOT this defect: two are non-damaging (Fel "
+        "Armor, Dark Domination) and three are MIXED direct+periodic abilities "
+        "in the spam-filler tier, which is ENGINE_BUGS.md E7",
     "[dot_caster] fast_sim allocates GCDs to more than one filler":
-        "ENGINE_BUGS.md E5 — same root, seen through the filler tier. 3e B1 "
-        "fixed the allocation rule and this now PASSES on cp_melee (1 of 7 -> "
-        "2 of 7); the DoT caster still reads 0 of 8 because its nine cooldown "
-        "abilities consume the entire GCD budget before the filler tier is "
-        "reached at all. Closes with B3, not B1",
+        "ENGINE_BUGS.md E7 — after B1 and B3 this PASSES on cp_melee (1 of 7 -> "
+        "2 of 7). The DoT caster reads 1 of 8 because its remaining fillers are "
+        "mixed direct+periodic abilities competing in a spam tier where one "
+        "button correctly absorbs the budget. Left registered rather than "
+        "rewritten: declaring a check invalid because it stopped flattering the "
+        "code is what this registry exists to prevent",
 }
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the

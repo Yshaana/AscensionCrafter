@@ -152,7 +152,49 @@ about to expire") is not expressible.
 
 ---
 
-## E5 — 6 of 7 DoTs on a DoT-caster board never enter the rotation
+## E5 — 6 of 7 DoTs on a DoT-caster board never enter the rotation — 🟡 PARTLY FIXED (`3e` B3)
+
+> ### 🟡 Pure DoTs fixed 2026-08-06 (`3e` B3). Mixed direct+DoT abilities are a DIFFERENT defect — see **E7**.
+>
+> **What landed.** `apl_gen` gained a **maintained-debuff tier** placed *before*
+> cooldowns, each entry gated on `debuff_remaining_below` (1.5s, one GCD — stated,
+> not tuned, and deliberately **not** retail's 30% "pandemic" rule, which we have
+> no evidence Ascension implements). Gating is what makes a high priority safe: a
+> maintained debuff is unavailable for all but the last moment of its duration, so
+> it cannot monopolise the list. `fast_sim`'s allocation order was changed to split
+> on **whether an ability has any useful cast interval**, not on whether it has a
+> cooldown — a DoT has no cooldown but is bounded by its own duration, and under
+> the old test it fell in with the unbounded fillers and was allocated last.
+>
+> **Corruption goes 0 → 4 casts in 68 s, i.e. once per its own 18 s duration.**
+> That is the defect fixed.
+>
+> 🚨 **The masked re-cast bug appeared on schedule, and then a SECOND
+> misclassification appeared under it.** With DoTs entering the rotation, the
+> re-cast check immediately failed — Fireball 10 casts, Living Bomb 6, Pyroblast 7
+> in one fight — exactly as this entry predicted. But the cause was **my own
+> discriminator**, not the APL: I had treated *"has a periodic component"* as
+> *"is a DoT"*. **Fireball is a direct nuke that leaves a 4 s rider**, and bounding
+> it to one cast per 4 s models a Fire mage casting Fireball ten times a minute.
+> The test is now `_is_pure_periodic` — read from `events()`, which already splits
+> damage into `direct`/`periodic` per source spell. **The fixture caught this;
+> reasoning did not.**
+>
+> **Gate impact (B1 → B3):** 4 of 36 → **5 of 36**, qualified unchanged at 2,
+> slice accuracy at ≥20% coverage 62.6% → **64.3%**. 10 of 36 characters moved, in
+> both directions. ⚠ Chastie returns to passing (−27.9% → +9.1%) **on the mixed-
+> ability over-count named in E7**, at 4.6% coverage — the same compensating-error
+> pass B1 removed. It is reported, not celebrated.
+>
+> **Still XFAIL, for a reason that is no longer this one:** 5 of 7 periodic
+> abilities on the fixture still cast zero times. Two (Fel Armor, Dark Domination)
+> are non-damaging; three (Fireball, Immolate, Living Bomb) are mixed abilities
+> competing in the spam-filler tier, where one button correctly absorbs the budget.
+> **The check is deliberately left registered rather than rewritten** — declaring a
+> check invalid because it no longer flatters the code is the failure mode this
+> registry exists to prevent.
+
+<details><summary>The original E5 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -174,6 +216,42 @@ GCD*; the check for that currently reads clean **only because they are never cas
 at all**. Fixing E5 will very likely make the re-cast bug appear. The two must be
 fixed together, and the re-cast check must not be read as green in the meantime —
 it carries that caveat in its own failure text.
+
+</details>
+
+---
+
+## E7 — a mixed direct+periodic ability is mis-modelled in both directions 🆕
+
+| | |
+|---|---|
+| **Check** | none yet — currently surfaced as a `warnings` entry from `core/sim/tiers.py :: _mixed_damage_warning` |
+| **Where** | `core/sim/ability_model.py :: expected_cast` returns ONE mean for an ability whose events are part direct, part periodic |
+| **Found by** | `3e` B3, while fixing E5 |
+
+An ability with **both** a direct hit and a periodic rider — Fireball, Immolate,
+Living Bomb, and on the melee side Aether Rupture — has no correct single cast
+rate:
+
+* **Bound it by the DoT's duration** and the direct component is starved: a Fire
+  mage casts Fireball once every 4 seconds.
+* **Leave it unbounded** and every cast re-scores the rider's entire duration, so
+  the periodic component is over-counted by roughly `duration / gcd`.
+
+**Neither is right, and no field resolves it.** What a refresh does to a
+partially-elapsed DoT is a server behaviour nobody has measured on Ascension.
+
+Unbounded is what runs, because the direct component dominates on these spells
+and is the larger error to get wrong — and the residual is **named in
+`warnings`** per ability rather than buried. That is the floor, not the fix.
+
+**The real fix is per-EVENT cast allocation**: score the direct component at the
+cast rate and the periodic component at its own refresh rate. That is a change to
+the ability model, not to the APL, which is why it is its own entry rather than
+part of E5.
+
+⚠ **It is load-bearing for the gate.** Chastie passes at +9.1% partly on this
+over-count, at 4.6% coverage.
 
 ---
 

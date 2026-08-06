@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-06T20:34:15+00:00",
- "git_sha": "68779e7246bbcf37c736b7504c68e4ea7a89624c",
+ "generated_at": "2026-08-06T20:43:29+00:00",
+ "git_sha": "1c07bab153a68d78971f5a26d5dbe21ba3b7838a",
  "git_working_tree_dirty": true,
  "realm": "Darkmoon",
  "season": "S10",
@@ -19,23 +19,24 @@
  "result": {
   "scored": 36,
   "tuning_set_size": 36,
-  "within_tolerance": 4,
+  "within_tolerance": 5,
   "not_scoreable_zero_coverage": 3,
   "qualified": 2,
   "criterion_met": true,
   "rider_met": false,
   "exit_met": false,
-  "median_slice_accuracy_pct_at_coverage_ge_20": 62.59899947721168,
+  "median_slice_accuracy_pct_at_coverage_ge_20": 64.29871133238616,
   "slice_accuracy_coverage_floor_pct": 20.0,
   "slice_accuracy_by_coverage_band_pct": {
-   ">=0": 164.68776295340385,
-   ">=10": 140.53021357319835,
-   ">=20": 62.59899947721168,
-   ">=30": 62.40402234914278,
-   ">=50": 62.40402234914278
+   ">=0": 163.73492127040677,
+   ">=10": 140.0333233344407,
+   ">=20": 64.29871133238616,
+   ">=30": 63.44885540479892,
+   ">=50": 63.44885540479892
   },
   "passer_coverage_pct": {
    "Ari": 57.6,
+   "Chastie": 4.6,
    "Zaczao": 5.6,
    "Malo": 62.4,
    "Xoller": 13.3
@@ -111,9 +112,9 @@
    "name": "Fana",
    "path": "Strength",
    "boss": "Azuregos",
-   "delta_pct": -21.11,
+   "delta_pct": -21.57,
    "modelled_damage_pct": 47.9,
-   "slice_accuracy_pct": 164.69,
+   "slice_accuracy_pct": 163.73,
    "within_tolerance": false
   },
   {
@@ -141,9 +142,9 @@
    "name": "Dads",
    "path": "Agility",
    "boss": "Snowgrave",
-   "delta_pct": -90.97,
+   "delta_pct": -91.18,
    "modelled_damage_pct": 27.5,
-   "slice_accuracy_pct": 32.83,
+   "slice_accuracy_pct": 32.07,
    "within_tolerance": false
   },
   {
@@ -191,9 +192,9 @@
    "name": "Robbery",
    "path": "Intelligence",
    "boss": "Taerar",
-   "delta_pct": -43.96,
+   "delta_pct": -44.33,
    "modelled_damage_pct": 37.4,
-   "slice_accuracy_pct": 149.83,
+   "slice_accuracy_pct": 148.84,
    "within_tolerance": false
   },
   {
@@ -201,9 +202,9 @@
    "name": "Trace",
    "path": "Intelligence",
    "boss": "Hakkar",
-   "delta_pct": -72.96,
+   "delta_pct": -71.97,
    "modelled_damage_pct": 9.9,
-   "slice_accuracy_pct": 273.14,
+   "slice_accuracy_pct": 283.14,
    "within_tolerance": false
   },
   {
@@ -231,19 +232,19 @@
    "name": "Chastie",
    "path": "Intelligence",
    "boss": "Hakkar",
-   "delta_pct": -27.88,
+   "delta_pct": 9.09,
    "modelled_damage_pct": 4.6,
-   "slice_accuracy_pct": 1567.91,
-   "within_tolerance": false
+   "slice_accuracy_pct": 2371.44,
+   "within_tolerance": true
   },
   {
    "character_id": 16501,
    "name": "Boomcat",
    "path": "Agility",
    "boss": "Taerar",
-   "delta_pct": 585.52,
+   "delta_pct": 617.48,
    "modelled_damage_pct": 82.2,
-   "slice_accuracy_pct": 833.96,
+   "slice_accuracy_pct": 872.85,
    "within_tolerance": false
   },
   {
@@ -251,9 +252,9 @@
    "name": "Xyz",
    "path": "Agility",
    "boss": "Hakkar",
-   "delta_pct": -75.91,
+   "delta_pct": -75.84,
    "modelled_damage_pct": 44.5,
-   "slice_accuracy_pct": 54.14,
+   "slice_accuracy_pct": 54.29,
    "within_tolerance": false
   },
   {
@@ -321,9 +322,9 @@
    "name": "Qtgamora",
    "path": "Intelligence",
    "boss": "Bloodlord Mandokir",
-   "delta_pct": -56.89,
+   "delta_pct": -55.44,
    "modelled_damage_pct": 69.3,
-   "slice_accuracy_pct": 62.21,
+   "slice_accuracy_pct": 64.3,
    "within_tolerance": false
   },
   {
@@ -411,9 +412,9 @@
    "name": "Microplastic",
    "path": "Agility",
    "boss": "Hakkar",
-   "delta_pct": -56.47,
+   "delta_pct": -57.49,
    "modelled_damage_pct": 22.3,
-   "slice_accuracy_pct": 195.18,
+   "slice_accuracy_pct": 190.61,
    "within_tolerance": false
   },
   {
@@ -431,9 +432,9 @@
    "name": "Frediib",
    "path": "Agility",
    "boss": "Bloodlord Mandokir",
-   "delta_pct": 441.18,
+   "delta_pct": 435.65,
    "modelled_damage_pct": 49.9,
-   "slice_accuracy_pct": 1084.52,
+   "slice_accuracy_pct": 1073.44,
    "within_tolerance": false
   }
  ]

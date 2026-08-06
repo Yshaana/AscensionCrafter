@@ -76,6 +76,29 @@ def _effective_time(content: ContentProfile):
     return content.fight_duration * (1.0 - max(0.0, min(1.0, content.movement_pct)))
 
 
+def _is_pure_periodic(ability):
+    """Is ALL of this ability's damage periodic?
+
+    🚨 3e B3 — the distinction the first version of this got wrong, caught by
+    the fixture rather than by reasoning. Corruption is a maintained debuff: all
+    of its damage is ticks, so re-casting it early gains nothing. **Fireball is
+    not** — it is a direct nuke that happens to leave a 4s DoT rider, and
+    bounding it to one cast per 4s models a Fire mage as casting Fireball 10
+    times a minute. Treating "has a periodic component" as "is a DoT" misclassed
+    it and the check caught it immediately (Fireball 10 casts, Living Bomb 6,
+    Pyroblast 7 in one 68s fight).
+
+    Read from `events()`, which already splits damage into `direct` / `periodic`
+    per source spell — not from the name, and not from the presence of a tick
+    interval alone.
+    """
+    try:
+        evs = ability.events()
+    except Exception:                                # noqa: BLE001
+        return False
+    return bool(evs) and all(e.kind == "periodic" for e in evs)
+
+
 def _useful_cast_interval(ability):
     """Seconds between USEFUL casts, read from the ability's own fields.
 
@@ -103,7 +126,7 @@ def _useful_cast_interval(ability):
     cd = ability.fields.get("cooldown_seconds") or 0.0
     dur = ability.fields.get("duration_seconds") or 0.0
     periodic = bool(ability.fields.get("tick_interval_seconds"))
-    if periodic and dur > 0:
+    if periodic and dur > 0 and _is_pure_periodic(ability):
         if cd > 0:
             return (max(cd, dur),
                     f"cooldown {cd:g}s vs {dur:g}s periodic duration — the "
@@ -112,6 +135,38 @@ def _useful_cast_interval(ability):
     if cd > 0:
         return cd, f"{cd:g}s cooldown"
     return 0.0, "unbounded — a spam filler"
+
+
+def _mixed_damage_warning(ability):
+    """A spell with BOTH a direct hit and a periodic rider is mis-modelled in
+    both directions, and the sim says so rather than picking a side.
+
+    Bound it by its DoT duration and a Fire mage casts Fireball once every 4s.
+    Leave it unbounded and every cast re-scores the rider's whole duration, so
+    the DoT part is over-counted by roughly `duration / gcd`. **Neither is
+    right, and there is no field that resolves it** — what refreshing does to a
+    partially-elapsed DoT is a server behaviour we have not measured on
+    Ascension. Unbounded is the lesser error for the direct component, which
+    dominates on these spells, so that is what runs; the residual is named here
+    instead of being buried.
+    """
+    if _is_pure_periodic(ability):
+        return None
+    try:
+        evs = ability.events()
+    except Exception:                                # noqa: BLE001
+        return None
+    if not any(e.kind == "periodic" for e in evs):
+        return None
+    dur = ability.fields.get("duration_seconds") or 0.0
+    if dur <= 0:
+        return None
+    return (f"{ability.name} ({ability.spell_id}) has BOTH a direct and a "
+            f"periodic component over {dur:g}s. It is cast as a spammable "
+            f"direct spell, so its periodic component's damage is RE-SCORED on "
+            f"every cast and is over-counted — an upper bound on that "
+            f"component, not a measurement. Refresh behaviour on a "
+            f"partially-elapsed DoT is unmeasured on this server")
 
 
 # --------------------------------------------------------------------- fast
@@ -138,13 +193,20 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
     # order let Lightbound Cleave — first in the list, no cooldown — consume the
     # entire budget and starve every cooldown behind it, reporting a rotation of
     # one button. Off-GCD entries are free and are handled separately.
+    #
+    # 3e B3 — the split is on whether the ability has ANY useful cast interval,
+    # not on whether it has a cooldown. A DoT has no cooldown but is bounded by
+    # its own duration, so under the old test it fell in with the unbounded
+    # fillers and was allocated last — behind nine cooldown abilities on the
+    # DoT-caster fixture, where the budget ran out first and it received
+    # nothing. An interval-bounded ability cannot monopolise the budget (it
+    # takes only `available / interval` casts), so allocating it first is safe
+    # in exactly the way allocating a cooldown first is.
     off_gcd_ids = {e.spell_id for e in apl.entries if e.off_gcd} if apl else set()
-    on_gcd = [s for s in ids if s not in off_gcd_ids]
-    ordered = ([s for s in on_gcd if (abilities.get(s) and
-                                      (abilities[s].fields.get("cooldown_seconds") or 0) > 0)]
-               + [s for s in on_gcd if (abilities.get(s) and
-                                        not (abilities[s].fields.get("cooldown_seconds") or 0))]
-               + [s for s in ids if s in off_gcd_ids])
+    on_gcd = [s for s in ids if s not in off_gcd_ids and abilities.get(s)]
+    bounded = [s for s in on_gcd if _useful_cast_interval(abilities[s])[0] > 0]
+    unbounded = [s for s in on_gcd if _useful_cast_interval(abilities[s])[0] <= 0]
+    ordered = bounded + unbounded + [s for s in ids if s in off_gcd_ids]
     gcd_actions = 0.0
 
     for sid in ordered:
@@ -156,6 +218,9 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         gcd = _gcd_for(ab, char_state)
         occupancy = max(gcd, _cast_time(ab, char_state))
         interval, why = _useful_cast_interval(ab)
+        mixed = _mixed_damage_warning(ab)
+        if mixed:
+            warnings.append(mixed)
 
         # 3e B1 — ONE allocation rule for every on-GCD ability, cooldown or
         # filler. It used to be two branches, and the filler branch ended
