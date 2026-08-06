@@ -76,12 +76,23 @@ Two structural findings fell out of building the gate, both worth keeping:
 ## T1 — the corpus (`data/derived/builds.db`)
 
 `core/builds/corpus.py` (pure logic) + `ingest/logs_gg/build_builds_db.py`
-(reads the gzipped NDJSON). Gitignored and rebuilt from committed source, same
-rule as every other derived db.
+(reads the gzipped NDJSON). Gitignored, same rule as every other derived db.
 
 After the backfill completed: **4,069 characters, 412 build snapshots, 19,684
 cards, 6,896 gear rows, 5,455 encounters, 19,649 performance rows, 307,442
 ability rows, 877,850 avoidance rows, 807 leaderboard entries.**
+
+⚠ **Correction (post-3a audit, 2026-08-06): these figures are NOT
+committed-reproducible.** The original text here said "rebuilt from committed
+source"; that is true only for tier-1. Ability/avoidance/performance rows come
+from TIER-2 crawl files, which are gitignored by design — a clean rebuild from
+the committed NDJSON alone yields **390 characters and 0
+ability/avoidance/performance rows** (`characters_known: 390` in the capture
+manifest). Reproducing the full corpus needs the local tier-2 files or a
+per-report re-fetch (`crawl_ascensionlogs.py --recrawl-report <id>`). The
+committed per-report `tier2_manifest.json` in each crawl day folder
+(`tools/scrapers/build_tier2_manifest.py`) makes the tier-2 inputs auditable —
+row counts and checksums per report — without a re-fetch.
 
 **Five deviations from PHASE_3 T1's draft DDL, each recorded not drifted:**
 

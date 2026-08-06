@@ -73,6 +73,9 @@ except ImportError:
     print("Requires the 'requests' package: pip install requests", file=sys.stderr)
     sys.exit(1)
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import build_tier2_manifest  # noqa: E402  (per-report reproducibility manifest, 3a audit §1.1b)
+
 # --- constants -------------------------------------------------------------
 BASE = "https://darkmoon.ascensionlogs.gg"
 REALM = "darkmoon"
@@ -729,6 +732,7 @@ def main():
                                      "trash_bundle", seen_characters)
             print(f"[recrawl] #{rid}: {len(encounters)} encounters re-fetched")
         write_manifest(date_dir, writers, scan_log, patch_date, args.recrawl_report)
+        build_tier2_manifest.build_for_dir(date_dir)
         print(f"\nRecrawl complete. {STATS['requests']} requests, {len(ERRORS)} errors.")
         return 0 if not ERRORS else 1
 
@@ -745,6 +749,7 @@ def main():
 
     new_report_ids = [int(r) for r in set(scan_log.get("reports", {})) - reports_before]
     manifest = write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids)
+    build_tier2_manifest.build_for_dir(date_dir)
     t1 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 1)
     t2 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 2)
 

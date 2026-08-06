@@ -13,7 +13,11 @@ can — which is why it feeds Layer 1, not only Layer 4.
 
 ## Task 1 — Normalise the crawl
 
-`data/derived/builds.db`, rebuilt from committed NDJSON, never itself committed (§2.12).
+`data/derived/builds.db`, built from the crawl NDJSON, never itself committed (§2.12).
+⚠ *(post-3a audit, 2026-08-06)* Only **tier-1** of that NDJSON is committed; the
+ability/avoidance/performance bulk is gitignored **tier-2** (re-fetchable per
+report, audited via each day folder's committed `tier2_manifest.json`), so the
+full corpus is **not** reproducible from a clean checkout alone.
 
 ```sql
 CREATE TABLE characters (

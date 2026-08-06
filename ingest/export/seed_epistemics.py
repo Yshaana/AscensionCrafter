@@ -353,6 +353,13 @@ RETRACTIONS = [
      'Generalised from the Lightbound-Cleave-only isolation window — a window whose ONLY melee ability was the one ability measured to feed nothing. The sample proved "LC does not proc the seal" and was read as "only autos proc the seal".',
      'The 2e full-rotation windows: 84 seal procs / 367 melee events unbuffed and 106 / 397 buffed, with only ~30% of procs within 50 ms of a white swing and ~51-64% within 50 ms of a MELEE ABILITY. The seal procs from both autos and abilities at ~0.25 per event. WHAT SURVIVES: Lightbound Cleave specifically still does not proc it, so the Cleave Kit\'s "converted swings drop auto-keyed riders" cost stands for LC. Method lesson: an isolation window isolates its subject — it cannot ground a claim about everything OUTSIDE the isolation.',
      'seal_of_command_procs_from_melee_events_not_autos_only', '2026-08-05'),
+
+    # ------------------------------------------------------------- session 3a
+    ('strict_lag0_join_skews_toward_levellers',
+     'The strict lag-0 build-to-parse join yields only ONE level-60 crawled character, because exact-join captures structurally skew toward levelling players — so the calibration gate must loosen its staleness threshold (to 336h) to get a usable n at all.',
+     'Measured against a MID-BACKFILL corpus, where the strict filter really did return one level-60 character. A plausible mechanism was available (armory captures fire on levelling milestones), so the starvation was written up as a structural property of the data rather than as a sample-size artifact.',
+     'The uncapped backfill completed during the same session and the SAME strict filter returned 41 level-60 characters. It was small-sample, not structure. Generalised (now in calibrate_crawled.py\'s own docstring): a filter that starves on a partial corpus is not evidence that the filter is too strict — re-run on more data before loosening a constraint. The gate now runs at its strictest setting (--max-lag-hours 0) with no staleness caveat, so the correction strengthened the result. Retracted the same session it was made (3a, 2026-08-06); recorded here because the claim had already justified a methodological decision (the 336h loosening), which is exactly the kind of decision a fresh session could re-derive from the prose alone.',
+     None, '2026-08-06'),
 ]
 
 # --------------------------------------------------------------------------

@@ -1,11 +1,43 @@
+# Ascension Spell/Card Index — Guide (v17)
+
+**v17 changelog (2026-08-06, 3b pre-flight — the 3a audit remediations).** No
+table changed; the 20-step rebuild is unchanged. Three corrections/additions:
+
+- 🚨 **`builds.db` is NOT committed-reproducible at its headline size — v16's
+  "rebuildable, same rule as the other two" was wrong.** Its bulk
+  (ability/avoidance/performance rows) comes from **tier-2** crawl files
+  (`abilities*/healing*/avoidance*/damage_taken*.jsonl.gz`), which are
+  **gitignored by design** and re-fetchable per report
+  (`crawl_ascensionlogs.py --recrawl-report <id>`). A clean rebuild from
+  committed source alone yields **390 characters and 0
+  ability/avoidance/performance rows**. The v16 block below is corrected in
+  place.
+- 🆕 **`tier2_manifest.json`** — a committed per-report reproducibility manifest
+  in each `data/source/crawl/<date>/` folder
+  (`tools/scrapers/build_tier2_manifest.py`, also called by every crawler run):
+  per report id × tier-2 stem, NDJSON record counts, payload row counts, and an
+  order-independent payload checksum. This is what makes the calibration gate's
+  inputs auditable without holding the tier-2 bytes. Verified against the
+  corpus: avoidance payload rows sum to exactly `ability_avoidance`'s 877,850;
+  abilities+healing merge into `ability_performance` via upsert (plus pet
+  rows), so that table's count is post-merge by design.
+- 🟡 **`items` counts corrected**: v16 shipped the pre-backfill figures
+  (1,680 / 1,313); the completed-backfill corpus is **2,384 rows / 1,792 with
+  stat blocks**. Corrected in place below.
+
+---
+
 # Ascension Spell/Card Index — Guide (v16)
 
 **v16 changelog (2026-08-06, session `3a`).** A THIRD database exists. No table
 in `ascension.db` changed; the 20-step rebuild is unchanged.
 
 - 🆕 **`data/derived/builds.db`** — the normalised crawl corpus (Phase 3 T1),
-  built by `py ingest/logs_gg/build_builds_db.py` from the committed NDJSON in
-  `data/source/crawl/`. Gitignored and rebuildable, same rule as the other two.
+  built by `py ingest/logs_gg/build_builds_db.py` from the NDJSON in
+  `data/source/crawl/`. Gitignored, same rule as the other two — ⚠ **but
+  (v17 correction) only tier-1 of its source is committed**: the
+  ability/avoidance/performance bulk needs local or re-fetched tier-2 files,
+  and is audited via the committed `tier2_manifest.json` per day folder.
   **Three databases now, and they stay separate:** `ascension.db` (spells and
   cards), `scouted_builds.db` (hand-scouted characters), `builds.db` (the
   crawl corpus). Never merge them.
@@ -28,7 +60,8 @@ in `ascension.db` changed; the 20-step rebuild is unchanged.
   autoincrements in `ascension.db`; a durable corpus must not reference them
   (the same reason `open_questions` keys on a slug). `patch_date` and
   `occurred_at` are stored; resolve by date at query time.
-- 🆕 **`items`** (1,680 rows / 1,313 with stat blocks) is built from
+- 🆕 **`items`** (2,384 rows / 1,792 with stat blocks — v17 correction; v16
+  shipped the pre-backfill 1,680 / 1,313) is built from
   `snapshot_gear`, **not from the client**: `Item.dbc` carries no stats and
   `ItemStat.dbc` was disproved as a stat source against 1,198 ground-truth
   items. `provenance='crawl_resolved_bisbeard'` — the blocks are BisBeard's
