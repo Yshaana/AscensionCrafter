@@ -78,6 +78,11 @@ EXPECTED_FAILURES = {
         "5 that still read zero are NOT this defect: two are non-damaging (Fel "
         "Armor, Dark Domination) and three are MIXED direct+periodic abilities "
         "in the spam-filler tier, which is ENGINE_BUGS.md E7",
+    "[frost_mage] fast_sim allocates GCDs to more than one filler":
+        "ENGINE_BUGS.md E7 — third fixture, same root. 1 of 4 fillers casts; "
+        "the starved three are Blizzard (a CHANNEL, see E8), Hydricles and Ice "
+        "Lance. A caster whose whole rotation is fillers is the case where one "
+        "spam button absorbing the budget is most visibly wrong",
     "[dot_caster] fast_sim allocates GCDs to more than one filler":
         "ENGINE_BUGS.md E7 — after B1 and B3 this PASSES on cp_melee (1 of 7 -> "
         "2 of 7). The DoT caster reads 1 of 8 because its remaining fillers are "
@@ -568,8 +573,15 @@ def check_nonpaladin_fixtures(conn, ct, conv):
     print("\n--- 3d D1: non-paladin fixtures — XFAIL = a known engine defect "
           "written up in primer/ENGINE_BUGS.md, scheduled for 3e ---")
 
+    # 3e C2 — the Frost Mage joins the two 3d fixtures rather than replacing
+    # either: it is BURST, not DoT, and has no combo points, so it cannot
+    # exercise what they exercise. What it reaches that a Hammerdin structurally
+    # cannot: cast-time filler ordering, mana as a binding constraint, and
+    # channels. It is also the only fixture built from a VERIFIED same-session
+    # stat block (parsed, not transcribed) with a paired log.
     for filename, kind in (("build_crawled_cp_melee.json", "cp_melee"),
-                           ("build_crawled_dot_caster.json", "dot_caster")):
+                           ("build_crawled_dot_caster.json", "dot_caster"),
+                           ("build_elric_frost_mage.json", "frost_mage")):
         try:
             bd, spec, cs = _load_fixture(conn, ct, conv, filename)
         except Exception as e:                      # noqa: BLE001

@@ -369,6 +369,44 @@ part of E5.
 ⚠ **It is load-bearing for the gate.** Chastie passes at +9.1% partly on this
 over-count, at 4.6% coverage.
 
+🆕 **Third fixture, `3e` C2:** the Frost Mage casts **1 of 4** fillers. A caster
+whose entire rotation *is* fillers is the case where one spam button absorbing
+the whole budget is most visibly wrong — the starved three are Blizzard (a
+channel, see E8), Hydricles and Ice Lance.
+
+---
+
+## E8 — the sim never reads `is_channeled` 🆕
+
+| | |
+|---|---|
+| **Check** | none yet — recorded here with the evidence that makes it live |
+| **Where** | resolved into the DB at `core/spells/mechanics.py:275` (column at `core/db/schema.py:340`); `grep -rn is_channeled core/sim/` returns **nothing** |
+| **Found by** | `3e` C2, verified 2026-08-06 rather than inherited |
+
+A channel occupies the caster for its full duration while delivering damage in
+ticks. The sim charges it **one GCD** and credits **every tick**, so a channelled
+ability is over-credited by roughly `channel_duration / gcd`.
+
+🔬 **Whether this bites depends on the window, and the Mage capture settles it
+for each:**
+
+| window | Blizzard casts | channel gap |
+|---|---:|---|
+| A — unbuffed dummy | **0** | inert |
+| B — buffed dummy | **0** | inert |
+| C — Scarlet Monastery | **305** | **live** |
+
+So every A→B comparison in this capture is safe from it, and **anything derived
+from Window C is not** — which is a second reason C4's dungeon `ContentProfile`
+needs care beyond its segmentation problem.
+
+⚠ Channels are also **indistinguishable from instants in the client API** —
+`GetSpellInfo` position 7 reads 0 for Blizzard exactly as it does for Ice Lance
+(capture README). `attributes_ex & 0x44` in the DBC is the only route, which is
+why `is_channeled` is resolved in the mechanics layer in the first place. The
+data is there; the sim simply never asks for it.
+
 ---
 
 ## E6 — `fast_sim`'s first filler consumes the entire GCD budget — ✅ FIXED (`3e` B1)

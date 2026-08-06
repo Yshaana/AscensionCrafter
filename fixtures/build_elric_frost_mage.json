@@ -1,0 +1,113 @@
+{
+ "name": "elric_frost_mage_2026-08-06",
+ "provenance": "OWNER CAPTURE, tier-1. Built by 3e C2 from data/source/captures/2026-08-06_elric_mage_frost/'Unbuffed Mage.txt' (ExportedAt 2026-08-06 19:15:41) via core.builds.stat_block, NOT hand transcribed. Paired log: 2026-08-06-19.16.56 WoWCombatLog.txt (Window A, unbuffed dummy, 214.2s). Abilities are the export's own ACTION BARS with professions/hearthstones/utility dropped by id.",
+ "character_level": 60,
+ "role": "dps",
+ "path": "Intelligence",
+ "realm": "Darkmoon",
+ "season": "S10",
+ "source": "own_capture",
+ "stats_override": {
+  "attack_power": 30.0,
+  "spell_power": 780.0,
+  "melee_crit_pct": 16.63,
+  "spell_crit_pct": 19.62,
+  "melee_hit_pct": 3.6,
+  "spell_hit_pct": 4.5,
+  "expertise_points": 0.0,
+  "armor_pen_pct": 0.0,
+  "melee_haste_pct": 6.11,
+  "spell_haste_pct": 4.7,
+  "intellect": 321.0,
+  "stamina": 240.0,
+  "spirit": 77.0,
+  "strength": 50.0,
+  "agility": 28.0
+ },
+ "weapons": {
+  "main_hand": {
+   "min": 227.7,
+   "max": 253.7,
+   "speed": 1.66,
+   "hand": "1h",
+   "item_name": "Blade of the New Moon"
+  }
+ },
+ "abilities": [
+  {
+   "spell_id": 10187,
+   "rank": 1,
+   "name": "Blizzard(Rank 6)"
+  },
+  {
+   "spell_id": 284865,
+   "rank": 1,
+   "name": "Hydricles(Rank 11)"
+  },
+  {
+   "spell_id": 25304,
+   "rank": 1,
+   "name": "Frostbolt(Rank 11)"
+  },
+  {
+   "spell_id": 760021,
+   "rank": 1,
+   "name": "Frozen Orb(Rank 4)"
+  },
+  {
+   "spell_id": 10161,
+   "rank": 1,
+   "name": "Cone of Cold(Rank 6)"
+  },
+  {
+   "spell_id": 285148,
+   "rank": 1,
+   "name": "Absolute Zero"
+  },
+  {
+   "spell_id": 281696,
+   "rank": 1,
+   "name": "Ice Age"
+  },
+  {
+   "spell_id": 300909,
+   "rank": 1,
+   "name": "Ice Lance(Rank 5)"
+  },
+  {
+   "spell_id": 44666,
+   "rank": 1,
+   "name": "Deep Freeze(Rank 3)"
+  },
+  {
+   "spell_id": 984513,
+   "rank": 1,
+   "name": "Ray of Frost"
+  },
+  {
+   "spell_id": 272031,
+   "rank": 1,
+   "name": "Water Nova"
+  },
+  {
+   "spell_id": 284182,
+   "rank": 1,
+   "name": "Glacial Spike(Rank 6)"
+  },
+  {
+   "spell_id": 12472,
+   "rank": 1,
+   "name": "Icy Veins"
+  },
+  {
+   "spell_id": 31687,
+   "rank": 1,
+   "name": "Summon Water Elemental"
+  }
+ ],
+ "talents": [],
+ "unresolved": [
+  "TALENTS ARE EMPTY: the standard talent API returns nothing on a classless server, and the addon says so in its own output. This fixture therefore exercises the ability/rotation path only \u2014 it is NOT a talent-layer fixture, and a damage comparison against the log will miss whatever the board's talents contribute.",
+  "PowerType MANA, ManaMax 6097 \u2014 captured but NOT wired into stats_override, because CharState's resource_pools plumbing is not part of this fixture's schema. Mana as a binding constraint is the gap this fixture exists to expose (medium_sim reports starvation)."
+ ]
+}
