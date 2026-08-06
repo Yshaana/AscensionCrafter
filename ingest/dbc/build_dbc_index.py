@@ -906,8 +906,16 @@ def export_ascension_extract_json(cur):
     path = DBC_ASCENSION_EXTRACT_JSON
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload), encoding='utf-8')
-    total = sum(len(v['rows']) for v in payload.values())
-    print(f'Exported {total} rows across {len(payload)} Ascension tables to {path} '
+    # ⚠ Skip the `_`-prefixed metadata keys. `_extracted_at` is a STRING, and
+    # summing len(v['rows']) across every value crashed on it with "string
+    # indices must be integers" — after the file had already been written, so
+    # the export succeeded and only the summary died, taking the whole rebuild
+    # chain down with it. Latent since the stamp was added in 2e: nothing had
+    # run --with-dbc between then and 2026-08-06. Same `_`-prefix convention
+    # load_extract.py already uses on the reading side.
+    tables = {k: v for k, v in payload.items() if not k.startswith('_')}
+    total = sum(len(v['rows']) for v in tables.values())
+    print(f'Exported {total} rows across {len(tables)} Ascension tables to {path} '
           f'({path.stat().st_size / 1e6:.1f} MB)')
 
 

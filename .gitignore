@@ -31,3 +31,4 @@ data/source/crawl/**/damage_taken*.jsonl.gz
 
 # Archived tier-2 tarballs (tools/scrapers/archive_crawl.py). Local/offline only.
 data/archive/
+dbc_extract_log.txt
