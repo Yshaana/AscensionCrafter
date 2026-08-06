@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from .ability_model import resolve_ability, AbilityResolutionError
 from .apl import APL, MAX_COMBO_POINTS, entry_ready
 from .content import ContentProfile, Metric, PRIMARY_METRIC_BY_ROLE, SimResult
+from .pets import detect_summons, pet_gap_warning
 from .swings import (
     swing_events, expected_swing, seal_procs, righteous_vengeance_damage,
     SEAL_PROC_PER_MELEE_EVENT, SEAL_PROC_RATE_EVIDENCE,
@@ -45,6 +46,30 @@ MIN_GCD = 1.0
 # treatment as BASE_GCD above. Open question:
 # `combo_point_generation_absent_from_extract`.
 CP_PER_BUILDER_CAST = 1.0
+
+# 3e B5 (ENGINE_BUGS E2) — target health DECAYS linearly from 100% to 0% over the
+# fight, so an execute window is reachable at all. It was pinned at 100.0, which
+# made `target_health_pct_below` permanently false and every execute-range
+# ability dead code — while `apl_gen` emitted no health condition either, so the
+# same abilities were cast as if ALWAYS available. Unmodelled in both directions
+# at once, and silent about it.
+#
+# 🛑 WHICH ABILITIES ARE EXECUTE-GATED IS NOT DERIVABLE FROM OUR DATA. In 3.3.5
+# that gate is `TargetAuraState = AURA_STATE_HEALTHLESS_20_PERCENT`, and
+# `spell_dbc_raw` does not carry `TargetAuraState` at all — the extract exports
+# `attributes` / `attributes_ex` and no aura-state column. So the decay below
+# makes the MECHANISM work; it cannot make the sim know that Hammer of Wrath
+# needs a dying target. Any sim that runs emits the gap by name rather than
+# leaving an execute ability quietly over-credited. Open question:
+# `execute_gating_absent_from_extract`.
+EXECUTE_GATING_UNAVAILABLE = (
+    "EXECUTE WINDOWS ARE NOT MODELLED PER ABILITY: 3.3.5 encodes an execute gate "
+    "as TargetAuraState (AURA_STATE_HEALTHLESS_20_PERCENT) and the DBC extract "
+    "carries no aura-state column, so the sim cannot tell which abilities "
+    "require a low-health target. Target health itself DOES decay here, so a "
+    "hand-authored target_health_pct_below condition works — but an "
+    "execute-gated ability with no such condition is modelled as always "
+    "available and is OVER-CREDITED")
 
 
 def _gcd_for(ability, char_state):
@@ -89,6 +114,20 @@ def _effective_time(content: ContentProfile):
     return content.fight_duration * (1.0 - max(0.0, min(1.0, content.movement_pct)))
 
 
+def _decay_target_health(st):
+    """Target health falls linearly to 0 across the fight (3e B5).
+
+    A boss fight ENDS when the target dies, so 100% -> 0% over
+    `fight_duration` is the shape, not an assumption about pacing. It is still
+    a shape: real damage is lumpy and an execute window arrives a little early
+    or late. What matters here is that the window EXISTS, which it did not
+    before — `target_health_pct` was pinned at 100.0 forever.
+    """
+    if st.fight_duration > 0:
+        st.target_health_pct = max(
+            0.0, 100.0 * (1.0 - st.now / st.fight_duration))
+
+
 def _cp_gate(apl, spell_id):
     """Combo points this entry is HELD TO by its own APL gate, else 0.
 
@@ -107,6 +146,25 @@ def _cp_gate(apl, spell_id):
             if c.get("type") == "combo_points_at_least":
                 return int(c.get("value") or 0)
     return 0
+
+
+def _health_gate(apl, spell_id):
+    """Fraction of the fight an entry's target-health gate leaves it available.
+
+    Under linear health decay an ability gated at "target below X%" is castable
+    for the last X% of the fight, so `X/100` is exactly its share. Returns 1.0
+    when the entry carries no health gate. 3e B5 — fast_sim has no timeline, so
+    this is how a window enters a closed-form tier.
+    """
+    if not apl:
+        return 1.0
+    for e in apl.entries:
+        if e.spell_id != spell_id:
+            continue
+        for c in (e.conditions or []):
+            if c.get("type") == "target_health_pct_below":
+                return max(0.0, min(1.0, float(c.get("value") or 0) / 100.0))
+    return 1.0
 
 
 def _is_pure_periodic(ability):
@@ -309,6 +367,15 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
                 allowed = projected * CP_PER_BUILDER_CAST / (cp + 1)
                 if allowed < casts:
                     casts = allowed
+            window = _health_gate(apl, sid)
+            if window < 1.0:
+                # 3e B5 — an execute-gated ability is available only for the
+                # last `window` of the fight. fast_sim has no clock, so the
+                # window enters as a share of its cast count.
+                casts *= window
+                warnings.append(
+                    f"{ab.name}: gated to the last {window:.0%} of the fight by "
+                    f"a target-health condition; cast count scaled accordingly")
                 warnings.append(
                     f"{ab.name}: held to {cp:g} combo points and cast "
                     f"{casts:.1f}x, assuming {CP_PER_BUILDER_CAST:g} CP per "
@@ -355,6 +422,11 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
     warnings.append(
         "fast_sim does not model resources — it cannot see mana/rage/energy "
         "starvation. Use medium_sim for castability")
+    warnings.append(EXECUTE_GATING_UNAVAILABLE)
+    _pw = pet_gap_warning(detect_summons(
+        conn, [c.spell_id for c in build_spec.abilities]))
+    if _pw:
+        warnings.append(_pw)
 
     # 2e: the same swing layer medium_sim uses. Both tiers must model it or they
     # disagree by the whole auto-attack + DoT share, which is exactly what
@@ -534,6 +606,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
                 gcd_used += step
                 _regen(st, char_state, step)
                 st.now += step
+                _decay_target_health(st)
                 acted = True
                 break
             # off-GCD entries cost no time; keep scanning the priority list
@@ -542,6 +615,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             idle += 0.1
             _regen(st, char_state, 0.1)
             st.now += 0.1
+            _decay_target_health(st)
 
     # ------------------------------------------------------- 2e: the swing layer
     # Auto-attacks, seal riders and Righteous Vengeance are rate-driven by the
@@ -558,6 +632,15 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
     saturation = gcd_used / available if available else 0.0
+    warnings.append(EXECUTE_GATING_UNAVAILABLE)
+    _pw = pet_gap_warning(detect_summons(
+        conn, [c.spell_id for c in build_spec.abilities]))
+    if _pw:
+        warnings.append(_pw)
+    _pw = pet_gap_warning(detect_summons(
+        conn, [c.spell_id for c in build_spec.abilities]))
+    if _pw:
+        warnings.append(_pw)
     warnings.append(
         f"GCD saturation {saturation:.0%} ({gcd_used:.0f}s of {available:.0f}s "
         f"actable); {idle:.0f}s idle")

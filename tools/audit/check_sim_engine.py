@@ -58,14 +58,16 @@ EXPECTED_FAILURES = {
     # finishers have their own APL tier above the fillers so a gated entry
     # actually gets a turn, and combo_points is generated and spent in
     # medium_sim. Line deleted per the registry's own rule.
-    "[cp_melee] the execute window is modelled, or the sim says it cannot "
-    "model it":
-        "ENGINE_BUGS.md E2 — target_health_pct pinned at 100 (tiers.py:198-199)",
-    "[cp_melee] pet damage is modelled or explicitly named as a gap":
-        "ENGINE_BUGS.md E3 — no pet model, while corpus.py:614 includes pet "
-        "damage in the dps this is calibrated against",
-    "[dot_caster] pet damage is modelled or explicitly named as a gap":
-        "ENGINE_BUGS.md E3 — same defect, second fixture",
+    # E2 CLOSED in 3e B5 — target health decays linearly across the fight, a
+    # target_health_pct_below gate works in medium_sim AND scales cast counts in
+    # fast_sim, and the residual (TargetAuraState is absent from the extract, so
+    # which abilities are execute-gated cannot be derived) is named in warnings
+    # by both tiers. Line deleted per the registry's own rule.
+    # E3 CLOSED in 3e B6 at the "explicitly named as a gap" bar — both tiers
+    # detect summons mechanically (SPELL_EFFECT_SUMMON) and name each pet with
+    # the measured size of the omission. ⚠ NOT modelled, and cannot be from our
+    # data: creature stats live in the server's creature_template, not in any
+    # client DBC. See ENGINE_BUGS E3 and open question pet_damage_not_derivable.
     # E4 CLOSED in 3e B2 — debuff_active / debuff_missing /
     # debuff_remaining_below added to the grammar and to the evaluator, with
     # target debuffs tracked separately from player buffs. Line deleted rather
@@ -647,9 +649,13 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                   "it cannot model it",
                   warned or bool(hp_gated),
                   f"Hammer of Wrath (24239) is execute-gated in game and the "
-                  f"sim cast it {hw_casts}x with target_health_pct pinned at "
-                  f"100.0; {len(hp_gated)} APL entries carry a health "
-                  f"condition and no warning mentions health")
+                  f"sim cast it {hw_casts}x; {len(hp_gated)} APL entries carry "
+                  f"a health condition; a warning names the gap: {warned}. "
+                  f"(3e B5: target health now DECAYS rather than being pinned "
+                  f"at 100, so the window is reachable in both tiers — but "
+                  f"TargetAuraState is absent from the extract, so WHICH "
+                  f"abilities are execute-gated is not derivable and the sim "
+                  f"says so instead of pretending)")
 
         if kind == "dot_caster":
             # `apl.py:19-32` — no target-debuff / DoT-uptime condition type
@@ -733,14 +739,31 @@ def check_nonpaladin_fixtures(conn, ct, conv):
         # No pet model exists in core/sim while corpus.py:614 computes
         # dps = (total_damage + pet_damage)/duration, so any pet class is
         # guaranteed to miss low against the corpus it is calibrated on.
-        pets = [a["name"] for a in bd["abilities"]
-                if "summon" in (a["name"] or "").lower()]
-        if pets:
+        #
+        # ⚠ 3e B6 — this used to find pets by STRING-MATCHING "summon" in the
+        # ability's name, which is the thing rule 5 forbids, inside the harness
+        # that polices the rest of the engine. It now asks the same mechanical
+        # detector the sim uses (SPELL_EFFECT_SUMMON + its creature id), so the
+        # check and the code cannot disagree about what a pet is.
+        from core.sim.pets import detect_summons
+        summons = detect_summons(conn, [a["spell_id"] for a in bd["abilities"]])
+        # 🛑 Same vacuity guard as the DoT check: if the detector found nothing
+        # this check must not report "the gap is named" having tested nothing.
+        gcheck(f"[{kind}] the fixture's summons are detectable at all "
+              f"(guards the pet check against passing vacuously)",
+              bool(summons),
+              f"{len(summons)} summon effect(s) on the board: "
+              f"{[s['name'] for s in summons]}")
+        if summons:
+            pet_warned = any("pet" in (w or "").lower()
+                             for w in (f.warnings or []) + (m.warnings or []))
             gcheck(f"[{kind}] pet damage is modelled or explicitly named as a gap",
-                  any("pet" in (w or "").lower() for w in (f.warnings or [])
-                      + (m.warnings or [])),
-                  f"board summons {pets} and no warning mentions pets — the "
-                  f"corpus dps this is calibrated against INCLUDES pet damage")
+                  pet_warned,
+                  f"board summons {[s['name'] for s in summons]}; a warning "
+                  f"names each pet and the measured size of the gap: "
+                  f"{pet_warned}. The corpus dps this is calibrated against "
+                  f"INCLUDES pet damage, and pet damage is NOT modelled — "
+                  f"creature stats are not in any client DBC")
 
 
 if __name__ == "__main__":

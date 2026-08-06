@@ -109,7 +109,38 @@ becomes reachable — at which point the *original* bug starts biting.
 
 ---
 
-## E2 — execute windows are dead code, and nothing says so
+## E2 — execute windows are dead code, and nothing says so — ✅ FIXED (`3e` B5)
+
+> ### ✅ Closed 2026-08-06, session `3e` Block B5.
+>
+> **The mechanism works now.** `target_health_pct` decayed nowhere — it was
+> pinned at `100.0` for the whole fight, so `target_health_pct_below` was
+> permanently false and every execute-range ability was unreachable, *while*
+> `apl_gen` emitted no health condition either, so the same abilities cast as if
+> always available. Unmodelled in both directions at once. Target health now
+> falls linearly from 100% to 0% across the fight — a boss fight **ends** when
+> the target dies, so that is the shape, not a pacing assumption — and a
+> `target_health_pct_below` gate is honoured in `medium_sim`. `fast_sim` has no
+> clock, so the same gate enters as a **share of cast count**: under linear decay
+> an ability gated at "target below X%" is available for exactly the last `X/100`
+> of the fight.
+>
+> 🛑 **What is NOT fixed, because the data does not exist: which abilities carry
+> an execute gate.** In 3.3.5 that is
+> `TargetAuraState = AURA_STATE_HEALTHLESS_20_PERCENT`, and `spell_dbc_raw`
+> carries **no aura-state column at all** — the extract exports `attributes` /
+> `attributes_ex` and nothing else of that family. So Hammer of Wrath is still
+> modelled as always available and is still over-credited. **Both tiers now emit
+> that by name** (`EXECUTE_GATING_UNAVAILABLE`) rather than leaving it silent,
+> which is precisely what this entry asked for: *"the failure is not 'it never
+> casts', it is that the window is unmodelled in either direction and the sim
+> does not say so."* Open question: `execute_gating_absent_from_extract`.
+>
+> ⚠ Same shape as B4's combo-point finding, in a different field: the mechanism
+> was repairable in an afternoon, and the **data gap behind it needs a wider
+> `--with-dbc` extract**, which is owner-gated.
+
+<details><summary>The original E2 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -129,9 +160,51 @@ not merely missing — it is modelled as *always available*, which over-credits 
 **The failure is not "it never casts". It is that the window is unmodelled in
 either direction and the sim does not say so.**
 
+</details>
+
 ---
 
-## E3 — no pet model, while the corpus DPS being calibrated against includes pets
+## E3 — no pet model, while the corpus DPS being calibrated against includes pets — 🟡 NAMED, NOT MODELLED (`3e` B6)
+
+> ### 🟡 Closed at the "explicitly named as a gap" bar, 2026-08-06. The owner's chosen scope turned out to be UNREACHABLE, and that is the finding.
+>
+> **Owner decision 2026-08-06 was the mechanical minimum:** summon → a pet actor
+> with auto-attacks plus whatever damage spell its own record carries, scaled
+> from the owner's stats. **That is not buildable from this project's data, for a
+> structural reason rather than a gap someone forgot to fill.**
+>
+> * **Summons ARE derivable.** `SPELL_EFFECT_SUMMON` is effect type 28 and
+>   `spell_effect_values` holds **395 rows across 389 spells**, each carrying the
+>   summoned **creature id** in `misc_value`. `core/sim/pets.py :: detect_summons`
+>   answers "does this build summon, and what", and both tiers now call it.
+> * **A pet's DAMAGE is not.** Creature stats — attack power, damage range,
+>   attack speed, the pet's own spells — live in the server's
+>   `creature_template`, **not in any client DBC**. There is no creature table in
+>   `ascension.db`, and **no `--with-dbc` widening would produce one, because the
+>   client does not ship it.** This is the one data gap in `3e` that an
+>   owner-gated extract cannot close.
+>
+> So the sim names each pet and states the measured size of what it is missing —
+> **5.0% unbuffed / 5.4% buffed / 1.5% dungeon** on the owner's Frost Mage
+> capture, ~10% across the gate cohort. Inventing a damage figure would be
+> fabrication *inside the number the calibration gate reads*.
+>
+> ✅ **The route that works is LOGS, not DBC.** `ability_performance` already
+> carries `is_pet`, and a combat log names pet damage directly, so a pet damage
+> profile can be **measured** per pet. That belongs with PHASE_3 T6 log ingestion
+> (session `3f`). Open question: `pet_damage_not_derivable`.
+>
+> 🔬 **A rule-5 finding fell out of this.** The harness had been identifying pets
+> by **string-matching "summon" in the ability name** — the exact thing rule 5
+> forbids, inside the harness that polices the rest of the engine. Against the
+> mechanical detector the two disagree **in both directions**: on the combo-point
+> board the name match returns `Summon Felguard, Summon Void Zone, Summon
+> Voidwalker`, the effect query returns `Summon Void Zone` and **`Roll the
+> Bones`** — a summon no name match could find, plus two "Summon …" titles
+> carrying no summon effect at all. The check now uses the detector, with a
+> vacuity guard.
+
+<details><summary>The original E3 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -146,6 +219,8 @@ silently, which is the part that matters. Roughly 10% of the cohort's real damag
 
 Naming it as a gap is the minimum; modelling it is the owner's decision and is
 `3e` work.
+
+</details>
 
 ---
 
