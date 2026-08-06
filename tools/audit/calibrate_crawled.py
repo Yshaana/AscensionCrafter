@@ -23,11 +23,16 @@ the gate could be passed without meaning anything:
    `--max-lag-hours` defaults to **0** (the snapshot was captured AT that
    encounter, so it IS the build that produced the parse). Any looser value is
    printed in the header and the per-character lag is in the table, because a
-   lagged snapshot is a different build wearing the same name. ⚠ Measured
-   2026-08-06: at lag 0 the corpus yields **one** level-60 character, because
-   exact-join captures skew heavily toward levelling players — so a run at a
-   stated non-zero lag is the only way this gate currently has an n at all,
-   and its result must be read with the lag column, not without it.
+   lagged snapshot is a different build wearing the same name.
+
+   ⚠ **Corpus-size caveat, learned the hard way on 2026-08-06.** Against a
+   mid-backfill corpus this filter left exactly ONE level-60 character, and
+   that looked like a structural property of the data ("exact-join captures
+   skew toward levelling players"). It was not — it was small-sample. After the
+   backfill completed the same strict filter yields **41**. The lesson is
+   general enough to keep: *a filter that starves on a partial corpus is not
+   evidence that the filter is too strict.* Prefer re-running on more data over
+   loosening a constraint.
 3. **A character on an impaired system is reported, never silently included.**
    Path of Duality's parses are excluded from absolute calibration by the 2d
    advisory; they are counted and named, not dropped quietly.
@@ -227,10 +232,16 @@ def main():
         "gear stats, resolved cards, a non-trash encounter ≥20s), never by how "
         "well the sim did.",
         "",
-        f"**Build-to-parse staleness allowed: {args.max_lag_hours:g}h.** At the "
-        "strict setting (0h — the snapshot was captured at that very encounter) "
-        "this corpus yields exactly ONE level-60 character, because exact-join "
-        "captures skew toward levelling players. Read the lag column.",
+        f"**Build-to-parse staleness allowed: {args.max_lag_hours:g}h** "
+        + ("(strict — every snapshot below was captured AT its own encounter, "
+           "so it IS the build that produced the parse)."
+           if args.max_lag_hours == 0 else
+           "(LOOSENED — a lagged snapshot is a different build wearing the same "
+           "name; read the lag column before trusting any row)."),
+        "",
+        f"Directional summary: **{sum(1 for r in results if (r['delta_pct'] or 0) < 0)} "
+        f"of {len(results)} deltas are negative.** A one-sided distribution is a "
+        "missing multiplicative layer, not noise.",
         "",
         "| character | path | boss | build lag (h) | logged DPS | sim DPS | delta | within ±20% |",
         "|---|---|---|---:|---:|---:|---:|---|",

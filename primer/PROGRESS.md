@@ -16,11 +16,6 @@ purity 0/45, all sim-engine checks pass.
 
 ### 🔴 FIRST ACTIONS NEXT SESSION
 
-0. **Rebuild the corpus first: `py ingest/logs_gg/build_builds_db.py`.** The
-   uncapped backfill ran through session `3a` and was still going when it
-   ended, so `builds.db`'s counts below are a mid-backfill snapshot. Every
-   figure in the inference report and the calibration gate improves with the
-   larger corpus — re-run both after rebuilding.
 1. **The re-tests are STILL outstanding** — they were 2e's first action, and
    `3a` could not run them (they need the owner in game). Re-test tracker
    #200295 after the server restart: Hammerdin procs from Judgement/Holy Shock
@@ -34,13 +29,17 @@ purity 0/45, all sim-engine checks pass.
 
 ### 🚨 The calibration gate is NOT MET — and the miss is one-directional
 
-`py tools/audit/calibrate_crawled.py --limit 60 --max-lag-hours 336`
-→ **2 of 25** level-60 crawled characters within ±20%
-(`data/derived/calibration_crawled.md`). Criterion is ≥3.
+`py tools/audit/calibrate_crawled.py --limit 120 --max-lag-hours 0`
+→ **0 of 41** level-60 crawled characters within ±20%
+(`data/derived/calibration_crawled.md`). Criterion is ≥3. Run at the STRICT
+lag-0 setting — every snapshot was captured at its own encounter, so no
+staleness caveat applies.
 
-**23 of 25 deltas are NEGATIVE**, most between −30% and −89%. That one-sided
-shape is a missing multiplicative layer, not noise. Ranked causes, neither
-fitted:
+**40 of 41 deltas are NEGATIVE**, −35% to −92%. That one-sided shape is a
+missing multiplicative layer, not noise. The candidate set is now real
+Zul'Gurub raid bosses (Hakkar, Bloodlord Mandokir, Taerar, Snowgrave) — the
+content where buff stacks are largest, and where the biggest misses sit.
+Ranked causes, neither fitted:
 
 1. **Buffs are modelled for the owner only.** 2e measured his own
    unbuffed→buffed gap at **1,555 → 3,650 DPS (×2.35)** — the right order to
@@ -53,27 +52,32 @@ fitted:
 🛑 **Do not close this by fitting a constant.** Same rule as 2c's demoted 1.31
 and 2e's deliberately-unseeded Holy residual.
 
-⚠ **Two gate constraints to know before quoting its n:** at the strict
-`--max-lag-hours 0` (snapshot captured AT that encounter) the corpus yields
-**exactly one** level-60 character, because exact-join captures skew toward
-levelling players — the reported run uses a stated 336h staleness with per-
-character lag printed. And **level is read, never assumed**: a first version
+🚨 **A method lesson from building this gate, worth more than its number.**
+Against the mid-backfill corpus the strict lag-0 filter left **one** character,
+and that was written up as structural ("exact-join captures skew toward
+levellers") and worked around by loosening the threshold to 336h. It was
+**small-sample, not structure** — after the backfill the same strict filter
+yields **41**. Generalised: *a filter that starves on a partial corpus is not
+evidence that the filter is too strict.* Re-run on more data before loosening a
+constraint. ⚠ Also: **level is read, never assumed** — a first version
 hardcoded 60 and simmed a level-49 parse against level-60 magnitudes, which is
-`1x`'s retracted pooled-crawl error.
+`1x`'s retracted pooled-crawl error, re-committed and caught.
 
 ### What `3a` established (details in the session record)
 
 - 🆕 **`data/derived/builds.db` exists** (gitignored, rebuilt from committed
-  NDJSON by `ingest/logs_gg/build_builds_db.py`): 2,307 characters, 218
-  snapshots, 10,329 cards, 3,658 gear rows, 2,885 encounters, 124,768 ability
-  rows, 360,740 avoidance rows. Card resolution runs at REBUILD time —
-  2,592/2,613 (entry_id, rank) pairs resolve, 21 ambiguous left NULL.
+  NDJSON by `ingest/logs_gg/build_builds_db.py`): **4,069 characters, 412
+  snapshots, 19,684 cards, 6,896 gear rows, 5,455 encounters, 307,442 ability
+  rows, 877,850 avoidance rows.** Card resolution runs at REBUILD time —
+  3,222/3,245 (entry_id, rank) pairs resolve, 23 ambiguous left NULL.
   ✅ Reproduces HftH's zero-avoidance on **17,781** pooled hits (3.6× the
   sample behind the confirmed fact).
+  (The uncapped backfill completed during `3a`: 94 min, 6,146 requests, 0
+  retries, 50 new reports, 275 armory records, 390 characters known.)
 - 🚨 **`ItemStat.dbc` does NOT carry item stat values** — probed and disproved
   against 1,198 ground-truth items (6 exact matches in 567 overlaps; no field
   above 9.2%). The owner's chosen "client DBC first" route is a dead end for
-  stats. `items` (1,680; 1,313 with stats) is built from `snapshot_gear`
+  stats. `items` (**2,384; 1,792 with stats**) is built from `snapshot_gear`
   instead, stamped `provenance='crawl_resolved_bisbeard'` — so agreement with
   BisBeard checks our WEIGHTS, not our ITEMS.
 - 🚨 **Pooled crit-table inference cannot use the phase doc's regression**:
@@ -521,7 +525,7 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **2c** | Talent modelling, calibration, prediction ledger, cache, diff/report | ✅ done | `Session_2026-08-05_2c_gates_and_talents.md` | Phase 2 complete. Gates G0–G4 + T4b/T8–T11. Holy Shock R4 resolved; the 1.31 ratio demoted; talents modelled |
 | **2d** | Capture bundle, in-game testing, bug findings | ⚠ partial | `Session_2026-08-05_2d_capture_and_bugs.md` | T0+T1 delivered and exceeded; **T2–T10 not started** → carried to `2e`. Three premise-invalidating findings (Duality broken, Hammerdin trigger set, LC engine-inert), 2 bugs filed / 1 submitted (#200295), 3 retractions, Cleave Kit written up |
 | **2e** | Buff model, sim gaps, PoI recalibration, bug-fix watch, scorecard spec | ✅ done | `Session_2026-08-05_2e_poi_calibration.md` | T1–T4, T6–T11. Holystrike residual closed (weapon input); Holy residual split into 2 mechanisms; `dbc_only` +11,857 spells; buff layer measured; glancing 32.6%; watch sweeps live; kit rename; D3/D4 landed. T5 + detector deferred with reasons. **#200295 FIXED pending restart** |
-| 3a | Crawl normalisation, inference, search, gear | ✅ done | `Session_2026-08-06_3a_builds_corpus.md` | T1–T4 + T8. `builds.db` built; inference is staging-only with an anchor-comparison crit method (the doc's regression is impossible — hit/crit unified in gear); `ItemStat.dbc` disproved as a stat source, items come from the crawl. 🚨 **Calibration gate NOT MET (2 of 25), misses one-directional → unmodelled buffs** |
+| 3a | Crawl normalisation, inference, search, gear | ✅ done | `Session_2026-08-06_3a_builds_corpus.md` | T1–T4 + T8, plus the uncapped backfill (50 reports). `builds.db` built; inference is staging-only with an anchor-comparison crit method (the doc's regression is impossible — hit/crit unified in gear); `ItemStat.dbc` disproved as a stat source, items come from the crawl. 🚨 **Calibration gate NOT MET (0 of 41 at strict lag-0), 40/41 misses negative → unmodelled buffs** |
 | 3b | Addon, logs, automation, crawler refinement | ⬜ | — | T8 landed early in 3a (re-verification sweep). Remaining: T5 addon, T6 log ingestion, T7 session-start hook |
 | 4 | Legos + Theorycrafter | ⬜ | — | Chunk as it goes |
 
@@ -593,7 +597,8 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 | 2026-08-06 (3a) | 🚨 **The client DBC is NOT a source of item stat values — Phase 0 T9's "honest default" route is a dead end, and Phase 3 T4 runs on the crawl instead** | Probed rather than assumed, and disproved against ground truth. `Item.dbc` (563,308 records, 8 fields) is stock display data. `ItemStat.dbc` (1,513,931 records, 39 fields) is a custom table whose fields 3–22 read as `(ITEM_MOD type, value)` pairs reproduce the true block **6 times in 567 overlaps** across 1,198 items the crawl already resolves, with no field matching a real stat value above 9.2% (chance). Expected in hindsight: 3.3.5 keeps item stats server-side in `item_template`. `items` is therefore assembled from `snapshot_gear` (1,680 items / 1,313 with stats) — Path B's own fallback. ⚠ **Provenance is stamped `crawl_resolved_bisbeard`**: those blocks are BisBeard's resolution carried through the armory capture, so cross-validating our weights against BisBeard checks the WEIGHTS and not the ITEMS. The remaining `ItemStat.dbc` layout is recorded as an open question, not guessed |
 | 2026-08-06 (3a) | 🚨 **PHASE_3 T2's crit-table regression is IMPOSSIBLE as specified; replaced with a within-character anchor comparison** | The doc says regress each character's crit% against their melee and spell crit rating. Per-parse stats do not exist (Phase 0 T2) and armory stats are gear-only — **and hit/crit rating are unified in GEAR (2d)**, so a gear-rating regression cannot separate the two tables even in principle. The replacement compares the target's crit% against the same character's crit% on doc-confirmed anchors *in the same parse* (melee: Auto Attack; spell: confirmed `crit_table='spell'` ids expanded through the crosswalk), so buff state, gear and target-level suppression cancel inside the pair — the property that makes weapon-free pair ratios durable, reused. ⚠ A two-bucket version proposed five PERIODIC abilities (4 Consecration ranks, Blood Presence) as `melee`, because ~0% crit is closer to the melee anchor than the spell one; a `none` bucket now fires first. `infer_coefficient` **refuses per spell and records the refusal** — it unlocks only when per-parse stats exist (T5 self-snapshot) |
 | 2026-08-06 (3a) | ⚠ **PHASE_3 T1's DDL deviates in five recorded places; the load-bearing one is `capture_scopes`** | Per-ability endpoints aggregate over whatever `encounterIds` were passed and rows carry no encounter id, so an ability row's real granularity is the SCOPE, not the encounter — performance keys on `scope_id`, and `encounter_id` is set only where the scope covers exactly one. Collapsing scopes onto encounters would fabricate precision the source never had. Also: avoidance moved to its own enemy-keyed table (no attacker id exists), no `patch_id`/`phase_id` columns (rebuild-scoped autoincrements must not be referenced durably — the `open_questions` slug lesson), `gear_stats_json` not `stats_json` (the `_gearOnly` trap), and snapshots carry `capture_report_id` so the build-to-parse join can be EXACT rather than nearest-in-time |
-| 2026-08-06 (3a) | 🚨 **Phase 3's inherited exit gate is NOT MET: 2 of 25 crawled characters within ±20%, and 23 of 25 misses are NEGATIVE** | A one-sided distribution that size is a missing multiplicative layer, not noise. Ranked cause: **buffs are modelled for the owner only** — 2e measured his own unbuffed→buffed gap at ×2.35, the right order for a −55% median, and every crawled parse is a real group the sim buffs not at all. The buff set is **derivable** (the group is in the same report), so this is buildable. Second cause: talents resolve only where cards resolve, and the crawl is every class's kit. 🛑 Not to be closed by fitting a constant. ⚠ Two constraints on the gate's own n: at strict `--max-lag-hours 0` the corpus yields ONE level-60 character (exact-join captures skew to levellers), so the reported run states 336h and prints per-character lag; and level is now read from the corpus after a first version hardcoded 60 and simmed a level-49 parse against level-60 magnitudes — `1x`'s retracted pooled-crawl error, re-committed and caught |
+| 2026-08-06 (3a) | 🚨 **Phase 3's inherited exit gate is NOT MET: 0 of 41 crawled characters within ±20%, and 40 of 41 misses are NEGATIVE** | A one-sided distribution that size is a missing multiplicative layer, not noise. Ranked cause: **buffs are modelled for the owner only** — 2e measured his own unbuffed→buffed gap at ×2.35, and every crawled parse is a real group the sim buffs not at all. The post-backfill candidate set is real Zul'Gurub raid bosses (Hakkar, Bloodlord Mandokir, Taerar, Snowgrave), i.e. exactly where buff stacks are largest, and that is where the −90% misses sit. The buff set is **derivable** (the group is in the same report), so this is buildable. Second cause: talents resolve only where cards resolve, and the crawl is every class's kit. 🛑 Not to be closed by fitting a constant. ⚠ Level is read, never assumed — a first version hardcoded 60 and simmed a level-49 parse against level-60 magnitudes, `1x`'s retracted pooled-crawl error re-committed and caught |
+| 2026-08-06 (3a) | ⚠ **RETRACTED, same session, mine: "the strict lag-0 build-to-parse join yields only one level-60 character, because exact-join captures skew toward levelling players"** | Measured against a MID-BACKFILL corpus and written up as a structural property of the data, which justified loosening the gate's staleness threshold to 336h to get an n at all. The backfill then completed and the *same strict filter* returned **41** characters. It was small-sample, not structure. **Generalised into the tool's own docstring: a filter that starves on a partial corpus is not evidence that the filter is too strict — re-run on more data before loosening a constraint.** The gate now runs at its strictest setting with no staleness caveat, so the correction strengthened the result rather than weakening it |
 | 2026-08-06 (3a) | 🟡 **Owner decision: seed Holy Shock's measured SP 0.40 as PROVISIONAL, under its own source string** | Neither the client's 0.429 (consistently ~5% high across four logs) nor nothing (2c falsified "no SP term": 26–34% above group in every log). 0.40 goes on the damage sub-spell **25902** — the trigger TARGET, per the 2026-08-05 attribution rule — with `source='ascension_measured_provisional'`, so it is filterable and visibly weaker than a stated coefficient. `seed_hand_coefficients.py` now owns two source partitions and scopes its delete per source. 🛑 The open question stays **in_progress**, not resolved: 0.40 is back-solved from the owner's own parses and must never be used as a fit target against them (2e's rule for the unseeded Holy residual). Closes on any source that STATES a coefficient |
 | 2026-08-06 (3a) | 🆕 **Crawler re-verification sweep (T8); "capture all roles" was already satisfied** | `ROLES = [dps, tank, support]` has been walked since 0b (`tanks-and-dps` is a union of two already taken) — reported rather than re-claimed. The real gap was that discovery is incremental, so a character who respecs and then stops parsing stays frozen at their old build indefinitely. Each run now re-pulls up to 40 known-but-not-seen-today characters, oldest capture first, so the sweep rolls through the population; content-hash dedupe already makes an unchanged build cost one request and zero bytes, so the cost is ~40 requests/day rather than a second crawl |
 | 2026-08-05 (2e) | 🚨 **`spell_effect_values` decodes EVERY extracted spell** — new `via='dbc_only'` (+19,098 rows / 11,857 spells), attribution untouched (`spell_id == source_spell_id`) | The resolver walked only catalog routes; seal targets, judgement spells, out-of-catalog versions and talent damage spells were extracted-but-never-read. Combat logs name ids directly, so the sim resolved exactly those and got nothing. Third instance of the family "data present, query narrow" (2b's 686 siblings, 1x's 98%). The scoped delete now covers three vias — a fourth writer must scope its own |

@@ -20,14 +20,25 @@ Owner answered four questions before bed; everything below follows from those.
 inherited criterion — *the sim reproduces ≥3 real characters within ±20%
 aggregate DPS*, tolerance unchanged from `predictions/CALIBRATION_TOLERANCE.md`.
 
-**Result: 2 of 25 level-60 crawled characters within ±20%.** Report:
-`data/derived/calibration_crawled.md`.
+**Result: 0 of 41 level-60 crawled characters within ±20%, at the STRICT
+lag-0 setting.** Report: `data/derived/calibration_crawled.md`.
 
-🚨 **The misses are overwhelmingly one-directional: 23 of 25 deltas are
-negative, most between −30% and −89%.** A scatter would mean noise; a
-one-sided distribution of that size is a missing multiplicative layer, and it
-is the same signature that has caught every previous modelling gap in this
-project. Two candidate mechanisms, both already known and neither fitted here:
+> ⚠ **This supersedes a mid-session figure of "2 of 25 at a stated 336h
+> staleness".** The uncapped backfill finished after the first write-up (50 new
+> reports, 275 armory records, 390 characters known), the corpus roughly
+> doubled, and the gate was re-run. See "the corpus size caveat" below — the
+> correction is in the project's favour and the numbers below are the ones to
+> quote.
+
+🚨 **The misses are one-directional: 40 of 41 deltas are negative**, ranging
+−35% to −92%. A scatter would mean noise; a one-sided distribution of that size
+is a missing multiplicative layer, and it is the same signature that has caught
+every previous modelling gap in this project. The larger corpus also shifted
+the candidate set onto **real Zul'Gurub raid bosses** (Hakkar, Bloodlord
+Mandokir, Taerar, Snowgrave) rather than dungeon trash-adjacent kills — i.e.
+onto exactly the content where buff stacks are largest, and that is where the
+biggest misses sit. Two candidate mechanisms, both already known and neither
+fitted here:
 
 1. **Buffs are not modelled for anyone but the owner.** `core/sim/buffs.py`
    (2e) is measured for *his* buff set. Every crawled parse is a real group in
@@ -44,13 +55,17 @@ report — the buff set is *derivable*, not assumed), then re-run the gate.
 
 Two structural findings fell out of building the gate, both worth keeping:
 
-* **The strict build-to-parse join and level 60 barely intersect.** At
-  `--max-lag-hours 0` (the armory capture was taken AT that encounter, so it IS
-  the build that parsed) the corpus yields **exactly one** level-60 character:
-  exact-join captures skew heavily toward levelling players. The reported run
-  therefore uses a stated 336h staleness with the lag printed per character.
-  The threshold is a CLI parameter and appears in the report header — it is
-  never applied silently.
+* 🚨 **The corpus-size caveat, and it is a method lesson worth more than the
+  gate number.** Against the mid-backfill corpus, the strict `--max-lag-hours 0`
+  filter left **exactly one** level-60 character, and I wrote that up as a
+  structural property of the data ("exact-join captures skew toward levelling
+  players") and loosened the threshold to 336h to get an n at all. **That was
+  wrong — it was small-sample, not structure.** After the backfill completed,
+  the *same* strict filter yields **41**. Generalised, and now in the tool's own
+  docstring: **a filter that starves on a partial corpus is not evidence that
+  the filter is too strict.** Re-run on more data before loosening a constraint.
+  The gate now runs at its strictest setting with no staleness caveat at all,
+  which makes its verdict stronger than the one it replaced.
 * **Level must be read, not assumed.** A first version hardcoded level 60 and
   simmed a level-49 character's parse against level-60 magnitudes — the same
   error `1x` retracted when pooled crawl data was used to "rule out" a
@@ -64,9 +79,9 @@ Two structural findings fell out of building the gate, both worth keeping:
 (reads the gzipped NDJSON). Gitignored and rebuilt from committed source, same
 rule as every other derived db.
 
-From today's crawl state: **2,307 characters, 218 build snapshots, 10,329
-cards, 3,658 gear rows, 2,885 encounters, 8,969 performance rows, 124,768
-ability rows, 360,740 avoidance rows, 807 leaderboard entries.**
+After the backfill completed: **4,069 characters, 412 build snapshots, 19,684
+cards, 6,896 gear rows, 5,455 encounters, 19,649 performance rows, 307,442
+ability rows, 877,850 avoidance rows, 807 leaderboard entries.**
 
 **Five deviations from PHASE_3 T1's draft DDL, each recorded not drifted:**
 
@@ -92,11 +107,11 @@ ability rows, 360,740 avoidance rows, 807 leaderboard entries.**
    encounter, with nearest-in-time as the labelled fallback.
 
 Spell-ID resolution runs at rebuild time through the crosswalk, never at
-capture time: **2,592 of 2,613 distinct (entry_id, rank) pairs resolve, 21
+capture time: **3,222 of 3,245 distinct (entry_id, rank) pairs resolve, 23
 ambiguous and left NULL** — never tie-broken.
 
 ✅ **The corpus reproduces a known result on first build**: Hammer from the
-Heavens, 17,781 pooled hits — **0 miss, 0 dodge, 0 parry**, matching
+Heavens, **17,781 pooled hits — 0 miss, 0 dodge, 0 parry**, matching
 `confirmed_facts.hammer_from_heavens_cannot_be_avoided` (4,962 hits at the
 time) on 3.6× the sample.
 
@@ -182,8 +197,8 @@ assumed.**
   as an open question, **not guessed at**.
 
 So `items` is built from `snapshot_gear` — Path B's own fallback, which the
-recon itself called "an item database assembled as a byproduct". **1,680 items,
-1,313 with resolved stat blocks.**
+recon itself called "an item database assembled as a byproduct". **2,384 items,
+1,792 with resolved stat blocks** after the backfill.
 
 ⚠ **Provenance matters here and is stamped in the table**: those stat blocks
 are **BisBeard's resolution** carried through the armory capture
@@ -248,8 +263,9 @@ those same parses. What closes it: any source that *states* a coefficient.
 * `py cli/rebuild.py` — green, 20 steps. `check_core_purity` 0/45.
   `check_sim_engine` all pass (the optimal-vs-observed margin is unchanged at
   25 points; the harness reports totals, not DPS).
-* Backfill (`crawl_ascensionlogs.py`, uncapped) started at the top of the
-  session and ran through it, adding reports 30+ including three grind logs.
-  It commits `data/source` itself.
+* Backfill (`crawl_ascensionlogs.py`, uncapped) ran for **94 minutes, 6,146
+  requests, 0 retries**: **50 new reports, 275 armory records, 390 characters
+  known**, 3.6 MB tier-1 committed / 28.6 MB tier-2 local. It committed and
+  pushed `data/source` itself. Every figure in this document is post-backfill.
 * New derived artifacts, all gitignored: `builds.db`, `inference_report.md`,
   `calibration_crawled.md` / `.json`.
