@@ -1,18 +1,55 @@
 # PROGRESS
 
-> 🔴 **2026-08-06 evening — session `3c` is done and awaiting audit.**
-> Read **`primer/AUDIT_3C_handoff.md`** first: it carries the executed audit
-> steps, the four log uploads, three errors of mine worth checking hardest, the
-> revised plan, and the open decisions.
-> **Work plan: `primer/PLAN_3C_clean_exit.md` (see its dated revision section).**
+> 🔴 **2026-08-06 — `3c` is audited and CLOSED. Next session is `3d`.**
+> **Work order: `primer/SESSION_3D_PRIMER.md`. Read it first.**
+> Findings it rests on: `primer/AUDIT_3C_ADVERSARIAL.md` (adversarial audit of
+> `3c`, code-verified against `a36f666`). `primer/AUDIT_3C_handoff.md` remains
+> the record of what `3c` did — read it for §2's log-upload findings, but read
+> the adversarial audit for what is actually true.
 >
-> 🚨 **Phase 4 is NOT next.** `PHASE_3`'s second execution chain — **T5 (capture
-> addon) → T6 (log ingestion) → T7 (automation)** — was deferred and never
-> revisited; `ingest/logs/` and the hooks directory do not exist. Two non-gate
-> exit criteria are also outstanding/unverified. Detail in the audit primer §0.
+> 🛑 **`3d` MUST NOT MOVE THE GATE.** Run `calibrate_crawled.py` before and after;
+> both must read **5 of 41, 2 qualified**. Any difference is stopped on and its
+> cause reported — never fixed forward. That invariant is what makes `3e`
+> readable. Detail: `SESSION_3D_PRIMER.md` §0.
+>
+> 🚨 **Deadline — the server flips to Phase 2 on 2026-08-08.** `SEASON` is
+> hardcoded in **five** places and nothing asserts it against `/api/phases`.
+> `SESSION_3D_PRIMER.md` Block A ships on its own commit if the session runs long.
+>
+> **Phase 4 is NOT next**, and the `3c` framing of why was wrong in both
+> directions. Corrected: `PHASE_3` lists **seven** exit criteria, not six;
+> **three** are outstanding (#2 crosswalk/string-matching, #4 measured CI,
+> #7 `ContentProfile`), not two; and **#7 is FAILED, not unverified** — 6 of 8
+> presets in `core/sim/content.py` carry `provenance="assumption: …"` in their
+> own strings. Criterion #4's mechanism does not exist at all: no code anywhere
+> sets `inference.promoted=1` and `uncertainty.py`'s `POLICY` has no `measured`
+> band. ⚠ `ingest/logs/` is a **strawman path** — it appears nowhere in `PHASE_3`.
+>
+> **Owner decisions, 2026-08-06 — settled, do not re-open:**
+> * `3d` = hygiene + instrument only, **no modelling changes**.
+> * **PHASE_3 T6 (log ingestion) is REINSTATED and promoted** to its own session,
+>   `3f`. It is **not** absent as `3c` claimed — parsing is done and verified
+>   (`tools/log_parser/`), the correlation rule is seeded (`seed_confirmed.py:47`),
+>   the glob is written (`calibrate_vs_log.py:314`). What is missing is mtime
+>   windowing, UTC conversion, and **any writer from a log into `builds.db`**.
+> * **PHASE_3 T5 (capture addon) is DEMOTED**, not reinstated — ALC +
+>   `decode_alc.py` already decode every player build in a log.
+> * **PHASE_3 T7** follows `3f` (hard dependency).
+> * **Block D runs on Opus.** Not a default to be re-litigated.
+>
+> **Session map:** `3d` hygiene + instrument → `3e` modelling + gate re-run →
+> `3f` PHASE_3 T6 → T7 → re-read Phase 3 exit honestly → Phase 4.
+> Phase 4's hard blockers are recorded in `SESSION_3D_PRIMER.md` §11 so they are
+> not rediscovered. Phase 4 Part C1 (principles corpus) is genuinely unblocked
+> now and can run in parallel — it has no sim dependency.
 >
 > Gate: **5 of 41 within ±20%, 2 qualified → EXIT NOT MET** under the coverage
-> rider stamped before the run.
+> rider stamped before the run. ⚠ The rider's "stamped before" claim is
+> **plausible but unverified** — the addendum, the `QUALIFIED_COVERAGE_PCT`
+> constants and the ingest all land in the same commit `79c6568`.
+> 🔒 That gate result is **not reproducible by anyone but the owner**:
+> `data/derived/` is gitignored, no `.db` is committed, and `build_builds_db.py`
+> is in no chain and no `.bat`. `SESSION_3D_PRIMER.md` Block E fixes this.
 
 **Claude Code maintains this file. Update it at the end of every session, before writing the handoff.**
 
