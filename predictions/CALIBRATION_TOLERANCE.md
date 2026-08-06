@@ -150,8 +150,70 @@ seeing a result — the same reason the 50% rider was stamped before its own run
 
 Implemented in `3d` (`tools/audit/calibrate_crawled.py`, F3) as pure
 instrumentation: it changes no verdict, and the gate was byte-identical with it
-in place. First measurement, 2026-08-06: **cohort median 160%** — the modelled
-slice is over-produced by about 60% while only part of each kit is modelled.
+in place.
+
+🚨 **CORRECTED IN `3e` A2 — the first reading was backwards, and the correction
+inverts the instruction it gave.** `3d`'s figure was *"cohort median 160% — the
+modelled slice is over-produced by about 60%"*. That median is a **low-coverage
+artifact**: slice accuracy has **coverage in its denominator**, so it explodes as
+coverage → 0. Mutaforma, at **0.2%** coverage, reports **1,859,400%** — and that
+value is in the committed `3d` manifest. A median taken across a cohort spanning
+0.2% to 82% coverage is not a measurement of anything.
+
+Restricted to characters the sim actually models, the number is stable and it
+points the other way:
+
+| coverage floor | n (3e tuning set) | median slice accuracy |
+|---:|---:|---:|
+| ≥0% | 33 | 164.7% |
+| ≥10% | 27 | 144.0% |
+| ≥20% | **23** | **64.3%** |
+| ≥30% | 21 | 63.4% |
+| ≥50% | 10 | 63.4% |
+
+*(Computed independently from the committed `3d` manifest over its own 38-member
+population, the bands read 159.8 / 85.4 / 62.6 / 62.6 / 62.6 — the same shape and
+the same landing place, on a different cohort split. The stability is the
+finding, not the third digit.)*
+
+**The sim UNDER-produces on the slice it does model, by about a third.** It does
+not over-produce by 60%.
+
+🛑 **Why this matters more than a sign error.** At slice accuracy ~62–64%,
+**coverage work alone can never reach ±20%**: landing `delta = 0` needs
+`slice × coverage = 1.0`, which at 0.63 requires **coverage above 100%**. Both
+levers have to roughly double. Under the discarded 160% reading the conclusion
+inverts — it says coverage work will *overshoot*, and would have sent `3e` to
+throttle exactly the work it needs.
+
+**Reporting rule, in force from `3e`:** the cohort median is reported **only
+above a stated coverage floor, with the floor printed beside it** and the band
+table under it, and the manifest key carries the floor in its name
+(`median_slice_accuracy_pct_at_coverage_ge_20`). A bare
+`cohort_median_slice_accuracy_pct` pins a number two readers will read two ways.
+
+### 🛑 Stamped successor #2: a 20% coverage floor on `within_tolerance` itself
+
+**Owner decision 2026-08-06, effective at the gate run AFTER `3e`.** Stamped
+here before `3e`'s own result was known, and it is a **stricter** bar — the
+direction a criterion is allowed to move.
+
+`within_tolerance` is `abs(delta) <= 20` **and nothing else**. Three of the five
+characters carrying the ≥3 criterion sit at **4.6%, 5.6% and 13.3%** coverage, so
+the criterion can be carried by characters whose kit the sim barely models. From
+the next gate, a character must also have **≥20% of its real damage modelled** to
+count as within tolerance.
+
+**Why 20%, and why this is not a number chosen to admit a wanted result:** slice
+accuracy is stable at ~63% across the ≥20 / ≥30 / ≥50 bands and unstable below
+20% (144% at ≥10%, 165% at ≥0%). 20% is where the metric stops being noise — a
+property of the measurement itself. At today's numbers the floor takes the gate
+from **5 passing to 2**, i.e. it fails on the run that stamped it.
+
+**What lands in `3e` instead:** `within_tolerance` returns **`None`, not
+`False`, at zero coverage** — three cohort members (Huskeer, Jamppa, Xizek) have
+0.0% coverage with a non-null delta, and the sim has no opinion about them.
+Slice accuracy already refused to report there; the criterion now does too.
 
 ### The ~80% coverage figure, and why it is NOT a floor
 

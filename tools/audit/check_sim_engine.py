@@ -27,6 +27,13 @@ from core.builds.spec import BuildSpec, GearItem, SlottedCard  # noqa: E402
 from core.builds.stats import compute_stats  # noqa: E402
 from core.sim.content import Role  # noqa: E402
 
+# 3e A6 — this harness printed ⚠ and crashed the moment its output was piped or
+# redirected: Python selects cp1252 for a non-console stdout on Windows. Same
+# defect `2c` fixed across 12 entry points, and THIS file was missed — so the
+# regression harness died exactly when a session tried to capture its output,
+# which is the only way anyone reads it. `2c`'s own lesson, one file late.
+config.ensure_utf8_stdout()
+
 FAILURES = []
 GENERALITY_RESULTS = {}     # check name -> bool, for the 3d D1 fixtures only
 

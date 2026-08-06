@@ -1,0 +1,317 @@
+{
+ "slug": "cohort_frozen_3e",
+ "immutable": true,
+ "frozen_at": "2026-08-06",
+ "frozen_by": "session 3e, Block A1, per SESSION_3E_PRIMER.md \u00a70 (owner decision 2026-08-06)",
+ "frozen_from": {
+  "file": "predictions/gate_manifest.json",
+  "generated_at": "2026-08-06T18:37:53+00:00",
+  "git_sha": "69f21929eae28fbc60d4af644de09aee18157ab4",
+  "run": "the 3d close-out gate run (5 of 41, 2 qualified)"
+ },
+ "why": "candidates() was ORDER BY character_id LIMIT N over a growing population, which 3d proved is a SLIDING WINDOW keyed on an arbitrary id: the gate moved 5-of-41 -> 4-of-38 with zero code changes when the daily crawler grew the qualifying population 157 -> 180. Two gate results from different days were therefore not comparable even with identical code. This file pins the population by id so every 3e before/after pair measures the same characters.",
+ "chosen_before_the_next_result_was_seen": "Yes. The id set is copied verbatim from the committed 3d manifest, not selected after observing which characters a new rule would admit. That is CALIBRATION_TOLERANCE.md closing rule applied to cohort definition.",
+ "goes_stale_by_design": "This is a fixed benchmark, not a live measure of the realm. Characters that enter the corpus after 2026-08-06 are invisible to it. Replacing it means a NEW file with a NEW slug and a stated reason - never an edit to this one.",
+ "holdout": {
+  "slug": "holdout_3e_crawled_gate_validation_set",
+  "character_ids": [
+   460,
+   461,
+   462,
+   463,
+   7661
+  ],
+  "rule": "never tuned against; read once, at 3e Block D close-out"
+ },
+ "character_ids": [
+  460,
+  461,
+  462,
+  463,
+  464,
+  465,
+  468,
+  1291,
+  1582,
+  2855,
+  7051,
+  7650,
+  7661,
+  7674,
+  10456,
+  10520,
+  10547,
+  11407,
+  11431,
+  11591,
+  16274,
+  16501,
+  17884,
+  20419,
+  20461,
+  20491,
+  22640,
+  22833,
+  24659,
+  24695,
+  26116,
+  32037,
+  32124,
+  33407,
+  33642,
+  33686,
+  33712,
+  33818,
+  38900,
+  39717,
+  40568
+ ],
+ "members": [
+  {
+   "character_id": 460,
+   "name": "Qt",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 461,
+   "name": "Ryno",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 462,
+   "name": "Billyeye",
+   "path": "Agility",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 463,
+   "name": "Wynta",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 464,
+   "name": "Ari",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 465,
+   "name": "Mcflurry",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 468,
+   "name": "Onur",
+   "path": "Agility",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 1291,
+   "name": "Fana",
+   "path": "Strength",
+   "boss": "Azuregos"
+  },
+  {
+   "character_id": 1582,
+   "name": "Acality",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 2855,
+   "name": "Alicion",
+   "path": "Strength",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 7051,
+   "name": "Dads",
+   "path": "Agility",
+   "boss": "Snowgrave"
+  },
+  {
+   "character_id": 7650,
+   "name": "Me",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 7661,
+   "name": "Iwannakissms",
+   "path": "Healing",
+   "boss": "Snowgrave"
+  },
+  {
+   "character_id": 7674,
+   "name": "Blix",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 10456,
+   "name": "Nodding",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 10520,
+   "name": "Pedroporro",
+   "path": "Healing",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 10547,
+   "name": "Robbery",
+   "path": "Intelligence",
+   "boss": "Taerar"
+  },
+  {
+   "character_id": 11407,
+   "name": "Trace",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 11431,
+   "name": "Lootgoblin",
+   "path": "Strength",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 11591,
+   "name": "Robottikyrpa",
+   "path": "Strength",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 16274,
+   "name": "Chastie",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 16501,
+   "name": "Boomcat",
+   "path": "Agility",
+   "boss": "Taerar"
+  },
+  {
+   "character_id": 17884,
+   "name": "Xyz",
+   "path": "Agility",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 20419,
+   "name": "Huskeer",
+   "path": "Intelligence",
+   "boss": "Snowgrave"
+  },
+  {
+   "character_id": 20461,
+   "name": "Deyindra",
+   "path": "Strength",
+   "boss": "Taerar"
+  },
+  {
+   "character_id": 20491,
+   "name": "Zaczao",
+   "path": "Healing",
+   "boss": "Snowgrave"
+  },
+  {
+   "character_id": 22640,
+   "name": "David",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 22833,
+   "name": "Meritania",
+   "path": "Agility",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 24659,
+   "name": "Ikkura",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 24695,
+   "name": "Qtgamora",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 26116,
+   "name": "Prithika",
+   "path": "Healing",
+   "boss": "Taerar"
+  },
+  {
+   "character_id": 32037,
+   "name": "Shana",
+   "path": "Intelligence",
+   "boss": "Taerar"
+  },
+  {
+   "character_id": 32124,
+   "name": "Striker",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 33407,
+   "name": "Candle",
+   "path": "Healing",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 33642,
+   "name": "Mutaforma",
+   "path": "Healing",
+   "boss": "Bloodlord Mandokir"
+  },
+  {
+   "character_id": 33686,
+   "name": "Jamppa",
+   "path": "Healing",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 33712,
+   "name": "Malo",
+   "path": "Intelligence",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 33818,
+   "name": "Xizek",
+   "path": "Healing",
+   "boss": "The Will of Soggoth"
+  },
+  {
+   "character_id": 38900,
+   "name": "Microplastic",
+   "path": "Agility",
+   "boss": "Hakkar"
+  },
+  {
+   "character_id": 39717,
+   "name": "Xoller",
+   "path": "Strength",
+   "boss": "The Will of Soggoth"
+  },
+  {
+   "character_id": 40568,
+   "name": "Frediib",
+   "path": "Agility",
+   "boss": "Bloodlord Mandokir"
+  }
+ ]
+}

@@ -167,7 +167,9 @@ to clear the threshold regardless of how the filler budget is split. The comment
 two lines above the code says *"fillers split whatever budget the cooldowns left,
 in priority order"* and the code does not do that.
 
-🛑 **This is the tier the calibration gate runs on** (`calibrate_crawled.py:70,426`),
+🛑 **This is the tier the calibration gate runs on** — `fast_sim` is imported at
+`calibrate_crawled.py:73` and called at `:465` and `:469` (⚠ this citation read
+`:70,426` until `3e` A6; it had drifted) —
 so it is the highest-consequence item on this page. Not registered as an expected
 failure because it does not currently fail — but it needs a check that actually
 bites, and writing one is part of `3e`.

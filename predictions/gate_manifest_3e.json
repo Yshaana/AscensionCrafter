@@ -1,0 +1,441 @@
+{
+ "generated_at": "2026-08-06T20:25:53+00:00",
+ "git_sha": "200f79f377a41cae6596ddd4392f3e5a571bf3a1",
+ "git_working_tree_dirty": true,
+ "realm": "Darkmoon",
+ "season": "S10",
+ "criteria_in_force": {
+  "aggregate_tolerance_pct": 20.0,
+  "min_within_tolerance": 3,
+  "qualified_coverage_pct": 50.0,
+  "min_qualified": 3,
+  "note": "the \u00b120% pass definition is PHASE_2 \u00a78.2, unchanged; the qualified rider was stamped 2026-08-06 before the run it judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
+  "within_tolerance_coverage_floor_pct": null,
+  "within_tolerance_zero_coverage": "reports None, never False (3e A3)",
+  "successor_coverage_floor_pct": 20.0,
+  "successor_floor_effective_from": "the gate run AFTER 3e (stamped 2026-08-06)",
+  "successor_floor_justification": "slice accuracy is stable at ~62.6% across the >=20/>=30/>=50 coverage bands and unstable below 20%, so 20% is where the metric stops being noise \u2014 a property of the measurement, not a level chosen to admit a wanted number. Owner decision 2026-08-06, stamped before this run's result; STRICTER than what is in force, which is the direction a criterion may move"
+ },
+ "result": {
+  "scored": 36,
+  "tuning_set_size": 36,
+  "within_tolerance": 5,
+  "not_scoreable_zero_coverage": 3,
+  "qualified": 2,
+  "criterion_met": true,
+  "rider_met": false,
+  "exit_met": false,
+  "median_slice_accuracy_pct_at_coverage_ge_20": 64.29871133238616,
+  "slice_accuracy_coverage_floor_pct": 20.0,
+  "slice_accuracy_by_coverage_band_pct": {
+   ">=0": 164.68776295340385,
+   ">=10": 143.9864193672587,
+   ">=20": 64.29871133238616,
+   ">=30": 63.44885540479892,
+   ">=50": 63.44885540479892
+  },
+  "passer_coverage_pct": {
+   "Ari": 57.6,
+   "Chastie": 4.6,
+   "Zaczao": 5.6,
+   "Malo": 62.4,
+   "Xoller": 13.3
+  }
+ },
+ "corpus_row_counts": {
+  "characters": 4140,
+  "character_snapshots": 412,
+  "snapshot_cards": 19684,
+  "snapshot_gear": 6896,
+  "encounters": 5487,
+  "capture_scopes": 1544,
+  "encounter_performance": 19878,
+  "ability_performance": 309733
+ },
+ "cohort_definition": {
+  "source_file": "predictions/cohort_frozen_3e.json",
+  "slug": "cohort_frozen_3e",
+  "frozen_at": "2026-08-06",
+  "frozen_size": 41,
+  "still_qualifying": 41,
+  "dropped": [],
+  "qualifying_but_not_frozen_in": 116,
+  "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat."
+ },
+ "holdout": {
+  "slug": "holdout_3e_crawled_gate_validation_set",
+  "character_ids": [
+   460,
+   461,
+   462,
+   463,
+   7661
+  ],
+  "members_scored": 5,
+  "read": false,
+  "note": "split out of the headline in 3e A4. Previously counted in 'n of 41', so any fix that lifted these five moved the headline AND spent the holdout in the same number. Results are REDACTED here unless the run passed --read-holdout.",
+  "results": "REDACTED \u2014 not read in this run"
+ },
+ "cohort": [
+  {
+   "character_id": 464,
+   "name": "Ari",
+   "path": "Strength",
+   "boss": "Hakkar",
+   "delta_pct": -9.71,
+   "modelled_damage_pct": 57.6,
+   "slice_accuracy_pct": 156.75,
+   "within_tolerance": true
+  },
+  {
+   "character_id": 465,
+   "name": "Mcflurry",
+   "path": "Intelligence",
+   "boss": "Hakkar",
+   "delta_pct": -97.8,
+   "modelled_damage_pct": 49.3,
+   "slice_accuracy_pct": 4.46,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 468,
+   "name": "Onur",
+   "path": "Agility",
+   "boss": "Hakkar",
+   "delta_pct": -75.4,
+   "modelled_damage_pct": 47.6,
+   "slice_accuracy_pct": 51.69,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 1291,
+   "name": "Fana",
+   "path": "Strength",
+   "boss": "Azuregos",
+   "delta_pct": -21.11,
+   "modelled_damage_pct": 47.9,
+   "slice_accuracy_pct": 164.69,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 1582,
+   "name": "Acality",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": -90.45,
+   "modelled_damage_pct": 36.6,
+   "slice_accuracy_pct": 26.1,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 2855,
+   "name": "Alicion",
+   "path": "Strength",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": 68.07,
+   "modelled_damage_pct": 28.3,
+   "slice_accuracy_pct": 593.89,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 7051,
+   "name": "Dads",
+   "path": "Agility",
+   "boss": "Snowgrave",
+   "delta_pct": -86.47,
+   "modelled_damage_pct": 27.5,
+   "slice_accuracy_pct": 49.18,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 7650,
+   "name": "Me",
+   "path": "Strength",
+   "boss": "Hakkar",
+   "delta_pct": -71.18,
+   "modelled_damage_pct": 17.7,
+   "slice_accuracy_pct": 162.84,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 7674,
+   "name": "Blix",
+   "path": "Strength",
+   "boss": "Hakkar",
+   "delta_pct": -72.99,
+   "modelled_damage_pct": 53.4,
+   "slice_accuracy_pct": 50.58,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 10456,
+   "name": "Nodding",
+   "path": "Strength",
+   "boss": "Hakkar",
+   "delta_pct": -63.57,
+   "modelled_damage_pct": 58.2,
+   "slice_accuracy_pct": 62.6,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 10520,
+   "name": "Pedroporro",
+   "path": "Healing",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": -88.85,
+   "modelled_damage_pct": 3.8,
+   "slice_accuracy_pct": 293.39,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 10547,
+   "name": "Robbery",
+   "path": "Intelligence",
+   "boss": "Taerar",
+   "delta_pct": -39.05,
+   "modelled_damage_pct": 37.4,
+   "slice_accuracy_pct": 162.97,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 11407,
+   "name": "Trace",
+   "path": "Intelligence",
+   "boss": "Hakkar",
+   "delta_pct": -72.96,
+   "modelled_damage_pct": 9.9,
+   "slice_accuracy_pct": 273.14,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 11431,
+   "name": "Lootgoblin",
+   "path": "Strength",
+   "boss": "Hakkar",
+   "delta_pct": -85.65,
+   "modelled_damage_pct": 46.2,
+   "slice_accuracy_pct": 31.06,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 11591,
+   "name": "Robottikyrpa",
+   "path": "Strength",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": 20.98,
+   "modelled_damage_pct": 48.9,
+   "slice_accuracy_pct": 247.41,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 16274,
+   "name": "Chastie",
+   "path": "Intelligence",
+   "boss": "Hakkar",
+   "delta_pct": 13.11,
+   "modelled_damage_pct": 4.6,
+   "slice_accuracy_pct": 2458.83,
+   "within_tolerance": true
+  },
+  {
+   "character_id": 16501,
+   "name": "Boomcat",
+   "path": "Agility",
+   "boss": "Taerar",
+   "delta_pct": 625.28,
+   "modelled_damage_pct": 82.2,
+   "slice_accuracy_pct": 882.33,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 17884,
+   "name": "Xyz",
+   "path": "Agility",
+   "boss": "Hakkar",
+   "delta_pct": -75.47,
+   "modelled_damage_pct": 44.5,
+   "slice_accuracy_pct": 55.13,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 20419,
+   "name": "Huskeer",
+   "path": "Intelligence",
+   "boss": "Snowgrave",
+   "delta_pct": -98.94,
+   "modelled_damage_pct": 0.0,
+   "slice_accuracy_pct": null,
+   "within_tolerance": null
+  },
+  {
+   "character_id": 20461,
+   "name": "Deyindra",
+   "path": "Strength",
+   "boss": "Taerar",
+   "delta_pct": -79.49,
+   "modelled_damage_pct": 10.2,
+   "slice_accuracy_pct": 201.06,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 20491,
+   "name": "Zaczao",
+   "path": "Healing",
+   "boss": "Snowgrave",
+   "delta_pct": -2.84,
+   "modelled_damage_pct": 5.6,
+   "slice_accuracy_pct": 1735.03,
+   "within_tolerance": true
+  },
+  {
+   "character_id": 22640,
+   "name": "David",
+   "path": "Intelligence",
+   "boss": "Hakkar",
+   "delta_pct": -63.13,
+   "modelled_damage_pct": 4.2,
+   "slice_accuracy_pct": 877.77,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 22833,
+   "name": "Meritania",
+   "path": "Agility",
+   "boss": "Hakkar",
+   "delta_pct": -83.41,
+   "modelled_damage_pct": 37.7,
+   "slice_accuracy_pct": 44.01,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 24659,
+   "name": "Ikkura",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": -76.19,
+   "modelled_damage_pct": 57.8,
+   "slice_accuracy_pct": 41.19,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 24695,
+   "name": "Qtgamora",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": -55.44,
+   "modelled_damage_pct": 69.3,
+   "slice_accuracy_pct": 64.3,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 26116,
+   "name": "Prithika",
+   "path": "Healing",
+   "boss": "Taerar",
+   "delta_pct": -77.33,
+   "modelled_damage_pct": 3.0,
+   "slice_accuracy_pct": 755.8,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 32037,
+   "name": "Shana",
+   "path": "Intelligence",
+   "boss": "Taerar",
+   "delta_pct": -78.82,
+   "modelled_damage_pct": 56.2,
+   "slice_accuracy_pct": 37.69,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 32124,
+   "name": "Striker",
+   "path": "Intelligence",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": 146.41,
+   "modelled_damage_pct": 32.4,
+   "slice_accuracy_pct": 760.54,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 33407,
+   "name": "Candle",
+   "path": "Healing",
+   "boss": "Hakkar",
+   "delta_pct": 129.4,
+   "modelled_damage_pct": 31.5,
+   "slice_accuracy_pct": 728.25,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 33642,
+   "name": "Mutaforma",
+   "path": "Healing",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": 3618.8,
+   "modelled_damage_pct": 0.2,
+   "slice_accuracy_pct": 1859400.19,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 33686,
+   "name": "Jamppa",
+   "path": "Healing",
+   "boss": "Hakkar",
+   "delta_pct": 707.65,
+   "modelled_damage_pct": 0.0,
+   "slice_accuracy_pct": null,
+   "within_tolerance": null
+  },
+  {
+   "character_id": 33712,
+   "name": "Malo",
+   "path": "Intelligence",
+   "boss": "Hakkar",
+   "delta_pct": -18.12,
+   "modelled_damage_pct": 62.4,
+   "slice_accuracy_pct": 131.23,
+   "within_tolerance": true
+  },
+  {
+   "character_id": 33818,
+   "name": "Xizek",
+   "path": "Healing",
+   "boss": "The Will of Soggoth",
+   "delta_pct": -34.6,
+   "modelled_damage_pct": 0.0,
+   "slice_accuracy_pct": null,
+   "within_tolerance": null
+  },
+  {
+   "character_id": 38900,
+   "name": "Microplastic",
+   "path": "Agility",
+   "boss": "Hakkar",
+   "delta_pct": -56.47,
+   "modelled_damage_pct": 22.3,
+   "slice_accuracy_pct": 195.18,
+   "within_tolerance": false
+  },
+  {
+   "character_id": 39717,
+   "name": "Xoller",
+   "path": "Strength",
+   "boss": "The Will of Soggoth",
+   "delta_pct": -11.63,
+   "modelled_damage_pct": 13.3,
+   "slice_accuracy_pct": 664.45,
+   "within_tolerance": true
+  },
+  {
+   "character_id": 40568,
+   "name": "Frediib",
+   "path": "Agility",
+   "boss": "Bloodlord Mandokir",
+   "delta_pct": 441.18,
+   "modelled_damage_pct": 49.9,
+   "slice_accuracy_pct": 1084.52,
+   "within_tolerance": false
+  }
+ ]
+}

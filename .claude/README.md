@@ -13,14 +13,27 @@ changes what the project believes.
 
 ---
 
-## 🛑 THE HOOK IS UNVERIFIED. Verify it before trusting it.
+## ✅ THE HOOK IS VERIFIED — owner-run, 2026-08-06.
 
-**It was written by a chat with no Windows shell, so it has never executed.** That is
+**The owner ran the test below on 2026-08-06 and it returned exit `2` on the large
+staged file, exactly as specified.** The hook blocks. Recorded in `3e` A6.
+
+> ⚠ **What this verifies and what it does not.** It demonstrates that the script
+> **detects a >5 MB staged file and exits 2**. It does not demonstrate that Claude Code
+> is wired to *call* it on the right tool, nor that exit 2 aborts the commit in this
+> harness version — those are the hook's other two failure modes. If a >5 MB file ever
+> reaches a commit, suspect the wiring, not the detection.
+
+<details><summary>The original UNVERIFIED warning, kept because the reasoning is the point</summary>
+
+**It was written by a chat with no Windows shell, so it had never executed.** That is
 exactly the state this project treats as dangerous: a guard that is documented but not
 demonstrated gets *reported as satisfied*. `3d` found three of those. **Until the test
 below has been run, assume the hook does nothing.**
 
-Test it — from the repo root, in PowerShell:
+</details>
+
+The test — from the repo root, in PowerShell. Re-run it after any edit to the script:
 
 ```powershell
 # 1. it must pass cleanly with nothing staged
@@ -35,6 +48,8 @@ git reset big.tmp ; Remove-Item big.tmp
 
 Expected: **0** then **2**. If the second run prints 0, the hook is inert — fix it or
 delete it, but do not leave it in place looking like protection.
+
+**Result, owner-run 2026-08-06: 0 then 2. As specified.**
 
 ### Two defects in the version the usage report suggested, fixed here
 

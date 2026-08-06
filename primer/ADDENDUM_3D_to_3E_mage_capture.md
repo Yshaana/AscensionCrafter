@@ -12,13 +12,16 @@ and land whenever convenient; the rest is `3e` input.
 **The stat-export addon gained five fields** (owner, 2026-08-06). The updated
 `addons/AscensionCrafterExport/AscensionCrafterExport.lua` should be committed as-is:
 
+> ✅ **DONE — it landed at commit `9486283`, version `2026-08-06c`.** `PROGRESS.md`
+> carried an "⚠ OWNER ACTION OUTSTANDING" on this into `3e`; cleared in `3e` A6.
+
 | New line | Why it exists |
 |---|---|
 | `ExportedAt: <local time>` | `2e` established a stat block from a different session is not a degraded input, it is **the whole error** for weapon-dominated abilities; `2d` found the read-too-early trap where a post-cast export was byte-identical to the pre-cast one. **Neither is checkable on an untimestamped block.** Now every export carries its own capture time |
 | `PowerType` / `PowerMax` | Generic, so an energy/rage/runic character exports its own bar instead of nothing |
 | `ManaMax` | On a 5-minute caster parse mana is usually the binding constraint, and `fast_sim` models no resources at all — so an OOM parse and a clean one are **indistinguishable downstream** unless the pool is recorded |
 | `ManaRegen_raw` | ⚠ Deliberately **unconverted and labelled raw.** `GetManaRegen` returns per-second; the character sheet shows per-5. The value is printed exactly as the API returned it rather than rescaled, because guessing the unit and being wrong plants a silent 5× error in a block everything downstream trusts. **Whoever consumes this must establish the unit before using it** |
-| `SpellHaste_total` / `MeleeHaste_total` | The existing `Rating_Haste*` lines are rating-derived and per primer v28 are **structurally unable to see buff or talent haste** — which is how an external Swift Retribution aura became a persistent "3% haste even naked" mystery. The gap between these and the rating lines is itself the measurement of everything non-gear |
+| `SpellHaste_raw_UNVERIFIED` / `MeleeHaste_raw_UNVERIFIED` | The existing `Rating_Haste*` lines are rating-derived and per primer v28 are **structurally unable to see buff or talent haste** — which is how an external Swift Retribution aura became a persistent "3% haste even naked" mystery. The gap between these and the rating lines is itself the measurement of everything non-gear. ⚠ **NAME CORRECTED, `3e` A6.** This row originally read `SpellHaste_total` / `MeleeHaste_total`; the shipped addon (`2026-08-06c`, commit `9486283`) calls them `*_raw_UNVERIFIED` and **explicitly does not trust them** — `GetMeleeHaste` read 1.06% against the rating line (`.lua:197-209`). Anything written against the old names silently misses the fields. Establish what the API is returning before consuming either, exactly as for `ManaRegen_raw` |
 
 ---
 
@@ -26,9 +29,18 @@ and land whenever convenient; the rest is `3e` input.
 
 **F2 said: make the stat-block flags `required=True`. Do something better instead.**
 
-Verified in the tree: `calibrate_vs_log.py:302-305` exposes exactly four stat flags
-(`--ap --sp --weapon-min --weapon-max`), weapon speed is hardcoded at `3.57` with no
-flag at all, and **no stat-block parser exists anywhere in the repo** —
+⚠ **PREMISE CORRECTED, `3e` A6 — the first sentence below described a tree that no
+longer exists.** `3d` shipped F2: `calibrate_vs_log.py:429-442` now exposes
+`--ap --sp --weapon-min --weapon-max --weapon-speed`, all `required=True`, so **weapon
+speed is no longer hardcoded at 3.57**. The rest of the section stands untouched and is
+still the right work — five hand-typed numbers is still a hand transcription of a
+~40-line export, and the other ~35 fields are still discarded. Per the closing paragraph
+of this section, that makes it **additive `3e` work, not a rework**.
+
+Verified in the tree *at the time of writing*: `calibrate_vs_log.py:302-305` exposed
+exactly four stat flags (`--ap --sp --weapon-min --weapon-max`), weapon speed was
+hardcoded at `3.57` with no flag at all, and **no stat-block parser exists anywhere in
+the repo** —
 `grep -rl "SpellPower_\|MainHandDamage" --include=*.py` returns nothing but a docstring
 mention in `core/sim/buffs.py`. So today a 40-line export is transcribed **by hand** into
 four numbers, and the other ~36 fields are discarded.

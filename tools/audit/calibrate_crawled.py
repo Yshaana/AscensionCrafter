@@ -1,7 +1,7 @@
 """
 calibrate_crawled.py — the ≥3-real-characters calibration gate (Phase 3 exit).
 
-    py tools/audit/calibrate_crawled.py [--limit 12]
+    py tools/audit/calibrate_crawled.py [--max-lag-hours 0] [--read-holdout]
 
 PHASE_2 §8.2 moved this criterion to 3a because simulating a crawled character
 needs gear, and gear is Phase 3 T4's `items` table. That dependency is now
@@ -19,6 +19,15 @@ the gate could be passed without meaning anything:
    completeness only — gear stats resolved, cards resolved, an exact (lag-0)
    build-to-parse join, a boss encounter with a real duration. It never ranks
    by how well the sim did.
+
+   🆕 **3e A1 — and the population is FROZEN, as committed data.** The cohort is
+   the id set in `predictions/cohort_frozen_3e.json`, not the top N by id.
+   `3d` proved `ORDER BY character_id LIMIT N` is a sliding window rather than a
+   cost cap: when the crawler grew the qualifying population 157 → 180, the gate
+   read 5-of-41 → 4-of-38 with **zero code changes**. A frozen member that stops
+   qualifying is reported as **dropped, with its reason**, never substituted and
+   never silently omitted; characters that qualify but are not in the set are
+   counted and named as unscored. Two runs are comparable only because of this.
 2. **Build-to-parse staleness is an explicit, reported parameter.**
    `--max-lag-hours` defaults to **0** (the snapshot was captured AT that
    encounter, so it IS the build that produced the parse). Any looser value is
@@ -90,11 +99,65 @@ QUALIFIED_COVERAGE_PCT = 50.0
 MIN_QUALIFIED = 3
 REPORT_PATH = DATA_DERIVED / "calibration_crawled.md"
 
+# 3e A2/A3 — SLICE ACCURACY IS A RATIO WITH COVERAGE IN ITS DENOMINATOR, so it
+# explodes as coverage -> 0 and must never be aggregated across a cohort spanning
+# 0.2% to 82% coverage. The cohort median is therefore reported ONLY above a
+# stated floor, with the floor printed beside it and the per-band table under it.
+#
+# Measured from the committed 3d manifest: the all-characters median is 159.8%,
+# which reads as "the sim over-produces the slice it models by 60%". That is
+# BACKWARDS and it is a low-coverage artifact — Mutaforma at 0.2% coverage
+# reports 1,859,400%. Restricted to coverage >= 20% the median is 62.6% and does
+# not move again at >= 30% or >= 50%. **The sim UNDER-produces on what it models,
+# by ~37%.** (predictions/CALIBRATION_TOLERANCE.md; ADDENDUM_3D_slice_accuracy_correction.md)
+SLICE_COVERAGE_FLOOR_PCT = 20.0
+SLICE_BANDS = (0.0, 10.0, 20.0, 30.0, 50.0)
+
+# 3e A3 — OWNER DECISION 2026-08-06, taken after seeing the coverage distribution
+# of the passers and stamped BEFORE this gate run.
+#
+# THIS run: `within_tolerance` keeps NO coverage floor, so the criterion's
+# definition is unchanged and 3e's before/after pairs stay comparable to every
+# earlier run. The only change is honesty at the boundary — a character the sim
+# models NOTHING for reports None, not False (see `within_tolerance` below).
+#
+# NEXT gate: a 20% coverage floor applies to `within_tolerance` itself.
+# Justification, recorded now rather than after the fact: slice accuracy is
+# stable at 62.6% across the >=20 / >=30 / >=50 bands and unstable below 20%, so
+# 20% is where the metric stops being noise — a property of the measurement, not
+# a level chosen to admit a wanted number. At today's numbers it would take the
+# gate from 5 passing to 2, i.e. it is a STRICTER bar stamped while its own
+# result is known to fail. That is the direction a criterion is allowed to move.
+SUCCESSOR_COVERAGE_FLOOR_PCT = 20.0
+SUCCESSOR_FLOOR_EFFECTIVE_FROM = "the gate run AFTER 3e (stamped 2026-08-06)"
+
+# 3e A4 — the pre-registered validation subset (seed_predictions.py's
+# `holdout_3e_crawled_gate_validation_set`). Registered in `3d`, but
+# `calibrate_crawled.py` had never heard of it, so all five were counted in
+# "n of 41" — meaning any fix that lifted them moved the headline AND spent the
+# holdout in the same number. The headline is now the TUNING SET only; the
+# holdout is withheld from stdout and REDACTED in the manifest unless
+# --read-holdout is passed, which is a Block D close-out action.
+HOLDOUT_SLUG = "holdout_3e_crawled_gate_validation_set"
+HOLDOUT_IDS = (460, 461, 462, 463, 7661)
+
+# 3e A1 — THE COHORT IS FROZEN, AND IT IS DATA RATHER THAN A CONSTANT IN HERE.
+# Read from a committed file so an auditor can see the population without
+# reading the tool, and so the tool cannot quietly redefine it.
+#
+# 🛑 The file this READS and the file this WRITES are deliberately different.
+# If the gate read and wrote one manifest, a member that stopped qualifying
+# would vanish from the next write and the frozen set would shrink silently —
+# the same defect the freeze exists to remove, wearing a different coat.
+COHORT_PATH = config.REPO / "predictions" / "cohort_frozen_3e.json"
+
 # 3d E2 — COMMITTED, unlike everything else this tool writes. Counts, ids and
 # hashes only; no bulk data, so `.gitignore:10` stays exactly as it is. It lives
 # under predictions/ because it is a record of what was measured, alongside the
 # markdown ledgers, not a rebuildable derived artifact.
-GATE_MANIFEST_PATH = config.REPO / "predictions" / "gate_manifest.json"
+# ⚠ 3e A1: the NAME changed. `gate_manifest.json` is the immutable record of the
+# `3d` run the cohort was frozen from and is never written again.
+GATE_MANIFEST_PATH = config.REPO / "predictions" / "gate_manifest_3e.json"
 
 PATH_TOKEN = {"strength": "Strength", "agility": "Agility", "duality": "Duality",
               "intellect": "Intelligence", "intelligence": "Intelligence",
@@ -127,21 +190,22 @@ WEAPON_SLOTS = {16: "main_hand", 17: "off_hand"}
 EXCLUDED_SNAPSHOT_SOURCES = ("own_capture",)
 
 
-def candidates(conn, limit, max_lag_hours=0.0):
-    """Selection is by DATA COMPLETENESS ONLY — never by sim agreement.
+def load_frozen_cohort(path=COHORT_PATH):
+    """The gate's population, as committed data rather than a tool constant."""
+    if not path.exists():
+        raise SystemExit(
+            f"{path} missing — the gate cohort is FROZEN data (3e A1) and the "
+            f"tool will not invent one. Restore it from git.")
+    spec = json.loads(path.read_text(encoding="utf-8"))
+    ids = [int(i) for i in spec["character_ids"]]
+    if len(set(ids)) != len(ids):
+        raise SystemExit(f"{path}: duplicate character_ids in the frozen cohort")
+    return ids, spec
 
-    ONE row per character (the longest qualifying encounter), chosen in SQL so
-    the limit spans `limit` distinct characters. Taking the limit first and
-    deduping after let two chatty characters consume all 40 rows and reduced
-    the gate to n=1.
 
-    Level 60 is required, not assumed: every coefficient, rating divisor and
-    rank resolution in this stack is level-60. Simming a level-40 character's
-    parse against level-60 magnitudes is the pooled-crawl error from `1x`
-    (a level-scaled magnitude cannot be compared across unknown levels).
-    """
+def _completeness_sql(max_lag_hours, extra_where, params):
     excl = ",".join("?" * len(EXCLUDED_SNAPSHOT_SOURCES))
-    return conn.execute(f"""
+    return (f"""
         SELECT ep.character_id, c.name, ep.snapshot_id, ep.dps, ep.path,
                e.boss_name, e.content_type, e.duration_seconds, e.encounter_id,
                ep.snapshot_lag_hours, c.level, ep.scope_id,
@@ -156,8 +220,8 @@ def candidates(conn, limit, max_lag_hours=0.0):
           AND e.is_trash = 0 AND e.duration_seconds >= 20
           AND c.level = 60                          -- level-60 model only
           -- 3d F1: privileged-input characters are INSTRUMENTS, not cohort
-          -- members. Filtered here, before the LIMIT, so an excluded character
-          -- cannot consume a window slot. See EXCLUDED_SNAPSHOT_SOURCES.
+          -- members. Filtered in the WHERE clause, never as a post-hoc drop.
+          -- See EXCLUDED_SNAPSHOT_SOURCES.
           AND NOT EXISTS (SELECT 1 FROM character_snapshots s
                            WHERE s.snapshot_id = ep.snapshot_id
                              AND s.source IN ({excl}))
@@ -167,10 +231,105 @@ def candidates(conn, limit, max_lag_hours=0.0):
           AND EXISTS (SELECT 1 FROM snapshot_cards sc
                        WHERE sc.snapshot_id = ep.snapshot_id
                          AND sc.spell_id IS NOT NULL)
+          {extra_where}
         GROUP BY ep.character_id
-        ORDER BY ep.character_id
-        LIMIT ?""",
-        (max_lag_hours, *EXCLUDED_SNAPSHOT_SOURCES, limit)).fetchall()
+        ORDER BY ep.character_id""",
+            (max_lag_hours, *EXCLUDED_SNAPSHOT_SOURCES, *params))
+
+
+def candidates(conn, cohort_ids, max_lag_hours=0.0):
+    """Selection is by DATA COMPLETENESS ONLY — never by sim agreement.
+
+    ONE row per character (the longest qualifying encounter), chosen in SQL so
+    the cohort spans distinct characters. Taking a limit first and deduping
+    after let two chatty characters consume all 40 rows and reduced the gate to
+    n=1.
+
+    Level 60 is required, not assumed: every coefficient, rating divisor and
+    rank resolution in this stack is level-60. Simming a level-40 character's
+    parse against level-60 magnitudes is the pooled-crawl error from `1x`
+    (a level-scaled magnitude cannot be compared across unknown levels).
+
+    🛑 3e A1 — THE POPULATION IS AN EXPLICIT FROZEN ID SET, NOT A WINDOW.
+    This used to end `ORDER BY ep.character_id LIMIT ?`. `3d` proved that is a
+    SLIDING WINDOW keyed on an arbitrary id, not a cost cap: when the daily
+    crawler grew the qualifying population from 157 to 180, four characters left
+    and four entered, and the gate read 5-of-41 -> 4-of-38 with **zero code
+    changes**. Two gate results from different days were not comparable even
+    with identical code, which makes every 3e before/after pair unreadable.
+
+    Returns `(rows, dropped, outside)`:
+      * `rows`     — the frozen members that still qualify
+      * `dropped`  — frozen members that no longer qualify, WITH THE REASON.
+                     A cohort that quietly shrinks is the same defect.
+      * `outside`  — how many corpus characters qualify but are not frozen in.
+                     Printed, because silence there reads as "everyone was
+                     measured".
+    """
+    placeholders = ",".join("?" * len(cohort_ids))
+    sql, params = _completeness_sql(
+        max_lag_hours, f"AND ep.character_id IN ({placeholders})", cohort_ids)
+    rows = conn.execute(sql, params).fetchall()
+
+    present = {r[0] for r in rows}
+    dropped = [(cid, *drop_reason(conn, cid, max_lag_hours))
+               for cid in cohort_ids if cid not in present]
+
+    all_sql, all_params = _completeness_sql(max_lag_hours, "", ())
+    qualifying = {r[0] for r in conn.execute(all_sql, all_params).fetchall()}
+    outside = sorted(qualifying - set(cohort_ids))
+    return rows, dropped, outside
+
+
+def drop_reason(conn, cid, max_lag_hours):
+    """Why did a FROZEN cohort member stop qualifying?
+
+    Checked condition by condition against the same completeness filter, so the
+    report names the mechanism instead of saying 'gone'. A frozen member is
+    never silently omitted and is never substituted.
+    """
+    name = (conn.execute("SELECT name FROM characters WHERE character_id = ?",
+                         (cid,)).fetchone() or [f"id {cid}"])[0]
+    if not conn.execute("SELECT 1 FROM characters WHERE character_id = ?",
+                        (cid,)).fetchone():
+        return name, "character no longer in the corpus at all"
+    lvl = conn.execute("SELECT level FROM characters WHERE character_id = ?",
+                       (cid,)).fetchone()[0]
+    if lvl != 60:
+        return name, f"level is now {lvl}, not 60"
+    perf = conn.execute(
+        "SELECT COUNT(*), MIN(COALESCE(ep.snapshot_lag_hours, 1e9)) "
+        "FROM encounter_performance ep "
+        "JOIN capture_scopes cs ON cs.scope_id = ep.scope_id "
+        "JOIN encounters e ON e.encounter_id = cs.encounter_id "
+        "WHERE ep.character_id = ? AND e.is_trash = 0 "
+        "  AND e.duration_seconds >= 20 AND ep.dps > 100", (cid,)).fetchone()
+    if not perf[0]:
+        return name, "no non-trash encounter >=20s with DPS > 100 in the corpus"
+    if perf[1] > max_lag_hours:
+        return name, (f"best snapshot lag is {perf[1]:.1f}h, above the "
+                      f"{max_lag_hours:g}h limit")
+    gear = conn.execute(
+        "SELECT COUNT(*) FROM snapshot_gear sg JOIN encounter_performance ep "
+        "ON ep.snapshot_id = sg.snapshot_id WHERE ep.character_id = ? "
+        "AND sg.stats_json IS NOT NULL", (cid,)).fetchone()[0]
+    if not gear:
+        return name, "no snapshot_gear rows with resolved stats"
+    cards = conn.execute(
+        "SELECT COUNT(*) FROM snapshot_cards sc JOIN encounter_performance ep "
+        "ON ep.snapshot_id = sc.snapshot_id WHERE ep.character_id = ? "
+        "AND sc.spell_id IS NOT NULL", (cid,)).fetchone()[0]
+    if not cards:
+        return name, "no snapshot_cards resolved to spell ids"
+    src = conn.execute(
+        "SELECT DISTINCT s.source FROM character_snapshots s "
+        "JOIN encounter_performance ep ON ep.snapshot_id = s.snapshot_id "
+        "WHERE ep.character_id = ?", (cid,)).fetchall()
+    if src and all(s[0] in EXCLUDED_SNAPSHOT_SOURCES for s in src):
+        return name, (f"every snapshot is source={src[0][0]!r}, which "
+                      f"EXCLUDED_SNAPSHOT_SOURCES bars from the cohort")
+    return name, ("no single condition isolates it — the completeness filter "
+                  "rejects it on a combination; inspect by hand")
 
 
 # content_type -> the sim preset that matches it. Simming a dungeon parse
@@ -317,6 +476,24 @@ def _median(xs):
     return xs[len(xs) // 2] if xs else None
 
 
+def slice_accuracy_bands(results, bands=SLICE_BANDS):
+    """Median slice accuracy per coverage band — the self-diagnosing form.
+
+    `slice_accuracy = (100 + delta) / coverage` has coverage in its denominator,
+    so a single cohort-wide median is dominated by whichever characters the sim
+    happens to model least. The band table costs nothing and shows directly
+    where the metric stops being noise: on the `3d` cohort it reads 159.8% over
+    everyone and a flat 62.6% at every band from >=20% upward.
+    """
+    out = {}
+    for b in bands:
+        xs = [r["slice_accuracy_pct"] for r in results
+              if r["slice_accuracy_pct"] is not None
+              and (r["modelled"] or {}).get("modelled_damage_pct", 0) >= b]
+        out[b] = statistics.median(xs) if xs else None
+    return out
+
+
 def _decomposition_section(results):
     """The corpus-level answer to 'what is the miss made of', built only from
     per-character verdicts — no apportioning, no fitted scale factor."""
@@ -409,12 +586,18 @@ def _decomposition_section(results):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--limit", type=int, default=40,
-                    help="candidate rows to consider (pre-filtered by completeness)")
+    ap.add_argument("--cohort", type=Path, default=COHORT_PATH,
+                    help="frozen cohort file (3e A1). The population is DATA, "
+                         "not a constant in this tool, and it is not a window")
     ap.add_argument("--max-lag-hours", type=float, default=0.0,
                     help="max build-snapshot staleness vs the parse (default 0 = "
                          "the snapshot was captured AT that encounter). Any other "
                          "value is reported in the output, never applied silently")
+    ap.add_argument("--read-holdout", action="store_true",
+                    help="reveal the pre-registered holdout's results "
+                         f"({HOLDOUT_SLUG}). Withheld by default: reading it is a "
+                         "close-out action, and a holdout read every run is not a "
+                         "holdout. Never tune against it")
     args = ap.parse_args()
 
     if not BUILDS_DB_PATH.exists():
@@ -424,11 +607,21 @@ def main():
     asc = connect(DB_PATH)
     conv = ce.load_rating_conversions(asc, level=60)
 
+    cohort_ids, cohort_spec = load_frozen_cohort(args.cohort)
     slot_medians = slot_budget_medians(bdb)
-    rows = candidates(bdb, args.limit, args.max_lag_hours)
-    print(f"[candidates] {len(rows)} distinct level-60 characters pass the "
-          f"completeness filter (max build staleness "
+    rows, dropped, outside = candidates(bdb, cohort_ids, args.max_lag_hours)
+    print(f"[cohort] FROZEN at {len(cohort_ids)} character ids "
+          f"({args.cohort.name}, frozen {cohort_spec.get('frozen_at')}) — "
+          f"not a sliding window")
+    print(f"[candidates] {len(rows)} of {len(cohort_ids)} frozen members still "
+          f"pass the completeness filter (max build staleness "
           f"{args.max_lag_hours:g}h)")
+    for cid, cname, why in dropped:
+        print(f"[dropped] {cname} ({cid}) — {why}")
+    print(f"[outside] {len(outside)} corpus characters qualify but are NOT in "
+          f"the frozen cohort, so they are not scored"
+          + (f": {', '.join(str(i) for i in outside[:12])}"
+             + (" ..." if len(outside) > 12 else "") if outside else ""))
 
     results, excluded, seen_chars = [], [], set()
     for (cid, cname, snapshot_id, dps, path, boss, ctype, dur, enc_id,
@@ -491,7 +684,18 @@ def main():
             "sim_dps_unbuffed": res0.primary_value,
             "buffs_applied": buff_keys,
             "buff_provenance": buff_prov,
-            "within_tolerance": abs(delta) <= AGGREGATE_TOLERANCE_PCT,
+            # 3e A3 — None, not False, when the sim modelled NOTHING for this
+            # character. `abs(delta) <= tol` with no other term let a character
+            # whose modelled damage maps to none of what they logged score a
+            # verdict either way; three cohort members sit at 0.0% coverage with
+            # a non-null delta. Slice accuracy already refuses to report at zero
+            # coverage (below); this is the same treatment for the criterion.
+            # 🛑 A floor ABOVE zero changes the criterion and is an owner
+            # decision — taken 2026-08-06 and stamped for the NEXT gate, not
+            # this one. See SUCCESSOR_COVERAGE_FLOOR_PCT.
+            "within_tolerance": (
+                None if not (modelled or {}).get("modelled_damage_pct")
+                else abs(delta) <= AGGREGATE_TOLERANCE_PCT),
             "gear_coverage_pct": cov["coverage_pct"],
             "gear_unresolved_pieces": len(cov["missing"]),
             "gear_name_matched_pieces": len(cov["name_matched"]),
@@ -533,34 +737,88 @@ def main():
         r["slice_accuracy_pct"] = (
             (100.0 + r["delta_pct"]) / cov_pct * 100.0
             if cov_pct and r["delta_pct"] is not None and cov_pct > 0 else None)
-    _slices = [r["slice_accuracy_pct"] for r in results
-               if r["slice_accuracy_pct"] is not None]
-    slice_median = statistics.median(_slices) if _slices else None
 
-    passing = [r for r in results if r["within_tolerance"]]
+    # 3e A4 — the holdout is SPLIT OUT OF THE HEADLINE. Everything the gate
+    # reports is the tuning set unless --read-holdout is passed.
+    holdout = [r for r in results if r["character_id"] in HOLDOUT_IDS]
+    tuning = [r for r in results if r["character_id"] not in HOLDOUT_IDS]
+
+    slice_bands = slice_accuracy_bands(tuning)
+    slice_median = slice_bands.get(SLICE_COVERAGE_FLOOR_PCT)
+
+    passing = [r for r in tuning if r["within_tolerance"] is True]
+    unscoreable = [r for r in tuning if r["within_tolerance"] is None]
     qualified = [r for r in passing
                  if (r["modelled"] or {}).get("modelled_damage_pct", 0)
                  >= QUALIFIED_COVERAGE_PCT]
     crit_met = len(passing) >= MIN_WITHIN_TOLERANCE
     rider_met = len(qualified) >= MIN_QUALIFIED
-    print(f"[gate] {len(passing)} of {len(results)} simmed characters within "
-          f"±{AGGREGATE_TOLERANCE_PCT:g}%  "
+    print(f"[gate] TUNING SET: {len(passing)} of {len(tuning)} simmed "
+          f"characters within ±{AGGREGATE_TOLERANCE_PCT:g}%  "
           f"(criterion: ≥{MIN_WITHIN_TOLERANCE})  "
           f"-> {'PASS' if crit_met else 'NOT MET'}")
     print(f"[gate] of those, {len(qualified)} also have "
           f"≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage modelled "
           f"(rider: ≥{MIN_QUALIFIED}) -> {'PASS' if rider_met else 'NOT MET'}")
-    # 3d F3 — reported next to coverage, never in place of a verdict.
-    print(f"[slice] cohort median slice accuracy "
-          f"{slice_median:.0f}%" if slice_median is not None
-          else "[slice] cohort median slice accuracy: n/a (no character has "
-               "both a delta and a coverage figure)")
+    if unscoreable:
+        print(f"[gate] {len(unscoreable)} character(s) are NOT SCOREABLE — the "
+              f"sim modelled 0% of their damage, so within_tolerance is None "
+              f"rather than False: "
+              + ", ".join(f"{r['name']} ({r['delta_pct']:+.0f}%)"
+                          for r in unscoreable))
+    # A character can clear ±20% on 4.6% coverage. The criterion cannot see
+    # that; printing the passers' coverage is what makes it visible.
+    if passing:
+        print("[gate] coverage of the passers: "
+              + ", ".join(
+                  f"{r['name']} {(r['modelled'] or {}).get('modelled_damage_pct', 0):.1f}%"
+                  for r in sorted(passing, key=lambda r: (r["modelled"] or {})
+                                  .get("modelled_damage_pct", 0))))
+    # 3d F3 / 3e A2 — reported next to coverage, never in place of a verdict,
+    # and NEVER aggregated across a cohort spanning 0.2% to 82% coverage.
+    if slice_median is not None:
+        print(f"[slice] median slice accuracy {slice_median:.1f}% "
+              f"AT COVERAGE ≥{SLICE_COVERAGE_FLOOR_PCT:g}% "
+              f"(n={sum(1 for r in tuning if (r['modelled'] or {}).get('modelled_damage_pct', 0) >= SLICE_COVERAGE_FLOOR_PCT and r['slice_accuracy_pct'] is not None)})"
+              f" — <100% means the sim UNDER-produces on what it does model")
+    else:
+        print(f"[slice] median slice accuracy: n/a at coverage "
+              f"≥{SLICE_COVERAGE_FLOOR_PCT:g}%")
+    print("[slice] bands: " + "  ".join(
+        f"≥{b:g}%: {'n/a' if v is None else f'{v:.1f}%'}"
+        for b, v in sorted(slice_bands.items())))
+    print(f"[next] a {SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
+          f"within_tolerance is STAMPED for {SUCCESSOR_FLOOR_EFFECTIVE_FROM}; "
+          f"under it this run would read "
+          f"{sum(1 for r in passing if (r['modelled'] or {}).get('modelled_damage_pct', 0) >= SUCCESSOR_COVERAGE_FLOOR_PCT)}"
+          f" of {len(tuning)}")
+    if args.read_holdout:
+        h_pass = [r for r in holdout if r["within_tolerance"] is True]
+        print(f"[HOLDOUT] READ — {HOLDOUT_SLUG}. {len(h_pass)} of "
+              f"{len(holdout)} within ±{AGGREGATE_TOLERANCE_PCT:g}%. This is a "
+              f"validation reading, NOT part of the criterion.")
+        for r in sorted(holdout, key=lambda r: r["character_id"]):
+            print(f"[HOLDOUT]   {r['name']} ({r['character_id']}): "
+                  f"{r['delta_pct']:+.1f}%, "
+                  f"{(r['modelled'] or {}).get('modelled_damage_pct', 0):.1f}% "
+                  f"modelled, slice "
+                  + (f"{r['slice_accuracy_pct']:.1f}%"
+                     if r["slice_accuracy_pct"] is not None else "n/a"))
+    else:
+        print(f"[holdout] {len(holdout)} member(s) WITHHELD from the headline "
+              f"({HOLDOUT_SLUG}) — pass --read-holdout to read. A holdout read "
+              f"every run is not a holdout.")
     print(f"[exit] PHASE 3 EXIT: "
           f"{'MET' if (crit_met and rider_met) else 'NOT MET'} — needs both. "
           "Rider stamped 2026-08-06 BEFORE this run "
           "(predictions/CALIBRATION_TOLERANCE.md addendum); a character passing "
           "±20% while the sim reproduces a fraction of its kit is compensating "
           "error, not calibration.")
+
+    # 3e A4 — the report is the TUNING SET unless the holdout was deliberately
+    # read. Writing holdout deltas into a file this session then reads is the
+    # same leak as printing them.
+    report_results = tuning + (holdout if args.read_holdout else [])
 
     lines = [
         "# Calibration gate — crawled characters",
@@ -569,8 +827,40 @@ def main():
         f"within ±{AGGREGATE_TOLERANCE_PCT:g}% aggregate DPS* "
         "(`predictions/CALIBRATION_TOLERANCE.md`, unchanged).",
         "",
-        f"**Result: {len(passing)} of {len(results)} within tolerance — "
-        f"{'PASS' if crit_met else 'NOT MET'}.**",
+        f"**Result: {len(passing)} of {len(tuning)} within tolerance — "
+        f"{'PASS' if crit_met else 'NOT MET'}.** "
+        f"(tuning set; {len(holdout)} holdout member(s) "
+        + ("READ — see below" if args.read_holdout else "withheld") + ")",
+        "",
+        "## Cohort — FROZEN, not a window (3e A1)",
+        "",
+        f"The population is the **{len(cohort_ids)} character ids committed in "
+        f"`{args.cohort.name}`**, frozen {cohort_spec.get('frozen_at')} from the "
+        f"`3d` close-out manifest. It is not `ORDER BY character_id LIMIT N`, "
+        f"which `3d` proved is a sliding window: the gate moved 5-of-41 to "
+        f"4-of-38 with **zero code changes** when the crawler grew the "
+        f"qualifying population 157 to 180.",
+        "",
+        f"- **{len(rows)} of {len(cohort_ids)}** frozen members still pass the "
+        f"completeness filter.",
+        f"- **{len(dropped)} dropped**, each with its reason — a frozen member "
+        f"is never silently omitted and never substituted"
+        + (":" if dropped else "."),
+    ]
+    for cid, cname, why in dropped:
+        lines.append(f"  - **{cname}** ({cid}): {why}")
+    lines += [
+        f"- **{len(outside)}** corpus characters qualify but are **not** in the "
+        f"frozen cohort, so they were not scored. The frozen cohort goes stale "
+        f"by design; replacing it means a new file with a new slug and a stated "
+        f"reason, never an edit to this one.",
+        "",
+        f"⚠ **The holdout ({HOLDOUT_SLUG}) is split out of the headline.** Its "
+        f"{len(holdout)} members were previously counted in \"n of 41\", so any "
+        f"fix that lifted them moved the headline **and** spent the holdout in "
+        f"the same number. They are "
+        + ("**READ** in this run — a close-out action."
+           if args.read_holdout else "withheld from this report."),
         "",
         "## Phase 3 exit criterion",
         "",
@@ -607,9 +897,54 @@ def main():
            "(LOOSENED — a lagged snapshot is a different build wearing the same "
            "name; read the lag column before trusting any row)."),
         "",
-        f"Directional summary: **{sum(1 for r in results if (r['delta_pct'] or 0) < 0)} "
-        f"of {len(results)} deltas are negative.** A one-sided distribution is a "
+        f"Directional summary: **{sum(1 for r in report_results if (r['delta_pct'] or 0) < 0)} "
+        f"of {len(report_results)} deltas are negative.** A one-sided distribution is a "
         "missing multiplicative layer, not noise.",
+        "",
+        "## Slice accuracy, by coverage band (3e A2)",
+        "",
+        "`slice_accuracy = (100 + delta) / coverage` has **coverage in its "
+        "denominator**, so it explodes as coverage → 0 and must never be "
+        "aggregated across a cohort spanning single-digit to 80%+ coverage. "
+        "`3d`'s all-characters median of 159.8% read as *\"the sim "
+        "over-produces the slice it models by 60%\"*. That is **backwards** — "
+        "it is a low-coverage artifact. Restricted to real coverage the median "
+        "is **~62%**, and it is stable across bands: **the sim UNDER-produces "
+        "on what it does model, by about a third.**",
+        "",
+        "| coverage floor | n | median slice accuracy |", "|---:|---:|---:|",
+    ]
+    for b, v in sorted(slice_bands.items()):
+        n = sum(1 for r in tuning if r["slice_accuracy_pct"] is not None
+                and (r["modelled"] or {}).get("modelled_damage_pct", 0) >= b)
+        lines.append(f"| ≥{b:g}% | {n} | "
+                     + (f"{v:.1f}%" if v is not None else "n/a") + " |")
+    lines += [
+        "",
+        f"**Headline figure: {slice_median:.1f}% at coverage "
+        f"≥{SLICE_COVERAGE_FLOOR_PCT:g}%**"
+        if slice_median is not None else
+        f"**Headline figure: n/a at coverage ≥{SLICE_COVERAGE_FLOOR_PCT:g}%**",
+        "",
+        "🚨 **Consequence, and it inverts the instruction the 159.8% reading "
+        "gave.** At slice accuracy ~62%, *coverage work alone can never reach "
+        "±20%*: landing `delta = 0` needs `slice × coverage = 1.0`, which at "
+        "0.62 requires coverage above 100%. Both levers have to roughly double. "
+        "Under the discarded reading the conclusion was the opposite — throttle "
+        "coverage work to avoid overshooting.",
+        "",
+        f"🛑 **Stamped for the next gate:** a "
+        f"**{SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
+        f"`within_tolerance` itself**, effective "
+        f"{SUCCESSOR_FLOOR_EFFECTIVE_FROM}. Owner decision 2026-08-06, taken "
+        f"after seeing the passers' coverage distribution and stamped before "
+        f"this run's result. Justification is a property of the measurement, "
+        f"not a level chosen to admit a wanted number: slice accuracy is stable "
+        f"across the ≥20 / ≥30 / ≥50 bands and unstable below 20%, so 20% is "
+        f"where the metric stops being noise. It is a **stricter** bar — under "
+        f"it this run reads "
+        f"{sum(1 for r in passing if (r['modelled'] or {}).get('modelled_damage_pct', 0) >= SUCCESSOR_COVERAGE_FLOOR_PCT)}"
+        f" of {len(tuning)} rather than {len(passing)}.",
         "",
         "Buffs are DERIVED from the group in the same capture scope — a buff "
         "applies only when a participant's linked board holds the granting "
@@ -619,9 +954,14 @@ def main():
         "| character | path | boss | build lag (h) | logged DPS | sim unbuffed | sim buffed | delta | buffs | gear cov | modelled dmg | within ±20% |",
         "|---|---|---|---:|---:|---:|---:|---:|---|---:|---:|---|",
     ]
-    for r in sorted(results, key=lambda r: abs(r["delta_pct"] or 1e9)):
+    for r in sorted(report_results, key=lambda r: abs(r["delta_pct"] or 1e9)):
         md = r["modelled"]
         modelled_cell = f"{md['modelled_damage_pct']:.0f}%" if md else "n/a"
+        # 3e A3: None is not False. 'n/a' means the sim modelled nothing for
+        # this character, so the criterion has no opinion — reporting NO there
+        # would claim a measurement that was never made.
+        verdict = {True: "yes", False: "NO", None: "n/a (0% modelled)"}[
+            r["within_tolerance"]]
         lines.append(
             f"| {r['name']} ({r['character_id']}) | {r['path']} | {r['boss']} "
             f"| {r['snapshot_lag_hours']:.1f} "
@@ -630,9 +970,9 @@ def main():
             f"| {r['delta_pct']:+.1f}% | {len(r['buffs_applied'])} "
             f"| {r['gear_coverage_pct']:.0f}% "
             f"| {modelled_cell} "
-            f"| {'yes' if r['within_tolerance'] else 'NO'} |")
+            f"| {verdict} |")
 
-    lines += _decomposition_section(results)
+    lines += _decomposition_section(report_results)
 
     lines += ["", "## Excluded, and why", ""]
     for cid, cname, why in excluded[:40]:
@@ -641,7 +981,7 @@ def main():
         lines.append("- none")
 
     lines += ["", "## Per-character detail (mechanism, not just a delta)", ""]
-    for r in results:
+    for r in report_results:
         lines += [
             f"### {r['name']} ({r['character_id']}) — {r['path']}",
             f"- {r['boss']}, {r['content_type']} (sim preset {r['sim_preset']}), "
@@ -696,13 +1036,17 @@ def main():
     print(f"[report] {REPORT_PATH}")
 
     (DATA_DERIVED / "calibration_crawled.json").write_text(
-        json.dumps({"results": results, "excluded": excluded,
+        json.dumps({"results": report_results, "excluded": excluded,
                     "tolerance_pct": AGGREGATE_TOLERANCE_PCT,
+                    "holdout_withheld": not args.read_holdout,
+                    "holdout_ids": list(HOLDOUT_IDS),
                     "passing": len(passing)}, indent=1, default=str),
         encoding="utf-8")
 
-    write_gate_manifest(results, passing, qualified, crit_met, rider_met,
-                        slice_median, corpus_totals(bdb))
+    write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
+                        rider_met, slice_bands, corpus_totals(bdb),
+                        cohort_ids, dropped, outside, cohort_spec,
+                        read_holdout=args.read_holdout)
     return 0
 
 
@@ -724,26 +1068,29 @@ def corpus_totals(bdb):
     return out
 
 
-def write_gate_manifest(results, passing, qualified, crit_met, rider_met,
-                        slice_median, corpus):
+def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
+                        rider_met, slice_bands, corpus, cohort_ids, dropped,
+                        outside, cohort_spec, read_holdout=False):
     """3d E2 — a small COMMITTED record of what a gate run actually measured.
 
     Until now the gate's headline numbers were reproducible only on the owner's
     machine: `data/derived/` is gitignored, no `.db` is committed, and the corpus
     builder was in no chain. Every figure in this project was a *trust me*.
 
-    🚨 AND IT IS WORSE THAN UNVERIFIABLE — THE COHORT MOVES ON ITS OWN.
+    🚨 AND THE COHORT USED TO MOVE ON ITS OWN.
     Measured in `3d`: rebuilding `builds.db` after the daily crawler ran took the
-    gate from **5 of 41 to 4 of 38 with zero code changes**. `candidates()` is
-    `ORDER BY character_id LIMIT N` over a population that grew from 157 to 180,
-    so the limit — intended as a cost cap — is really a SLIDING WINDOW keyed on
-    an arbitrary id. Four characters left and four entered for no reason but
-    their id.
+    gate from **5 of 41 to 4 of 38 with zero code changes**, because
+    `candidates()` was `ORDER BY character_id LIMIT N` over a population that
+    grew from 157 to 180 — a SLIDING WINDOW keyed on an arbitrary id, not a cost
+    cap. Four characters left and four entered for no reason but their id.
 
-    So a gate result means nothing without the cohort it was measured over. This
-    manifest records that cohort **by character id**, which is what lets `3e`
-    pin it, hold out a named validation subset (F5), and compare two runs
-    honestly. It is small, deterministic and committed.
+    ✅ **Fixed in 3e A1**: the population is now the frozen id set committed in
+    `predictions/cohort_frozen_3e.json`, and this manifest records which of them
+    still qualified, which dropped and why, and how many qualifying characters
+    were deliberately not scored. It is small, deterministic and committed.
+
+    ⚠ Writes `gate_manifest_3e.json` — a NEW name. `gate_manifest.json` is the
+    immutable record of the `3d` run the cohort was frozen from.
     """
     import subprocess
     try:
@@ -770,24 +1117,76 @@ def write_gate_manifest(results, passing, qualified, crit_met, rider_met,
             "note": "the ±20% pass definition is PHASE_2 §8.2, unchanged; the "
                     "qualified rider was stamped 2026-08-06 before the run it "
                     "judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
+            "within_tolerance_coverage_floor_pct": None,
+            "within_tolerance_zero_coverage": "reports None, never False (3e A3)",
+            "successor_coverage_floor_pct": SUCCESSOR_COVERAGE_FLOOR_PCT,
+            "successor_floor_effective_from": SUCCESSOR_FLOOR_EFFECTIVE_FROM,
+            "successor_floor_justification":
+                "slice accuracy is stable at ~62.6% across the >=20/>=30/>=50 "
+                "coverage bands and unstable below 20%, so 20% is where the "
+                "metric stops being noise — a property of the measurement, not "
+                "a level chosen to admit a wanted number. Owner decision "
+                "2026-08-06, stamped before this run's result; STRICTER than "
+                "what is in force, which is the direction a criterion may move",
         },
         "result": {
-            "cohort_size": len(results),
+            "scored": len(tuning),
+            "tuning_set_size": len(tuning),
             "within_tolerance": len(passing),
+            "not_scoreable_zero_coverage": sum(
+                1 for r in tuning if r["within_tolerance"] is None),
             "qualified": len(qualified),
             "criterion_met": crit_met,
             "rider_met": rider_met,
             "exit_met": bool(crit_met and rider_met),
-            "cohort_median_slice_accuracy_pct": slice_median,
+            # 3e A2 — the floor is IN THE KEY NAME. The old
+            # `cohort_median_slice_accuracy_pct` pinned a number two readers
+            # would read two ways, because a median of a coverage-denominated
+            # ratio is meaningless without the coverage band it was taken over.
+            f"median_slice_accuracy_pct_at_coverage_ge_{SLICE_COVERAGE_FLOOR_PCT:g}":
+                slice_bands.get(SLICE_COVERAGE_FLOOR_PCT),
+            "slice_accuracy_coverage_floor_pct": SLICE_COVERAGE_FLOOR_PCT,
+            "slice_accuracy_by_coverage_band_pct": {
+                f">={b:g}": v for b, v in sorted(slice_bands.items())},
+            "passer_coverage_pct": {
+                r["name"]: round(
+                    (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 1)
+                for r in passing},
         },
         "corpus_row_counts": corpus,
-        "cohort_warning": (
-            "THE COHORT IS NOT STABLE ACROSS CORPUS GROWTH. candidates() is "
-            "ORDER BY character_id LIMIT N, so characters enter and leave as the "
-            "corpus grows, with no code change. Two gate results are comparable "
-            "ONLY if their `cohort` lists below match. Measured 2026-08-06: "
-            "5-of-41 became 4-of-38 on a corpus that grew from 157 to 180 "
-            "qualifying characters."),
+        "cohort_definition": {
+            "source_file": str(COHORT_PATH.relative_to(config.REPO)).replace("\\", "/"),
+            "slug": cohort_spec.get("slug"),
+            "frozen_at": cohort_spec.get("frozen_at"),
+            "frozen_size": len(cohort_ids),
+            "still_qualifying": len(tuning) + len(holdout),
+            "dropped": [{"character_id": cid, "name": nm, "reason": why}
+                        for cid, nm, why in dropped],
+            "qualifying_but_not_frozen_in": len(outside),
+            "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen "
+                    "member that stops qualifying is reported as dropped with "
+                    "its reason and is never substituted; a cohort that quietly "
+                    "shrinks is the sliding-window defect in a different coat.",
+        },
+        "holdout": {
+            "slug": HOLDOUT_SLUG,
+            "character_ids": list(HOLDOUT_IDS),
+            "members_scored": len(holdout),
+            "read": bool(read_holdout),
+            "note": "split out of the headline in 3e A4. Previously counted in "
+                    "'n of 41', so any fix that lifted these five moved the "
+                    "headline AND spent the holdout in the same number. Results "
+                    "are REDACTED here unless the run passed --read-holdout.",
+            "results": (sorted(
+                ({"character_id": r["character_id"], "name": r["name"],
+                  "delta_pct": round(r["delta_pct"], 2)
+                               if r["delta_pct"] is not None else None,
+                  "modelled_damage_pct": round(
+                      (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 2),
+                  "within_tolerance": r["within_tolerance"]}
+                 for r in holdout), key=lambda d: d["character_id"])
+                if read_holdout else "REDACTED — not read in this run"),
+        },
         "cohort": sorted(
             ({"character_id": r["character_id"], "name": r["name"],
               "path": r["path"], "boss": r["boss"],
@@ -797,13 +1196,15 @@ def write_gate_manifest(results, passing, qualified, crit_met, rider_met,
               "slice_accuracy_pct": round(r["slice_accuracy_pct"], 2)
                                     if r["slice_accuracy_pct"] is not None else None,
               "within_tolerance": r["within_tolerance"]}
-             for r in results), key=lambda d: d["character_id"]),
+             for r in tuning), key=lambda d: d["character_id"]),
     }
     GATE_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     GATE_MANIFEST_PATH.write_text(
         json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
     print(f"[manifest] {GATE_MANIFEST_PATH} "
-          f"(cohort of {len(results)}, git {sha[:8] if sha else '?'}"
+          f"(tuning set of {len(tuning)}, {len(holdout)} holdout "
+          f"{'READ' if read_holdout else 'redacted'}, "
+          f"git {sha[:8] if sha else '?'}"
           f"{', DIRTY tree' if dirty else ''})")
 
 

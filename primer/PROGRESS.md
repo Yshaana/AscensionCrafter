@@ -62,13 +62,13 @@
 >   **Already true** — F1 excludes by `character_snapshots.source`
 >   (`'own_capture'`), not by character, so any owner-captured character is
 >   excluded automatically.
-> * ⚠ **OWNER ACTION OUTSTANDING:** the addendum says the stat-export addon
->   gained five fields (`ExportedAt`, `PowerType`/`PowerMax`, `ManaMax`,
->   `ManaRegen_raw`, `SpellHaste_total`/`MeleeHaste_total`) and "should be
->   committed as-is". **The updated `.lua` is not in the tree** — `addons/`
->   is clean and none of the five fields is present. Copy it in before the Mage
->   capture, or the capture lands without the timestamps and pools that make it
->   checkable.
+> * ✅ **CLEARED in `3e` A6 — the owner action is DONE.** The updated addon
+>   landed at commit `9486283`, version `2026-08-06c`, carrying all five fields.
+>   ⚠ Two of them are **named differently from the addendum**:
+>   `SpellHaste_raw_UNVERIFIED` / `MeleeHaste_raw_UNVERIFIED`, not `*_total` —
+>   the addon read `GetMeleeHaste` at 1.06% against the rating line and
+>   explicitly does not trust them (`.lua:197-209`). The addendum's §1 table is
+>   corrected in place. Anything written against the old names misses the fields.
 >
 > ---
 >
