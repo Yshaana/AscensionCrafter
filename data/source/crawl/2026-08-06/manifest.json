@@ -1,71 +1,84 @@
 {
  "date": "2026-08-06",
- "captured_at": "2026-08-06T15:50:23.829138+00:00",
+ "captured_at": "2026-08-06T17:35:05.112653+00:00",
  "realm": "darkmoon",
  "season": 10,
  "patch_date": "2026-08-05",
  "new_report_ids": [
-  107
+  103,
+  104,
+  105,
+  106,
+  107,
+  108
  ],
- "reports_known": 78,
- "characters_known": 390,
+ "reports_known": 84,
+ "characters_known": 414,
  "tier2_note": "tier-2 files are gitignored; re-fetchable from darkmoon.ascensionlogs.gg by report id \u2014 see tools/scrapers/README.md",
  "files": [
   {
    "file": "abilities.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 15,
-   "bytes_gz": 105228,
-   "sha256": "caa904d1b4a76f7d42b58f5db63fd26b703103abeff9dd84d6a6f1ffaf6ef02c"
+   "records": 46,
+   "bytes_gz": 385702,
+   "sha256": "8888fab91c848cc34f697d760263c7703529f7f85a031bec1f1d2af95841e5f2"
   },
   {
    "file": "avoidance.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 15,
-   "bytes_gz": 164587,
-   "sha256": "08f600c93c35650fca91e52f5bf8765774199f3f4c3d9d76b4a7c7d2069b2935"
+   "records": 46,
+   "bytes_gz": 896190,
+   "sha256": "f6fe78298c37f98b899b2b42cd38b2f5e09fce61ed6d9bdf1cbf3b1b63ed54b5"
+  },
+  {
+   "file": "characters.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 24,
+   "bytes_gz": 334292,
+   "sha256": "952056880b8357aa50baa9129d288c27a906ccaba81c4b31ec75cc29be783976"
   },
   {
    "file": "damage_taken.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 15,
-   "bytes_gz": 13574,
-   "sha256": "50825323c040d64475e628166fabf27b01f9a4bd9aea0b08d85e1dec779c8f53"
+   "records": 46,
+   "bytes_gz": 85833,
+   "sha256": "f2f78f2b7921b23b600e46d2b507a9a4cb2ca25cd14ae56b7cd284c6b33e4af2"
   },
   {
    "file": "healing.jsonl.gz",
    "tier": 2,
    "committed": false,
-   "records": 15,
-   "bytes_gz": 37520,
-   "sha256": "26c2bcb3fee1fe10c12bf7dfa0d3fb69a9dd8e26abeef3d76af43385b649c897"
+   "records": 46,
+   "bytes_gz": 255375,
+   "sha256": "8c9366df3bdbe1ce3253e69c5423b378a60bf6ac5aab4b266443538be8d155c3"
   },
   {
    "file": "leaderboards.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 24,
-   "bytes_gz": 15652,
-   "sha256": "4e61dee2930f998d8af0638cf3fb7697755b73fd27bbcf5d1bf17de01b1dfc6f"
+   "records": 36,
+   "bytes_gz": 23745,
+   "sha256": "d47fcd5789ad0e605166cac4e944b174a52e64dfa34648b9309767c71a0edcd1"
   },
   {
    "file": "phases.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 2,
-   "bytes_gz": 1546,
-   "sha256": "cb7d1640e09efb2934bbf0839a1c8f87a1a96f8df8065b39a6e9d059f3f5fe2e"
+   "records": 3,
+   "bytes_gz": 2319,
+   "sha256": "aa277ebfbaa903562c25de163cfc04a2911ec89366d382c3bb774f6898470abf"
   },
   {
    "file": "reports.jsonl.gz",
    "tier": 1,
    "committed": true,
-   "records": 4,
-   "bytes_gz": 4799,
-   "sha256": "27a156e3a7db9331d316149c18594837855107d674c22d804e842f3fff83a6df"
+   "records": 10,
+   "bytes_gz": 16323,
+   "sha256": "cd77a0888a8bbe732d85653fff637f396d66c5e867ef8aa9939be3ccbc5c9d30"
   }
  ]
 }
