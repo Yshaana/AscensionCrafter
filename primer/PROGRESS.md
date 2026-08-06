@@ -18,16 +18,17 @@ the derived buff layer — is BUILT and run. Session record:
 
 ### 🔴 FIRST ACTIONS NEXT SESSION (3b)
 
-1. **The re-tests are STILL outstanding** — they need the owner in game.
-   Re-test tracker #200295 after the server restart: Hammerdin procs from
-   Judgement/Holy Shock **and** the PBL × Lightbound Cleave discriminator.
-   Protocol: `bugs/bug_hammerdin-trigger-set.md`. Build doc §2/§11 revert is
+1. **The consolidated one-session dummy protocol is written and is THE ask:**
+   `primer/NEXT_CAPTURE.md` (top section, 2026-08-06). Six windows + a hover
+   list cover ALL owner-gated items at once — the #200295 re-test, the PBL ×
+   Lightbound Cleave discriminator, the 200818 tooltip, Siphon Health/Swift
+   Retribution, the log-file convention, ReloadUI, the 1.30× melee-haste
+   display, seal rate-vs-PPM, and the imbue re-measure. 🛑 **Gated on the
+   server restart**: checked live 2026-08-06 morning, the 08-04/08-05
+   changelog entries still carry `[Pending Restart]` and the tracker is
+   login-gated — the owner confirms #200295's status logged in, or waits for
+   the daily crawl to show the tag flip. Build doc §2/§11 revert stays
    conditional on the re-test, not the tracker status.
-2. **Ask for the Consecrated Holy Weapon (200818) live tooltip** — 25.1% of
-   buffed damage, absent from the DBC extract. Still the top single ask.
-3. **Ask the two 3b-blocking questions** (BEFORE_3B §3): the `WoWCombatLog`
-   file naming/location convention, and whether `ReloadUI()` is restricted on
-   this server.
 
 ### 🚨 The calibration gate is STILL NOT MET — and the buff hypothesis is now measured
 

@@ -1,3 +1,90 @@
+# ONE-SESSION DUMMY PROTOCOL — 2026-08-06 (3b pre-flight; supersedes the list below as the active ask)
+
+**Designed to answer every owner-gated item in one visit: six windows,
+~25 minutes at the dummy, plus a hover list.** Everything below this section is
+kept for reference; its still-open items are folded in here.
+
+## Gate 0 — do NOT run this until the patch is live
+
+Checked live 2026-08-06 (morning): the 2026-08-04/05 changelog entries **still
+carry `[Pending Restart]`** on ascension.gg, there are no 2026-08-06 entries,
+and **the #200295 fix has no changelog entry at all** (tracker fixes aren't
+changelogged). The tracker page is login-gated, so the only definitive read is
+yours, logged in.
+
+- **Your check (definitive):** open
+  [tracker #200295](https://ascension.gg/bugtracker/view/200295) logged in — is
+  it still `[Pending Restart]`, or deployed?
+- **Our automatic check:** the daily 07:46 crawl captures the changelog; the
+  morning after a restart, the `[Pending Restart]` tags flip and the ingest
+  records `status_changed_at`. Any session can confirm with one query.
+- **In-session belt-and-braces:** the window order below (positive control
+  first) distinguishes "engine dead tonight" from "fix not live" from "fix
+  live" on its own.
+
+⚠ If you run before the restart anyway: W1, W3, W4, W5 and every hover are
+still valid (none depend on the fix); only W2's confirmation and W6's rotation
+conclusions need the patch.
+
+## Setup, once (2 minutes)
+
+1. **Fixed level-63 boss dummy** — same dummy for every window (the 2d
+   10–18% dummy-identity lesson). Write down its exact name. Level 63 = +3,
+   which is what the hit/crit/glancing constants are anchored to.
+2. Combat logging on (ALC). 📎 **Note the combat-log file's exact name and
+   folder** — that answers 3b's log-convention question by observation.
+3. Type **`/reload` out of combat** once and note whether it works
+   (3b's ReloadUI question). At the very END of the last window, try it once
+   **in combat** (`reloadui_in_combat`) — last, in case it misbehaves.
+4. **Stat export (AscensionCrafterExport) immediately before W1.** Unbuffed,
+   🛑 **no weapon imbue** (let Consecrated Weapon expire).
+5. **Alone at the dummy, scan your own buff/aura bar:** is **Siphon Health**
+   present with no other player nearby? Is **Swift Retribution**? Hover and
+   screenshot anything unexplained
+   (`siphon_health_and_swift_retribution_sources_unknown`).
+
+## The six windows
+
+No gear/spec/reroll changes except where stated. Rest between windows is fine;
+staying on the same dummy is not optional.
+
+| # | Do | Time | Answers |
+|---|---|---|---|
+| **W1** | **Dawnreaver only**, on cooldown | ~2.5 min (~35 casts) | Positive control: Hammerdin ~20% (expect ~7 procs — proves the engine is live tonight) AND the PBL control (Consecration 270768 / Exorcism 270767 should appear, making W3's zero meaningful) |
+| **W2** | **Judgement + Holy Shock only**, on cooldown. 🛑 Do NOT press Hour of Judgement — then every hammer that appears IS a proc; also watch the HoJ cooldown for −4 s jumps | ~4 min (~25 J + ~40 HS) | **The #200295 re-test.** Fix live → ~13 procs (20% of ~65 casts); not live/not working → ~0–1 (pre-fix: 1/129). Separation is decisive either way. Bonus: ~40 fresh unbuffed Holy Shock non-crits with a same-session export |
+| **W3** | **Lightbound Cleave only** (autos + queued LC) | ~3.5 min | **The general-vs-specific discriminator:** any PBL output (270768/270767) → the trigger-delivery mechanism was fixed engine-wide; zero (with W1's control positive) → the fix is Hammerdin-scoped and primer §4's practice stands. Bonus: riders on LC should stay zero |
+| **W4** | **Autos only**, Seal of Command up, both weapons | ~3 min | (a) `melee_haste_displays_1_30x`: white-swing timestamps vs the sheet's displayed speeds; (b) seal rider rate per event, arm 1; (c) free glancing + crit-suppression sample vs +3 |
+| **W5** | **Autos only, main hand ONLY** (unequip off-hand; re-equip after) | ~3 min | `seal_proc_mechanic_rate_vs_ppm`: halving events/min discriminates per-event ~0.25 (procs/min ~halve) from PPM (procs/min constant). Bonus: single-2H white averages (Titan's-Grip-tax data point, confound flagged) |
+| **W6** | **Full rotation incl. Hour of Judgement, imbue ON.** Apply Consecrated Weapon to both weapons, take **export #2**, then play ~6 min normally | ~7 min | Post-fix rotation baseline (build doc §13: HoJ uptime with J/HS feeding restored), HftH pulse-count replication, a fresh fully-attributed calibration log — and export #2's Bonus Healing re-measures the imbue's raw +86/weapon (the flagged 2d "+172" re-check) |
+
+## Hover list (any time, ~10 screenshots)
+
+1. 🔴 **Consecrated Holy Weapon (200818), three hovers:** the Consecrated
+   Weapon card tooltip, the weapon-enchant line on each weapon, and the active
+   buff aura's tooltip. This is the project's top single ask — 25.1% of buffed
+   damage with no modelled magnitude and no DBC route.
+2. 🎯 **Lightbound Cleave rank 5** — the stated overturn condition for the "no
+   AP term" claim.
+3. The **unknown-aura talents** (nothing else can source these): Sword
+   Specialization, Accuracy, Wrecking Crew, Spellblade, Dual Wield
+   Specialization, Twin Disciplines — plus the four server-side-script ones:
+   Holy Specialization, Judgements of the Wise, Mental Quickness, Righteous
+   Vengeance. **Add Holy Focus** (its capstone's "does not stack" clause +
+   Mental Quickness's covers `mental_quickness_exclusivity`).
+4. **"Brutal Crusader"** on Light's Hope — only if you own it.
+
+## Send back
+
+The raw `WoWCombatLog` file(s), both exports, the screenshots, the dummy's
+name, and — still outstanding — **2d's four logs if they're on disk**
+(`<launcher>\resources\ascension-live\Logs`, dated 2026-08-05).
+
+*(Not askable this session: `holy_shock_bonus_coefficient_0429` needs a source
+that STATES a coefficient — the R4 tooltip doesn't render one; 0.40 is already
+seeded provisional. W2 simply adds a cleaner measurement sample.)*
+
+---
+
 # Capture list — ⚠ LARGELY CONSUMED 2026-08-05 (session `2e`, same evening)
 
 **Status:** the owner delivered Windows A and B, the incremental buff capture,
