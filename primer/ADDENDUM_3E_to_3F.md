@@ -276,7 +276,40 @@ reuse a bare letter-number across documents.
 
 ---
 
-## 4. One new standing rule, to adopt now rather than at `3G`
+### 3.7 The folder only grows, and that is a lifecycle gap rather than a tidiness one
+
+**Every artifact in this project has a lifecycle except documents.** Claims get retracted.
+Predictions get outcomes. Bugs get closed with checks. Cohorts get superseded by new slugs.
+Documents alone are immortal — `primer/` holds 48 files and has never lost one. That is an
+inconsistency in an otherwise unusually consistent system, and stating it that way makes
+the fix obvious: give documents the same lifecycle the claims already have.
+
+**The risk is not where it looks.** A destructive cleanup could lose something load-bearing,
+and that concern is correct — which is exactly why the pass in `SESSION_3F_PRIMER.md` F8c
+deletes nothing and moves nothing. The information loss is **already happening**, and it
+comes from the absence of labels rather than the presence of files: a session reading
+`PLAN_3C_clean_exit.md:363` today gets a retracted claim stated as settled, because nothing
+on that file says it is history.
+
+**And the numeric half of the problem has a clean diagnosis.** Every numeric error this
+audit found in a document was hand-transcribed:
+
+| doc | wrong number | source |
+|---|---|---|
+| `PHASE_2_simulation.md:467-471` | `1.718` pair target | hand-typed, from a contaminated run |
+| `CALIBRATION_TOLERANCE.md:166-172` | 3 of 5 `n` values | hand-typed beside correct tool output |
+| `ENGINE_BUGS.md:398` | "Blizzard 305 casts" | hand-typed from a grep line-count |
+| `PLAN_V2:20` | "24 rows" | hand-typed count of a table holding 32 |
+
+**Four for four. Zero errors in numbers a tool emitted.** This is the same defect class as
+`3e`'s C1 — four hand-typed stat flags were the transcription channel that contaminated a
+calibration — and **the project fixed transcription into the simulator while leaving
+transcription into the documentation completely unguarded.** Hence the second standing rule
+below.
+
+---
+
+## 4. Two new standing rules, to adopt now rather than at `3G`
 
 > **Every check must carry a registered test that makes it fail.**
 
@@ -288,6 +321,14 @@ Operationally, for `3f` and after: when you add or repair a `gcheck`, add a line
 `ENGINE_BUGS.md`'s check registry naming **the mutation that makes it fail** — "revert
 `_decay_target_health` and this check must go red". If you cannot name one, the check is
 not a check.
+
+> **A magnitude never appears in a markdown file except as generated output, pasted with
+> its provenance.**
+
+Justified by §3.7's four-for-four record, and it costs nothing: `calibrate_crawled.py`
+already computes the band table's `n` correctly at `:917-921`, and the committed table was
+retyped beside it. Where a number belongs in a document, have the tool print it and paste
+the tool's output. Where no tool prints it, that is a signal the number has no owner.
 
 The two standing rules from `3d`/`3e` remain in force and are **not** superseded: every
 coverage task reports slice accuracy before and after, and the holdout is named before the

@@ -220,6 +220,13 @@ the manifest, and say in the manifest which you did.
   plan cannot be run in its unamended form. 🛑 **And seed it**: a design decision that
   changes what a test measures goes into `seed_epistemics.py`, not only into a plan
   document — `/close-session`'s own rule, *"Prose is not a seed."*
+* 🚨 **`PHASE_4_legos_and_theorycrafter.md` rests on a false claim about the tree** — it
+  states *"the web app is a thin layer: `api/` already exists"*, and `api/` is a 12-line
+  empty `__init__.py` with zero functions (`AUDIT_3C_ADVERSARIAL.md` §4.L, still true at
+  HEAD). This is not doc tidiness: it is a future phase's premise resting on something that
+  is not there, and Phase 4 is the phase after this one. Correct the premise. If the
+  layering `cli → api → core` is still wanted, say that `api/` must be **built**, and size
+  it — do not let "already exists" survive into planning.
 * **`ENGINE_BUGS.md` corrections** (`ADDENDUM_3E_to_3F.md` §3.3): Blizzard `305 → 4` casts
   — measured, Elric's `SPELL_CAST_SUCCESS` on Blizzard in Window C is 4, delivering 9.4% of
   that window's damage; the 305 is a raw grep line-count and 83 of those lines are a
@@ -249,6 +256,52 @@ every snapshot carries a capture timestamp (PHASE_3 exit criterion 6 is MET —
 * The phase boundary comes from the **live `/api/phases` response**, cached with its fetch
   time, not from a literal date typed into a constant. `season_config.py` is the one place
   that knows the expected phase; it is not the place to hardcode 2026-08-08.
+
+**F8c — Classify every document in `primer/`. Additive only; delete nothing.**
+*Also lettered because it was appended after the block was numbered.*
+
+**The defect is not that `primer/` holds 48 files. It is that nothing on a file tells you
+which kind of file it is.** Live reference, historical record, superseded, and
+point-in-time finding all sit in one namespace with identical formatting, so a session
+reading `PLAN_3C_clean_exit.md:363` today gets *"The site's `casts` IS
+`SPELL_CAST_SUCCESS`"* as a settled conclusion. The information loss a destructive cleanup
+was feared to cause **is already happening**, and it is caused by the absence of labels
+rather than the presence of files.
+
+Add one status line at the top of every file in `primer/`, from this set:
+
+| status | meaning |
+|---|---|
+| `LIVE` | describes the current tree and **must be true today**. Citable as current truth |
+| `HISTORICAL` | describes a past state, immutable, **may contain claims that are false today** — and that is correct, not a defect. Never citable as current truth |
+| `SUPERSEDED BY <path>` | pointer only; read the successor |
+| `FINDING <date>` | point-in-time analysis; true as of its date, not maintained |
+
+Rules for the pass:
+
+* 🛑 **Additive only.** No deletions, no moves, no subfolders, no path changes, no rewriting
+  of historical content. Git history and every existing citation stay intact. The owner's
+  concern — that a cleanup could lose something load-bearing — is well founded against a
+  destructive pass and does not apply to this one. Keep it that way.
+* 🛑 **A file whose status you cannot determine is flagged, not guessed.** Put it in
+  `PROGRESS.md`'s blocked table with your best reading and why you are unsure. Rule 6. A
+  document mislabelled `HISTORICAL` becomes invisible; one mislabelled `LIVE` becomes a
+  trap. Both are worse than an open question.
+* **`HISTORICAL` files keep their wrong claims** — do not rewrite them. But a claim that
+  also appears in the **retracted-claims list** gets an inline marker *at the claim*,
+  pointing at the retraction. That is the same sweep as `ADDENDUM_3E_to_3F.md` §3.5, so do
+  the two together.
+* **Only `LIVE` documents may be cited as current truth.** Write that rule into
+  `primer/START_HERE_FOR_CODE.md` and `CLAUDE.md`, so a document is *born* with a status
+  rather than acquiring one in a later cleanup.
+* **Every new document declares its expiry condition at birth** — "superseded when X
+  lands". `ADDENDUM_3D_slice_accuracy_correction.md` carried a natural expiry (*"before
+  `3e` runs"*) that nobody closed, because nothing was watching for one.
+
+**Why before Phase 4 rather than during it.** Phase 4 is the first phase whose output
+*leaves* the project — guides and briefs a player reads. A stale claim stops being an
+internal cost at that boundary. And Phase 4's own premise is already contaminated: see the
+`PHASE_4` bullet in F8.
 
 **Block A acceptance:** the gate reads `5 / 2 / 64.3%` before and after; `check_core_purity.py`
 is clean; `check_gate_exclusion.py` **runs** and its stated failure-mutation turns it red;
@@ -427,6 +480,10 @@ whole point. Reasoning is in `ADDENDUM_3E_to_3F.md` §2.2 and §3.2.
     count, `gear_tier_stats()` takes a phase, and `gear.py:409`'s stale caveat is gone.
 11. `PLAN_V2` is amended per the owner's decision, carries a dated decision header, says
     32 not 24, and the rescope exists as a seed row rather than only as prose.
+12. Every file in `primer/` carries a status line; nothing was deleted or moved; any file
+    whose status was unclear is in `PROGRESS.md`'s blocked table rather than guessed at;
+    and `START_HERE_FOR_CODE.md` + `CLAUDE.md` carry the born-with-a-status rule.
+13. `PHASE_4`'s *"`api/` already exists"* premise is corrected.
 
 ---
 
@@ -456,3 +513,12 @@ whole point. Reasoning is in `ADDENDUM_3E_to_3F.md` §2.2 and §3.2.
   populated registry to formalise instead of an empty one. When you add or repair a
   `gcheck`, name the mutation that turns it red. **If you cannot name one, it is not a
   check.**
+* 🆕 **A magnitude never appears in a markdown file except as generated output, pasted
+  with its provenance.** Evidence: *every* numeric error the `3e` audit found in a document
+  was hand-transcribed — the `1.718` pair target, `CALIBRATION_TOLERANCE.md`'s `n` column,
+  "Blizzard 305 casts", `PLAN_V2`'s "24 rows". **Four for four. Zero errors in numbers a
+  tool emitted.** This is the same defect class as `3e`'s C1: four hand-typed stat flags
+  were the transcription channel that contaminated a calibration, and C1 fixed
+  transcription **into the simulator** while leaving transcription **into the
+  documentation** unguarded. If a number belongs in a document, have the tool print it and
+  paste the tool's output — as F8 already requires for the band table, now generalised.
