@@ -1,5 +1,19 @@
 # PROGRESS
 
+> 🔴 **2026-08-06 evening — session `3c` is done and awaiting audit.**
+> Read **`primer/AUDIT_3C_handoff.md`** first: it carries the executed audit
+> steps, the four log uploads, three errors of mine worth checking hardest, the
+> revised plan, and the open decisions.
+> **Work plan: `primer/PLAN_3C_clean_exit.md` (see its dated revision section).**
+>
+> 🚨 **Phase 4 is NOT next.** `PHASE_3`'s second execution chain — **T5 (capture
+> addon) → T6 (log ingestion) → T7 (automation)** — was deferred and never
+> revisited; `ingest/logs/` and the hooks directory do not exist. Two non-gate
+> exit criteria are also outstanding/unverified. Detail in the audit primer §0.
+>
+> Gate: **5 of 41 within ±20%, 2 qualified → EXIT NOT MET** under the coverage
+> rider stamped before the run.
+
 **Claude Code maintains this file. Update it at the end of every session, before writing the handoff.**
 
 This is the pointer that lets a new session start with no memory of the last one. Keep it short —
