@@ -100,6 +100,15 @@ to remember which session number is up.
 1. Fetch the repo's current state. Read this file, then `PROGRESS.md`.
 2. Read `ARCHITECTURE.md` and **only** the phase doc for the session `PROGRESS.md` names.
 3. State what you're about to do and confirm before writing code.
+3b. 🛑 **Create one task per CONCRETE ARTIFACT the plan requires — before any analysis.**
+   Code file, seed row, doc section, commit: each is its own task. Tasks created for the
+   *analysis* instead of the *artifacts* is how a session produces excellent forensics and
+   ships nothing. **Re-check the artifact list before entering any long analysis loop**,
+   and if analysis has taken more than half the session, land the artifacts first and
+   resume analysis after. *(2026-08-06 usage report: interactive log forensics repeatedly
+   consumed whole sessions. ⚠ Its "three consecutive Phase 2D sessions landed nothing"
+   framing counts CHAT sessions, not phase sessions — `2d` as a phase did land
+   `core/sim/buffs.py`, `core/sim/swings.py`, its session record and its bug reports.)*
 4. Build it. Stop at any 🛑 and ask — log the question in `PROGRESS.md`'s blocked table.
 5. **Before ending the session:**
    - Update `PROGRESS.md`: mark this session's status, set the next session, record any plan changes

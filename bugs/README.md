@@ -114,3 +114,9 @@ is open in-game.
   diagnosis been woven into the description, the whole report would have been wrong.**
 - **If a diagnosis turns out wrong, file the correction yourself** rather than leaving it.
   Volume of reports is worth less than a reporter whose reports can be trusted.
+- **Write it in a plain player voice, and keep it under ~200 words.** Reproduce steps,
+  expected, actual, evidence — that is the whole report. No nested headings, no hedging,
+  no machine-sounding phrasing. The owner has sent first drafts back twice for being too
+  long and too obviously not written by a player, and a report that reads as generated
+  is a report a GM trusts less. This is the one place in the repo where the audience is
+  a stranger rather than the next session.

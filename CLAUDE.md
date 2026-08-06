@@ -7,6 +7,26 @@ most sessions, so re-read even if the topic feels familiar from earlier context:
 @primer/INDEX_GUIDE.md
 @builds/my-builds/build_paladin-hammerdin.md
 
+## 🖥 The owner's machine — read before emitting a single command
+
+**Windows, PowerShell, and the owner is not a coder.** Every command you print is
+something a human copy-pastes verbatim, so it has to run as written.
+
+- **No bash-only syntax.** `&&`, `||`, heredocs (`<<EOF`), `export VAR=`, backtick
+  line-continuation and `$(...)` all fail or behave differently. Use `;` to sequence,
+  `$env:VAR = "..."` to set, and here-strings (`@"…"@`) if you truly need one.
+- **Prefer one command per Bash call** over a chain. A chain that fails halfway leaves
+  the owner guessing which half ran.
+- **Never hand over a command you have not made copy-pasteable** — no `<fill this in>`
+  placeholders in the middle of a line, no assumed working directory. State the `cd`.
+- Scripts meant to run on his machine (crawler, extract wrapper, session hooks) target
+  Windows: no cron (Task Scheduler), no POSIX tools assumed on PATH. ⚠ Git for Windows
+  ships a Unix `find` that **shadows** the Windows one — `3b` lost a guard to exactly
+  this. Use absolute paths in `.bat` wrappers.
+
+*Source: the 2026-08-06 usage report — bash `&&` chains and heredoc escaping recurred
+across multiple sessions as the top environment friction.*
+
 ## Tool triggers
 
 Check this list before hand-parsing, hand-decoding, or guessing at anything below
@@ -30,6 +50,17 @@ Check this list before hand-parsing, hand-decoding, or guessing at anything belo
   parsing error came from a throwaway script hand-counting columns and reading
   `glancing` where it wanted `critical`. Re-verify only if Ascension changes the
   client's log grammar.
+
+  🛑 **A log the game is still writing to is not a capture.** Before parsing anything
+  under `data/source/captures/`: confirm the file's size and mtime are unchanged across
+  a short interval, then report **line count, first and last timestamp, and window
+  duration** before any number is derived from it. A 2026-08-05 session analysed a
+  truncated 46-second window this way and had to redo the work. ⚠ **A guard that
+  cannot run must say so** — `3b` found the owner-facing "is the game closed?" check
+  printing *"OK - game is closed"* after erroring. Never report a condition you failed
+  to test.
+  ⚠ **Flag any conclusion drawn from under ~60 s of data as provisional**, in the
+  output, not just in your head.
 
 - **Need a spell's APPLIED SP/AP coefficient, or its trigger links** → run
   `tools/scrapers/scrape_ascension_db.py`. `db.ascension.gg` states coefficients
@@ -123,6 +154,11 @@ Schema in `INDEX_GUIDE.md`.
   enforces this; run it after touching `core/`.
 - `data/source/` is committed and irreplaceable; `data/derived/` is gitignored and
   always rebuildable. Never commit a `.db`.
+- **Before every commit: `git status --short`, and check for any staged file over 5 MB.**
+  Never commit a built database or a raw DBC dump — they belong in `.gitignore` or the
+  two-tier manifest model. One commit took the repo to 194 MB and needed an amend.
+  Write the commit message **at commit time**; a message staged during an earlier
+  attempt describes work that has since changed.
 - Scouted-build data lives in `data/derived/scouted_builds.db`, kept separate from
   `ascension.db` — never merge them.
 - Analysis write-ups for scouted builds go in
