@@ -49,6 +49,27 @@
 > DoT-recast bug; and `combo_points` never incrementing is masked by `apl_gen`
 > not classifying any per-combo ability as a finisher in the first place.
 >
+> 📌 **`primer/ADDENDUM_3D_to_3E_mage_capture.md` landed mid-`3d` (commit
+> `d6fa1e2`) and is `3e` input. Checked against what `3d` shipped:**
+> * Its §2 supersedes F2 with a `--stat-block <path>` parser instead of four
+>   hand-typed flags. **`3d` shipped F2 as written, so by the addendum's own
+>   terms this is additive `3e` work, not a rework** — and the refusal semantics
+>   it says to keep are exactly what shipped.
+> * Its §4 replaces the *generic* synthetic caster with the incoming Frost Mage.
+>   **Both `3d` fixtures still stand**: its own table keeps the combo-point melee
+>   and the DoT caster as "still needed", since Frost is burst, not DoT.
+> * Its §7 asks that the `candidates()` exclusion cover the Mage too.
+>   **Already true** — F1 excludes by `character_snapshots.source`
+>   (`'own_capture'`), not by character, so any owner-captured character is
+>   excluded automatically.
+> * ⚠ **OWNER ACTION OUTSTANDING:** the addendum says the stat-export addon
+>   gained five fields (`ExportedAt`, `PowerType`/`PowerMax`, `ManaMax`,
+>   `ManaRegen_raw`, `SpellHaste_total`/`MeleeHaste_total`) and "should be
+>   committed as-is". **The updated `.lua` is not in the tree** — `addons/`
+>   is clean and none of the five fields is present. Copy it in before the Mage
+>   capture, or the capture lands without the timestamps and pools that make it
+>   checkable.
+>
 > ---
 >
 > <details><summary>Superseded: the <code>3d</code> work-order pointer</summary>

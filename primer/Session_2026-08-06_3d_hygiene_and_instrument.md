@@ -262,3 +262,26 @@ Righteous Vengeance must be un-broken **and talent-gated**, with the cohort-wide
 delta measured before acceptance. Every coverage task reports slice accuracy
 before and after. The holdout (`holdout_3e_crawled_gate_validation_set`) is read
 once, at the end.
+
+---
+
+## Addendum `d6fa1e2` — landed mid-session, checked against what shipped
+
+`primer/ADDENDUM_3D_to_3E_mage_capture.md` was committed by the monitoring chat
+while `3d` was running. It states up front that it changes neither `3d`'s scope
+nor its §0 invariant. Reconciled:
+
+| Addendum item | Status against `3d` |
+|---|---|
+| §2 — supersede F2 with a `--stat-block <path>` parser instead of four hand-typed flags | ✅ **No rework.** Its own text: *"If `3d` has already shipped F2 as written, this becomes an `3e` task rather than a rework."* It did. And the refusal semantics it says to keep (`required`, defaults deleted, never re-defaulted) are exactly what shipped — the parser is additive on top. |
+| §2 — F2b still the urgent half, re-derive 1.718 / 0.769 | ✅ **Done this session.** 1.718 → 1.704 (−0.83%), 0.769 → 0.769 (0.00%); both stand, stat block now stated inline in `PHASE_2_simulation.md`. |
+| §4 — replace the synthetic caster with the Frost Mage | ✅ **Both `3d` fixtures stand.** The addendum's own revised table keeps *combo-point melee* and *DoT caster* as "still needed" — Frost is burst, not DoT — so the Mage is a third fixture, not a replacement for either. |
+| §7 — the `candidates()` exclusion must cover the Mage too | ✅ **Already true by construction.** F1 excludes on `character_snapshots.source = 'own_capture'`, not on a character id, so every owner-captured character is excluded automatically without another edit. |
+| §6 step 2 — "these are `bugs/` entries first" | ⚠ Same convention conflict flagged above; engine defects are in `primer/ENGINE_BUGS.md` because `bugs/README.md` reserves that folder for game bugs. |
+| §1 — the addon's five new fields "should be committed as-is" | ❌ **OWNER ACTION OUTSTANDING.** `addons/` is clean and none of `ExportedAt`, `PowerType`, `PowerMax`, `ManaMax`, `ManaRegen_raw`, `SpellHaste_total`, `MeleeHaste_total` appears in the committed `.lua`. The updated file is not in the tree. It needs copying in **before** the Mage capture, or that capture arrives without the timestamp and pool fields that make it checkable. |
+
+⚠ One thing worth carrying into `3e`: the addendum's §3 capture is a **dungeon**
+run, and the gate cohort is not dungeon content. It makes the Mage a valid
+verified character *for its own content profile* — it does not add a third
+character to the raid-side exit, and per §7 it must stay excluded from
+`candidates()` for the same reason Elric is.
