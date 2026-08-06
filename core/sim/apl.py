@@ -21,8 +21,17 @@ CONDITION_TYPES = {
     "cooldown_ready",         # {} — this entry's own spell
     "other_cooldown_ready",   # {'spell_id': int}
     "other_cooldown_not_ready",  # {'spell_id': int} — "only while X is down"
-    "buff_active",            # {'spell_id': int}
-    "buff_missing",           # {'spell_id': int}
+    "buff_active",            # {'spell_id': int}   — on the PLAYER
+    "buff_missing",           # {'spell_id': int}   — on the PLAYER
+    # 3e B2 (ENGINE_BUGS E4) — the target side. `buff_active`/`buff_missing`
+    # track the player's own auras, so before these existed a DoT could only
+    # ever be given `always`, and "re-cast it when it is about to expire" was
+    # not expressible in the grammar at all. A DoT caster's defining decision
+    # had no way to be written down.
+    "debuff_missing",         # {'spell_id': int}   — on the TARGET
+    "debuff_active",          # {'spell_id': int}   — on the TARGET
+    "debuff_remaining_below",  # {'spell_id': int, 'value': seconds} — pandemic
+                               # refresh: re-apply just before it drops
     "resource_at_least",      # {'resource': 'mana'|'rage'|'energy'|..., 'value': n}
     "resource_pct_at_least",  # {'resource': str, 'value': 0-100}
     "combo_points_at_least",  # {'value': n}
@@ -111,6 +120,16 @@ def evaluate(condition, state):
         return state.buff_active(condition["spell_id"])
     if t == "buff_missing":
         return not state.buff_active(condition["spell_id"])
+    # 3e B2 — the target's debuffs are a SEPARATE dict from the player's buffs.
+    # Conflating them is the bug this fixes: `medium_sim` used to record every
+    # duration-carrying ability in `st.buffs`, so a DoT on the boss and a seal on
+    # yourself were the same object.
+    if t == "debuff_active":
+        return state.debuff_active(condition["spell_id"])
+    if t == "debuff_missing":
+        return not state.debuff_active(condition["spell_id"])
+    if t == "debuff_remaining_below":
+        return state.debuff_remaining(condition["spell_id"]) < condition["value"]
     if t == "resource_at_least":
         return state.resource(condition["resource"]) >= condition["value"]
     if t == "resource_pct_at_least":

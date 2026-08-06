@@ -108,7 +108,29 @@ Naming it as a gap is the minimum; modelling it is the owner's decision and is
 
 ---
 
-## E4 — the APL grammar cannot express DoT uptime
+## E4 — the APL grammar cannot express DoT uptime — ✅ FIXED (`3e` B2)
+
+> ### ✅ Closed 2026-08-06, session `3e` Block B2.
+>
+> Added to `core/sim/apl.py`: **`debuff_active`**, **`debuff_missing`** and
+> **`debuff_remaining_below`** (`{spell_id, value}` — the pandemic refresh, "the
+> DoT has under N seconds left"), with evaluator branches for each.
+>
+> 🚨 **The grammar was only half of it. `medium_sim` filed EVERY
+> duration-carrying ability in `st.buffs`**, so a DoT on the boss and a seal on
+> yourself were the same object and a target-debuff condition would have read the
+> player. `TimelineState` now carries a separate **`debuffs`** dict, and the cast
+> path routes by the same mechanical discriminator `_useful_cast_interval` uses:
+> **a duration plus a tick interval is a DoT; a duration alone is a self-buff.**
+>
+> ⚠ **The check was STRENGTHENED, not satisfied.** Its original form asked only
+> whether a condition *name* containing `"dot"` or `"debuff"` existed in
+> `CONDITION_TYPES` — satisfiable by adding a string to a set, which is exactly
+> the way a green test can mean nothing. It now exercises the evaluator against a
+> state carrying a real target debuff and asserts the buff/debuff separation
+> holds.
+
+<details><summary>The original E4 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -125,6 +147,8 @@ The full grammar is `always`, `buff_active`, `buff_missing`,
 `buff_missing` track the *player's* buffs, not a debuff on the target. So a DoT
 can only ever be given `always`, and the intended fix ("re-cast when the DoT is
 about to expire") is not expressible.
+
+</details>
 
 ---
 

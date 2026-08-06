@@ -256,6 +256,11 @@ class TimelineState:
     fight_duration: float = 0.0
     cooldowns: dict = field(default_factory=dict)      # spell_id -> ready_at
     buffs: dict = field(default_factory=dict)          # spell_id -> expires_at
+    # 3e B2 (E4) — the TARGET's debuffs, kept separate from the player's buffs.
+    # One dict for both was the conflation: a DoT on the boss and a seal on
+    # yourself are not the same object, and only one of them is what a DoT
+    # caster's rotation is deciding about.
+    debuffs: dict = field(default_factory=dict)        # spell_id -> expires_at
     resources: dict = field(default_factory=dict)      # name -> current
     pools: dict = field(default_factory=dict)          # name -> max
     combo_points: int = 0
@@ -267,6 +272,12 @@ class TimelineState:
 
     def buff_active(self, spell_id):
         return self.buffs.get(spell_id, 0.0) > self.now
+
+    def debuff_active(self, spell_id):
+        return self.debuffs.get(spell_id, 0.0) > self.now
+
+    def debuff_remaining(self, spell_id):
+        return max(0.0, self.debuffs.get(spell_id, 0.0) - self.now)
 
     def resource(self, name):
         return self.resources.get(name, 0.0)
@@ -352,7 +363,15 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             if cd:
                 st.cooldowns[entry.spell_id] = st.now + cd
             dur = ab.fields.get("duration_seconds")
-            if dur:
+            if dur and ab.fields.get("tick_interval_seconds"):
+                # 3e B2 — a periodic damage effect lands on the TARGET. The
+                # discriminator is mechanical and is the same one
+                # `_useful_cast_interval` uses: a duration plus a tick interval
+                # is a DoT, a duration alone is a self-buff (a seal, an armor).
+                # Everything with a duration used to be filed under st.buffs
+                # regardless, so `debuff_missing` would have read the player.
+                st.debuffs[entry.spell_id] = st.now + dur
+            elif dur:
                 st.buffs[entry.spell_id] = st.now + dur
             elif any(c.get("type") == "buff_missing"
                      and c.get("spell_id") == entry.spell_id

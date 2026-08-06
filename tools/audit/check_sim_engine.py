@@ -64,8 +64,10 @@ EXPECTED_FAILURES = {
         "damage in the dps this is calibrated against",
     "[dot_caster] pet damage is modelled or explicitly named as a gap":
         "ENGINE_BUGS.md E3 — same defect, second fixture",
-    "[dot_caster] the APL grammar can express DoT uptime":
-        "ENGINE_BUGS.md E4 — no target-debuff condition in apl.py:19-32",
+    # E4 CLOSED in 3e B2 — debuff_active / debuff_missing /
+    # debuff_remaining_below added to the grammar and to the evaluator, with
+    # target debuffs tracked separately from player buffs. Line deleted rather
+    # than left as a comment-out, per the registry's own rule.
     "[dot_caster] the board's DoTs enter the rotation at all":
         "ENGINE_BUGS.md E5 — DoTs are filed behind every cooldown ability and "
         "the GCD budget never reaches them (6 of 7 cast zero times)",
@@ -648,10 +650,39 @@ def check_nonpaladin_fixtures(conn, ct, conv):
             # exists in the grammar, and apl_gen gives fillers `always`. So a
             # DoT is re-cast every GCD with its entire duration's damage
             # re-scored each time.
-            from core.sim.apl import CONDITION_TYPES
+            #
+            # ⚠ 3e B2 — STRENGTHENED. The original form asked only whether a
+            # condition NAME containing "dot"/"debuff" existed, which is
+            # satisfiable by adding a string to a set. It now exercises the
+            # evaluator against a state carrying a target debuff, and checks the
+            # debuff is tracked SEPARATELY from the player's buffs — the
+            # conflation was the actual defect.
+            from core.sim.apl import CONDITION_TYPES, evaluate
+            from core.sim.tiers import TimelineState
+            named = sorted(t for t in CONDITION_TYPES if "debuff" in t or "dot" in t)
+            works = False
+            if named:
+                stt = TimelineState(now=10.0, fight_duration=100.0)
+                stt.debuffs[999] = 13.0        # 3s left on the target
+                try:
+                    works = (
+                        evaluate({"type": "debuff_missing", "spell_id": 999}, stt) is False
+                        and evaluate({"type": "debuff_missing", "spell_id": 998}, stt) is True
+                        and evaluate({"type": "debuff_remaining_below",
+                                      "spell_id": 999, "value": 5}, stt) is True
+                        and evaluate({"type": "debuff_remaining_below",
+                                      "spell_id": 999, "value": 2}, stt) is False
+                        # the separation itself: a target debuff must NOT read
+                        # as a player buff
+                        and stt.buff_active(999) is False)
+                except Exception:                       # noqa: BLE001
+                    works = False
             gcheck("[dot_caster] the APL grammar can express DoT uptime",
-                  any("dot" in t or "debuff" in t for t in CONDITION_TYPES),
-                  f"condition types: {sorted(CONDITION_TYPES)}")
+                  bool(named) and works,
+                  f"debuff/DoT condition types present: {named or 'NONE'}; "
+                  f"evaluator exercises them correctly and keeps target "
+                  f"debuffs separate from player buffs: {works}. "
+                  f"full grammar: {sorted(CONDITION_TYPES)}")
 
             # `apl_gen.py:62-63` — fillers are sorted by damage PER CAST, not
             # per GCD/cast-time, contradicting apl_gen's own docstring line 10.
