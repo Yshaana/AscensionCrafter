@@ -9,48 +9,56 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
-**✅ SESSION `3a` IS DONE (2026-08-06, overnight).** Phase 3 T1–T4 + T8, the
-inherited calibration gate, and the Holy Shock seed. Session record:
-`primer/Session_2026-08-06_3a_builds_corpus.md`. Rebuild green (20 steps),
-purity 0/45, all sim-engine checks pass.
+**✅ 3B PRE-FLIGHT IS DONE (2026-08-06, from `BEFORE_3B.md`).** §1 audit
+remediations landed (reproducibility framing + per-report `tier2_manifest.json`
++ INDEX_GUIDE v17 + the lag-0 retraction row), §2 green (rebuild 20 steps,
+purity 0/46, all sim-engine checks incl. 3 new buff-layer checks), and §0.3 —
+the derived buff layer — is BUILT and run. Session record:
+`primer/Session_2026-08-06_3b_preflight.md`. **3b proper has not started.**
 
-### 🔴 FIRST ACTIONS NEXT SESSION
+### 🔴 FIRST ACTIONS NEXT SESSION (3b)
 
-1. **The re-tests are STILL outstanding** — they were 2e's first action, and
-   `3a` could not run them (they need the owner in game). Re-test tracker
-   #200295 after the server restart: Hammerdin procs from Judgement/Holy Shock
-   **and** the PBL × Lightbound Cleave discriminator. Protocol:
-   `bugs/bug_hammerdin-trigger-set.md`. Build doc §2/§11 revert is conditional
-   on the re-test, not the tracker status.
+1. **The re-tests are STILL outstanding** — they need the owner in game.
+   Re-test tracker #200295 after the server restart: Hammerdin procs from
+   Judgement/Holy Shock **and** the PBL × Lightbound Cleave discriminator.
+   Protocol: `bugs/bug_hammerdin-trigger-set.md`. Build doc §2/§11 revert is
+   conditional on the re-test, not the tracker status.
 2. **Ask for the Consecrated Holy Weapon (200818) live tooltip** — 25.1% of
    buffed damage, absent from the DBC extract. Still the top single ask.
-3. **Model buffs for a crawled character, then re-run the calibration gate.**
-   This is the one blocking Phase 3's exit criterion (below).
+3. **Ask the two 3b-blocking questions** (BEFORE_3B §3): the `WoWCombatLog`
+   file naming/location convention, and whether `ReloadUI()` is restricted on
+   this server.
 
-### 🚨 The calibration gate is NOT MET — and the miss is one-directional
+### 🚨 The calibration gate is STILL NOT MET — and the buff hypothesis is now measured
 
 `py tools/audit/calibrate_crawled.py --limit 120 --max-lag-hours 0`
 → **0 of 41** level-60 crawled characters within ±20%
-(`data/derived/calibration_crawled.md`). Criterion is ≥3. Run at the STRICT
-lag-0 setting — every snapshot was captured at its own encounter, so no
-staleness caveat applies.
+(`data/derived/calibration_crawled.md`). Criterion is ≥3. Strict lag-0.
 
-**40 of 41 deltas are NEGATIVE**, −35% to −92%. That one-sided shape is a
-missing multiplicative layer, not noise. The candidate set is now real
-Zul'Gurub raid bosses (Hakkar, Bloodlord Mandokir, Taerar, Snowgrave) — the
-content where buff stacks are largest, and where the biggest misses sit.
-Ranked causes, neither fitted:
+**The buff layer is no longer the explanation.** §0.3 built it properly —
+`core/builds/group_buffs.py` derives each candidate's buff set from the boards
+of participants in the same capture scope (card-id match, never name; lower
+bound, nothing fitted), and `compute_stats` now applies the full measured
+arithmetic (Kings ×1.10 last, +31 Int/+27 raw SP, +62 Str/+62 Agi, +14 AP,
+imbue per weapon, PoI doubling on buff SP). Result: 3–5 buffs derive per
+candidate and move sim DPS by **+0% to +11%** — against misses of −35% to
+−99%. 3a's ranked-cause #1 ("buffs, order ×2.35") is **largely falsified as a
+stat-side mechanism**: the owner's own ×2.35 buffed gap routes mostly through
+things the sim lacks per ability (his buffed parse is 25.1% unmodelled 200818
+damage, and buffed SP feeds coefficients that out-of-catalog spells cannot
+carry — 2e's missing-coefficient mechanism, which the crawl generalises to
+every class's kit). Open question `crawled_gate_residual_after_buff_layer`
+carries the revised candidate ranking: per-kit magnitude/coefficient coverage,
+unmodelled proc/trigger/imbue damage, APL realism for unknown kits, CP
+finishers at 0 CP, hybrid mitigation.
 
-1. **Buffs are modelled for the owner only.** 2e measured his own
-   unbuffed→buffed gap at **1,555 → 3,650 DPS (×2.35)** — the right order to
-   explain a −55% median. Every crawled parse is a real group carrying buffs
-   the sim grants them none of. **The buff set is DERIVABLE** — the group is in
-   the same report — so this is buildable, not blocked.
-2. **Talents resolve only where cards resolve**, and the crawl is every class's
-   kit, not the Paladin kit the talent layer was built against.
+🆕 The one positive delta is its own bug: Mutaforma sims at **89,340 DPS**
+(+3,619%) off an attributed Absolute Zero periodic — open question
+`sim_magnitude_explosion_absolute_zero` (285148).
 
 🛑 **Do not close this by fitting a constant.** Same rule as 2c's demoted 1.31
-and 2e's deliberately-unseeded Holy residual.
+and 2e's deliberately-unseeded Holy residual. The buff layer was built and
+measured rather than fitted, and its measured insufficiency is the finding.
 
 🚨 **A method lesson from building this gate, worth more than its number.**
 Against the mid-backfill corpus the strict lag-0 filter left **one** character,

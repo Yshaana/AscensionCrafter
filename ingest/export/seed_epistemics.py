@@ -187,6 +187,14 @@ QUESTIONS = [
     ('melee_haste_displays_1_30x_ranged_spell',
      'Melee haste displays exactly 1.30x the ranged/spell value at identical rating (3.77% vs 2.90% at 29 rating) in every geared 2e export, with AND without talents, and 0.00% naked. A permanent x1.30 melee-haste display multiplier that talents do not supply. Unexplained; affects swing-timer arithmetic if real rather than cosmetic. Settle by timing actual white swings against the displayed speed.',
      'Swing-timer inputs in core/sim/swings.py', 'open', None, None, '2026-08-05'),
+
+    # -------------------------------------------------- 3b pre-flight (2026-08-06)
+    ('crawled_gate_residual_after_buff_layer',
+     'What dominates the crawled calibration residual now that the measured buff layer is DERIVED and applied? The 3a ranked-cause #1 ("buffs are modelled for the owner only", expected order x2.35) is largely FALSIFIED as the dominant stat-side mechanism: deriving each candidate\'s buff set from group boards and applying the full measured arithmetic (Kings x1.10 last, +31 Int/+27 raw SP, +62 Str/Agi, +14 AP, imbue per weapon) moves crawled sim DPS by only +0% to +11%, against misses of -35% to -99% (still 0 of 41 within tolerance). The owner\'s own x2.35 unbuffed->buffed gap must therefore route mostly through mechanisms the sim lacks per ability, not through stat arithmetic: his buffed parse is 25.1% Consecrated Holy Weapon damage (200818, no magnitude) and buffed SP feeds coefficients that out-of-catalog spells cannot carry (2e\'s missing-coefficient mechanism, which generalises to EVERY class\'s kit in the crawl). Candidate ranking for the residual: per-kit magnitude/coefficient coverage; unmodelled proc/trigger/imbue damage; APL realism for unknown kits; CP finishers scored at 0 CP; hybrid mitigation unsplit.',
+     'Phase 3 exit (the >=3-characters calibration gate)', 'open', None, None, '2026-08-06'),
+    ('sim_magnitude_explosion_absolute_zero',
+     'Mutaforma (Healing path, Bloodlord Mandokir) sims at 89,340 DPS against a logged 2,402 (+3,619%) — the only positive delta in the crawled gate, driven by Absolute Zero (285148) whose periodic component is ATTRIBUTED from trigger target 285149 at confidence=inferred. One attributed magnitude producing ~30x a real parse is a resolution error (wrong rank, wrong per-level scaling, or a periodic tick misread as per-tick-per-target), not a strong build. Locate the bad row and decide whether the bounded trigger walk needs a sanity cap or the magnitude decode is wrong.',
+     'Crawled-gate credibility; trigger-attribution trust', 'open', None, '285148', '2026-08-06'),
 ]
 
 # --------------------------------------------------------------------------

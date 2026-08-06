@@ -201,6 +201,34 @@ def main():
           and st2m.impairment_range.get("unmeasured") == "duty_cycle"
           and st2m.impairment_range["attack_power_low"]
           < st2m.impairment_range["attack_power_high"])
+    # 6b -- measured buff layer (3b pre-flight §0.3). Three properties from the
+    # 2e incremental capture, asserted against component mode: Kings multiplies
+    # LAST (flats sum first), PoI doubles buff raw SP ("items and effects"),
+    # and sheet mode refuses to double-count buffs a sheet already includes.
+    gear_b = {"chest": GearItem(item_id=1, name="t", slot="chest",
+                                stats={"intellect": 100.0, "spell_power": 100.0})}
+    spec_u = BuildSpec(character_level=60, role=Role.DPS, path="Intelligence",
+                       abilities=[], talents=[], gear=gear_b)
+    spec_b = BuildSpec(character_level=60, role=Role.DPS, path="Intelligence",
+                       abilities=[], talents=[], gear=gear_b,
+                       raid_buffs=["blessing_of_kings", "arcane_brilliance"])
+    st_u = compute_stats(spec_u, get_preset("raid_boss_st"), conv)
+    st_b = compute_stats(spec_b, get_preset("raid_boss_st"), conv)
+    check("buffs: Kings multiplies LAST over summed flats",
+          abs(st_b.intellect - (st_u.intellect + 31.0) * 1.10) < 1e-6,
+          f"unbuffed Int {st_u.intellect:.1f} -> buffed {st_b.intellect:.1f}")
+    check("buffs: PoI doubles buff raw SP (items AND effects)",
+          abs((st_b.spell_power - st_u.spell_power) - 27.0 * 2.0) < 1e-6,
+          f"SP delta {st_b.spell_power - st_u.spell_power:.1f} (raw 27 x2)")
+    spec_sheet_b = BuildSpec(character_level=60, role=Role.DPS, path="Intelligence",
+                             abilities=[], talents=[],
+                             raid_buffs=["blessing_of_kings"],
+                             stats_override={"spell_power": 500})
+    st_sb = compute_stats(spec_sheet_b, get_preset("raid_boss_st"), conv)
+    check("buffs: sheet mode refuses to double-count them",
+          abs(st_sb.spell_power - 500.0) < 1e-6
+          and any("double-count" in w for w in st_sb.warnings))
+
     # T4b replaces 2a's blanket "talents contribute nothing" warning with a
     # per-talent account. Two properties are asserted, because the failure this
     # guards is a talent silently contributing 1.0x — indistinguishable, without

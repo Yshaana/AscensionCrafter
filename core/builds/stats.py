@@ -399,6 +399,35 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
         for stat, delta in grants.items():
             setattr(cs, stat, getattr(cs, stat) + delta)
 
+        # ----- measured buffs (3b pre-flight §0.3) -------------------------
+        # Applied HERE — after gear and path flat grants, before every
+        # stat-consuming conversion — because that is the measured order:
+        # flat buff stats sum with the sheet's primaries, Kings multiplies
+        # LAST, and path AP / stat->crit conversions read the buffed values
+        # ((121 + 62) x 1.10 -> AP followed, 2e incremental capture).
+        # Raw SP / AP grants are held in `buff_extras` and folded in after the
+        # path SP chain, because Duality's amp is gear-scoped (must not touch
+        # buff SP) while PoI doubles "items and effects" (must include it).
+        buff_extras = None
+        if build_spec.raid_buffs and content.raid_buffs_available:
+            from ..sim.buffs import apply_buffs
+            n_weapons = 2 if wielding in ("dual_1h", "dual_2h") else 1
+            primaries = {s: getattr(cs, s) for s in
+                         ("strength", "agility", "stamina", "intellect", "spirit")}
+            buffed, buff_extras = apply_buffs(
+                primaries, build_spec.raid_buffs, weapons=n_weapons,
+                warnings=warnings)
+            for stat, v in buffed.items():
+                setattr(cs, stat, v)
+            warnings.append(
+                "measured buffs applied (component mode): "
+                + ", ".join(build_spec.raid_buffs)
+                + " — buffs outside core.sim.buffs.MEASURED_BUFFS are NOT "
+                  "modelled and not guessed")
+        elif build_spec.raid_buffs and not content.raid_buffs_available:
+            warnings.append(
+                "raid_buffs ignored: content profile has raid_buffs_available=False")
+
         # path AP conversions (primer §3)
         if build_spec.path == "Strength":
             cs.attack_power += cs.strength          # AP = 100% of Strength
@@ -464,6 +493,18 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
                 "rating, Agi 28 -> +8 spell crit rating; n=2, approximate)")
         elif build_spec.path == "Intelligence":
             cs.spell_power *= 2.0    # "SP from items and effects DOUBLED"
+
+        # buff raw SP/AP grants (3b pre-flight §0.3), after the path SP chain:
+        # Duality's amp is scoped to GEAR SP so it must never touch these; PoI
+        # doubles "items and effects", so buff SP doubles explicitly here.
+        if buff_extras:
+            sp_mult = 2.0 if build_spec.path == "Intelligence" else 1.0
+            cs.spell_power += buff_extras["raw_spell_power"] * sp_mult
+            for school, v in buff_extras["raw_spell_power_by_school"].items():
+                cs.spell_power_by_school[school] = (
+                    cs.spell_power_by_school.get(school, 0.0) + v * sp_mult)
+            cs.attack_power += buff_extras["attack_power"]
+            cs.ranged_attack_power += buff_extras["ranged_attack_power"]
 
         # base-game stat->crit (ascension_confirmed measured rates)
         cs.melee_crit_pct += cs.agility / AGI_PER_MELEE_CRIT_PCT
@@ -532,11 +573,10 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
 
     if build_spec.consumables:
         warnings.append(f"{len(build_spec.consumables)} consumables not modelled")
-    if build_spec.raid_buffs and content.raid_buffs_available:
-        warnings.append(f"{len(build_spec.raid_buffs)} raid buffs not modelled")
-    elif build_spec.raid_buffs and not content.raid_buffs_available:
+    if build_spec.raid_buffs and build_spec.stats_override:
         warnings.append(
-            "raid_buffs ignored: content profile has raid_buffs_available=False")
+            "raid_buffs ignored in sheet mode: a character sheet already "
+            "includes active buffs — applying them again would double-count")
 
     # ----- system impairments: advisory in BOTH modes -----------------------
     # A build using an impaired system must say so whichever reality it models —

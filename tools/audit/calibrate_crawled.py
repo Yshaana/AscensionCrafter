@@ -36,6 +36,13 @@ the gate could be passed without meaning anything:
 3. **A character on an impaired system is reported, never silently included.**
    Path of Duality's parses are excluded from absolute calibration by the 2d
    advisory; they are counted and named, not dropped quietly.
+4. **Buffs are DERIVED, never fitted** (3b pre-flight §0.3). A measured buff
+   applies only when a participant in the same capture scope holds the
+   granting card on a linked board (`core/builds/group_buffs.py`); every
+   character is also simmed unbuffed so the layer's contribution is visible.
+   The derivation is an explicit lower bound — unlinked boards and unmeasured
+   buffs contribute nothing, and a remaining miss is information about the
+   next missing mechanism, not a licence to scale this one.
 
 The output is a per-mechanism report, per the tolerance file's own rule that a
 pass/fail number alone is worth very little.
@@ -51,6 +58,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import config  # noqa: E402
 from config import BUILDS_DB_PATH, DATA_DERIVED, DB_PATH  # noqa: E402
 from core.builds.gear import normalise_stats  # noqa: E402
+from core.builds.group_buffs import derive_buffs  # noqa: E402
 from core.builds.spec import BuildSpec, GearItem, SlottedCard  # noqa: E402
 from core.builds.stats import compute_stats  # noqa: E402
 from core.db.connection import connect  # noqa: E402
@@ -89,7 +97,7 @@ def candidates(conn, limit, max_lag_hours=0.0):
     return conn.execute("""
         SELECT ep.character_id, c.name, ep.snapshot_id, ep.dps, ep.path,
                e.boss_name, e.content_type, e.duration_seconds, e.encounter_id,
-               ep.snapshot_lag_hours, c.level,
+               ep.snapshot_lag_hours, c.level, ep.scope_id,
                MAX(e.duration_seconds) AS _longest
         FROM encounter_performance ep
         JOIN capture_scopes cs ON cs.scope_id = ep.scope_id
@@ -166,7 +174,7 @@ def main():
 
     results, excluded, seen_chars = [], [], set()
     for (cid, cname, snapshot_id, dps, path, boss, ctype, dur, enc_id,
-         lag, level, _longest) in rows:
+         lag, level, scope_id, _longest) in rows:
         if cid in seen_chars:
             continue          # one encounter per character — no double counting
         preset = CONTENT_PRESET.get(ctype)
@@ -188,11 +196,21 @@ def main():
                              "calibration by the 2d bug advisory (AP cycles "
                              "mid-parse)"))
             continue
+        # 3b pre-flight §0.3: the buff layer, DERIVED from the group in the
+        # same capture scope (never guessed, never fitted). The unbuffed sim
+        # runs alongside so the layer's effect is visible per character.
+        buff_keys, buff_prov = derive_buffs(bdb, scope_id, cid, snapshot_id)
         try:
             spec = build_spec_for(bdb, snapshot_id, token)
-            cs = compute_stats(spec, content, conv, conn=asc)
-            apl = generate_apl(asc, spec, content, cs)
-            res = fast_sim(asc, spec, content, cs, apl=apl)
+            cs0 = compute_stats(spec, content, conv, conn=asc)
+            apl = generate_apl(asc, spec, content, cs0)
+            res0 = fast_sim(asc, spec, content, cs0, apl=apl)
+            spec.raid_buffs = buff_keys
+            if buff_keys:
+                cs = compute_stats(spec, content, conv, conn=asc)
+                res = fast_sim(asc, spec, content, cs, apl=apl)
+            else:
+                cs, res = cs0, res0
         except Exception as e:                      # noqa: BLE001 — reported
             excluded.append((cid, cname, f"sim error: {type(e).__name__}: {e}"))
             continue
@@ -204,6 +222,9 @@ def main():
             "content_type": ctype, "sim_preset": preset,
             "duration_s": dur, "logged_dps": dps, "snapshot_lag_hours": lag,
             "sim_dps": sim_dps, "delta_pct": delta,
+            "sim_dps_unbuffed": res0.primary_value,
+            "buffs_applied": buff_keys,
+            "buff_provenance": buff_prov,
             "within_tolerance": abs(delta) <= AGGREGATE_TOLERANCE_PCT,
             "abilities": len(spec.abilities), "talents": len(spec.talents),
             "gear_pieces": len(spec.gear),
@@ -243,15 +264,22 @@ def main():
         f"of {len(results)} deltas are negative.** A one-sided distribution is a "
         "missing multiplicative layer, not noise.",
         "",
-        "| character | path | boss | build lag (h) | logged DPS | sim DPS | delta | within ±20% |",
-        "|---|---|---|---:|---:|---:|---:|---|",
+        "Buffs are DERIVED from the group in the same capture scope — a buff "
+        "applies only when a participant's linked board holds the granting "
+        "card (`core/builds/group_buffs.py`). This is a lower bound: unlinked "
+        "boards and unmeasured buffs contribute nothing, and nothing is fitted.",
+        "",
+        "| character | path | boss | build lag (h) | logged DPS | sim unbuffed | sim buffed | delta | buffs | within ±20% |",
+        "|---|---|---|---:|---:|---:|---:|---:|---|---|",
     ]
     for r in sorted(results, key=lambda r: abs(r["delta_pct"] or 1e9)):
         lines.append(
             f"| {r['name']} ({r['character_id']}) | {r['path']} | {r['boss']} "
             f"| {r['snapshot_lag_hours']:.1f} "
-            f"| {r['logged_dps']:,.0f} | {r['sim_dps']:,.0f} "
-            f"| {r['delta_pct']:+.1f}% | {'yes' if r['within_tolerance'] else 'NO'} |")
+            f"| {r['logged_dps']:,.0f} | {r['sim_dps_unbuffed']:,.0f} "
+            f"| {r['sim_dps']:,.0f} "
+            f"| {r['delta_pct']:+.1f}% | {len(r['buffs_applied'])} "
+            f"| {'yes' if r['within_tolerance'] else 'NO'} |")
 
     lines += ["", "## Excluded, and why", ""]
     for cid, cname, why in excluded[:40]:
@@ -268,9 +296,25 @@ def main():
             f"{r['abilities']} abilities / {r['talents']} talents / "
             f"{r['gear_pieces']} gear pieces resolved",
             f"- logged {r['logged_dps']:,.0f} vs sim {r['sim_dps']:,.0f} "
-            f"({r['delta_pct']:+.1f}%)",
+            f"({r['delta_pct']:+.1f}%; unbuffed sim {r['sim_dps_unbuffed']:,.0f})",
             f"- sim's top abilities: {', '.join(r['top_sim_abilities'])}",
         ]
+        prov = r.get("buff_provenance") or {}
+        lines.append(
+            f"- buffs derived from group: "
+            f"{', '.join(r['buffs_applied']) if r['buffs_applied'] else 'none'} "
+            f"({prov.get('participants_with_board', 0)} of "
+            f"{prov.get('participants', 0)} scope participants have a linked "
+            f"board — derivation is a lower bound)")
+        for key, grant in (prov.get("applied") or {}).items():
+            names = ", ".join(f"{n} (lag {lag:.0f}h)" if lag else n
+                              for n, _cid, lag in grant["granted_by"][:4])
+            note = f" ⚠ {grant['assumption']}" if grant.get("assumption") else ""
+            lines.append(f"  - {key}: held by {names}{note}")
+        if prov.get("not_derivable"):
+            lines.append(
+                f"  - not derivable (no visible holder): "
+                f"{', '.join(prov['not_derivable'])}")
         for w in r["warnings"]:
             lines.append(f"  - ⚠ {w}")
         lines.append("")
