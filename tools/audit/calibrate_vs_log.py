@@ -401,6 +401,31 @@ def pair_ratios(conn, names, cs, content, level=60):
     return out, resolved
 
 
+def closing_note(stats):
+    """The run's closing NOTE, formatted from the RESOLVED stats. (`3f` F5)
+
+    🛑 This used to read `args.ap / args.sp / args.weapon_min / args.weapon_max`
+    — the OVERRIDE FLAGS, not the resolved `stats` dict the rest of the tool
+    uses 275 lines earlier. On the `--stat-block`-only path every one of those
+    is `None`, so the line raised `TypeError: unsupported format string passed
+    to NoneType.__format__` unconditionally, immediately before `return 0`.
+    **`3e` C1's own headline invocation therefore did not complete** — which
+    means C5's re-derivation was either run with the flags as well as the block
+    (leaving the hand-transcription channel C1 exists to remove in circuit for
+    that measurement) or run past a swallowed traceback.
+
+    Extracted into its own function so `tools/audit/check_refusals.py` can call
+    it with every flag unset, which is the state that used to crash.
+    """
+    return (f"\nNOTE Ratios assume the stats in use (AP {stats['ap']:g} / SP "
+            f"{stats['sp']:g} / weapon "
+            f"{stats['weapon_min']:g}-{stats['weapon_max']:g} "
+            f"@ {stats['weapon_speed']:g}s).\n"
+            "  A multiplier that MOVES between logs is buff/gear state, not a "
+            "talent constant - trust the\n  within-school AGREEMENT (do the "
+            "abilities of one school track each other?) over the absolute value.")
+
+
 def _log_started_at(path):
     """When did this combat log start? (3e C1)
 
@@ -410,6 +435,14 @@ def _log_started_at(path):
     full date appears, and a year inferred from "now" would be wrong every
     January. Returns None if the name does not match, and the caller then says
     it could not check rather than assuming agreement.
+
+    🛑 `3f` F4 — RETURNING None IS NOT A NO-OP HERE. It disables
+    `session_mismatch`, which `2e` proved is the single most valuable check in
+    this tool. `session_mismatch` now SAYS SO rather than staying silent, but
+    this function still has to be total: `2026-02-30-19.16.56 …` matches the
+    regex and then raises `ValueError: day is out of range for month`, which
+    used to kill the whole run over a filename. An impossible date is an
+    unparseable name, not a crash.
     """
     import re as _re
     m = _re.match(r"(\d{4})-(\d{2})-(\d{2})-(\d{2})\.(\d{2})\.(\d{2})",
@@ -417,7 +450,10 @@ def _log_started_at(path):
     if not m:
         return None
     from datetime import datetime as _dt
-    return _dt(*(int(g) for g in m.groups()))
+    try:
+        return _dt(*(int(g) for g in m.groups()))
+    except ValueError:
+        return None
 
 
 def resolve_stat_inputs(args):
@@ -574,7 +610,14 @@ def main():
 
     paths = [Path(p) for p in args.logs]
     if args.all_logs:
-        paths = sorted(Path(args.log_dir).glob("* WoWCombatLog.txt"))
+        # 3f — the glob was `"* WoWCombatLog.txt"` (space) and the 2e capture
+        # folder writes `2026-08-05-22.42.20_WoWCombatLog.txt` (UNDERSCORE), so
+        # `--all-logs` silently matched NOTHING there and reported "no logs
+        # given" against a folder holding four. Both separators are real: the
+        # client writes a space, and at least one capture was renamed. Matching
+        # on the suffix alone covers both without inventing a third convention.
+        paths = sorted(p for p in Path(args.log_dir).glob("*WoWCombatLog.txt")
+                       if p.name != "WoWCombatLog.txt")
     if not paths:
         print("no logs given; pass paths or --all-logs")
         return 1
@@ -885,11 +928,7 @@ def main():
               "to move 1.41x between these sessions. Do NOT close this\n     by "
               "fitting a constant; see holy_holystrike_ratio_weapon_input_confound.")
 
-    print(f"\nNOTE Ratios assume the stats passed (AP {args.ap:g} / SP "
-          f"{args.sp:g} / weapon {args.weapon_min:g}-{args.weapon_max:g}).\n"
-          "  A multiplier that MOVES between logs is buff/gear state, not a "
-          "talent constant - trust the\n  within-school AGREEMENT (do the "
-          "abilities of one school track each other?) over the absolute value.")
+    print(closing_note(stats))
     return 0
 
 

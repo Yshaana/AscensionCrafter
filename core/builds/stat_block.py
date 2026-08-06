@@ -188,6 +188,16 @@ def session_mismatch(block, log_started_at, tolerance_hours=6.0):
     Neither timestamp carries a zone; both are client local time on one machine,
     which is what makes the comparison meaningful and also what makes it useless
     against anything else.
+
+    🛑 **THREE OUTCOMES, AND ONLY ONE OF THEM IS SILENCE.** `None` means
+    "checked, and they agree" — it is the caller's stay-silent value
+    (`calibrate_vs_log.py:620-625`). Every case where the check could not RUN
+    returns a string saying so. Until `3f` F4 the log side returned `None`,
+    i.e. the all-clear, whenever the log's filename carried no parseable
+    timestamp — and `WoWCombatLog.txt`, `06-08-2026-19.16.56 …` (EU day-first)
+    and `2026-08-06 19-16-56 …` all do. A guard that reports "fine" when it
+    failed to test is worse than no guard, because it manufactures confidence
+    (primer §5, `3b`'s "is the game closed?" check).
     """
     exported = block.get("exported_at")
     if exported is None:
@@ -197,7 +207,15 @@ def session_mismatch(block, log_started_at, tolerance_hours=6.0):
                 "stale block was the whole calibration residual — neither is "
                 "detectable on an untimestamped block")
     if log_started_at is None:
-        return None
+        return (f"⚠ THE LOG'S SESSION CANNOT BE DETERMINED, so this block "
+                f"(exported {exported:%Y-%m-%d %H:%M}) CANNOT be checked "
+                f"against it. The client writes "
+                f"`YYYY-MM-DD-HH.MM.SS WoWCombatLog.txt` and only the FILENAME "
+                f"carries a year — in-file timestamps are month/day. A renamed "
+                f"or copied log therefore disables this check silently unless "
+                f"it says so, which is what this line is. Treat the pairing as "
+                f"UNVERIFIED: `2e` found a stale block was the entire "
+                f"calibration residual for weapon-dominated abilities")
     delta = abs((exported - log_started_at).total_seconds()) / 3600.0
     if delta > tolerance_hours:
         return (f"🛑 STAT BLOCK AND LOG ARE {delta:.1f} HOURS APART "

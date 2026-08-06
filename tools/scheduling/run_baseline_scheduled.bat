@@ -40,6 +40,21 @@ echo ==== Phase 1 baseline snapshot (top 50 characters + leaderboards) ====
 py tools\scrapers\baseline_phase1.py --top 50
 set EXITCODE=!ERRORLEVEL!
 
+rem 3f F0 - exit 2 is a REFUSAL, not a failure, and the difference matters:
+rem "will retry" is wrong advice for a phase flip. The refusal banner on stderr
+rem says the capture is no longer possible; re-running would only produce a
+rem POST-flip snapshot in a folder named baseline_phase1.
+if "!EXITCODE!"=="2" (
+    echo.
+    echo *********************************************************
+    echo *  PHASE ASSERTION REFUSED THE BASELINE - DO NOT RETRY   *
+    echo *  Read the banner above. If the flip has happened, the  *
+    echo *  pre-flip baseline is gone and the newest usable one   *
+    echo *  is whatever is already committed. Reports persist.    *
+    echo *********************************************************
+    exit /b 2
+)
+
 if not "!EXITCODE!"=="0" (
     echo.
     echo *********************************************************
