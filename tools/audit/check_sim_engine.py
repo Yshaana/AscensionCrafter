@@ -106,6 +106,31 @@ EXPECTED_FAILURES = {
         "NOT changed and the gate did not move. The four starved entries "
         "(25286, 275871, 276076, 998107) are the same one-spam-button-absorbs-"
         "the-budget shape as the other two fixtures",
+
+    # 🚨 3f F9 — THE FIRST ASSERTIONS IN THIS HARNESS THAT COMPARE A MODELLED
+    # MAGNITUDE TO A MEASURED ONE. Both fail, both were EXPECTED to fail, and
+    # the tolerance was committed one commit BEFORE they were run (eed2ec1).
+    # 🛑 DO NOT WIDEN THE TOLERANCE TO CLOSE THESE. They are the instrument.
+    "[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the "
+    "measured capture":
+        "ENGINE_BUGS.md E13 + E14, and the size is the finding: modelled "
+        "90,202 DPS vs a measured 1,382 — +6,427%. It is NOT diffuse error: "
+        "TWO defects supply 99.6% of the sim's total. Absolute Zero alone is "
+        "6.24M of 6.77M damage (E14, 12,000 ticks per cast) and the melee auto "
+        "is 0.50M (E13, a percent-vs-fraction unit error, ~78x). Strip both "
+        "and the fixture models ~373 DPS against 1,382, i.e. -73% — the "
+        "ordinary under-production family. FIXING EITHER MOVES THE GATE, so "
+        "both are registered here and left alone per 3f's invariant",
+    "[frost_mage] every well-sampled ability's modelled per-cast mean is "
+    "within ±25% of its measured non-crit mean":
+        "The ordinary under-production, now MEASURED per ability against a "
+        "real capture for the first time: Frostbolt -34%, Ray of Frost -33%, "
+        "Ice Lance -60%, Frozen Orb within, Icicle (830445) not modelled at "
+        "all. This is the same ~64% slice accuracy the gate reports, "
+        "reproduced on a single character with a verified same-session stat "
+        "block — so it corroborates the cohort figure rather than restating "
+        "it. This entry is the one a future modelling session should be "
+        "trying to close",
 }
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
@@ -598,6 +623,73 @@ def _filler_ids(conn, apl, level):
             and _useful_cast_interval(abilities[s])[0] <= 0]
 
 
+def check_ground_truth(kind, bd, f, m):
+    """`3f` F9 — compare a MODELLED magnitude to a MEASURED one.
+
+    🚨 Until this existed, **no assertion anywhere in the harness compared a
+    modelled magnitude to a measured one, on any of the three fixtures.** They
+    could catch a crash and a structural property and nothing else — which is
+    the exact limitation `ADDENDUM_3D_to_3E_mage_capture.md:141-142` invoked to
+    justify preferring a real capture, and then the real capture arrived
+    carrying inputs only.
+
+    🛑 **THE TOLERANCE IS PRE-REGISTERED IN THE FIXTURE AND IS NOT READ FROM
+    HERE.** It was committed one commit before this assertion ran (`eed2ec1`),
+    for a reason stated in the fixture, and it is expected to FAIL. Do not
+    widen it to make this green: that is the failure this project has spent
+    three sessions building machinery against. If it is ever widened, the
+    widening is dated and reasoned in the fixture, in its own commit.
+
+    A fixture with no `ground_truth` is SKIPPED, not passed — the two crawled
+    boards carry `ground_truth_absent` explaining why no measured magnitude
+    exists for them, and a silent pass there would be the vacuity this session
+    is about.
+
+    MUTATION THAT MAKES THIS FAIL DIFFERENTLY: scale `fast_sim`'s total by 2.
+    The DPS assertion's delta moves by +100 points. It is already red, so the
+    proof that it BINDS is that its reported delta tracks the model rather than
+    being a constant — which is why the number is printed, not just a verdict.
+    """
+    gt = bd.get("ground_truth")
+    if not gt:
+        if bd.get("ground_truth_absent"):
+            print(f"SKIP  [{kind}] ground truth: "
+                  f"{bd['ground_truth_absent']['status']} — "
+                  f"{bd['ground_truth_absent']['_what_would_close_it'][:88]}...")
+        return
+
+    tol = gt["tolerance_pct"]
+    measured = gt["player_dps"]
+    # The sim models the PLAYER only — pets are a named, unmodelled gap (E3),
+    # so comparing against the pet-inclusive figure would score a known
+    # omission twice.
+    modelled = f.primary_value
+    delta = 100.0 * (modelled / measured - 1) if measured else None
+    gcheck(f"[{kind}] modelled DPS is within the PRE-REGISTERED ±{tol:g}% of "
+          f"the measured capture",
+          delta is not None and abs(delta) <= tol,
+          f"modelled {modelled:.0f} vs measured {measured:.0f} DPS "
+          f"({delta:+.1f}%, tolerance ±{tol:g}% registered at {gt['_evidence_ref']}); "
+          f"pet excluded from both sides ({gt['pet_share_pct']:.1f}% of the "
+          f"capture, an unmodelled gap by E3)")
+
+    rows = [r for r in gt["per_ability_noncrit_mean"]
+            if r["n"] >= gt["_per_ability_min_n"]]
+    hit, miss, absent = [], [], []
+    for r in rows:
+        rec = f.per_ability.get(r["spell_id"]) or f.per_ability.get(r["card_spell_id"])
+        if not rec or not rec.get("mean_per_cast"):
+            absent.append(f"{r['name']}({r['spell_id']})")
+            continue
+        d = 100.0 * (rec["mean_per_cast"] / r["mean"] - 1)
+        (hit if abs(d) <= tol else miss).append(f"{r['name']} {d:+.0f}%")
+    gcheck(f"[{kind}] every well-sampled ability's modelled per-cast mean is "
+          f"within ±{tol:g}% of its measured non-crit mean",
+          bool(rows) and not miss and not absent,
+          f"{len(hit)} within, {len(miss)} outside, {len(absent)} not modelled "
+          f"at all. outside: {miss or '-'}; unmodelled: {absent or '-'}")
+
+
 def check_nonpaladin_fixtures(conn, ct, conv):
     """Generality checks. See §9 above — these are MEANT to fail today."""
     from core.sim.apl_gen import generate_apl
@@ -884,6 +976,8 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                   f"{pet_warned}. The corpus dps this is calibrated against "
                   f"INCLUDES pet damage, and pet damage is NOT modelled — "
                   f"creature stats are not in any client DBC")
+
+        check_ground_truth(kind, bd, f, m)
 
 
 if __name__ == "__main__":

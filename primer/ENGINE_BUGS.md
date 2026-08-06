@@ -477,6 +477,94 @@ data is there; the sim simply never asks for it.
 
 ---
 
+## E13 — every white swing is ~78x over: `probabilities()` returns PERCENTS, `expected_swing` multiplies by them as FRACTIONS 🆕🚨
+
+| | |
+|---|---|
+| **Check** | `[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the measured capture` (registered XFAIL) |
+| **Where** | `core/sim/swings.py :: expected_swing` — `mean = base * (p["hit"] + p["crit"]*crit_mult + p["glancing"]*glance_mult)`, against `core/sim/combat_engine.py :: white_melee_table(...).probabilities()` |
+| **Found by** | `3f` F9, by the first assertion in this project's history that compared a modelled magnitude to a measured one |
+
+**Measured, on the Frost Mage fixture:**
+
+```
+weapon 227.7-253.7            -> base (min+max)/2   =    240.7
+armor 3731 @ level 60         -> x 0.6119           =    147.3
+probabilities() returns         {miss 4.4, dodge 6.5, parry 14.0,
+                                 glancing 32.6, block 5.0,
+                                 crit 16.63, hit 20.87}   SUM = 100.0
+expected_swing computes         147.3 x (20.87 + 16.63x2 + 32.6x0.75)
+                              -> 11,573.6 per swing
+```
+
+**A probability table that sums to 100 is a PERCENTAGE table.** Treating it as
+fractions multiplies every white swing by ~78. `expected_swing` returns
+**11,573.6** for a weapon whose average hit is 240.7.
+
+🚨 **THIS IS INSIDE THE CALIBRATION GATE, AND IT IS NOT A CORNER CASE.**
+**24 of the 36 scored cohort characters carry a melee auto in their top 5 sim
+abilities**, and one of them is **`Ari` (delta −9.7%, `Melee auto (MH)` its
+single largest modelled source) — one of the gate's TWO qualified passes.** So
+at least one qualified pass is standing on a 78x-inflated auto-attack. That is
+compensating error of a size this project has not previously seen, and the
+`3e` holdout result — *"the residual is not in the mechanisms"* — should be
+re-read in its light: the residual may be a large positive error cancelling a
+large negative one, which an aggregate criterion is structurally blind to.
+
+🛑 **DELIBERATELY NOT FIXED IN `3f`.** The session's invariant is that no
+commit moves the gate, and this fix moves it enormously — in the direction of
+*more* under-production, since it removes damage from 24 of 36 characters.
+It belongs in a modelling session with a before/after pair, exactly as `3d`'s
+D3 discipline requires and as E9–E12 are handled below. **It is the first thing
+that session should do**, because every other calibration number is measured
+against a total that contains it.
+
+⚠ Two things to check when it IS fixed, neither assumed here: whether the
+`block` row should reduce damage rather than being dropped, and whether any
+other consumer of `probabilities()` makes the same unit assumption
+(`grep -rn "probabilities()" core/`).
+
+---
+
+## E14 — a periodic component with a 0.001s tick scores 12,000 ticks per cast 🆕🚨
+
+| | |
+|---|---|
+| **Check** | `[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the measured capture` (registered XFAIL, shared with E13) |
+| **Where** | `core/sim/ability_model.py :: expected_cast` — a periodic event is scored as `duration / tick_interval` ticks, with the duration taken from the CARD and the tick from the TRIGGERED spell |
+| **Found by** | `3f` F9 |
+
+**Measured, on the Frost Mage fixture:**
+
+```
+285148 Absolute Zero   duration_seconds = 12.0    (the card)
+285149 Absolute Zero   tick_interval_seconds = 0.001, duration_seconds = 0.001
+                       (the triggered spell the periodic event resolves through)
+-> 12.0 / 0.001 = 12,000 ticks scored for ONE cast
+-> 2,217,786 damage per cast; 2.8 casts = 6,237,523 of the fixture's
+   6,765,160 total damage (92.2%)
+```
+
+Measured ground truth for the same ability: **270.5 per non-crit hit** (n=6).
+
+**The 0.001 is a decode artifact, not a game value.** `EffectAmplitude` of 1
+(milliseconds) becomes 0.001 s, and the record's own `duration_seconds` is
+*also* 0.001 — i.e. one application, not a 12-second channel of millisecond
+ticks. The bug is combining a duration from one spell with a tick interval
+from another and dividing.
+
+🔬 **This is almost certainly `sim_magnitude_explosion_absolute_zero`**, the
+open question `PLAN_3C` raised against Mutaforma's +3,619%, now with a
+mechanism and a number rather than a symptom. Worth re-checking that question's
+other members against this cause when it is fixed.
+
+🛑 **NOT FIXED IN `3f`** — same reason as E13. ⚠ Any fix must guard the general
+case, not special-case this spell: a periodic event whose tick interval is
+implausibly small (or whose tick and duration come from different spells)
+should refuse and warn, per rule 2, rather than produce a number.
+
+---
+
 ## E6 — `fast_sim`'s first filler consumes the entire GCD budget — ✅ FIXED (`3e` B1)
 
 > ### ✅ Closed 2026-08-06, session `3e` Block B1. The record below is what was found; this box is what happened.
