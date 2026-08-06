@@ -29,6 +29,7 @@ DBC_ASCENSION_EXTRACT_JSON = DBC_DIR / "dbc-ascension-extract.json"
 DATA_DERIVED = REPO / "data" / "derived"
 DB_PATH = DATA_DERIVED / "ascension.db"              # the one Phase 1 database
 SCOUTED_DB_PATH = DATA_DERIVED / "scouted_builds.db"  # separate until Phase 3 folds it in
+BUILDS_DB_PATH = DATA_DERIVED / "builds.db"           # Phase 3 T1: normalised crawl corpus
 
 # --- docs ---
 PRIMER_DIR = REPO / "primer"

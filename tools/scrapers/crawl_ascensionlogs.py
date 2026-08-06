@@ -30,6 +30,14 @@ Design decisions (session 0b, 2026-08-04 — see primer/Session_2026-08-04_crawl
   present in the encounters list, and mechanics inference pools per boss anyway.
 - Roles: the rankings endpoint accepts role ∈ {tank, dps, tanks-and-dps, support}.
   "support" is the healer role — this resolves INDEX_GUIDE v7's role=healer quirk.
+  All three non-redundant roles are walked (`tanks-and-dps` is a union of two we
+  already take), so Phase 3 T8's "capture all roles" was already satisfied here;
+  what T8 actually added is the re-verification sweep below.
+- Re-verification (Phase 3 T8, 2026-08-06): discovery is incremental, so a
+  character who respecs and stops parsing stays frozen at their old build. Each
+  run additionally re-pulls up to REVERIFY_PER_RUN known-but-not-seen-today
+  characters, oldest capture first. Content-hash dedupe makes an unchanged build
+  cost one request and zero bytes.
 - character_spell_healing EXISTS (resolves a Phase 0 Task 2 open question) and is
   captured, as are both directions of character_damage_taken_abilities
   (participantType=enemies → avoidance of player attacks; friendlies → damage the
@@ -101,6 +109,18 @@ ROLES = ["dps", "tank", "support"]          # support = healers (verified 2026-0
 TAIL_404_LIMIT = 20                          # consecutive missing report IDs before stopping
 BOSS_SINGLE_LIMIT = 40                       # >this many boss encounters -> group by boss_id
 RESCOUT_HOURS = 20                           # re-pull a character's armory if older than this
+
+# Phase 3 T8 re-verification (owner approved 2026-08-06). Discovery is
+# incremental: a character is re-pulled only when they turn up in that day's
+# leaderboards or reports. Someone who respecs and then stops parsing is
+# therefore frozen in the corpus at their old build forever — the exact
+# "incremental-only misses changes to characters already seen" gap T8 names.
+# So: a slow rolling sweep of KNOWN characters who did not appear this run,
+# oldest-capture-first, hard-capped per run. Content-hash dedupe already means
+# an unchanged build costs one request and writes nothing, so the cost is
+# REVERIFY_PER_RUN requests/day, not a second full crawl.
+REVERIFY_AFTER_DAYS = 7                      # a known character is stale after this
+REVERIFY_PER_RUN = 40                        # hard cap on extra armory pulls per run
 ROTATE_BYTES = 40 * 1024 * 1024              # rotate a .jsonl.gz at 40 MB (GitHub 100 MB blob cap)
 
 # --- module state ----------------------------------------------------------
@@ -453,6 +473,38 @@ def crawl_reports(writers, scan_log, seen_characters, max_reports=None):
     return crawled
 
 
+def queue_reverification(scan_log, seen_characters, limit=REVERIFY_PER_RUN,
+                         after_days=REVERIFY_AFTER_DAYS):
+    """Add stale KNOWN characters (not seen this run) to the capture queue.
+
+    Oldest capture first, so the sweep rolls through the whole population
+    rather than re-checking the same few. Returns the number queued.
+    """
+    now = datetime.now(timezone.utc)
+    candidates = []
+    for cid, info in (scan_log.get("characters") or {}).items():
+        if cid in seen_characters:
+            continue
+        last = info.get("last_armory_at")
+        if not last:
+            candidates.append((None, cid, info.get("name")))
+            continue
+        try:
+            age_days = (now - datetime.fromisoformat(last)).total_seconds() / 86400
+        except ValueError:
+            continue
+        if age_days >= after_days:
+            candidates.append((last, cid, info.get("name")))
+    # None-sorts-first: never-captured characters go before merely stale ones
+    candidates.sort(key=lambda c: (c[0] is not None, c[0] or ""))
+    for _last, cid, name in candidates[:limit]:
+        seen_characters[cid] = name
+    if candidates:
+        print(f"[reverify] {min(len(candidates), limit)} of {len(candidates)} stale "
+              f"known character(s) queued (>= {after_days}d since last capture)")
+    return min(len(candidates), limit)
+
+
 def crawl_characters(writers, scan_log, seen_characters, max_armory):
     """Armory + capture history + primary-stat for new/stale characters seen this run
     (plus anything deferred by --max-armory on a previous run)."""
@@ -615,6 +667,11 @@ def main():
                     help="cap armory pulls this run (default 400)")
     ap.add_argument("--delay", type=float, default=DELAY,
                     help=f"seconds between requests (default {DELAY})")
+    ap.add_argument("--reverify", type=int, nargs="?", const=REVERIFY_PER_RUN,
+                    default=REVERIFY_PER_RUN, metavar="N",
+                    help=f"re-check up to N known characters not seen this run, "
+                         f"oldest capture first, to catch respecs "
+                         f"(default {REVERIFY_PER_RUN}; 0 disables)")
     ap.add_argument("--no-push", action="store_true", help="skip git commit/push")
     ap.add_argument("--recrawl-report", type=int, metavar="ID", action="append",
                     help="re-fetch one report's tier-2 data (repeatable). This is the "
@@ -680,6 +737,10 @@ def main():
     crawl_leaderboards(writers, active_phases, seen_characters)
     reports_before = set(scan_log.get("reports", {}))
     new_reports = crawl_reports(writers, scan_log, seen_characters, args.max_reports)
+    reverified = 0
+    if args.reverify:
+        reverified = queue_reverification(scan_log, seen_characters,
+                                          limit=args.reverify)
     armory_pulls = crawl_characters(writers, scan_log, seen_characters, args.max_armory)
 
     new_report_ids = [int(r) for r in set(scan_log.get("reports", {})) - reports_before]
@@ -699,6 +760,9 @@ def main():
     print(f"  HTTP requests:    {STATS['requests']} ({STATS['retries']} retries)")
     print(f"  new reports:      {new_reports}")
     print(f"  armory records:   {armory_pulls} written (changed only — unchanged builds skipped)")
+    print(f"  re-verified:      {reverified} stale known character(s) queued "
+          f"(respec sweep)" if reverified else
+          "  re-verified:      0 (nothing stale, or --reverify 0)")
     print(f"  records written:  " + ", ".join(f"{n}={w.count}" for n, w in writers.items() if w.count))
     print(f"  output size:      {total_bytes/1e6:.1f} MB in {date_dir}")
     print(f"    tier 1 (committed):  {t1/1e6:.1f} MB")

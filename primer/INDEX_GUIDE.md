@@ -1,3 +1,64 @@
+# Ascension Spell/Card Index — Guide (v16)
+
+**v16 changelog (2026-08-06, session `3a`).** A THIRD database exists. No table
+in `ascension.db` changed; the 20-step rebuild is unchanged.
+
+- 🆕 **`data/derived/builds.db`** — the normalised crawl corpus (Phase 3 T1),
+  built by `py ingest/logs_gg/build_builds_db.py` from the committed NDJSON in
+  `data/source/crawl/`. Gitignored and rebuildable, same rule as the other two.
+  **Three databases now, and they stay separate:** `ascension.db` (spells and
+  cards), `scouted_builds.db` (hand-scouted characters), `builds.db` (the
+  crawl corpus). Never merge them.
+- 🚨 **Performance rows key on `scope_id`, not `encounter_id`.** The per-ability
+  endpoints aggregate over whatever `encounterIds` the crawler passed and the
+  rows carry no encounter id, so an ability row's real granularity is the
+  **capture scope**. `capture_scopes.encounter_id` is set only for
+  `boss_single` scopes (exactly one encounter) and is NULL for grind
+  `boss_group:*` and `trash_bundle` scopes. Joining ability rows to encounters
+  directly fabricates precision the source never had.
+- 🚨 **Avoidance is in `ability_avoidance`, keyed by the ENEMY
+  (`target_character_id`), with no attacker id** — that is the endpoint's own
+  shape. `ability_performance`'s miss/dodge/parry columns exist but stay NULL
+  for crawled data. Pool avoidance per SPELL, never per player.
+- ⚠ **`character_snapshots.gear_stats_json` is GEAR-ONLY** — the crawl's
+  `stats_summary` carries an explicit `_gearOnly` key and shows a level-60
+  character with Strength 13. It is not a character sheet. Named to make that
+  hard to forget (session `1x` found the trap).
+- ⚠ **No `patch_id`/`phase_id` columns.** Those are rebuild-scoped
+  autoincrements in `ascension.db`; a durable corpus must not reference them
+  (the same reason `open_questions` keys on a slug). `patch_date` and
+  `occurred_at` are stored; resolve by date at query time.
+- 🆕 **`items`** (1,680 rows / 1,313 with stat blocks) is built from
+  `snapshot_gear`, **not from the client**: `Item.dbc` carries no stats and
+  `ItemStat.dbc` was disproved as a stat source against 1,198 ground-truth
+  items. `provenance='crawl_resolved_bisbeard'` — the blocks are BisBeard's
+  resolution, so agreeing with BisBeard checks our weights, not our items.
+- 🆕 **`inference_findings`** — pooled-inference proposals with sample sizes and
+  Wilson intervals. **Staging only; nothing auto-seeds `spell_mechanics`.**
+  A human promotes and sets `promoted = 1`.
+
+```sql
+-- pooled avoidance for one spell (the rolls_hit_check instrument)
+SELECT SUM(hit_count), SUM(miss_count), SUM(dodge_count), SUM(parry_count),
+       SUM(resist_full_count)
+FROM ability_avoidance WHERE spell_id = ?;
+
+-- a crawled character's build, resolved to spell ids at REBUILD time
+SELECT sc.tree, sc.name, sc.rank, sc.spell_id, sc.spell_id_confidence
+FROM snapshot_cards sc
+JOIN character_snapshots s ON s.snapshot_id = sc.snapshot_id
+WHERE s.character_id = ? ORDER BY s.captured_at DESC, sc.tree;
+
+-- performance joined to the build that produced it, staleness visible
+SELECT ep.dps, ep.snapshot_lag_hours, e.boss_name, e.content_type
+FROM encounter_performance ep
+JOIN capture_scopes cs ON cs.scope_id = ep.scope_id
+LEFT JOIN encounters e ON e.encounter_id = cs.encounter_id
+WHERE ep.character_id = ? ORDER BY ep.dps DESC;
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v15)
 
 **v15 changelog (2026-08-05, session `2e`).** One widened table, two new audit
