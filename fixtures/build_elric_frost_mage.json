@@ -106,6 +106,39 @@
   }
  ],
  "talents": [],
+ "ground_truth": {
+  "_why": "3f F9. ADDENDUM_3D_to_3E_mage_capture.md:141-142 justified preferring a real capture over a synthetic fixture BECAUSE 'a synthetic fixture can only catch a crash - it has no ground truth to be wrong against'. The Mage then arrived carrying inputs only, so it was a THIRD STRUCTURAL FIXTURE and no assertion anywhere in the harness compared a modelled magnitude to a measured one, on any of the three. This block is that comparison.",
+  "_source": "data/source/captures/2026-08-06_elric_mage_frost/2026-08-06-19.16.56 WoWCombatLog.txt (Window A, unbuffed dummy), paired with 'Unbuffed Mage.txt' (ExportedAt 2026-08-06 19:15:41) which is this fixture's stats_override.",
+  "_evidence_ref": "capture:2026-08-06_elric_mage_frost:windowA",
+  "_measured_by": "3f, re-derived through tools/log_parser/combat_log_parser.py's NAMED FIELDS rather than copied from the capture README. Every figure below reproduced the README exactly: 214.2s, 296031, 15453, and all six per-hit means to one decimal. Sources restricted to 'Elric' and 'Water Elemental' - Window A contains OTHER PLAYERS hitting nearby dummies (a Paladin and a Shaman, ~2.1M damage between them), and an unfiltered sum reads 10,463 DPS instead of 1,382.",
+
+  "window_seconds": 214.2,
+  "player_damage": 296031,
+  "pet_damage": 15453,
+  "pet_source_name": "Water Elemental",
+  "pet_share_pct": 4.96,
+  "player_dps": 1382.0,
+  "dps_including_pet": 1454.2,
+
+  "_tolerance_is_PRE_REGISTERED": "🛑 WRITTEN AND COMMITTED BEFORE THE ASSERTION WAS RUN (3f F9). A tolerance chosen after seeing the miss is the same failure as moving a gate after seeing its number, and it is the failure this project has spent three sessions building machinery against. If this value is ever widened, the widening must be dated and reasoned in the same way.",
+  "tolerance_pct": 25.0,
+  "_tolerance_reason": "The calibration gate's own aggregate criterion is +/-20%. Widened ONCE, to 25%, for one stated structural reason: this fixture carries ZERO TALENTS (see `unresolved` below - the classless server's talent API returns nothing), so the sim is missing the entire talent-amplifier layer by construction, and no amount of correct engine work can close that here. It is NOT widened for the sim's known ~36% under-production on what it models, because that is the thing being measured.",
+  "_expected_outcome": "🛑 EXPECTED TO FAIL, and a failing registered assertion is the CORRECT outcome. At a measured slice accuracy of ~64% with coverage well under 100%, a tolerance this fixture could pass would have to be so loose it asserted nothing. Recorded in check_sim_engine.py's EXPECTED_FAILURES with its number, never as a pass.",
+
+  "_per_ability_note": "🚨 KEYED ON THE LOGGED spell_id, WHICH IS NOT ALWAYS THE CARD'S id. Four of this board's abilities damage through a DIFFERENT spell than the one pressed - the seal->judgement / Holy-Shock-dummy trap (primer v28), here on a caster: Ray of Frost card 984513 logs 984514, Frozen Orb card 760021 logs 760028, Absolute Zero card 285148 logs 285149, Deep Freeze card 44666 logs 71791. An assertion keyed on the FIXTURE's ids would score all four as unmodelled and be wrong about why.",
+  "per_ability_noncrit_mean": [
+   {"spell_id": 25304, "card_spell_id": 25304, "name": "Frostbolt", "n": 52, "mean": 1347.2},
+   {"spell_id": 830445, "card_spell_id": null, "name": "Icicle", "n": 43, "mean": 1170.9,
+    "note": "NOT on the action bars - a proc. Scored as coverage, never as a cast."},
+   {"spell_id": 760028, "card_spell_id": 760021, "name": "Frozen Orb", "n": 17, "mean": 201.1},
+   {"spell_id": 984514, "card_spell_id": 984513, "name": "Ray of Frost", "n": 16, "mean": 2008.6},
+   {"spell_id": 300909, "card_spell_id": 300909, "name": "Ice Lance", "n": 8, "mean": 436.4},
+   {"spell_id": 55095, "card_spell_id": null, "name": "Frost Fever", "n": 5, "mean": 102.2,
+    "note": "NOT on the action bars - a DoT applied by a proc."}
+  ],
+  "_per_ability_min_n": 8,
+  "_per_ability_min_n_reason": "Abilities below n=8 non-crit hits are recorded above for provenance but are NOT asserted: Absolute Zero (6), Glacial Spike (1), Hydricles (1), Deep Freeze (1). primer §5 - check the sample size before proposing a proportion test; a single hit cannot discriminate anything."
+ },
  "unresolved": [
   "TALENTS ARE EMPTY: the standard talent API returns nothing on a classless server, and the addon says so in its own output. This fixture therefore exercises the ability/rotation path only \u2014 it is NOT a talent-layer fixture, and a damage comparison against the log will miss whatever the board's talents contribute.",
   "PowerType MANA, ManaMax 6097 \u2014 captured but NOT wired into stats_override, because CharState's resource_pools plumbing is not part of this fixture's schema. Mana as a binding constraint is the gap this fixture exists to expose (medium_sim reports starvation)."
