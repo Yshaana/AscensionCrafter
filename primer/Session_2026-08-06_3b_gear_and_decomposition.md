@@ -249,19 +249,38 @@ damage (~11 min at 2s); 2,902 cover everything observed (~2 h, ~3 MB stored).
 Records append-and-flush per response and `--resume` skips what is on disk, so
 a network failure loses at most the request in flight.
 
-**Interim result at 1,141 of 2,902 records (run still in progress):**
+**FINAL — the full run completed, 2,902 of 2,902 records:**
 
 | verdict | count | share |
 |---|---:|---:|
-| agree | 679 | 59.5% |
-| unverifiable (no decoded flat our side) | 458 | 40.1% |
-| **disagree** | **4** | **0.4%** |
+| agree | **1,925** | **66.3%** |
+| unverifiable (no decoded flat our side) | 971 | 33.5% |
+| **disagree** | **6** | **0.2%** |
 
-63% of pages state a coefficient. ⚠ The `unverifiable` share is not a failure —
-those are largely the bucket-A spells missing from our extract, which by
-definition have no check digit on our side. They are recorded at a weaker
-confidence and must never be silently promoted. **Final figures land next
-session.**
+**1,634 spells state a coefficient (56%)** and **329 trigger edges** were
+found. 169 ids the site does not carry or that did not parse. Agreement rose
+monotonically as the sample grew (59.5% → 63.8% → 66.3%) while disagreements
+stayed flat — the source is consistent with our client-derived numbers at
+scale, not just on the spot checks.
+
+⚠ **`unverifiable` is not a failure and not a pass.** Those are largely the
+bucket-A spells missing from our extract, which by definition have no check
+digit on our side — that is precisely why they were worth fetching. They are
+recorded at weaker confidence and must never be silently promoted.
+
+### The 6 disagreements, diagnosed — and deliberately still refused
+
+Four are **off-by-one against the `base_points + 1` decode**: Water Nova (page
+4 / ours 5), Venom Belch (1 / 2), Beam of Hatred (35 / 36), and Judgement of
+Arcane Wrath. One is an **inverted range** — Twin Fang renders "3 to 1", the
+same broken-tooltip class as Hammer from the Heavens' "194 to 147" (primer
+v21). One is a real mismatch: Favour of the Soulflayer, page 0 vs our 30.
+
+🛑 **The tolerance was NOT widened to absorb them.** A ±1 band would make all
+four vanish, and that is exactly the "redefine the check after seeing its
+result" error the gate discipline forbids. The site agrees with our `+1` decode
+in **1,925** cases, so these are anomalies, not a convention difference — six
+refusals out of 2,902 is the check working, not the check being wrong.
 
 ## What did NOT happen
 

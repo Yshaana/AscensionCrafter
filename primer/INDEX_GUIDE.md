@@ -26,9 +26,12 @@ session's first task, deliberately not rushed in behind a running scrape.
   from the client's numeric fields — **14,100 spells** carry that check digit.
   Verdicts: `agree` (usable), `disagree` (**coefficients refused**),
   `unverifiable` (no decoded flat our side — record at weaker confidence,
-  **never silently promote**). Interim over 1,141 of 2,902 records:
-  **59.5% agree / 40.1% unverifiable / 0.4% disagree**, 63% state a
-  coefficient, 154 trigger edges.
+  **never silently promote**). **FINAL, full 2,902-record run: 66.3% agree
+  (1,925) / 33.5% unverifiable (971) / 0.2% disagree (6)**; **1,634 spells
+  state a coefficient**, **329 trigger edges**, 169 ids not carried by the
+  site. The 6 disagreements are diagnosed (4 off-by-one vs the `base_points+1`
+  decode, 1 inverted range, 1 real) and **still refused** — the tolerance was
+  deliberately not widened to absorb them.
 - ⚠ **Compare per EFFECT SLOT, not aggregated.** A `MIN/MAX` across
   `spell_effect_values` mixes units: Lightbound Cleave decodes effect 0 = 62
   (a flat) and effect 1 = 65 (a **weapon percent**, v13's `EFFECT_WEAPON_PCT`

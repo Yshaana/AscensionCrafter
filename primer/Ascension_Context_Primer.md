@@ -33,6 +33,11 @@ project had used once and never systematised. Detail in
   disagrees has its coefficients **refused**, not stored with a caveat.
   Verdicts are `agree` / `disagree` / `unverifiable`, and *unverifiable is not
   a pass* — those rows carry weaker confidence and are never silently promoted.
+  **Measured over the full 2,902-spell run: 66.3% agree, 0.2% disagree**, 1,634
+  coefficients and 329 trigger edges recovered. ⚠ The 6 disagreements were
+  diagnosed (4 off by one against our `base_points+1` decode) and **left
+  refused** — widening the band to absorb them would be redefining a check
+  after seeing its result.
 - 🚨 **NEW §5 PRACTICE, and the check caught OUR bug before the data's: AN
   AGGREGATE ACROSS EFFECT SLOTS IS NOT A PROPERTY OF THE SPELL — IT MIXES
   UNITS.** A `MIN/MAX` over `spell_effect_values` merged Lightbound Cleave's
