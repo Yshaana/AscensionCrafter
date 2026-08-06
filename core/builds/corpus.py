@@ -34,6 +34,8 @@ each is a recorded deviation, not drift:
 """
 import json
 
+from . import gear
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS characters (
     character_id INTEGER PRIMARY KEY,
@@ -79,6 +81,19 @@ CREATE TABLE IF NOT EXISTS snapshot_gear (
     enchant_id INTEGER, gems_json TEXT,
     stats_json TEXT,                -- resolved_bisbeard stats when present
     drop_source TEXT, source_category TEXT, tier TEXT,
+    -- resolved_bisbeard.match_type: 'direct' (matched on item_id) or
+    -- 'name_fallback' (matched on NAME). The distinction is load-bearing:
+    -- 476 item names in this corpus span several item_ids at different
+    -- difficulties with different stat blocks, so a name match can land on
+    -- the wrong variant. Kept as a column rather than dropped, so a
+    -- name-matched stat block can be excluded or flagged downstream.
+    stats_match_type TEXT,
+    -- {min,max,speed,hand,...} for weapons, else NULL. Weapon damage is in NO
+    -- stat block on this server's data (resolved_bisbeard.damage is null on
+    -- every weapon in the corpus) — it is parsed from the rendered item
+    -- description and self-checked against that description's stated DPS.
+    -- Without it a crawled character sims with no weapon at all.
+    weapon_json TEXT,
     PRIMARY KEY (snapshot_id, slot)
 );
 
@@ -306,12 +321,16 @@ def ingest_armory_record(conn, rec):
             json.dumps(bis.get("stats")) if bis.get("stats") else None,
             bis.get("source"), bis.get("source_category"),
             bis.get("version") or resolved.get("mythic_tier"),
+            bis.get("match_type"),
+            json.dumps(_weapon) if (_weapon := gear.parse_weapon_damage(
+                bis.get("description"), resolved.get("inventory_type"))) else None,
         ))
     conn.executemany(
         """INSERT OR REPLACE INTO snapshot_gear
              (snapshot_id, slot, item_id, item_name, quality, item_level,
-              enchant_id, gems_json, stats_json, drop_source, source_category, tier)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", gear_rows)
+              enchant_id, gems_json, stats_json, drop_source, source_category, tier,
+              stats_match_type, weapon_json)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", gear_rows)
     return "ingested"
 
 

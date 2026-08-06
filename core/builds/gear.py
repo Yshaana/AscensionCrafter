@@ -31,8 +31,43 @@ through the ascensionlogs armory capture, tier `crawl_resolved_bisbeard`. That
 makes cross-validating our weights against BisBeard a check on the *weights*,
 not an independent check on the *items* — worth stating before anyone reads
 agreement as confirmation.
+
+## 🚨 This server's gear is dynamic — and the difficulty axis lives in the ID
+
+Item stats are rolled at drop as a function of tier (raid difficulty
+Normal/Heroic/Mythic/Ascended, or M+ keystone level), so **two items with the
+same NAME can carry completely different stats**. Measured in this corpus:
+**476 of 1,157** resolved item names span several item_ids at different tiers.
+`Golem Shard Leggings` is the clean case — `13074` "Mythic 10" (Str 45,
+armor 703), `1563074` "Heroic" (Str 30, armor 606), `1663074` "Mythic"
+(Str 38, armor 633).
+
+**But each variant carries its own item_id**, and that makes `item_id ->
+(tier, stats)` a *function*: across 3,919 stat-bearing rows, **0 item_ids
+carry more than one distinct stat block, and 0 span more than one tier.**
+
+Two consequences, and they point in opposite directions — keep both:
+
+1. 🛑 **Never map item NAME -> stats.** It is many-valued and will silently
+   pick a variant the character never wore. This is the duplicate-name trap
+   (primer §2) reappearing in item space, and the crawl's own
+   `match_type='name_fallback'` rows are exactly it — carried through as
+   `snapshot_gear.stats_match_type` rather than dropped, so they can be
+   flagged or excluded.
+2. ✅ **Keying on item_id is lossless**, so the deduped `items` table is safe
+   as a stat source and the per-character `snapshot_gear` read agrees with it
+   by construction. Reading instances is still the right discipline (it is
+   what carries slot, enchant and gems), but the dedup is not the hazard —
+   the name is.
+
+⚠ **Not established:** whether the numeric relationship between a base id and
+its variants (`13074` -> `1563074` / `1663074`) is a decodable scheme. The
+prefixes are inconsistent across the corpus, and relating two ids by a pattern
+is the same error class as relating two spells by name. Variants are grouped
+by NAME + tier as an observation, never derived arithmetically.
 """
 import json
+import re
 from collections import defaultdict
 
 ITEMS_SCHEMA = """
@@ -114,6 +149,187 @@ def normalise_stats(stats_json):
             continue
         out[key] = out.get(key, 0) + v
     return out, unmapped
+
+
+# 3.3.5 INVTYPE constants. Numeric, so the one-hand/two-hand question never
+# goes through the description's prose.
+_INVTYPE_TWO_HAND = 17
+_INVTYPE_WEAPON = {13, 17, 21, 22}          # 1h, 2h, main-hand, off-hand
+_DAMAGE_RE = re.compile(r"(\d+)\s*-\s*(\d+)\s+Damage\s+Speed\s+([\d.]+)")
+_DPS_RE = re.compile(r"\(([\d.]+)\s+damage per second\)")
+
+
+def parse_weapon_damage(description, inventory_type):
+    """Weapon min/max/speed, read from the crawl's rendered item description.
+
+    🛑 **Weapon damage is in NO stat block.** `resolved_bisbeard.stats` never
+    carries it and `resolved_bisbeard.damage` is null on all 1,413 weapon-slot
+    entries in the corpus — so a crawled character built from stat blocks alone
+    is simmed **with no weapon at all**, zeroing every white swing and every
+    weapon-percent ability. The numbers exist only in the rendered description
+    (`63 - 107 Damage   Speed 2.60`).
+
+    ⚠ This is NOT the banned "read a magnitude from a description string" rule
+    (CLAUDE.md). That rule is about **DBC** descriptions, which are tooltip
+    TEMPLATES carrying `$` variables and hand-rolled level scaling — the class
+    of thing that renders Hammer from the Heavens as "194 to 147". This is a
+    third party's already-rendered item text with literal integers, and it
+    ships its own check digit: the same string states the weapon's DPS, so
+    `(min+max)/2/speed` must reproduce it.
+
+    **That check is enforced, not assumed** — a parse that fails it returns
+    None rather than a number. Validated across the whole corpus: 849 of 849
+    parsed weapons agree within 3% (the residual is the displayed speed being
+    rounded to one decimal; at a 0.15 absolute band 110 look like mismatches
+    and every one of them is display rounding).
+
+    Speed is taken from the STATED DPS rather than the displayed speed, since
+    `(min+max)/2/dps` is the more precise of the two — the displayed 1.4 could
+    be anything from 1.35 to 1.44.
+    """
+    if not description or inventory_type not in _INVTYPE_WEAPON:
+        return None
+    m = _DAMAGE_RE.search(description)
+    if not m:
+        return None                      # shields, holdables, relics, tomes
+    lo, hi, shown_speed = int(m.group(1)), int(m.group(2)), float(m.group(3))
+    if hi < lo or shown_speed <= 0:
+        return None
+    d = _DPS_RE.search(description)
+    if not d:
+        return None                      # no check digit -> no number
+    stated_dps = float(d.group(1))
+    if stated_dps <= 0:
+        return None
+    if abs((lo + hi) / 2 / shown_speed - stated_dps) / stated_dps > 0.03:
+        return None                      # self-inconsistent: refuse, don't guess
+    return {
+        "min": lo, "max": hi,
+        "speed": round((lo + hi) / 2 / stated_dps, 3),
+        "hand": "2h" if inventory_type == _INVTYPE_TWO_HAND else "1h",
+        "dps": stated_dps,
+        "displayed_speed": shown_speed,
+        "source": "crawl_item_description (self-checked against stated DPS)",
+    }
+
+
+# Slots that legitimately carry no stats, so a NULL stat block there is not a
+# resolution miss. Measured, not assumed: across the whole corpus these two
+# slots resolve 0 of 209 (shirt) and 0 of 87 (tabard) stat blocks, while every
+# other slot resolves the majority of its rows.
+COSMETIC_SLOTS = {4, 19}
+
+
+def gear_coverage(conn, snapshot_id):
+    """How much of a snapshot's stat-bearing gear actually resolved to stats.
+
+    A character with unresolved pieces is simmed at **too-low stats**, which
+    produces the same one-directional negative delta as a missing buff or a
+    missing ability magnitude — so a calibration miss cannot be attributed
+    until this number is known per character. That is the whole reason this
+    exists (PLAN_3B §3.4).
+
+    Coverage is *reportable but not fixable from within the corpus*: an
+    unresolved item is unresolved everywhere (measured — 0 of 592 unresolved
+    item_ids resolve on any other snapshot), because those ids are simply
+    absent from the upstream item database. There is no backfill to do here,
+    only an honest number to carry.
+    """
+    rows = conn.execute(
+        "SELECT slot, item_id, item_name, stats_json, stats_match_type "
+        "FROM snapshot_gear WHERE snapshot_id = ?", (snapshot_id,)).fetchall()
+    stat_bearing = [r for r in rows if r[0] not in COSMETIC_SLOTS]
+    resolved = [r for r in stat_bearing if r[3]]
+    missing = [{"slot": r[0], "item_id": r[1], "name": r[2]}
+               for r in stat_bearing if not r[3]]
+    name_matched = [{"slot": r[0], "item_id": r[1], "name": r[2]}
+                    for r in resolved if r[4] == "name_fallback"]
+    return {
+        "slots_present": len(rows),
+        "stat_bearing_slots": len(stat_bearing),
+        "resolved": len(resolved),
+        "coverage_pct": (100.0 * len(resolved) / len(stat_bearing)
+                         if stat_bearing else None),
+        "missing": missing,
+        "cosmetic_slots_skipped": len(rows) - len(stat_bearing),
+        # a stat block matched on NAME may belong to a different difficulty
+        # variant of the same item — see this module's header
+        "name_matched": name_matched,
+    }
+
+
+def missing_stat_budget_bound(conn, snapshot_id, *, coverage=None,
+                              slot_medians=None):
+    """An ESTIMATED upper-ish bound on the stat budget a snapshot is missing.
+
+    🛑 This is an estimate with a stated method, for **decomposing a
+    calibration miss only**. It is never added to a character's stats and
+    never enters a sim run — doing that would be fitting the gate.
+
+    Method: each unresolved piece is credited the MEDIAN stat budget of the
+    resolved pieces in the same slot across the corpus. Median (not mean, not
+    max) because the unresolved ids are dominated by levelling greens, so a
+    max would inflate the bound and a mean is skewed by the Ascended tail.
+    The returned `basis` names the method so the number is never read as
+    measured.
+    """
+    cov = coverage or gear_coverage(conn, snapshot_id)
+    if not cov["missing"]:
+        return {"missing_pieces": 0, "estimated_missing_budget": 0.0,
+                "resolved_budget": _snapshot_budget(conn, snapshot_id),
+                "basis": "no unresolved pieces"}
+    medians = slot_medians if slot_medians is not None else slot_budget_medians(conn)
+    est = sum(medians.get(m["slot"], 0.0) for m in cov["missing"])
+    resolved_budget = _snapshot_budget(conn, snapshot_id)
+    total = resolved_budget + est
+    return {
+        "missing_pieces": len(cov["missing"]),
+        "resolved_budget": round(resolved_budget, 1),
+        "estimated_missing_budget": round(est, 1),
+        "estimated_budget_shortfall_pct": (round(100.0 * est / total, 1)
+                                           if total else None),
+        "slots_without_a_corpus_median": sorted(
+            {m["slot"] for m in cov["missing"] if m["slot"] not in medians}),
+        "basis": "estimated: per-slot MEDIAN resolved stat budget across the "
+                 "corpus, credited to each unresolved piece. Not measured, "
+                 "not applied to any sim run.",
+    }
+
+
+# stats excluded from a "budget": they do not convert into throughput, so
+# including them would let a tank's plate outrank a caster's whole set.
+_NON_THROUGHPUT = {"armor", "hp5", "fire_resist", "frost_resist",
+                   "shadow_resist", "nature_resist", "arcane_resist"}
+
+
+def _block_budget(stats):
+    return sum(v for k, v in stats.items() if k not in _NON_THROUGHPUT)
+
+
+def _snapshot_budget(conn, snapshot_id):
+    total = 0.0
+    for (stats_json,) in conn.execute(
+            "SELECT stats_json FROM snapshot_gear "
+            "WHERE snapshot_id = ? AND stats_json IS NOT NULL", (snapshot_id,)):
+        mapped, _unmapped = normalise_stats(stats_json)
+        total += _block_budget(mapped)
+    return total
+
+
+def slot_budget_medians(conn):
+    """Median resolved stat budget per slot, corpus-wide. Full scan — compute
+    once and pass it into `missing_stat_budget_bound` when looping."""
+    by_slot = defaultdict(list)
+    for slot, stats_json in conn.execute(
+            "SELECT slot, stats_json FROM snapshot_gear "
+            "WHERE stats_json IS NOT NULL"):
+        mapped, _unmapped = normalise_stats(stats_json)
+        by_slot[slot].append(_block_budget(mapped))
+    out = {}
+    for slot, budgets in by_slot.items():
+        budgets.sort()
+        out[slot] = budgets[len(budgets) // 2]
+    return out
 
 
 def gear_tier_stats(conn, *, path=None, role=None, tiers=(("fresh", 0.25),

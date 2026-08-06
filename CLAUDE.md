@@ -69,6 +69,18 @@ Schema in `INDEX_GUIDE.md`.
 - **Never relate two spell IDs by name.** Fingerprint on mechanics (school, cooldown, radius, cast
   type, effect structure) first. Two spells named "Holy Supernova" are unrelated abilities.
 - **Never read a magnitude from a DBC `description` string** — numeric fields only.
+  ⚠ Scope, sharpened 2026-08-06: this targets **DBC** descriptions, which are tooltip
+  *templates* with `$` variables and hand-rolled scaling. An **already-rendered**
+  third-party string (the crawl's item text) is admissible **only when it carries its
+  own check digit and the check is enforced** — weapon damage is parsed that way and
+  validated against the same string's stated DPS, 849/849 (`core/builds/gear.py`).
+- **Never map an item NAME to stats.** Gear stats are rolled at drop by tier, so 476 of
+  1,157 names in the corpus span several item_ids with different stat blocks. Key on
+  `item_id`, which encodes the difficulty and is lossless; treat
+  `snapshot_gear.stats_match_type = 'name_fallback'` as suspect.
+- **A stat block is not a character's inputs — weapon damage is in no stat block.**
+  Building a character from stat blocks alone gives it no weapon, zeroing white swings
+  and every weapon-percent ability. Read `snapshot_gear.weapon_json`.
 - **Never read an SP/AP coefficient from `EffectBonusCoefficient`.** It is stock 3.3.5's
   `EffectBonusMultiplier` — a multiplier on the default, whose neutral value is **1.0**.
   7,647 of 9,211 non-zero values are exactly 1.0, and it matches a spell's own stated

@@ -57,7 +57,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import config  # noqa: E402
 from config import BUILDS_DB_PATH, DATA_DERIVED, DB_PATH  # noqa: E402
-from core.builds.gear import normalise_stats  # noqa: E402
+from core.builds.gear import (  # noqa: E402
+    gear_coverage, missing_stat_budget_bound, normalise_stats,
+    slot_budget_medians)
 from core.builds.group_buffs import derive_buffs  # noqa: E402
 from core.builds.spec import BuildSpec, GearItem, SlottedCard  # noqa: E402
 from core.builds.stats import compute_stats  # noqa: E402
@@ -130,13 +132,17 @@ CONTENT_PRESET = {
 
 def build_spec_for(conn, snapshot_id, path_token):
     gear = {}
-    for slot, item_id, name, stats_json in conn.execute(
-            "SELECT slot, item_id, item_name, stats_json FROM snapshot_gear "
-            "WHERE snapshot_id = ?", (snapshot_id,)):
+    for slot, item_id, name, stats_json, weapon_json in conn.execute(
+            "SELECT slot, item_id, item_name, stats_json, weapon_json "
+            "FROM snapshot_gear WHERE snapshot_id = ?", (snapshot_id,)):
         stats, _unmapped = normalise_stats(stats_json)
         slot_name = WEAPON_SLOTS.get(slot, f"slot_{slot}")
+        # weapon damage lives only in the item description, and without it the
+        # sim gives a crawled character no weapon at all — zeroing white swings
+        # and every weapon-percent ability
+        weapon = json.loads(weapon_json) if weapon_json else None
         gear[slot_name] = GearItem(item_id=item_id, name=name or f"item {item_id}",
-                                   slot=slot_name, stats=stats, weapon=None)
+                                   slot=slot_name, stats=stats, weapon=weapon)
     abilities, talents = [], []
     for tree, spell_id, rank in conn.execute(
             "SELECT tree, spell_id, rank FROM snapshot_cards "
@@ -147,6 +153,203 @@ def build_spec_for(conn, snapshot_id, path_token):
         character_level=60, role=Role("dps"), path=path_token,
         abilities=abilities[:30], talents=talents[:25],
         gear=gear, source="crawled")
+
+
+def modelled_damage_share(conn, scope_id, character_id, sim_spell_ids):
+    """Of the damage this character ACTUALLY dealt, what fraction came from
+    spells the sim produced any damage for?
+
+    This is the third leg of the miss decomposition (PLAN_3B §5.2) and the one
+    that tests the revised hypothesis directly: if the sim reproduces a
+    character's gear and buffs but only knows magnitudes for 15% of what they
+    actually pressed, the miss is per-ability coverage, not stats.
+
+    Pet rows are counted in the denominator — the character's logged DPS
+    includes them, so excluding them here would flatter the coverage number.
+    """
+    rows = conn.execute(
+        "SELECT spell_id, spell_name, damage_total, is_pet, spell_school "
+        "FROM ability_performance "
+        "WHERE scope_id = ? AND character_id = ? AND damage_total > 0",
+        (scope_id, character_id)).fetchall()
+    total = sum(r[2] for r in rows)
+    if not total:
+        return None
+    has_autos = any(k in sim_spell_ids for k in ("auto_mh", "auto_oh"))
+
+    def is_modelled(r):
+        if r[0] in sim_spell_ids:
+            return True
+        # The log renders auto-attacks as NEGATIVE ids the sim never uses — it
+        # keys its swing layer 'auto_mh'/'auto_oh'. Matching on id alone
+        # therefore scored every character's white damage as unmodelled and
+        # understated coverage by ~9 points.
+        #
+        # ⚠ Not every negative id is an ordinary swing: extra-attack procs from
+        # trinkets and weapons log the same way ('Auto Attack [Hand of
+        # Justice]'), and the sim does NOT model those. The discriminator is
+        # taken from the row itself rather than from the id's magnitude — a
+        # bracket tag that equals the row's own school is a school-flavoured
+        # swing, anything else names an item.
+        if r[0] >= 0 or not has_autos:
+            return False
+        name = r[1] or ""
+        if "[" not in name:
+            return True                       # plain 'Auto Attack'
+        tag = name[name.index("[") + 1:].rstrip("]").strip()
+        return tag.lower() == (r[4] or "").lower()
+
+    modelled = sum(r[2] for r in rows if is_modelled(r))
+    unmodelled = sorted((r for r in rows if not is_modelled(r)),
+                        key=lambda r: -r[2])
+    return {
+        "logged_abilities": len(rows),
+        "modelled_abilities": sum(1 for r in rows if is_modelled(r)),
+        "modelled_damage_pct": round(100.0 * modelled / total, 1),
+        "top_unmodelled": [
+            {"spell_id": r[0], "name": r[1], "is_pet": bool(r[3]),
+             "share_pct": round(100.0 * r[2] / total, 1)}
+            for r in unmodelled[:6]],
+    }
+
+
+def decompose_miss(*, delta_pct, coverage, budget_bound, buff_gain_pct,
+                   modelled):
+    """Name what the one-directional negative delta can and cannot be.
+
+    🛑 Deliberately produces a VERDICT PER MECHANISM, not a split that sums to
+    the miss. Apportioning a multiplicative shortfall across three candidate
+    causes would require knowing the answer; what is available is whether each
+    cause is *capable* of explaining the size of the miss, which is enough to
+    eliminate candidates. Nothing here is fitted or subtracted from a sim run.
+    """
+    legs = {}
+    cov = coverage["coverage_pct"]
+    shortfall = (budget_bound or {}).get("estimated_budget_shortfall_pct") or 0.0
+    if cov is not None and cov >= 99.9:
+        legs["gear_resolution"] = (
+            "ELIMINATED — 100% of stat-bearing slots resolved; the sim ran on "
+            "this character's whole gear set")
+    elif shortfall and abs(delta_pct or 0) > 2 * shortfall:
+        legs["gear_resolution"] = (
+            f"INSUFFICIENT — {cov:.0f}% of slots resolved, an estimated "
+            f"{shortfall:.0f}% of stat budget missing, against a "
+            f"{delta_pct:+.0f}% miss. Contributes; cannot account for it")
+    else:
+        legs["gear_resolution"] = (
+            f"CANDIDATE — only {cov:.0f}% of slots resolved (est. {shortfall:.0f}% "
+            f"of stat budget missing), comparable to the {delta_pct:+.0f}% miss")
+    legs["buffs"] = (
+        f"MEASURED at {buff_gain_pct:+.1f}% — the derived layer's whole "
+        f"contribution" + (", which cannot account for the miss"
+                           if abs(buff_gain_pct) < abs(delta_pct or 0) / 2
+                           else ""))
+    if modelled is None:
+        legs["magnitude_coverage"] = "UNKNOWN — no per-ability rows for this scope"
+    elif modelled["modelled_damage_pct"] < 50:
+        legs["magnitude_coverage"] = (
+            f"DOMINANT — the sim has magnitudes for only "
+            f"{modelled['modelled_damage_pct']:.0f}% of the damage this "
+            f"character actually dealt "
+            f"({modelled['modelled_abilities']}/{modelled['logged_abilities']} "
+            f"abilities)")
+    else:
+        legs["magnitude_coverage"] = (
+            f"PARTIAL — {modelled['modelled_damage_pct']:.0f}% of logged damage "
+            f"comes from abilities the sim modelled")
+    return legs
+
+
+def _median(xs):
+    xs = sorted(x for x in xs if x is not None)
+    return xs[len(xs) // 2] if xs else None
+
+
+def _decomposition_section(results):
+    """The corpus-level answer to 'what is the miss made of', built only from
+    per-character verdicts — no apportioning, no fitted scale factor."""
+    if not results:
+        return []
+    full_gear = [r for r in results if (r["gear_coverage_pct"] or 0) >= 99.9]
+    modelled = [r["modelled"]["modelled_damage_pct"] for r in results
+                if r["modelled"]]
+    # A character can land inside tolerance while the sim reproduces almost
+    # none of what they actually pressed — the modelled fraction happens to
+    # total the right number. That is compensating error, not calibration, and
+    # the ±20% criterion is structurally blind to it. Reported alongside the
+    # criterion, never substituted for it: moving a gate's definition after
+    # seeing the result is how a gate stops meaning anything.
+    passing = [r for r in results if r["within_tolerance"]]
+    qualified = [r for r in passing
+                 if (r["modelled"] or {}).get("modelled_damage_pct", 0) >= 50]
+    lines = [
+        "", "## Miss decomposition (PLAN_3B §5.2)", "",
+        f"🛑 **Read the pass with its coverage.** {len(passing)} characters are "
+        f"within ±{AGGREGATE_TOLERANCE_PCT:g}%, but only **{len(qualified)}** of "
+        f"them are within tolerance *while the sim also reproduces ≥50% of the "
+        f"damage they actually dealt*"
+        + (": " + ", ".join(
+            f"{r['name']} ({r['delta_pct']:+.0f}%, "
+            f"{r['modelled']['modelled_damage_pct']:.0f}% modelled)"
+            for r in qualified) if qualified else "")
+        + ". The rest agree on the total while missing most of the kit — the "
+        "modelled slice happens to sum to about the right number. The ±20% "
+        "criterion cannot distinguish that from calibration, so the qualified "
+        "count is reported next to it and neither replaces the other.", "",
+        "The one-directional negative delta is decomposed into the three "
+        "mechanisms that each produce it, so no single cause is credited "
+        "wholesale. Each leg gets a **verdict on whether it is capable of "
+        "explaining a miss this size** — deliberately not a split summing to "
+        "the miss, which would require knowing the answer.", "",
+        f"- **Gear resolution.** Median gear-stat coverage across the gate's "
+        f"characters is **{_median([r['gear_coverage_pct'] for r in results]):.0f}%**, "
+        f"and **{len(full_gear)} of {len(results)}** resolve **100%** of their "
+        f"stat-bearing slots. Those characters were simmed on their entire real "
+        f"gear set, so gear under-resolution is **eliminated** for them — and "
+        f"their median delta is "
+        f"**{_median([r['delta_pct'] for r in full_gear]):+.0f}%**. "
+        f"⚠ Coverage is reportable but not repairable from the corpus: an "
+        f"unresolved item is unresolved on every snapshot, because those ids "
+        f"are absent from the upstream item database.",
+        f"- **Buffs.** The derived layer moves sim DPS by a median of "
+        f"**{_median([r['buff_gain_pct'] for r in results]):+.1f}%** "
+        f"(max {max((r['buff_gain_pct'] for r in results), default=0):+.1f}%).",
+        f"- **Magnitude coverage.** The sim produces damage for a median of "
+        f"**{_median(modelled):.0f}%** of what these characters actually dealt"
+        + (f" (n={len(modelled)} with per-ability rows)." if modelled else "."),
+        "",
+        "| leg | characters where it is the stated verdict |",
+        "|---|---|",
+    ]
+    for leg in ("gear_resolution", "buffs", "magnitude_coverage"):
+        buckets = {}
+        for r in results:
+            head = r["miss_decomposition"][leg].split(" —")[0]
+            buckets.setdefault(head, []).append(r["name"])
+        cell = "; ".join(f"**{k}** {len(v)}" for k, v in
+                         sorted(buckets.items(), key=lambda kv: -len(kv[1])))
+        lines.append(f"| {leg} | {cell} |")
+
+    unmodelled = {}
+    for r in results:
+        for u in (r["modelled"] or {}).get("top_unmodelled", []):
+            e = unmodelled.setdefault((u["spell_id"], u["name"]),
+                                      {"chars": 0, "share": 0.0})
+            e["chars"] += 1
+            e["share"] += u["share_pct"]
+    if unmodelled:
+        lines += [
+            "", "### Biggest unmodelled abilities across the gate", "",
+            "Ranked by how much of their owners' real damage the sim produces "
+            "nothing for. This is the shortlist the next magnitude work should "
+            "read — it is measured demand, not a guess at what matters.", "",
+            "| spell | id | characters | mean share of their damage |",
+            "|---|---:|---:|---:|"]
+        for (sid, name), e in sorted(unmodelled.items(),
+                                     key=lambda kv: -kv[1]["share"])[:20]:
+            lines.append(f"| {name} | {sid} | {e['chars']} | "
+                         f"{e['share'] / e['chars']:.1f}% |")
+    return lines
 
 
 def main():
@@ -167,6 +370,7 @@ def main():
     asc = connect(DB_PATH)
     conv = ce.load_rating_conversions(asc, level=60)
 
+    slot_medians = slot_budget_medians(bdb)
     rows = candidates(bdb, args.limit, args.max_lag_hours)
     print(f"[candidates] {len(rows)} distinct level-60 characters pass the "
           f"completeness filter (max build staleness "
@@ -217,6 +421,14 @@ def main():
         seen_chars.add(cid)
         sim_dps = res.primary_value
         delta = 100 * (sim_dps / dps - 1) if dps else None
+        # PLAN_3B §5.2 — decompose the miss instead of attributing it wholesale
+        cov = gear_coverage(bdb, snapshot_id)
+        bound = missing_stat_budget_bound(bdb, snapshot_id, coverage=cov,
+                                          slot_medians=slot_medians)
+        buff_gain = (100 * (sim_dps / res0.primary_value - 1)
+                     if res0.primary_value else 0.0)
+        modelled = modelled_damage_share(bdb, scope_id, cid,
+                                         set(res.per_ability.keys()))
         results.append({
             "character_id": cid, "name": cname, "path": token, "boss": boss,
             "content_type": ctype, "sim_preset": preset,
@@ -226,6 +438,15 @@ def main():
             "buffs_applied": buff_keys,
             "buff_provenance": buff_prov,
             "within_tolerance": abs(delta) <= AGGREGATE_TOLERANCE_PCT,
+            "gear_coverage_pct": cov["coverage_pct"],
+            "gear_unresolved_pieces": len(cov["missing"]),
+            "gear_name_matched_pieces": len(cov["name_matched"]),
+            "gear_budget_shortfall_pct": bound.get("estimated_budget_shortfall_pct"),
+            "buff_gain_pct": buff_gain,
+            "modelled": modelled,
+            "miss_decomposition": decompose_miss(
+                delta_pct=delta, coverage=cov, budget_bound=bound,
+                buff_gain_pct=buff_gain, modelled=modelled),
             "abilities": len(spec.abilities), "talents": len(spec.talents),
             "gear_pieces": len(spec.gear),
             "top_sim_abilities": [
@@ -235,9 +456,13 @@ def main():
         })
 
     passing = [r for r in results if r["within_tolerance"]]
+    qualified = [r for r in passing
+                 if (r["modelled"] or {}).get("modelled_damage_pct", 0) >= 50]
     print(f"[gate] {len(passing)} of {len(results)} simmed characters within "
           f"±{AGGREGATE_TOLERANCE_PCT:g}%  "
           f"(criterion: ≥3)  -> {'PASS' if len(passing) >= 3 else 'NOT MET'}")
+    print(f"[gate] of those, {len(qualified)} also have ≥50% of their real "
+          f"damage modelled — the rest pass by compensating error")
 
     lines = [
         "# Calibration gate — crawled characters",
@@ -269,17 +494,23 @@ def main():
         "card (`core/builds/group_buffs.py`). This is a lower bound: unlinked "
         "boards and unmeasured buffs contribute nothing, and nothing is fitted.",
         "",
-        "| character | path | boss | build lag (h) | logged DPS | sim unbuffed | sim buffed | delta | buffs | within ±20% |",
-        "|---|---|---|---:|---:|---:|---:|---:|---|---|",
+        "| character | path | boss | build lag (h) | logged DPS | sim unbuffed | sim buffed | delta | buffs | gear cov | modelled dmg | within ±20% |",
+        "|---|---|---|---:|---:|---:|---:|---:|---|---:|---:|---|",
     ]
     for r in sorted(results, key=lambda r: abs(r["delta_pct"] or 1e9)):
+        md = r["modelled"]
+        modelled_cell = f"{md['modelled_damage_pct']:.0f}%" if md else "n/a"
         lines.append(
             f"| {r['name']} ({r['character_id']}) | {r['path']} | {r['boss']} "
             f"| {r['snapshot_lag_hours']:.1f} "
             f"| {r['logged_dps']:,.0f} | {r['sim_dps_unbuffed']:,.0f} "
             f"| {r['sim_dps']:,.0f} "
             f"| {r['delta_pct']:+.1f}% | {len(r['buffs_applied'])} "
+            f"| {r['gear_coverage_pct']:.0f}% "
+            f"| {modelled_cell} "
             f"| {'yes' if r['within_tolerance'] else 'NO'} |")
+
+    lines += _decomposition_section(results)
 
     lines += ["", "## Excluded, and why", ""]
     for cid, cname, why in excluded[:40]:
@@ -298,7 +529,28 @@ def main():
             f"- logged {r['logged_dps']:,.0f} vs sim {r['sim_dps']:,.0f} "
             f"({r['delta_pct']:+.1f}%; unbuffed sim {r['sim_dps_unbuffed']:,.0f})",
             f"- sim's top abilities: {', '.join(r['top_sim_abilities'])}",
+            f"- gear: {r['gear_coverage_pct']:.0f}% of stat-bearing slots "
+            f"resolved ({r['gear_unresolved_pieces']} unresolved"
+            + (f", est. {r['gear_budget_shortfall_pct']:.0f}% of stat budget missing"
+               if r['gear_budget_shortfall_pct'] else "")
+            + (f"; ⚠ {r['gear_name_matched_pieces']} piece(s) matched by NAME, "
+               f"which can land on the wrong difficulty variant"
+               if r['gear_name_matched_pieces'] else "") + ")",
         ]
+        if r["modelled"]:
+            md = r["modelled"]
+            lines.append(
+                f"- magnitude coverage: sim produces damage for "
+                f"**{md['modelled_damage_pct']:.0f}%** of this character's real "
+                f"damage ({md['modelled_abilities']}/{md['logged_abilities']} "
+                f"logged abilities)")
+            if md["top_unmodelled"]:
+                lines.append("  - biggest unmodelled: " + ", ".join(
+                    f"{u['name']} ({u['spell_id']}) {u['share_pct']:.0f}%"
+                    for u in md["top_unmodelled"][:4]))
+        lines.append("- miss decomposition:")
+        for leg, verdict in r["miss_decomposition"].items():
+            lines.append(f"  - **{leg}**: {verdict}")
         prov = r.get("buff_provenance") or {}
         lines.append(
             f"- buffs derived from group: "

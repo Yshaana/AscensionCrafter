@@ -191,6 +191,47 @@ def find_builds(abilities=None, talents=None, path=None, role=None, content_type
 
 🛑 **Read Phase 0 Task 9's verdict before scoping this task.**
 
+### 🚨 SUPERSEDING NOTE (2026-08-06, `PLAN_3B_UPDATE.md` + session `3b`)
+
+**This task's original text below treats gear as native 3.3.5. It is not.**
+Item stats are **rolled at drop as a function of tier** — raid difficulty
+(Normal / Heroic / Mythic / Ascended) or M+ keystone level, with the M+ cap a
+timeline parameter — plus post-drop upgrades (Mythic Coins). Level is constant
+at 60, so level is not an axis. Three consequences that override anything
+below:
+
+1. **Scope is STAT WEIGHTS, not gear suggestions.** BisBeard owns the item
+   matrix and the optimizer; we emit a weight vector the player pastes in.
+   Do **not** build `optimize_gearset`, a BiS optimizer, or an ingestion of
+   BisBeard's item matrix. This also **dissolves the 3a audit's circularity
+   flag** — "the `items` table agreeing with BisBeard checks our weights, not
+   our items" was only a problem if we claimed to be an independent item
+   source, and we don't. Checking the weights *is* the job.
+2. **Never map item NAME -> stats** — 476 of 1,157 names span several item_ids
+   at different difficulties with different stat blocks. ✅ **But keying on
+   `item_id` is lossless**: every variant carries its own id and
+   `item_id -> (tier, stats)` is a function (measured: 0 ids carry two stat
+   blocks). So the deduped `items` table is safe as a stat source, and
+   `PLAN_3B` §3.2's "the dedup collapses real differences" is **amended** —
+   the hazard is the name. Watch `snapshot_gear.stats_match_type`, which flags
+   the crawl's own name-matched blocks.
+3. **Report gear-stat resolution COVERAGE per character** (`gear_coverage()`).
+   A character with unresolved pieces is simmed at too-low stats and produces
+   the same negative delta as a missing buff — the calibration miss cannot be
+   attributed until coverage is known. ⚠ Coverage is **not repairable from the
+   corpus**: an unresolved item is unresolved on every snapshot.
+
+🚨 **And the one that actually moved the gate: weapon damage is in NO stat
+block.** It exists only in the rendered item description and must be parsed
+with the description's own stated DPS as a check digit
+(`core/builds/gear.py :: parse_weapon_damage`). Without it a crawled character
+sims with no weapon at all.
+
+**Still to do here:** `PLAN_3B` §4's accessible-ceiling object (open raids ×
+difficulties × current M+ cap, parsed from the timeline, bounding the sim and
+the weight sweep) and §6's two-vector weight emitter — the latter **only after
+the sim passes the gate**, which currently rests on one qualified character.
+
 **BisBeard (`s10.bisbeard.com`) already does stat-weight-driven BiS optimization for Ascension S10,
 with phase- and content-filtered gear.** Building a competing optimizer is weeks of work for a worse
 result. The division of labour is clean and it's the reason stat weights were worth deriving:
@@ -531,6 +572,12 @@ a nice-to-have check.
   because simulating a crawled character needs gear (T4's `items` table). Until
   this passes, the sim is not trusted on hypothetical builds — that gate moved
   with the criterion.
+  ⚠ **Status 2026-08-06: MET as written (4 of 41), but only 1 of the 4 passes
+  with ≥50% of its real damage modelled** — the rest agree on the total while
+  the sim reproduces almost none of the kit. The criterion is structurally
+  blind to that and was **not** redefined after the result was seen; whether it
+  should carry a magnitude-coverage floor is open
+  (`crawled_gate_passes_by_compensating_error`) and is an owner decision.
 - Every crawled record resolves via the crosswalk; zero string matching remains
 - Inference proposes crit-table verdicts with sample sizes for the top ~50 most-played abilities
 - At least one default uncertainty range replaced by a measured confidence interval

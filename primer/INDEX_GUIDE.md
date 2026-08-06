@@ -1,3 +1,44 @@
+# Ascension Spell/Card Index — Guide (v18)
+
+**v18 changelog (2026-08-06, session `3b`).** Two new `snapshot_gear` columns in
+`builds.db`, and a correction to how the `items` table should be read. No table
+in `ascension.db` changed; the 20-step rebuild is unchanged.
+
+- 🚨 **`snapshot_gear.weapon_json`** — `{min, max, speed, hand, dps, ...}` for
+  weapons, else NULL (361 rows). **Weapon damage is in NO stat block**:
+  `resolved_bisbeard.stats` never carries it and `resolved_bisbeard.damage` is
+  NULL on all 1,413 weapon-slot entries, so anything building a character from
+  stat blocks alone gives it **no weapon at all**. Parsed from the rendered item
+  description and **self-checked against that description's own stated DPS**
+  (849/849 agree within 3%); a parse failing the check yields NULL, never a
+  guess. Speed is `(min+max)/2/stated_dps`, not the displayed 1-decimal value.
+  Hand comes from the numeric `INVTYPE`, never the prose.
+- 🆕 **`snapshot_gear.stats_match_type`** — `'direct'` (matched on item_id) or
+  `'name_fallback'` (matched on NAME, 98 rows). Load-bearing: **476 of 1,157
+  item names span several item_ids at different difficulties with different
+  stat blocks**, so a name match can land on a variant the character never
+  wore. Kept as a column so those rows can be flagged or excluded.
+- 🚨 **How to read `items` — corrected.** The difficulty axis lives **in the
+  item_id**: every tier variant has its own id, and `item_id -> (tier, stats)`
+  is a function (0 of 1,792 stat-bearing ids carry two stat blocks or two
+  tiers). So the dedup on item_id is **lossless** and `items` is safe as a stat
+  source; the hazard is the **name**, not the dedup. ⚠ Whether the numeric
+  relation between a base id and its variants is a decodable scheme is **not
+  established** — prefixes are inconsistent, and relating two ids by a pattern
+  is the same error class as relating two spells by name.
+
+```sql
+-- a character's weapons, as the sim needs them
+SELECT slot, item_name, weapon_json FROM snapshot_gear
+WHERE snapshot_id = ? AND weapon_json IS NOT NULL;
+
+-- stat blocks that were matched by NAME and may be the wrong variant
+SELECT snapshot_id, slot, item_id, item_name FROM snapshot_gear
+WHERE stats_match_type = 'name_fallback';
+```
+
+---
+
 # Ascension Spell/Card Index — Guide (v17)
 
 **v17 changelog (2026-08-06, 3b pre-flight — the 3a audit remediations).** No

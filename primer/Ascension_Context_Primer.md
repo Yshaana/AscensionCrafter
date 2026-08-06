@@ -1,8 +1,68 @@
-# Project Ascension — Systems Primer v26 (Context for Claude)
+# Project Ascension — Systems Primer v29 (Context for Claude)
 
 This file explains how **Project Ascension** works so you can reason about build decisions. Background context, not a build — pair with a build handoff. Ascension is a heavily customized WoW private server; **treat in-game tooltip coefficients and mechanics as source of truth over retail/classic WoW assumptions**.
 
 > **🔧 Tool trigger — inspect links (read this before anything else in chat):** If the user pastes anything matching `inspects.nie.one/#new/...`, or a raw fragment that looks like `2.s10w...!1~...` (dot-separated header, `!` before a gear blob, `~`/`.`/`_`-delimited spec blocks), **immediately fetch and run `ingest/addon/decode_inspect_export.py` against it.** Do not hand-decode the hex/base36 format manually — the decoder already exists, is fast, and won't make transcription errors. Full format spec lives in the script's own docstring and `INDEX_GUIDE.md`.
+
+**v29 changelog (2026-08-06, session `3b`).** The gear layer and the decomposed
+calibration gate. Full detail in
+`primer/Session_2026-08-06_3b_gear_and_decomposition.md`; only what changes
+*practice* is here.
+
+- 🚨 **NEW §2 FACT — THIS SERVER'S GEAR IS NOT NATIVE 3.3.5. Item stats are
+  rolled at drop as a function of tier** (raid difficulty Normal / Heroic /
+  Mythic / Ascended, or M+ keystone level), so **two items with the same NAME
+  can carry completely different stats** — measured, **476 of 1,157** resolved
+  names span several ids. `Golem Shard Leggings` is Str 45 / 38 / 30 at
+  Mythic 10 / Mythic / Heroic. 🛑 **Never map item name → stats.** This is the
+  duplicate-name trap (§2) reappearing in item space. ✅ **But each variant
+  carries its own item_id**, and `item_id → (tier, stats)` is a *function*
+  (0 of 1,792 stat-bearing ids carry two blocks), so keying on the id is
+  lossless. ⚠ Whether the base-id → variant-id numbers form a decodable scheme
+  is **not established** — prefixes are inconsistent, and relating two ids by a
+  pattern is the same error as relating two spells by name.
+- 🚨 **NEW §5 PRACTICE, and it cost a whole calibration gate: A STAT BLOCK IS
+  NOT A CHARACTER'S INPUTS. WEAPON DAMAGE IS IN NO STAT BLOCK.** The crawl's
+  `resolved_bisbeard.damage` is NULL on **all 1,413** weapon-slot entries, so
+  every crawled character was being simmed **with no weapon at all** — zeroing
+  white swings and every weapon-percent ability, across all 41 gate candidates.
+  Fixing that one input moved the gate from **0 of 41 to 4 of 41** with nothing
+  fitted. **Before trusting a stat pipeline, ask what the stat block does not
+  contain** — the absent field is invisible precisely because it is absent.
+- 🧠 **NEW §5 PRACTICE: the "never read a magnitude from a description string"
+  rule is about TEMPLATES, and a rendered third-party string can be admissible
+  — if it carries its own check digit.** CLAUDE.md's rule targets **DBC**
+  descriptions, which are tooltip templates with `$` variables and hand-rolled
+  scaling (the class of thing that renders HftH as "194 to 147"). The crawl's
+  item text is already rendered, with literal integers, **and states the
+  weapon's DPS alongside its damage range** — so `(min+max)/2/speed` must
+  reproduce it. **Enforce the check rather than assuming it**: 849 of 849
+  parses agree within 3%, and a parse that fails returns nothing. ⚠ Set the
+  band *relatively* — at 0.15 absolute, 110 look like mismatches and every one
+  is the displayed speed being rounded to one decimal.
+- 🚨 **NEW §5 PRACTICE: DECOMPOSE A ONE-SIDED MISS BEFORE ATTRIBUTING IT — and
+  produce a verdict per mechanism, not a split that sums to the miss.**
+  Apportioning a multiplicative shortfall across candidate causes needs the
+  answer; asking whether each cause is *capable* of explaining a miss that size
+  is enough to eliminate candidates, and it is free. It eliminated gear
+  resolution (30 of 41 characters resolve **100%** of their gear and still
+  missed by −92%) and confirmed buffs as negligible (median **+0.0%**), leaving
+  per-ability magnitude coverage — sim damage for a median **20%** of what
+  characters really dealt, 37% after the weapon fix.
+- 🛑 **NEW §5 PRACTICE: A GATE CAN PASS BY COMPENSATING ERROR, AND AN AGGREGATE
+  CRITERION CANNOT SEE IT.** Of the 4 characters now inside ±20%, **one** also
+  has ≥50% of its real damage modelled; the others agree on the total while the
+  sim reproduces 5–13% of the kit. **Report the qualified count next to the
+  criterion — and do NOT redefine the criterion after seeing the result**, in
+  either direction. Moving a gate once its number is known is how a gate stops
+  meaning anything.
+- ⚠ **A log's own id space can differ from the sim's keys, and the mismatch
+  reads as a coverage gap.** Auto-attacks log as **negative** spell ids
+  (`-1`, school variants `-22..-26`) while the sim keys `auto_mh`/`auto_oh`;
+  matching on id alone scored all white damage unmodelled. And **not every
+  negative id is an ordinary swing** — extra-attack procs log identically
+  (`Auto Attack [Hand of Justice]`). The discriminator is taken from the row
+  itself (bracket tag == the row's own school), never from the id's magnitude.
 
 **v28 changelog (2026-08-05, session `2e`).** The Path-of-Intelligence
 calibration session — the first with a same-session stat block on a non-cycling

@@ -9,6 +9,77 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 ## Current position
 
+**✅ 3B's CRITICAL PATH IS DONE (2026-08-06).** `PLAN_3B_UPDATE.md` §5's
+sequence — fix the gear layer, then re-run the gate with the miss
+**decomposed** — ran end to end. Session record:
+`primer/Session_2026-08-06_3b_gear_and_decomposition.md`. Owner scoping
+decision: critical path first; **3b T5 (addon) / T6 (log ingestion) /
+T7 (session automation) are deferred, not blocked**.
+
+### 🎉 The calibration gate PASSES — 4 of 41, on one missing input
+
+`py tools/audit/calibrate_crawled.py --limit 120 --max-lag-hours 0`
+→ **4 of 41** level-60 crawled characters within ±20% (criterion ≥3).
+Was 0 of 41. **Nothing was fitted**; the whole move came from finding that
+**weapon damage is absent from every stat block** in the crawl
+(`resolved_bisbeard.damage` is NULL on all 1,413 weapon-slot entries), so the
+sim had been giving every candidate **no weapon at all** — zeroing white swings
+and every weapon-percent ability. It is parsed from the rendered item
+description and **self-checked against that description's own stated DPS**,
+849 of 849 agreeing within 3%; a parse that fails the check returns nothing.
+
+### 🛑 But read the pass with its coverage — it is not clean
+
+Only **one** of the four passes (Ari, −10.3%) also has ≥50% of its real damage
+modelled. The other three (Chastie 5%, Zaczao 6%, Xoller 13%) agree on the
+total while the sim reproduces almost none of their kit — **compensating
+error**, which the ±20% aggregate criterion is structurally blind to. The
+criterion was **not** redefined after the result was seen; the qualified count
+is reported next to it. **Owner decision needed:** open question
+`crawled_gate_passes_by_compensating_error` — should Phase 3's exit carry a
+magnitude-coverage floor, and at what level?
+
+### What the decomposition established (PLAN_3B §5.2)
+
+- **Gear resolution: ELIMINATED** for 30 of 41 — median gear-stat coverage is
+  **100%**, so they were simmed on their entire real gear set and still missed
+  by a median −92% (−68% after the weapon fix). ⚠ Coverage is reportable but
+  **not repairable from the corpus**: an unresolved item is unresolved on every
+  snapshot (0 of 592 resolve anywhere else) because those ids are absent
+  upstream. Open question `crawl_gear_coverage_is_not_repairable`.
+- **Buffs: median +0.0%** (max +10.6%) — the 3b pre-flight finding holds.
+  `crawled_gate_residual_after_buff_layer` is **resolved**.
+- **Magnitude coverage: DOMINANT** — the sim produces damage for a median
+  **37%** of what these characters actually dealt (20% before the weapon fix).
+  The gate report now ends with a **ranked list of the biggest unmodelled
+  abilities** — measured demand, and the shortlist the next magnitude work
+  should read.
+
+### 🆕 Gear model: the difficulty axis lives in the item_id
+
+Same-name items really do carry different stats (**476 of 1,157** names span
+several ids at different tiers) — but **each variant has its own item_id**, and
+`item_id -> (tier, stats)` is a function (0 ids carry two stat blocks). So
+`PLAN_3B` §3 was amended (owner, 2026-08-06): **never map item NAME to stats**
+stands and is the real hazard — the crawl's own 98 `name_fallback` matches are
+it, now visible as `snapshot_gear.stats_match_type` — while "the deduped
+`items` table is lossy" is dropped, because keying on item_id is lossless.
+
+### 🔴 FIRST ACTIONS NEXT SESSION
+
+1. **The owner's in-game capture is still THE ask:** `primer/NEXT_CAPTURE.md`,
+   gated on the server restart (see below).
+2. **Answer `crawled_gate_passes_by_compensating_error`** — it gates whether
+   the sim has earned the right to emit stat weights (`PLAN_3B` §6).
+3. ⚠ **`BEFORE_3B` §3's two "blocked" questions are already answered** — the
+   `WoWCombatLog` naming convention and `ReloadUI()` availability were both
+   resolved 2026-08-04 and are written up in `PHASE_3_builds_repo.md` T5/T6.
+   Doc drift, not a blocker; do not re-ask the owner.
+
+---
+
+## Superseded: the 3b pre-flight position
+
 **✅ 3B PRE-FLIGHT IS DONE (2026-08-06, from `BEFORE_3B.md`).** §1 audit
 remediations landed (reproducibility framing + per-report `tier2_manifest.json`
 + INDEX_GUIDE v17 + the lag-0 retraction row), §2 green (rebuild 20 steps,
@@ -31,6 +102,11 @@ the derived buff layer — is BUILT and run. Session record:
    conditional on the re-test, not the tracker status.
 
 ### 🚨 The calibration gate is STILL NOT MET — and the buff hypothesis is now measured
+
+> ⚠ **Superseded 2026-08-06 by the 3b session above: the gate now reads 4 of
+> 41.** The buff finding below stands unchanged and was the correct call — what
+> it could not see was that the sim was simming every candidate with no weapon.
+> Kept as the historical record, not as the current position.
 
 `py tools/audit/calibrate_crawled.py --limit 120 --max-lag-hours 0`
 → **0 of 41** level-60 crawled characters within ±20%
@@ -543,7 +619,7 @@ Optionally re-run closer to the 8th for a tighter "before" edge; the folder is o
 | **2d** | Capture bundle, in-game testing, bug findings | ⚠ partial | `Session_2026-08-05_2d_capture_and_bugs.md` | T0+T1 delivered and exceeded; **T2–T10 not started** → carried to `2e`. Three premise-invalidating findings (Duality broken, Hammerdin trigger set, LC engine-inert), 2 bugs filed / 1 submitted (#200295), 3 retractions, Cleave Kit written up |
 | **2e** | Buff model, sim gaps, PoI recalibration, bug-fix watch, scorecard spec | ✅ done | `Session_2026-08-05_2e_poi_calibration.md` | T1–T4, T6–T11. Holystrike residual closed (weapon input); Holy residual split into 2 mechanisms; `dbc_only` +11,857 spells; buff layer measured; glancing 32.6%; watch sweeps live; kit rename; D3/D4 landed. T5 + detector deferred with reasons. **#200295 FIXED pending restart** |
 | 3a | Crawl normalisation, inference, search, gear | ✅ done | `Session_2026-08-06_3a_builds_corpus.md` | T1–T4 + T8, plus the uncapped backfill (50 reports). `builds.db` built; inference is staging-only with an anchor-comparison crit method (the doc's regression is impossible — hit/crit unified in gear); `ItemStat.dbc` disproved as a stat source, items come from the crawl. 🚨 **Calibration gate NOT MET (0 of 41 at strict lag-0), 40/41 misses negative → unmodelled buffs** |
-| 3b | Addon, logs, automation, crawler refinement | ⬜ | — | T8 landed early in 3a (re-verification sweep). Remaining: T5 addon, T6 log ingestion, T7 session-start hook |
+| 3b | Gear layer + decomposed calibration gate | 🟡 partial | `Session_2026-08-06_3b_gear_and_decomposition.md` | `PLAN_3B_UPDATE.md` §5's critical path only (owner scoping decision). 🎉 **Gate PASSES, 4 of 41 (was 0 of 41)** — on one missing input, **weapon damage is in no stat block**, nothing fitted. 🛑 Only 1 of the 4 also has ≥50% of its damage modelled; the rest pass by compensating error and the criterion was NOT redefined. Gear model corrected (difficulty lives in the item_id; name→stats banned). **Remaining: T5 addon, T6 log ingestion, T7 session-start hook, PLAN_3B §4 ceiling + §6 weight emitter** |
 | 4 | Legos + Theorycrafter | ⬜ | — | Chunk as it goes |
 
 Status values: ⬜ not started · 🟡 in progress · ✅ done · ⏸️ blocked
@@ -611,6 +687,9 @@ When recon or implementation contradicts a phase doc, record it here **and** ame
 
 | Date | What changed | Why |
 |---|---|---|
+| 2026-08-06 (3b) | 🎉 **The inherited exit gate now PASSES — 4 of 41 within ±20% — and the cause was ONE missing input, not a fitted constant: weapon damage is in NO stat block** | `resolved_bisbeard.damage` is NULL on **all 1,413** weapon-slot entries and `stats` never carries it, so `build_spec_for` was constructing every crawled character with `weapon=None` — the sim gave all 41 candidates **no weapon at all**, zeroing white swings and every weapon-percent ability. Found by DECOMPOSING the miss (PLAN_3B §5.2) rather than attributing it: gear resolution **eliminated** for 30 of 41 (median 100% coverage, still −92%), buffs **median +0.0%**, leaving per-ability coverage — sim damage for a median **20%** of real damage, **37%** after the fix. Weapon numbers exist only in the rendered item description and are parsed **with the same string's stated DPS as an enforced check digit**, 849/849 within 3%; a failing parse returns nothing. 🛑 **Read the pass with its coverage: only 1 of the 4 (Ari) is inside tolerance while ≥50% of its damage is modelled** — the others agree on the total while the sim reproduces 5–13% of the kit, i.e. compensating error, which an aggregate criterion is blind to. The criterion was **not** redefined after the result was seen; the qualified count is reported beside it and the question is the owner's (`crawled_gate_passes_by_compensating_error`) |
+| 2026-08-06 (3b) | 🚨 **Gear is dynamic, and `PLAN_3B` §3 was amended: the difficulty axis lives in the item_id** | Stats are rolled at drop by tier, so **476 of 1,157** resolved item names span several item_ids with different stat blocks (`Golem Shard Leggings` = Str 45 / 38 / 30 at Mythic 10 / Mythic / Heroic). **But each variant carries its own id** and `item_id → (tier, stats)` is a function — 0 of 1,792 stat-bearing ids carry two blocks or two tiers. So **"never map item NAME → stats" stands and is the real hazard** (the crawl's own 98 `name_fallback` matches are it, now visible as `snapshot_gear.stats_match_type`), while §3.2's "the deduped `items` table collapses real differences" is **dropped** — keying on the id is lossless. Owner decision 2026-08-06. ⚠ Whether base-id → variant-id forms a decodable scheme is **not established**; prefixes are inconsistent, and relating two ids by a pattern is the same error class as relating two spells by name |
+| 2026-08-06 (3b) | ⚠ **Gear-stat coverage is reportable but NOT repairable from the corpus** | `gear_coverage()` reports resolved fraction of stat-bearing slots (shirt/tabard excluded as measured-statless: 0 of 209 and 0 of 87). Median across the gate is **100%**, 30 of 41 fully resolved — which is what eliminated gear as the dominant cause. The 592 unresolved item_ids resolve on **no** snapshot (0 of 592), because they are absent upstream: levelling greens and vanilla items outside BisBeard's S10 scope. Whether to enrich them from db.ascension.gg is open (`crawl_gear_coverage_is_not_repairable`) |
 | 2026-08-06 (3a) | 🚨 **The client DBC is NOT a source of item stat values — Phase 0 T9's "honest default" route is a dead end, and Phase 3 T4 runs on the crawl instead** | Probed rather than assumed, and disproved against ground truth. `Item.dbc` (563,308 records, 8 fields) is stock display data. `ItemStat.dbc` (1,513,931 records, 39 fields) is a custom table whose fields 3–22 read as `(ITEM_MOD type, value)` pairs reproduce the true block **6 times in 567 overlaps** across 1,198 items the crawl already resolves, with no field matching a real stat value above 9.2% (chance). Expected in hindsight: 3.3.5 keeps item stats server-side in `item_template`. `items` is therefore assembled from `snapshot_gear` (1,680 items / 1,313 with stats at the time of this entry; 2,384 / 1,792 after the backfill completed) — Path B's own fallback. ⚠ **Provenance is stamped `crawl_resolved_bisbeard`**: those blocks are BisBeard's resolution carried through the armory capture, so cross-validating our weights against BisBeard checks the WEIGHTS and not the ITEMS. The remaining `ItemStat.dbc` layout is recorded as an open question, not guessed |
 | 2026-08-06 (3a) | 🚨 **PHASE_3 T2's crit-table regression is IMPOSSIBLE as specified; replaced with a within-character anchor comparison** | The doc says regress each character's crit% against their melee and spell crit rating. Per-parse stats do not exist (Phase 0 T2) and armory stats are gear-only — **and hit/crit rating are unified in GEAR (2d)**, so a gear-rating regression cannot separate the two tables even in principle. The replacement compares the target's crit% against the same character's crit% on doc-confirmed anchors *in the same parse* (melee: Auto Attack; spell: confirmed `crit_table='spell'` ids expanded through the crosswalk), so buff state, gear and target-level suppression cancel inside the pair — the property that makes weapon-free pair ratios durable, reused. ⚠ A two-bucket version proposed five PERIODIC abilities (4 Consecration ranks, Blood Presence) as `melee`, because ~0% crit is closer to the melee anchor than the spell one; a `none` bucket now fires first. `infer_coefficient` **refuses per spell and records the refusal** — it unlocks only when per-parse stats exist (T5 self-snapshot) |
 | 2026-08-06 (3a) | ⚠ **PHASE_3 T1's DDL deviates in five recorded places; the load-bearing one is `capture_scopes`** | Per-ability endpoints aggregate over whatever `encounterIds` were passed and rows carry no encounter id, so an ability row's real granularity is the SCOPE, not the encounter — performance keys on `scope_id`, and `encounter_id` is set only where the scope covers exactly one. Collapsing scopes onto encounters would fabricate precision the source never had. Also: avoidance moved to its own enemy-keyed table (no attacker id exists), no `patch_id`/`phase_id` columns (rebuild-scoped autoincrements must not be referenced durably — the `open_questions` slug lesson), `gear_stats_json` not `stats_json` (the `_gearOnly` trap), and snapshots carry `capture_report_id` so the build-to-parse join can be EXACT rather than nearest-in-time |
