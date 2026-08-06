@@ -76,6 +76,44 @@ def _effective_time(content: ContentProfile):
     return content.fight_duration * (1.0 - max(0.0, min(1.0, content.movement_pct)))
 
 
+def _useful_cast_interval(ability):
+    """Seconds between USEFUL casts, read from the ability's own fields.
+
+    Returns `(interval, reason)`; `interval <= 0` means nothing bounds it and it
+    is a genuine spam button that may absorb whatever GCDs are left.
+
+    🚨 3e B1 — THE DURATION TERM IS THE POINT, and leaving it out was a real
+    over-count. `expected_cast` scores a periodic event as
+    `duration / tick_interval` ticks **for one cast** — one Corruption cast is
+    all 6 of its ticks. So a DoT treated as an unbounded filler is re-applied
+    every GCD and **re-scores its entire duration each time**, which is the
+    "DoTs are re-cast every GCD" defect the `3c` audit predicted. It reads clean
+    on today's fixtures only because those DoTs never get any budget at all
+    (ENGINE_BUGS E5) — remove that starvation without this bound and the sim
+    would inflate every DoT by roughly `duration / gcd`.
+
+    A cooldown and a duration can both apply; the binding one is the LONGER.
+    Re-casting a 6s-cooldown DoT that runs for 18s refreshes it, it does not
+    stack, so the useful rate is one per 18s.
+
+    ⚠ Nothing here is invented — both numbers come from the resolved ability. An
+    ability whose duration is unknown gets no duration bound, exactly as
+    `expected_cast` refuses an unknown pulse count rather than defaulting it.
+    """
+    cd = ability.fields.get("cooldown_seconds") or 0.0
+    dur = ability.fields.get("duration_seconds") or 0.0
+    periodic = bool(ability.fields.get("tick_interval_seconds"))
+    if periodic and dur > 0:
+        if cd > 0:
+            return (max(cd, dur),
+                    f"cooldown {cd:g}s vs {dur:g}s periodic duration — the "
+                    f"longer binds, a refresh does not stack")
+        return dur, f"{dur:g}s periodic duration (one cast scores every tick)"
+    if cd > 0:
+        return cd, f"{cd:g}s cooldown"
+    return 0.0, "unbounded — a spam filler"
+
+
 # --------------------------------------------------------------------- fast
 
 def fast_sim(conn, build_spec, content: ContentProfile, char_state,
@@ -117,27 +155,36 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         warnings.extend(exp.warnings)
         gcd = _gcd_for(ab, char_state)
         occupancy = max(gcd, _cast_time(ab, char_state))
-        cd = ab.fields.get("cooldown_seconds") or 0.0
+        interval, why = _useful_cast_interval(ab)
 
+        # 3e B1 — ONE allocation rule for every on-GCD ability, cooldown or
+        # filler. It used to be two branches, and the filler branch ended
+        # `gcd_budget = 0.0` — so the first filler took the whole remainder and
+        # every later one got nothing, whatever its own fields said. Measured on
+        # the committed fixtures before the fix: **1 of 7** fillers ever cast on
+        # the combo-point board and **0 of 8** on the DoT caster.
+        #
+        # The rule now is the same for both: an ability is capped by its own
+        # useful cast interval, capped again by the budget left in front of it,
+        # and it consumes only what it uses. A filler with no interval is a spam
+        # button and still absorbs the remainder — that part was always right.
         if sid in off_gcd_ids:
             # Queued alongside a GCD action, so it costs no budget; it fires
             # about as often as there are GCD actions to ride, or as its own
-            # cooldown allows, whichever is fewer.
-            casts = gcd_actions if cd <= 0 else min(gcd_actions, available / cd)
-        elif cd > 0:
-            casts = available / cd
-            need = casts * occupancy
-            if need > gcd_budget:
-                casts = gcd_budget / occupancy if occupancy else 0.0
-                warnings.append(
-                    f"{ab.name}: GCD-limited, not cooldown-limited — the "
-                    "budget ran out before its cooldown did")
-            gcd_budget = max(0.0, gcd_budget - casts * occupancy)
-            gcd_actions += casts
+            # interval allows, whichever is fewer.
+            casts = (gcd_actions if interval <= 0
+                     else min(gcd_actions, available / interval))
         else:
-            # fillers split whatever budget the cooldowns left, in priority order
-            casts = gcd_budget / occupancy if occupancy else 0.0
-            gcd_budget = 0.0
+            if interval > 0:
+                casts = available / interval
+                if casts * occupancy > gcd_budget:
+                    casts = gcd_budget / occupancy if occupancy else 0.0
+                    warnings.append(
+                        f"{ab.name}: GCD-limited, not limited by its {why} — "
+                        "the budget ran out first")
+            else:
+                casts = gcd_budget / occupancy if occupancy else 0.0
+            gcd_budget = max(0.0, gcd_budget - casts * occupancy)
             gcd_actions += casts
 
         dmg = exp.mean * casts
@@ -149,7 +196,24 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
             "events": exp.per_event,
             "unresolved_events": exp.unresolved_events,
             "attributed": any(e["attributed"] for e in exp.per_event),
+            # 3e B1 — what actually bounded this ability's cast count, so the
+            # rotation can be read without re-deriving the allocation by hand.
+            "rate_limit": ("off_gcd" if sid in off_gcd_ids
+                           else "gcd_budget" if interval <= 0 else why),
         }
+
+    # 3e B1 — an ability allocated ZERO casts used to be completely silent, so a
+    # board whose entire filler tier never fires reported a clean rotation. The
+    # sim now names them: a build modelled without its own buttons is a
+    # different build, and the reader has to be told which one they got.
+    starved = [r["name"] for r in per_ability.values() if r["casts"] <= 0.001]
+    if starved:
+        warnings.append(
+            f"{len(starved)} of {len(per_ability)} APL abilities were allocated "
+            f"ZERO casts — higher-priority abilities consumed the whole "
+            f"{available:.0f}s GCD budget: {', '.join(starved[:8])}"
+            + (" ..." if len(starved) > 8 else "")
+            + ". This is a rotation the sim could not fit, not a build choice")
 
     if gcd_budget > 0.01:
         warnings.append(

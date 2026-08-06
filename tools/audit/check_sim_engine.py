@@ -69,6 +69,12 @@ EXPECTED_FAILURES = {
     "[dot_caster] the board's DoTs enter the rotation at all":
         "ENGINE_BUGS.md E5 — DoTs are filed behind every cooldown ability and "
         "the GCD budget never reaches them (6 of 7 cast zero times)",
+    "[dot_caster] fast_sim allocates GCDs to more than one filler":
+        "ENGINE_BUGS.md E5 — same root, seen through the filler tier. 3e B1 "
+        "fixed the allocation rule and this now PASSES on cp_melee (1 of 7 -> "
+        "2 of 7); the DoT caster still reads 0 of 8 because its nine cooldown "
+        "abilities consume the entire GCD budget before the filler tier is "
+        "reached at all. Closes with B3, not B1",
 }
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the
@@ -531,6 +537,19 @@ def _load_fixture(conn, ct, conv, filename):
     return bd, spec, compute_stats(spec, ct, conv, conn=conn)
 
 
+def _filler_ids(conn, apl, level):
+    """On-GCD APL entries with no cooldown — the 'filler' tier fast_sim
+    allocates last. Classified the same way `tiers.py` does, from the resolved
+    ability's own `cooldown_seconds`, so the check cannot drift from the code
+    it tests by re-implementing the rule differently."""
+    from core.sim.tiers import _resolve_all
+    off = {e.spell_id for e in apl.entries if e.off_gcd}
+    ids = apl.spell_ids()
+    abilities = _resolve_all(conn, ids, level, [])
+    return [s for s in ids if s not in off and abilities.get(s)
+            and not (abilities[s].fields.get("cooldown_seconds") or 0)]
+
+
 def check_nonpaladin_fixtures(conn, ct, conv):
     """Generality checks. See §9 above — these are MEANT to fail today."""
     from core.sim.apl_gen import generate_apl
@@ -559,10 +578,22 @@ def check_nonpaladin_fixtures(conn, ct, conv):
         # filler gets 0 casts. The comment two lines above says "fillers split
         # whatever budget the cooldowns left, in priority order." This is the
         # tier the calibration gate runs on.
+        #
+        # ⚠ 3e B1 — THE ORIGINAL CHECK WAS TOO WEAK TO BITE AND SAID SO. It
+        # counted abilities that did *any* damage, and both boards carry enough
+        # COOLDOWN abilities to clear the threshold no matter how the FILLER
+        # budget is split. Measured: it passed at 11 acting abilities on the DoT
+        # caster while **zero of that board's eight fillers cast even once**.
+        # The claim is now made about fillers specifically.
         acting = [k for k, r in f.per_ability.items() if r["damage"] > 0]
+        fillers = _filler_ids(conn, apl, spec.character_level)
+        firing = [s for s in fillers if f.per_ability.get(s, {}).get("casts", 0) > 0.001]
         gcheck(f"[{kind}] fast_sim allocates GCDs to more than one filler",
-              len(acting) >= 5, f"{len(acting)} abilities did damage: "
-              f"{sorted(map(str, acting))[:6]}")
+              len(fillers) < 2 or len(firing) >= 2,
+              f"{len(firing)} of {len(fillers)} on-GCD fillers received any "
+              f"casts ({len(acting)} abilities did damage overall, which is why "
+              f"the old form of this check passed). Fillers that never cast: "
+              f"{sorted(str(s) for s in fillers if s not in firing)[:8]}")
 
         if kind == "cp_melee":
             # `tiers.py:197` / `apl.py:118` — `combo_points` is never

@@ -153,7 +153,49 @@ it carries that caveat in its own failure text.
 
 ---
 
-## E6 — `fast_sim`'s first filler consumes the entire GCD budget
+## E6 — `fast_sim`'s first filler consumes the entire GCD budget — ✅ FIXED (`3e` B1)
+
+> ### ✅ Closed 2026-08-06, session `3e` Block B1. The record below is what was found; this box is what happened.
+>
+> **The check was rewritten to bite first, and it failed as predicted.** The old
+> form counted abilities that did *any* damage and passed at 11 acting abilities
+> on the DoT caster **while zero of that board's eight fillers cast even once**.
+> Re-stated about fillers specifically, it read **1 of 7** (cp_melee) and
+> **0 of 8** (dot_caster).
+>
+> **What was actually wrong was bigger than the line cited.** `gcd_budget = 0.0`
+> is arithmetically identical to `gcd_budget - casts * occupancy` for an
+> unbounded filler, so that statement alone was redundant rather than wrong. The
+> real defect is that **nothing bounded a filler's useful cast rate**:
+> `expected_cast` scores a periodic event as `duration / tick` ticks **for one
+> cast**, so a DoT treated as an unbounded filler is re-applied every GCD and
+> **re-scores its whole duration each time**. That is the audit's predicted
+> "DoTs re-cast every GCD" bug, live in `fast_sim`, masked only because those
+> DoTs were getting no budget at all.
+>
+> **Fix:** one allocation rule for every on-GCD ability
+> (`core/sim/tiers.py :: _useful_cast_interval`) — capped by its own useful cast
+> interval (cooldown, periodic duration, or the **longer** of the two, since a
+> refresh does not stack), capped again by the budget in front of it, consuming
+> only what it uses. Both numbers come from the resolved ability; nothing is
+> invented. Plus: an ability allocated **zero** casts is now **named in
+> `warnings`** — it used to be completely silent, which is how a board whose
+> entire filler tier never fires reported a clean rotation.
+>
+> **Gate impact, the honest version.** 5 of 36 → **4 of 36** within ±20%;
+> qualified unchanged at 2; slice accuracy at the ≥20% floor 64.3% → **62.6%**.
+> Only **7 of 36** characters moved and **every one moved down**. Chastie's
+> `+13.1%` pass became `−27.9%`: it was passing *on the over-count*, at 4.6%
+> coverage. **A criterion count went down because the model got more truthful** —
+> the fake damage was removed and nothing was put back. Coverage did not move at
+> all, because coverage is a membership test.
+>
+> ⚠ **It did NOT fix the DoT caster.** That board still allocates 0 of 8 fillers,
+> because its nine cooldown abilities consume the entire GCD budget before the
+> filler tier is reached. That is **E5**, and the strengthened check is
+> registered against E5 for the `dot_caster` fixture until B3 closes it.
+
+<details><summary>The original E6 entry, as written by <code>3d</code></summary>
 
 | | |
 |---|---|
@@ -173,3 +215,5 @@ in priority order"* and the code does not do that.
 so it is the highest-consequence item on this page. Not registered as an expected
 failure because it does not currently fail — but it needs a check that actually
 bites, and writing one is part of `3e`.
+
+</details>
