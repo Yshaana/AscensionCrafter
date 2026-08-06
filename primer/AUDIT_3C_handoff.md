@@ -19,33 +19,79 @@ them ran**:
 5 (addon)  → 6 (logs)      → 7 (automation)        [independent]   ❌ DEFERRED
 ```
 
+> 🔤 **NAMING, corrected in session `3d` (B1/B2).** Throughout this file,
+> **`PHASE_3 T<n>`** means a task in `PHASE_3_builds_repo.md` and **`C<n>`**
+> means a task in `PLAN_3C_clean_exit.md` (which used to number them `T<n>`,
+> colliding on all eight). As originally written this document **contradicted
+> itself**: §0 read "T5(addon)→T6(logs)→T7(automation)" while §4 read "T4, T5,
+> T12, T7 — trigger-edge reachability, pets, coefficient-conflict review,
+> class-A reachability" — the same three tokens carrying six meanings, 135 lines
+> apart. A bare `T<n>` no longer appears in this file.
+
 Verified in the tree today: `core/builds/search.py` ✅, `core/builds/inference.py`
-✅, `builds.db` ✅, gear layer ✅ — but **`ingest/logs/` does not exist** (T6) and
-there is **no hooks directory** (T7). T5's addon exists only as
+✅, `builds.db` ✅, gear layer ✅ — but **`ingest/logs/` does not exist**
+(PHASE_3 T6) and there is **no hooks directory** (PHASE_3 T7). PHASE_3 T5's
+addon exists only as
 `addons/AscensionCrafterExport` (the stat exporter), not the capture addon the
 phase doc specifies. PROGRESS records these as *"deferred, not blocked"* by an
 owner scoping decision, and that deferral was never revisited.
 
-**And the exit criteria are more than the gate.** Six are listed; the calibration
-gate is one. Also outstanding or unverified:
+> ⚠ **`ingest/logs/` is a STRAWMAN test** (adversarial audit §1). That path
+> appears nowhere in `PHASE_3`. The real PHASE_3 T6 test is *a writer from a log
+> into `builds.db`*, and by that test PHASE_3 T6 is **not absent** — parsing is done and
+> Ascension-verified (`tools/log_parser/`), the correlation rule is seeded
+> (`seed_confirmed.py:47`), and the `* WoWCombatLog.txt` glob is written
+> (`calibrate_vs_log.py:314`). What is missing is mtime windowing, UTC
+> conversion, and the DB writer. **Owner decision 2026-08-06: PHASE_3 T6 is
+> reinstated and promoted to its own session, `3f`; PHASE_3 T5 is demoted, not
+> reinstated; PHASE_3 T7 follows `3f`.**
+
+**And the exit criteria are more than the gate.**
+
+> 🚨 **CORRECTED in `3d` (B3) — this section was wrong in three ways.**
+> `PHASE_3_builds_repo.md` lists **SEVEN** exit criteria, not six. **THREE** are
+> outstanding, not two. And criterion **#7 is FAILED, not unverified**.
+>
+> | # | criterion | status | evidence |
+> |---|---|---|---|
+> | 1 | ≥3 characters within tolerance, per content profile | ❌ **NOT MET** | 5 pass / **2 qualified** vs `MIN_QUALIFIED=3`. The *per content profile* sub-clause is separately unverified — `calibrate_crawled.py:137` maps `content_type`→preset but the gate never partitions by it |
+> | 2 | every crawled record resolves via crosswalk; zero string matching | ❌ **NOT MET** | `corpus.py:555-582` writes `spell_id_confidence='unresolved'` on misses, so "every" is not structurally guaranteed; and `snapshot_gear.stats_match_type='name_fallback'` (98 rows) **is** item-name matching, retained by design |
+> | 3 | inference proposes crit-table verdicts for the top ~50 abilities | 🔒 unverifiable | tool exists (`inference.py:77-190`); output is gitignored |
+> | 4 | ≥1 default uncertainty range replaced by a **measured** CI | ❌ **NOT MET — worse than "staging-only"** | `core/sim/uncertainty.py:44-80` `POLICY` has **no `measured` band at all**; `inference.py:48`'s `promoted` flag is set by **no code anywhere**; nothing writes `basis='measured'`. The mechanism the criterion needs does not exist |
+> | 5 | `find_builds()` answers the multi-ability queries | ✅ MET | `core/builds/search.py:24` |
+> | 6 | every parse/snapshot stamped patch/realm/season | ✅ MET | `corpus.py:53,113,123` |
+> | 7 | `ContentProfile` presets derived from real encounter data | ❌ **FAILED** | `core/sim/content.py` — **6 of 8 presets carry `provenance="assumption: …"` in their own strings**, all target counts invented, every target stat `retail_hypothesis` (`:93-97`). Only `fight_duration` on 2 presets derives from real data (`:107-113`). No derivation tool exists in `tools/` or `ingest/` |
+>
+> **Net: 2 met, 4 not met, 1 unverifiable.** The original framing below ("the
+> gate plus two loose ends") is optimistic by a factor of two. The 🛑 for a
+> future session: #7 is a *failed* criterion and its presets become
+> `lego_measurements` keys in Phase 4 — derive them from the `encounters` table
+> PHASE_3 T1 built, or amend the criterion honestly, **before** Phase 4.
+
+Six were listed here originally; the calibration gate is one. Also outstanding
+or unverified:
 
 * *"At least one default uncertainty range replaced by a measured confidence
   interval"* — inference is **staging-only** (74 proposals, nothing promoted).
+  ⚠ See the corrected table: this is worse than "staging-only".
 * *"`ContentProfile` presets are derived from real encounter data, not
-  invented"* — `core/sim/content.py` carries no marker of derivation; I could not
-  confirm this is met and **flag it as unverified**, not as failed.
+  invented"* — ~~`core/sim/content.py` carries no marker of derivation; I could
+  not confirm this is met and **flag it as unverified**, not as failed.~~
+  ❌ **RETRACTED**: it carries the opposite of no marker — six presets declare
+  `"assumption: …"` in their own provenance strings. **FAILED, not unverified.**
 
 > **Recommendation: Phase 3 is not finishable by closing the gate alone.** The
-> deferred T5→T6→T7 chain and at least two non-gate exit criteria remain.
+> deferred PHASE_3 T5→T6→T7 chain and at least two non-gate exit criteria
+> remain. *(Corrected: three, not two — see the table above.)*
 
-### 🆕 And today made T6 much more valuable than when it was deferred
+### 🆕 And today made PHASE_3 T6 much more valuable than when it was deferred
 
 Everything in §2 below — aligning a combat log against the site's API, comparing
 `casts` to `SPELL_CAST_SUCCESS`, correlating deaths to encounter windows — **was
-done by hand this session**. T6 (*combat log ingestion*) is precisely that
-capability, systematised. The new **T11** (give Elric a snapshot from his ALC
-capture) is a thin slice of the same chain. The deferral looks less defensible
-after today than before it.
+done by hand this session**. PHASE_3 T6 (*combat log ingestion*) is precisely
+that capability, systematised. The new **C11** (give Elric a snapshot from his
+ALC capture) is a thin slice of the same chain. The deferral looks less
+defensible after today than before it.
 
 ---
 
@@ -147,18 +193,29 @@ edit it**.
 
 | # | task | why here |
 |---|---|---|
-| **T13** | fix `calibrate_vs_log.py`'s Duality-era defaults | 10 min, and it silently moves HftH 1.26× → 1.45× |
-| **T6\*** | conversion mechanics (RV / Ignite / Deep Wounds) | two independent measurements; no data needed; 9 of 41 characters |
-| **T11** | give Elric a snapshot from his ALC capture | first character with **zero input error by construction** |
-| **T10→T9** | controlled before/after, then the ~4.5× out-of-catalog cluster | five spells within ±4% = one mechanism; may generalise to the cohort |
-| T4, T5, T12, T7 | trigger-edge reachability, pets, coefficient-conflict review, class-A reachability | |
+| **C13** | fix `calibrate_vs_log.py`'s Duality-era defaults | 10 min, and it silently moves HftH 1.26× → 1.45× |
+| **C6** | conversion mechanics (RV / Ignite / Deep Wounds) | two independent measurements; no data needed; 9 of 41 characters |
+| **C11** | give Elric a snapshot from his ALC capture | first character with **zero input error by construction** |
+| **C10→C9** | controlled before/after, then the ~4.5× out-of-catalog cluster | five spells within ±4% = one mechanism; may generalise to the cohort |
+| C4, C5, C12, C7 | trigger-edge reachability, pets, coefficient-conflict review, class-A reachability | |
 
-\* `T6` here is PLAN_3C's task, not PHASE_3's T6. **Naming collision — worth
-renaming before it causes an error.**
+> 🚨 **The order above is WRONG and was corrected in `3d`** — see
+> `SESSION_3D_PRIMER.md` §7 and `AUDIT_3C_ADVERSARIAL.md` §9. Two changes:
+> **C11 moves first** (it produces the verified stat block everything else is
+> validated against, and C13 falls out of it), and **C6 is not "implement
+> conversion mechanics"** — the code path exists, has never once run
+> (`tiers.py:439` reads a `crit_damage` key that is written nowhere in the tree)
+> and is **ungated by talent**, so implementing it as written injects ~30% of
+> crit damage into all 41 cohort characters rather than the 9 that hold
+> Righteous Vengeance. It is *"un-break a dead path and add the gate it never
+> had, then measure the cohort-wide shift before accepting"*. **`3e` work.**
+>
+> \* The naming collision this footnote warned about is **fixed**: PLAN_3C's
+> tasks are `C1`…`C13` as of `3d` B1.
 
 ### The strategic claim I most want challenged
 
-> T2's dead end + T3's weakening ⇒ **the crawl cohort may not be able to deliver
+> C2's dead end + C3's weakening ⇒ **the crawl cohort may not be able to deliver
 > a clean exit on its own**, because a model error and an invalid parse are
 > indistinguishable per candidate. The route through is to fix the model against
 > **Elric** (verified inputs, 11 valid boss encounters, zero snapshots today),

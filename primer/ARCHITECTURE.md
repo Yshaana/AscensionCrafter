@@ -98,6 +98,15 @@ cost ~nothing today and are painful migrations later:
 3. **`user_id` on all user-scoped tables from day one**, with one user. Owned cards, personal
    builds, guarantee allocations, personal test results. Shared canonical data has no `user_id`.
 4. **A named service layer** (`api/`) a FastAPI app wraps 1:1.
+   🛑 **STATUS 2026-08-06 (`3d` B5): ASPIRATIONAL, NOT EXERCISED.** `api/` is a
+   docstring and nothing else — **zero functions, imported by nothing**, and
+   **5 of 7 `cli/` entry points import `core/` directly**. Rule 4 describes an
+   intention, not the tree. It is kept because the intention is still right and
+   `core/` purity (rule 1, genuinely enforced) is what preserves the option —
+   but **do not read this rule as a description of the code**, and do not build
+   on `PHASE_4`'s *"the web app is a thin layer: `api/` already exists"*, which
+   is false. Whoever first needs a served function makes this real by building
+   it in `api/` and routing one CLI through it.
 
 ### 2.8 Role and content are first-class, not DPS-with-exceptions
 The project owner plays DPS; others will tank, heal, and play solo. Building DPS-only and
@@ -192,36 +201,70 @@ Phase 1 is the long one. Phases 2 and 3 partially overlap once Phase 1's schema 
 ## 4. Repo layout
 
 ✅ **Realised 2026-08-04 in Phase 1 T1 — this is the actual layout, no longer a target.** `index/`
-is gone. Directories not yet needed (`core/sim/`, `core/legos/`, `core/theory/`, `core/builds/`,
-`ingest/ascension_db/`) are created by the phase that first needs them rather than sitting empty.
+is gone. Directories not yet needed (`core/legos/`, `core/theory/`) are created by the phase that
+first needs them rather than sitting empty.
+
+🔄 **Re-synced against `find . -type d` on 2026-08-06 (`3d` B4).** The block had drifted: seven
+directories that exist and are load-bearing were undocumented (`fixtures/`, `predictions/`,
+`reviews/`, `bugs/`, `tools/analysis/`, `tools/browse/`, `data/source/captures/`,
+`data/source/ascension_db/`), and `season_config.py` was new. Marked 🆕 below. Drift in this block
+is not cosmetic — it is the map a cold session navigates by.
 
 ```
-config.py        ← the ONE place a filesystem layout is written down. core/ may NOT import it
+config.py        ← the ONE place a filesystem LAYOUT is written down. core/ may NOT import it
+season_config.py 🆕 the ONE place REALM / SEASON / expected PHASE are written down, with live
+                 assertions against /api/phases. Same rule: core/ may NOT import it  (3d A1)
 primer/          Ascension_Context_Primer.md, INDEX_GUIDE.md, ARCHITECTURE.md, RECON_FINDINGS.md,
-                 START_HERE_FOR_CODE.md, PROGRESS.md, PHASE_*.md, Session_*.md handoffs
+                 START_HERE_FOR_CODE.md, PROGRESS.md, PHASE_*.md, PLAN_*.md, AUDIT_*.md,
+                 Session_*.md handoffs
 core/            ← pure logic. No I/O side effects, no CLI, no hardcoded paths
   db/            schema, migrations, connection management
-  spells/        text extraction, ranks, fingerprint, crosswalk, class resolution
-                 (+ mechanics, profile, graph as Phase 1 adds them)
+  spells/        text extraction, ranks, fingerprint, crosswalk, class resolution,
+                 mechanics, profile, graph, epistemics, volatility, rank_scaling,
+                 db_ascension 🆕 (parsing for the db.ascension.gg source — text in, no URLs)
   changelog/     patch-entry parsing and classification
-  builds/        build spec, stats, repo queries, inference, gear
-  sim/           combat_engine, fast/medium/slow, uncertainty, weights, calibration
+  builds/        build spec, stats, repo queries, inference, gear, corpus, search,
+                 group_buffs 🆕 (derives a candidate's buff set from same-scope participants)
+  sim/           combat_engine, tiers (fast/medium/slow), apl + apl_gen, ability_model,
+                 talents, buffs, swings, uncertainty, weights, content, cache, predictions
   kits/          discovery, validation, composition   (was `legos/` — renamed 2e D6, dir not yet created)
-  theory/        principles, brief, acquisition, guide
-api/             ← service layer; thin functions a web API wraps 1:1
-cli/             ← thin CLI wrappers. rebuild.py runs the whole ingest chain
+  theory/        principles, brief, acquisition, guide                 (not yet created)
+api/             ← service layer. 🛑 EMPTY — zero functions, imported by nothing. See §2.7 rule 4:
+                 the cli -> api -> core boundary is ASPIRATIONAL, not exercised
+cli/             ← thin CLI wrappers. rebuild.py runs the whole ingest chain (21 steps)
 ingest/          dbc/  ascension_db/  changelog/  logs_gg/  addon/  export/
 tools/
-  scrapers/      acquisition runners (crawler, changelog fetcher, scouting)
+  scrapers/      acquisition runners (crawler, changelog fetcher, scouting,
+                 scrape_ascension_db.py 🆕, build_tier2_manifest.py 🆕)
   scheduling/    Task Scheduler registration — see SCHEDULING.md
   audit/         auto-debugger + test protocol generator + check_core_purity.py
-  log_parser/    WoWCombatLog.txt parsing
+                 + check_sim_engine.py + calibrate_vs_log.py + calibrate_crawled.py
+  analysis/    🆕 pooled_inference.py — corpus-wide statistical passes
+  browse/      🆕 datasette_metadata.json (canned queries for cli/browse.py)
+  log_parser/    WoWCombatLog.txt parsing (+ decode_alc.py, d1_dict.bin)
+fixtures/      🆕 committed sim fixtures — the regression harness check_sim_engine.py runs
 addons/          in-game Lua addons
 data/
-  source/        committed raw captures — source of truth. export/ dbc/ scouted/ changelog/ crawl/
+  source/        committed raw captures — source of truth.
+                 export/ dbc/ scouted/ changelog/ crawl/
+                 ascension_db/ 🆕 (spell_pages.ndjson — the db.ascension.gg capture)
+                 captures/    🆕 (the owner's in-game logs + stat exports, per session)
   derived/       gitignored .db files and reports — always rebuildable
 builds/          my-builds/  wip/  shared/
+predictions/   🆕 markdown ledgers (calib_*.md, pred_*.md, CALIBRATION_TOLERANCE.md) alongside
+                 the `predictions` TABLE. Two homes for one concept — the table is the
+                 pre-registration mechanism, the markdown is the human-readable record
+reviews/       🆕 human-approval gates. amplifier_review.md is the live one (243 rows, 0 approved)
+bugs/          🆕 game-bug reports the owner submits to Ascension; must outlive the session
 ```
+
+⚠ **§2.4 is INVERTED IN PRACTICE, and the doc should not be read as describing the code.** §2.4
+places uncertainty ranges on every mechanic value in Phase 1's truth table. In the tree, ranges
+live in a **sim-layer policy table** (`core/sim/uncertainty.py`) because
+`spell_mechanics.uncertainty_json` is a ±0% heuristic. Consequence for Phase 4:
+`contribution_low/high` "inherits sim uncertainty (§2.4)" would inherit **a stated assumption, not
+a measurement** — and `uncertainty.py`'s `POLICY` has no `measured` band at all, which is why
+Phase 3 exit criterion #4 is not merely unmet but has no mechanism.
 
 **§2.7 rule 1 is enforced, not just documented.** `tools/audit/check_core_purity.py` walks the AST of
 every file in `core/` and fails on `print()`, `argparse`, `sys.argv`, a self-opened connection, or an

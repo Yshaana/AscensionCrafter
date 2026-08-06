@@ -37,8 +37,16 @@
 > * **PHASE_3 T7** follows `3f` (hard dependency).
 > * **Block D runs on Opus.** Not a default to be re-litigated.
 >
+> 🔤 **NAMING, fixed in `3d` B1.** `PLAN_3C_clean_exit.md`'s tasks are now
+> **`C1`…`C13`** — they used to be `T1`…`T13` and collided with
+> `PHASE_3_builds_repo.md` on **all eight** numbers (T5 meant *capture addon*,
+> *pets* and *three sim tiers* depending on the file), with `PHASE_2` a third
+> space. `AUDIT_3C_handoff.md` collided with itself 135 lines apart. **In this
+> file every `T<n>` is a PHASE doc's task and is qualified as such; a `C<n>` is
+> always PLAN_3C's.**
+>
 > **Session map:** `3d` hygiene + instrument → `3e` modelling + gate re-run →
-> `3f` PHASE_3 T6 → T7 → re-read Phase 3 exit honestly → Phase 4.
+> `3f` PHASE_3 T6 → PHASE_3 T7 → re-read Phase 3 exit honestly → Phase 4.
 > Phase 4's hard blockers are recorded in `SESSION_3D_PRIMER.md` §11 so they are
 > not rediscovered. Phase 4 Part C1 (principles corpus) is genuinely unblocked
 > now and can run in parallel — it has no sim dependency.

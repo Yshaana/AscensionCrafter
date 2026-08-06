@@ -10,9 +10,14 @@ workstream, owner-approved in principle only.
 
 ## §2 — green preconditions
 
-- `py cli/rebuild.py` green, 20 steps. `check_core_purity` 0/46 (46 files —
-  one new module this session). `check_sim_engine` all pass (now including 3
-  new buff-layer checks, below).
+- `py cli/rebuild.py` green, ~~20~~ **21** steps. `check_core_purity` 0/46
+  (46 files — one new module this session). `check_sim_engine` all pass (now
+  including 3 new buff-layer checks, below).
+  > ⚠ **Corrected 2026-08-06 (`3d` B6): the chain had 21 entries, not 20, when
+  > this was written** — counted from `cli/rebuild.py`'s `CHAIN` list. A
+  > miscounted step count is minor on its own; it matters because this line was
+  > the evidence for "the rebuild is green", and a reader who trusts the count
+  > trusts the rest of the sentence with it.
 - No `--with-dbc` has happened since 3a (last extract commit is 2c's), so the
   extract-staleness precondition does not apply. The audit's "no
   `_extracted_at` stamp" flags are the known pre-2e-T4 condition, not drift.

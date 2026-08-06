@@ -367,8 +367,18 @@ C4: last, optional
 
 ## Where this points next
 
-Once Phase 4 works locally, the web app is a thin layer: `api/` already exists as the service
-boundary, `BuildSpec` is the canonical interchange format, the guide generator already emits HTML,
+> 🛑 **CORRECTION 2026-08-06 (`3d` B5): `api/` DOES NOT "already exist" as a
+> service boundary.** It is a 30-line docstring with **zero functions**,
+> imported by nothing, while **5 of 7 `cli/` entry points import `core/`
+> directly**. The sentence below overstated a *reserved directory name* as a
+> *built layer*, and a future phase reading it would budget accordingly. What
+> genuinely holds is the thing that makes the layer cheap to add later:
+> **`core/` purity is real and enforced** (47 files, 0 violations), so no logic
+> has to be extracted from a CLI first. Read the paragraph with `api/` removed
+> from the list of things already done.
+
+Once Phase 4 works locally, the web app is a thin layer: ~~`api/` already exists as the service
+boundary~~, `BuildSpec` is the canonical interchange format, the guide generator already emits HTML,
 per-user data is `user_id`-scoped, and roles/content types are modelled rather than assumed. The
 interactive builder becomes a UI over existing functions plus **live medium-sim feedback as the
 player slots cards** — which is exactly why medium sim was worth building.

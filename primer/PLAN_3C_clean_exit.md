@@ -6,6 +6,31 @@ that day in `predictions/CALIBRATION_TOLERANCE.md`.
 
 Current position: **5 of 41 within ±20%, 2 qualified → EXIT NOT MET.**
 
+> 🔤 **NAMING — read this before citing a task number from this file.**
+> This document's tasks are **`C1`…`C13`**, renamed in session `3d` (Block B1)
+> from the old `T`-numbering. Reason: **all eight of its numbers 1–8 collided**
+> with `PHASE_3_builds_repo.md`'s own task numbers, with `PHASE_2` a third space
+> — so one token meant *the capture addon*, *pets*, and *three sim tiers*
+> depending on which file the reader had open. `AUDIT_3C_handoff.md` collided
+> with **itself**, same three tokens carrying six meanings 135 lines apart.
+>
+> | # | this file — `C<n>` | `PHASE_3_builds_repo.md` — `T<n>` |
+> |---|---|---|
+> | 1 | slice accuracy | normalise the crawl |
+> | 2 | log admissibility *(closed)* | pooled mechanics inference |
+> | 3 | fix over-predictions | search and analysis |
+> | 4 | trigger-edge reachability | gear data |
+> | 5 | pets | the capture addon |
+> | 6 | conversion mechanics | combat-log ingestion |
+> | 7 | class-A reachability | session-start automation |
+> | 8 | re-run and report | refine the crawler |
+>
+> **A `T`-prefixed task number anywhere in this file is now a bug** — including
+> in prose that merely quotes the old names, which is why this note does not use
+> them. `grep -n "\bT[0-9]" primer/PLAN_3C_clean_exit.md` must return **nothing**;
+> that is one of `3d`'s exit criteria. To refer to another document's task, name
+> the document and the task in words rather than pasting its bare number here.
+
 ---
 
 ---
@@ -20,16 +45,16 @@ this wins.** Session records: `Session_2026-08-06_3c_paired_upload.md`,
 
 ## What closed
 
-* **T2 is CLOSED as a dead end**, with a negative result worth as much as a fix:
+* **C2 is CLOSED as a dead end**, with a negative result worth as much as a fix:
   no admissibility filter is constructible from the crawl API. `deaths` does not
   exist in the payload at all, and four candidate discriminators were tested and
   rejected (wipes, raw DPS, absolute APM, within-character APM). **The corpus
   retains an unknown number of death-deflated parses we cannot identify.** That
   is now a stated limitation of the gate.
 
-## ❌ What I got wrong, and it changes T3
+## ❌ What I got wrong, and it changes C3
 
-The original T3 said over-predictions are *"unambiguous bugs — the sim asserts
+The original C3 said over-predictions are *"unambiguous bugs — the sim asserts
 damage that provably did not happen"*, and named **Boomcat (82% coverage) the
 single best clean-qualifier candidate anywhere in the gate.**
 
@@ -42,14 +67,14 @@ character the sim would "over-predict" by ~7×, and nothing is wrong with the si
 **Boomcat's within-character APM ratio is 0.24** (17.1 against its own median
 72.5). Elric's *known* death case sits at **0.38**. Boomcat looks like the same
 signature, not a fixable bug — so it is probably **not** a qualifier candidate at
-all, and T3's expected yield is materially lower than the original text claims.
+all, and C3's expected yield is materially lower than the original text claims.
 
 ✅ **Mutaforma remains a genuine bug** — APM ratio 0.99, entirely normal activity,
 +3,619%. It is the one over-predictor confirmed to be ours.
 
 ## 🚨 The strategic consequence
 
-T2's dead end plus T3's weakening means **the crawl cohort may not be able to
+C2's dead end plus C3's weakening means **the crawl cohort may not be able to
 deliver a clean exit on its own**: we cannot separate a model error from an
 invalid parse for any given candidate. Pushing harder on the 41 does not fix
 that.
@@ -71,20 +96,20 @@ instrument, not a candidate for the count.
 
 | # | task | status / change |
 |---|---|---|
-| **T1** | report slice accuracy | unchanged, still pending, still approved |
-| ~~T2~~ | log admissibility | **CLOSED — dead end, documented** |
-| **T3** | fix over-predictions | **narrowed to Mutaforma**; the rest may be undetectable bad parses |
-| **T4** | 43 abilities with a trigger edge (687 pts) | unchanged |
-| **T5** | pets (440 pts) | unchanged |
-| **T6** | conversion mechanics | 🔼 **PROMOTED to first** — see below |
-| **T7** | 54 with magnitude, no edge (1303 pts) | unchanged, still last and still risky |
-| 🆕 **T9** | the ~4.5× out-of-catalog cluster | **new, possibly the biggest lever** |
-| 🆕 **T10** | controlled before/after on the periodic-component change | **new, blocks T9's interpretation** |
-| 🆕 **T11** | make Elric a gate-grade instrument | **new** |
-| 🆕 **T12** | review the 177 export-vs-scraped coefficient conflicts | **new** |
-| 🆕 **T13** | fix `calibrate_vs_log.py`'s wrong defaults | **new, small, urgent** |
+| **C1** | report slice accuracy | unchanged, still pending, still approved |
+| ~~C2~~ | log admissibility | **CLOSED — dead end, documented** |
+| **C3** | fix over-predictions | **narrowed to Mutaforma**; the rest may be undetectable bad parses |
+| **C4** | 43 abilities with a trigger edge (687 pts) | unchanged |
+| **C5** | pets (440 pts) | unchanged |
+| **C6** | conversion mechanics | 🔼 **PROMOTED to first** — see below |
+| **C7** | 54 with magnitude, no edge (1303 pts) | unchanged, still last and still risky |
+| 🆕 **C9** | the ~4.5× out-of-catalog cluster | **new, possibly the biggest lever** |
+| 🆕 **C10** | controlled before/after on the periodic-component change | **new, blocks C9's interpretation** |
+| 🆕 **C11** | make Elric a gate-grade instrument | **new** |
+| 🆕 **C12** | review the 177 export-vs-scraped coefficient conflicts | **new** |
+| 🆕 **C13** | fix `calibrate_vs_log.py`'s wrong defaults | **new, small, urgent** |
 
-### T6 — promoted to first work item
+### C6 — promoted to first work item
 
 Two independent measurements now agree it is the largest *named* gap:
 * the calibration reads Righteous Vengeance at **228×** (base 1 vs logged 228) —
@@ -97,7 +122,7 @@ It needs **no data**, it affects 9 of the 41 gate characters, and Ignite and
 Deep Wounds are the same shape. Nothing else on the list has this
 evidence-to-cost ratio.
 
-### 🆕 T9 — the ~4.5× out-of-catalog cluster
+### 🆕 C9 — the ~4.5× out-of-catalog cluster
 
 Five out-of-catalog spells on Elric land within a **±4% band** against base:
 Righteous Smite 4.67×, Holy Shock 4.52×, PBL Consecration 4.46×, Judgement of
@@ -109,12 +134,12 @@ abilities in the crawl cohort is **also out-of-catalog**. If a single systematic
 factor explains Elric's cluster, it plausibly reaches the cohort's accuracy
 problem too — the half of the miss that coverage work cannot touch.
 
-🛑 **Blocked on T10, and do not fit it.** Candidate mechanisms to test *before*
+🛑 **Blocked on C10, and do not fit it.** Candidate mechanisms to test *before*
 proposing a number: a missing rank redirect (out-of-catalog spells have no rank
 line), unapplied level scaling, or a school-scoped amplifier. Back-solving 4.5
 and seeding it is exactly what `2e` refused to do with the Holy residual.
 
-### 🆕 T10 — the controlled before/after (blocks T9)
+### 🆕 C10 — the controlled before/after (blocks C9)
 
 This session changed how periodic coefficients route: a scraped row stating
 `periodic` now attaches to the periodic event instead of the direct one. PBL
@@ -123,7 +148,7 @@ Consecration is affected. **So the cluster above cannot be compared with `2e`'s
 a changed model in between. Re-run both configurations on identical inputs before
 anyone quotes a movement.
 
-### 🆕 T11 — make Elric a gate-grade instrument
+### 🆕 C11 — make Elric a gate-grade instrument
 
 He has 11 valid boss encounters and **zero snapshots** — no gear, no cards,
 `snapshot_id` NULL — so the gate cannot sim him. But his ALC `CI` record carries
@@ -136,7 +161,7 @@ That yields the project's first character where **input error is zero by
 construction**, so every residual is model error — which is the instrument the
 whole calibration effort has been missing.
 
-### 🆕 T12 — review the coefficient conflicts
+### 🆕 C12 — review the coefficient conflicts
 
 177 spells now have `export_tooltip` and the scrape stating **different**
 coefficients (Mongoose Bite 0.20 vs 0.45; Holy Wrath 0.15 vs 0.07). Precedence
@@ -147,7 +172,7 @@ of multi-rank cards. **That is a judgement call, and it is now load-bearing on
 ⚠ Includes the live conflict on Holy Shock (25902): measured-provisional **0.40**
 vs scraped **0.214**, ~2× apart, currently won by the provisional.
 
-### 🆕 T13 — fix the calibration tool's defaults (do this first, it is 10 minutes)
+### 🆕 C13 — fix the calibration tool's defaults (do this first, it is 10 minutes)
 
 `calibrate_vs_log.py` defaults to **AP 584 / SP 533 / weapon 585–669** — the
 Duality-era block from the 2026-08-03 build doc. Those are wrong for every
@@ -173,7 +198,7 @@ because this project has previously been burned by the alternative.
    finding. That stays true.
 4. **No id is related to another by name or by numeric proximity.** `287860` vs
    `287865` is the live temptation and it is exactly what rule 5 forbids.
-5. **Candidates are never excluded because they failed.** T2 touches candidate
+5. **Candidates are never excluded because they failed.** C2 touches candidate
    quality, and it is the single most dangerous task here; its guard rails are
    written into the task itself.
 
@@ -226,9 +251,9 @@ cohort:
 
 | class | abilities | share-pts | owner |
 |---|---:|---:|---|
-| out-of-catalog, **no edge**, has a magnitude | 54 | 1303 | T7 |
-| out-of-catalog, **has an edge**, still unmodelled | 43 | 687 | T4 |
-| pets | 14 | 440 | T5 |
+| out-of-catalog, **no edge**, has a magnitude | 54 | 1303 | C7 |
+| out-of-catalog, **has an edge**, still unmodelled | 43 | 687 | C4 |
+| pets | 14 | 440 | C5 |
 | no edge **and** no magnitude | 5 | 112 | — genuinely missing data |
 
 **Only 112 share-points is a data-acquisition problem.** The rest is routing,
@@ -242,7 +267,7 @@ coverage, and it is the standing correction to the expectation that it would.
 Each task states what would **falsify** it, so a task that turns out to be
 solving a non-problem gets abandoned rather than completed.
 
-### T1 — Report slice accuracy as a diagnostic *(owner approved 2026-08-06)*
+### C1 — Report slice accuracy as a diagnostic *(owner approved 2026-08-06)*
 
 **Do:** compute `slice_accuracy = (100 + delta_pct) / coverage_pct * 100` per
 character; emit in `calibration_crawled.md` and `.json` beside delta and
@@ -259,19 +284,19 @@ currently reads as a plain failure; Ari (156%) reads as a pass.
 
 ---
 
-### T2 — Log admissibility: which parses are valid calibration candidates?
+### C2 — Log admissibility: which parses are valid calibration candidates?
 
 **Owner question, 2026-08-06:** *should we identify and dismiss certain logs — bad
 captures, a player present for only part of the fight, deaths, disconnects?*
 **Yes, and today we have almost no rule at all.** Here is what was measured.
 
-#### T2a — What the corpus can and cannot currently detect
+#### C2a — What the corpus can and cannot currently detect
 
 | failure case | detectable today? |
 |---|---|
 | wipe / kill | ✅ `encounters.success` (3,527 wipes / 1,928 kills) |
 | fight duration | ✅ `encounters.duration_seconds` |
-| cast activity | 🟡 `ability_performance.casts` — **but see T2c, it undercounts** |
+| cast activity | 🟡 `ability_performance.casts` — **but see C2c, it undercounts** |
 | site's own validation | 🟡 `validation_status` — NULL on **3,655 of 5,455** |
 | **character died** | ❌ `encounter_performance.deaths` — **0 of 19,649 populated** |
 | **ranking context** | ❌ `percentile` — 0 of 19,649 populated |
@@ -285,13 +310,13 @@ per-ability endpoints are **aggregated with no timestamps**, so a character's
 active span cannot be reconstructed from what we hold — **this is a capture fix,
 not an analysis fix.**
 
-#### T2b — Wipes are NOT a disqualifier (hypothesis tested and rejected)
+#### C2b — Wipes are NOT a disqualifier (hypothesis tested and rejected)
 
 The obvious rule — "drop the wipes" — is wrong. Wipes are **more** common among
 the well-predicted characters (**20 of 33**) than among the over-predictors
 (**2 of 8**). Do not filter on `success`.
 
-#### T2c — APM: anchored against the owner's own parses
+#### C2c — APM: anchored against the owner's own parses
 
 The owner's dummy logs give a ground-truth anchor for a *known-active* player,
 measured with `tools/log_parser` named fields:
@@ -327,15 +352,15 @@ legitimately.
 For reference, on that (biased) measure the cohort median is ~0.6 casts/sec and
 7 of the 8 over-predictors sit at 0.11–0.41. **Mutaforma is the exception at
 1.11 — high activity, so its +3,619% is a genuine sim bug**, which is consistent
-with `sim_magnitude_explosion_absolute_zero` and belongs to T3.
+with `sim_magnitude_explosion_absolute_zero` and belongs to C3.
 
-#### ✅ T2 RESOLVED 2026-08-06 by the paired upload (reports 104 + 105)
+#### ✅ C2 RESOLVED 2026-08-06 by the paired upload (reports 104 + 105)
 
 The owner uploaded two of his own logs, giving the same encounters measured
 twice — locally at ground truth and through the API. Four results, and they
-change T2's conclusions in both directions.
+change C2's conclusions in both directions.
 
-**1. ✅ The site's `casts` IS `SPELL_CAST_SUCCESS`. T2c's worry is RETRACTED.**
+**1. ✅ The site's `casts` IS `SPELL_CAST_SUCCESS`. C2c's worry is RETRACTED.**
 
 | report | content | site casts | log casts | agreement |
 |---|---|---:|---:|---:|
@@ -374,7 +399,7 @@ Meanwhile it **misses** Mutaforma (ratio 0.99), Jamppa (0.90), Candle (1.05) and
 Striker (0.55). Catching 4 of 8 over-predictors at the cost of a qualifier is not
 a discriminator.
 
-> **T2 verdict: no reliable admissibility filter is constructible from the crawl
+> **C2 verdict: no reliable admissibility filter is constructible from the crawl
 > API.** The one signal that would work is not exposed. Four candidates have now
 > been tested and rejected — wipes, raw DPS, absolute APM, within-character APM.
 > **Nothing is filtered.** The corpus contains an unknown number of
@@ -382,7 +407,7 @@ a discriminator.
 > the gate rather than something to paper over.
 
 **5. ✅ Mutaforma is confirmed a genuine sim bug**, not a bad parse — normal
-activity (APM ratio 0.99) with a +3,619% delta. It belongs entirely to T3.
+activity (APM ratio 0.99) with a +3,619% delta. It belongs entirely to C3.
 
 **Follow-ups this opens (not blocking):**
 * `damage_taken_rows` may permit *inferring* a death from a killing blow — the
@@ -391,9 +416,9 @@ activity (APM ratio 0.99) with a +3,619% delta. It belongs entirely to T3.
   truth for any character we hold a log for, but it does not scale to 4,000
   crawled characters.
 
-#### T2d — What to actually do
+#### C2d — What to actually do
 
-1. **Report** wipe status, duration, casts/sec and T1's slice accuracy per
+1. **Report** wipe status, duration, casts/sec and C1's slice accuracy per
    candidate. Filter on none of them yet.
 2. **Fix the capture gap** — the highest-value item here. Populate `deaths`, and
    check the armory/report endpoints for an active-time or presence field. This
@@ -417,13 +442,13 @@ is gate-gaming. A rule is admissible **only** if all four hold:
 **Open check:** the owner's character is **not in the crawl** (dummy parses are
 not uploaded as reports), so the site's `casts` field has never been validated
 against log ground truth. If he ever parses a real logged encounter, that
-comparison is free and would settle T2c's measurement-mismatch question.
+comparison is free and would settle C2c's measurement-mismatch question.
 
 ---
 
-### T3 — Fix the over-predictions that survive T2
+### C3 — Fix the over-predictions that survive C2
 
-**Do:** for each character still over-predicting after T2, name the mechanism.
+**Do:** for each character still over-predicting after C2, name the mechanism.
 Known starting point: **Mutaforma +3,619%**, driven by Absolute Zero (`285148`)
 whose periodic component is *attributed* from trigger target `285149` at
 `confidence=inferred` — open question `sim_magnitude_explosion_absolute_zero`.
@@ -446,7 +471,7 @@ mechanism.
 
 ---
 
-### T4 — Reachability, class B: 43 abilities that *have* a trigger edge (687 pts)
+### C4 — Reachability, class B: 43 abilities that *have* a trigger edge (687 pts)
 
 **Do:** instrument `attribute_trigger_magnitudes` to record, per rejected target,
 *which* rule rejected it. The rules are: depth > 2, multi-path
@@ -454,7 +479,7 @@ mechanism.
 that magnitude source. Then decide per reason — several are conservative
 defaults from `1b` that were never revisited against measured demand.
 
-**Why before T7:** these already have an edge, so the graph knows the
+**Why before C7:** these already have an edge, so the graph knows the
 relationship. Nothing new has to be *inferred* — our own bounded-walk rule is
 declining to use what we hold. Cheapest structural coverage available, and it is
 entirely our code.
@@ -464,11 +489,11 @@ entirely our code.
 passes (it is the regression guard for this walk).
 
 **Falsified if:** the rejections turn out to be correct — i.e. attributing them
-would double-count. Then record that and move the 687 points to T7's problem.
+would double-count. Then record that and move the 687 points to C7's problem.
 
 ---
 
-### T5 — Model pets (440 pts) *(owner decision 2026-08-06)*
+### C5 — Model pets (440 pts) *(owner decision 2026-08-06)*
 
 **Do:** `ability_performance.is_pet` already separates the damage; pet abilities
 resolve like any other spell. The open work is the **APL/uptime model for a pet**,
@@ -484,7 +509,7 @@ produce damage; the pet-carrying characters' coverage rises.
 
 ---
 
-### T6 — Damage-conversion mechanics (≈150+ pts, no data needed)
+### C6 — Damage-conversion mechanics (≈150+ pts, no data needed)
 
 **Do:** express "X% of another event's damage, redelivered as a periodic".
 Righteous Vengeance (`61840`, 88 pts, 9 characters), Ignite (`12654`, 61 pts),
@@ -503,7 +528,7 @@ input, checkable per character.
 
 ---
 
-### T7 — Reachability, class A: 54 with a magnitude but no edge (1303 pts)
+### C7 — Reachability, class A: 54 with a magnitude but no edge (1303 pts)
 
 **The largest single block, and the riskiest.** Sequence it last; it likely needs
 its own session.
@@ -534,31 +559,31 @@ honest coverage gap beats a fabricated join.
 
 ---
 
-### T8 — Re-run, report, and read it against the rider
+### C8 — Re-run, report, and read it against the rider
 
 **Do:** `py tools/audit/calibrate_crawled.py --limit 120 --max-lag-hours 0`.
-Report within-±20%, qualified, and the T1 slice accuracy together.
+Report within-±20%, qualified, and the C1 slice accuracy together.
 
 ---
 
 ## 3. Sequencing and the expected trajectory
 
 ```
-T1 ─┐
-T2 ─┴─> T3 ──┐
-T4 ──────────┼──> T8 (re-run)
-T5 ──────────┤
-T6 ──────────┘
-T7 ─────────────> T8 (likely a later session)
+C1 ─┐
+C2 ─┴─> C3 ──┐
+C4 ──────────┼──> C8 (re-run)
+C5 ──────────┤
+C6 ──────────┘
+C7 ─────────────> C8 (likely a later session)
 ```
 
-T1/T2 are pure instrumentation and gate nothing. T3 depends on T2's answer. T4,
-T5 and T6 are independent of each other and can land in any order.
+C1/C2 are pure instrumentation and gate nothing. C3 depends on C2's answer. C4,
+C5 and C6 are independent of each other and can land in any order.
 
 ### 🛑 Expect the pass count to DROP before it rises
 
 Chastie, Zaczao and Xoller pass only because a 5–13% modelled slice massively
-over-produces. T3 removes exactly that, and T4/T5/T6 add the damage that made
+over-produces. C3 removes exactly that, and C4/C5/C6 add the damage that made
 their over-production look correct. **Losing them is the rider working, not a
 regression** — and it should be reported that way rather than as a setback.
 
@@ -571,20 +596,20 @@ high coverage *and* a high logged DPS (i.e. a real DPS attempt):
 | Billyeye | 51% | **107%** | 3,795 | coverage only — the model is already honest |
 | Qtgamora | 69% | 64% | 7,006 | modest coverage + accuracy |
 | Ryno | 69% | 47% | 11,948 | accuracy on the modelled slice |
-| Boomcat | 82% | 888% | 482 | T2 verdict first, then T3 |
+| Boomcat | 82% | 888% | 482 | C2 verdict first, then C3 |
 
 **Billyeye is the single cleanest target in the cohort** and is not currently
-visible as such, which is the argument for T1 on its own.
+visible as such, which is the argument for C1 on its own.
 
 ---
 
 ## 4. What could make this fail
 
-* **T2 goes the wrong way.** If activity does not separate the over-predictors,
-  the criterion stays untouched and T3 grows. That is a fine outcome; it is
+* **C2 goes the wrong way.** If activity does not separate the over-predictors,
+  the criterion stays untouched and C3 grows. That is a fine outcome; it is
   written as a falsification precisely so it cannot quietly become an excuse to
   drop candidates.
-* **T7 finds no mechanical join.** 1303 share-points stay unmodelled and the
+* **C7 finds no mechanical join.** 1303 share-points stay unmodelled and the
   ~80% coverage that a truthful pass needs may be unreachable for most of the
   cohort. If that happens, the honest report is *"the exit is not currently
   reachable and here is why"* — **not** a relaxed rider.
@@ -600,10 +625,10 @@ visible as such, which is the argument for T1 on its own.
 
 Only one, and it is not blocking:
 
-* **T2's filter, if activity separates cleanly.** Introducing a candidate-quality
+* **C2's filter, if activity separates cleanly.** Introducing a candidate-quality
   threshold changes what the gate is measured *over*, and that is your call, not
   mine. I will bring the measured separation and a proposed principle-based
   threshold; the decision to apply it is yours, and it gets written into
   `CALIBRATION_TOLERANCE.md` before any re-run that it affects.
 
-Everything else in T1 and T3–T8 is ordinary work needing no decision.
+Everything else in C1 and C3–C8 is ordinary work needing no decision.
