@@ -300,7 +300,9 @@ def check_manifest_cannot_contradict_itself():
         # own case below, where allow_dirty is NOT passed.
         kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 2, 3],
                   dropped=[], outside=[], cohort_spec={}, read_holdout=False,
-                  allow_dirty=True)
+                  allow_dirty=True,
+                  allow_dirty_reason="check_refusals.py test fixture — "
+                  "3i E6, a reason is now required alongside the bool")
         # 🛑 BOTH assertions get their own case. The first version of this
         # check only exercised the scoring-loop one, so disabling the
         # completeness-filter assertion left it green — the same
@@ -422,6 +424,31 @@ def check_manifest_cannot_contradict_itself():
                   bool(written and written.get("dirty_tree_write_allowed_by_flag")),
                   f"dirty_tree_write_allowed_by_flag="
                   f"{written.get('dirty_tree_write_allowed_by_flag') if written else 'no manifest written'}")
+            # 🆕 3i E6 (AUDIT_3G / AUDIT_3H) — the REASON, not just the bool,
+            # is in the committed record.
+            check("[E6] ...and the STATED REASON is recorded verbatim, not "
+                  "just the boolean AUDIT_3G/AUDIT_3H flagged as insufficient",
+                  bool(written and written.get("dirty_tree_write_allowed_reason")
+                       == kw["allow_dirty_reason"]),
+                  f"dirty_tree_write_allowed_reason="
+                  f"{written.get('dirty_tree_write_allowed_reason') if written else 'no manifest written'!r}")
+            # 🆕 3i E6 — allow_dirty=True with NO reason must ALSO refuse.
+            # Registered mutation: pass allow_dirty=True, allow_dirty_reason=
+            # None — must raise SystemExit rather than silently writing a
+            # dirty-tree manifest with no explanation.
+            tmp.unlink(missing_ok=True)
+            try:
+                cc.write_gate_manifest(
+                    rows, [], rows, rows, True, True, n_qualifying=3,
+                    excluded=[(2, "B", "sim error"), (3, "C", "no preset")],
+                    **{**kw, "allow_dirty": True, "allow_dirty_reason": None})
+                refused_no_reason = False
+            except SystemExit:
+                refused_no_reason = True
+            check("[E6] allow_dirty=True with NO REASON also refuses — a "
+                  "bool alone is not a reason",
+                  refused_no_reason and not tmp.exists(),
+                  f"refused={refused_no_reason}, file written={tmp.exists()}")
         else:
             print("  [A7] tree is CLEAN — the dirty-tree refusal cannot fire "
                   "from here; exercised only when the harness runs dirty "
@@ -454,7 +481,9 @@ def check_holdout_reading_is_not_erased():
         # check_manifest_cannot_contradict_itself.
         kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 9],
                   dropped=[], outside=[], cohort_spec={}, n_qualifying=2,
-                  excluded=(), allow_dirty=True)
+                  excluded=(), allow_dirty=True,
+                  allow_dirty_reason="check_refusals.py test fixture — "
+                  "holdout carry-forward, not provenance")
         cc.write_gate_manifest(rows, hold, rows, rows, True, True,
                                read_holdout=True, **kw)
         first = json.loads(tmp.read_text(encoding="utf-8"))["holdout"]
@@ -685,22 +714,26 @@ def _status_census(root):
     unclassified = []
     for p in files:
         head = p.read_text(encoding="utf-8", errors="replace")[:1200]
-        # The marker is the status word introduced by a backtick or bold, and
-        # it may carry a qualifier: `LIVE`, `HISTORICAL`, `SUPERSEDED BY <path>`,
-        # `FINDING 2026-08-07`. ⚠ Matching on the bare word would hit any file
-        # that merely mentions "live" in its opening prose, which is why the
-        # delimiter is required.
-        #
-        # 🛑 TAKE THE EARLIEST MATCH IN THE TEXT, not the first status in
-        # `_STATUSES` order. The status line is the FIRST thing in the file; a
-        # document's body routinely names other statuses ("`SESSION_3F_PRIMER.md`
-        # (`HISTORICAL`, do not run it again)"), and ordering by the list
-        # instead of by position mis-bucketed a `SUPERSEDED` work order as
-        # `HISTORICAL` the moment it was retired — caught by the census
-        # disagreeing with what I had just written.
-        found = [(m.start(), s) for s in _STATUSES
-                 for m in [re.search(rf"[`*]{s}\b", head)] if m]
-        hit = min(found)[1] if found else None
+        # 🛑 3i E5 (AUDIT_3H §6.4) — the ORIGINAL matcher scanned for the
+        # status word ANYWHERE a backtick/bold delimiter touched it in the
+        # first 1200 chars, so a line like "see the `LIVE` gate numbers"
+        # classified the WHOLE document as `LIVE` — the comment at the old
+        # `:687-691` claimed the delimiter prevented this; it only prevented
+        # the BARE word, not the word appearing mid-sentence with its own
+        # delimiters. Fixed: match a LINE (after stripping a leading `>`
+        # blockquote marker) that STARTS with `**`STATUS`` — the convention
+        # every status line in this repo actually follows
+        # (`> **`LIVE`** — ...`). A status word named in prose, however
+        # delimited, no longer counts.
+        hit = None
+        for ln in head.splitlines():
+            s = ln.strip()
+            if s.startswith(">"):
+                s = s[1:].strip()
+            m = re.match(r"\*\*`(" + "|".join(_STATUSES) + r")\b", s)
+            if m:
+                hit = m.group(1)
+                break
         if hit:
             counts[hit] += 1
         else:
@@ -739,10 +772,15 @@ def check_primer_status_census():
     census_line = (f"[census] primer/ status lines: {len(files)} files — "
                    f"{census}")
     print(census_line)
+    # 🆕 3i E4 (AUDIT_3H §6.4) — `not unclassified` PASSES on an empty
+    # directory (an empty list has no unclassified members). Verified:
+    # renaming `primer/` yielded `0 files — 0/0/0/0 — PASS`. `len(files) > 0`
+    # closes it; `primer/` is never expected to be empty, so this is a
+    # tripwire against the directory itself going missing, not a live case.
     check("[F8c] EVERY file in primer/ carries a status line — a document "
           "without one cannot be cited as current truth, so an unclassified "
           "file is invisible rather than merely undocumented",
-          not unclassified,
+          len(files) > 0 and not unclassified,
           f"{len(files)} files, {census}"
           + (f"; UNCLASSIFIED: {unclassified}" if unclassified else ""))
 
@@ -751,9 +789,13 @@ def check_primer_status_census():
     pcensus = " / ".join(f"{pcounts[s]} {s}" for s in _STATUSES)
     print(f"[census] predictions/ status lines: {len(pfiles)} files — "
           f"{pcensus}")
+    # 🆕 3i E4 — the SAME fail-open closed here. Verified: renaming
+    # `predictions/` yielded `0 files — 0 LIVE / 0 HISTORICAL / 0 SUPERSEDED
+    # / 0 FINDING` and PASS, with no anchor comparable to `primer/`'s
+    # CLAUDE.md paste to catch it.
     check("[A5] EVERY file in predictions/ carries a status line — F8c's "
           "lifecycle extended to the directory the gate's numbers live in",
-          not punclassified,
+          len(pfiles) > 0 and not punclassified,
           f"{len(pfiles)} files, {pcensus}"
           + (f"; UNCLASSIFIED: {punclassified}" if punclassified else ""))
 
@@ -771,14 +813,46 @@ def check_primer_status_census():
 
 
 def check_coverage_split_producing_vs_zero():
-    """3h B4 — a character whose EVERY sim-keyed ability refuses must report
-    `modelled_and_producing_pct == 0.0` and a NON-EMPTY named zero list, and
-    the two splits must SUM to `modelled_damage_pct`.
+    """3h B4, repaired 3i E1/E2 — a character whose EVERY sim-keyed ability
+    refuses must report `modelled_and_producing_pct == 0.0` and a NON-EMPTY
+    named zero list.
 
-    RED MUTATION (run at 3h B4): in `modelled_damage_share`, make
-    `is_producing` return True for every matched row (revert B1's split) —
-    the producing==0 case and the sum case both go red. GREEN PATH: the split
-    as landed. Both were run.
+    🛑 AUDIT_3H §6.1 — the ORIGINAL "sum" arm asserted
+    `producing_pct + keyed_zero_pct == modelled_damage_pct`, and in
+    `modelled_damage_share` `keyed_zero = modelled - producing` BY
+    SUBTRACTION — so that sum is true of ANY two-way partition, by
+    arithmetic, regardless of what `is_producing` computes. Verified: under
+    the registered mutation (`is_producing` → `return True`), only 1 of 4
+    cases went red and the sum case printed `60.0 + 0.0 vs 60.0` PASS. A
+    complementary-partition sum cannot be made falsifiable by tightening it —
+    it has to test something ELSE.
+    ✅ 3i E1's replacement: `modelled_damage_share`'s `zero_list` (built by
+    iterating `per_ability` and filtering on `producing_ids` — REAL per-
+    ability sim damage, untouched by `is_producing`) must sum to the SAME
+    total as `keyed_but_zero_pct` (built from `rows` via `is_modelled` /
+    `is_producing`). These are two INDEPENDENT code paths over the same
+    data; a bug in either can make them disagree. Registered mutation
+    (RUN 2026-08-07, verified against a live source edit setting
+    `is_producing` to `return True` unconditionally): `keyed_but_zero_pct`
+    collapses to 0.0 (the mutation touches it) while `zero_list`'s sum still
+    reports the real keyed-but-zero share (`producing_ids` does not go
+    through `is_producing`) — **RED**, `0.0 != 60.0`. Restored.
+
+    🛑 AUDIT_3H §6.2 — the ORIGINAL "SAME key flips to producing" case used a
+    POSITIVE spell id. For a positive id, `is_producing(r)` is DEFINED as
+    `r[0] in producing_ids` — literally the same membership test the fixture
+    asserts against, so the case cannot discriminate: whatever `is_producing`
+    does to a positive-id row, it can only ever restate `producing_ids`.
+    Verified: under `is_producing` → `return True`, the case still read
+    `60.0 / 0.0` and PASSED — identically the excluded defect's own output.
+    ✅ 3i E2's replacement uses a NEGATIVE-id AUTO row instead, which goes
+    through `is_producing`'s OTHER branch (`return autos_producing`) — code
+    the positive-id path never exercises, and genuinely capable of
+    disagreeing with `producing_ids`. Registered mutation (RUN 2026-08-07,
+    verified against a live source edit): `autos_producing` forced `False`
+    unconditionally — the auto row's real damage (6000, in `producing_ids`
+    via `per_ability['auto_mh']['damage'] > 0`) now reads as keyed-but-zero
+    instead of producing — **RED**, `producing 0.0 != 60.0`. Restored.
 
     ⚠ The all-refused character is SYNTHETIC, stated per the work order:
     measured at 3h B over the frozen cohort, all 90 keyed-but-zero entries are
@@ -818,23 +892,40 @@ def check_coverage_split_producing_vs_zero():
                and out["keyed_but_zero"][0]["why"] == "refused-sentinel"
                and out["keyed_but_zero"][0]["spell_id"] == 92557),
           f"zero list={out and out['keyed_but_zero']}")
-    check("[B4] ...and the split SUMS to modelled_damage_pct, so no verdict "
-          "that reads the old key can move",
-          out is not None and abs(out["modelled_and_producing_pct"]
-                                  + out["keyed_but_zero_pct"]
-                                  - out["modelled_damage_pct"]) < 0.2,
-          f"{out and out['modelled_and_producing_pct']} + "
-          f"{out and out['keyed_but_zero_pct']} vs "
-          f"{out and out['modelled_damage_pct']}")
+    # 🆕 3i E1 — the NON-tautological cross-check: zero_list (per_ability +
+    # producing_ids path) sums to the SAME share as keyed_but_zero_pct
+    # (rows + is_modelled/is_producing path). Two independent computations,
+    # not one derived from the other by subtraction.
+    zero_list_sum = round(sum(z["logged_share_pct"]
+                              for z in (out.get("keyed_but_zero") or [])), 1)
+    check("[E1] the NAMED zero list's own summed share EQUALS "
+          "keyed_but_zero_pct — two INDEPENDENT computations over the same "
+          "data, not a subtraction that can't disagree with itself",
+          out is not None and abs(zero_list_sum - out["keyed_but_zero_pct"])
+          < 0.5,
+          f"zero_list sum={zero_list_sum} vs keyed_but_zero_pct="
+          f"{out and out['keyed_but_zero_pct']}")
 
-    # And the PRODUCING side of the same fixture: give the key damage and the
-    # shares flip — the split measures production, not key presence.
-    per_ability[92557] = {**per_ability[92557], "damage": 5000.0,
-                          "events": [{"attributed": True}],
-                          "unresolved_events": []}
-    out2 = cc.modelled_damage_share(conn, 1, 7, per_ability)
-    check("[B4] the SAME key with damage flips to producing (60/0 from 0/60) "
-          "— the split reads production, not key membership",
+    # 🆕 3i E2 — the AUTO-row producing case: an auto row with real damage
+    # must read as producing via `autos_producing` (the branch a positive-id
+    # row never exercises), not via `producing_ids` restating itself.
+    conn2 = sqlite3.connect(":memory:")
+    conn2.execute(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
+        "spell_school TEXT)")
+    conn2.executemany(
+        "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
+        [(1, 7, -1, "Auto Attack", 6000.0, 0, "physical"),
+         (1, 7, 222, "Other", 4000.0, 0, "shadow")])
+    per_ability_auto = {"auto_mh": {
+        "name": "Auto attacks", "casts": 3.0, "damage": 6000.0,
+        "mean_per_cast": 2000.0, "events": [{"kind": "swing"}],
+        "attributed": True, "unresolved_events": []}}
+    out2 = cc.modelled_damage_share(conn2, 1, 7, per_ability_auto)
+    check("[E2] a real-damage AUTO row reads as producing via "
+          "autos_producing — the branch a positive-id row cannot exercise, "
+          "unlike the ORIGINAL fixture (AUDIT_3H §6.2)",
           out2 is not None and out2["modelled_and_producing_pct"] == 60.0
           and out2["keyed_but_zero_pct"] == 0.0,
           f"producing={out2 and out2['modelled_and_producing_pct']}, "

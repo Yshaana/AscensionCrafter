@@ -507,12 +507,35 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
     keyed_zero = modelled - producing
     unmodelled = sorted((r for r in rows if not is_modelled(r)),
                         key=lambda r: -r[2])
-    # 3h B2 — the NAMED zero list: every sim key with zero damage, its logged
-    # share (0.0 when the log never saw it), and why. Full list, no caps — a
-    # renderer may truncate but must say what it dropped.
+    # 🛑 3i E3 — the NAMED zero list: every sim key with zero damage, its
+    # logged share (0.0 when the log never saw it), and why. Full list, no
+    # caps — a renderer may truncate but must say what it dropped.
+    #
+    # AUDIT_3H §6.3 — 'auto_mh'/'auto_oh' are STRING keys in `per_ability`;
+    # `logged_by_sid` is keyed on the INTEGER `spell_id` from `rows`, so
+    # `logged_by_sid.get('auto_mh')` always misses. A zero-producing auto
+    # therefore contributed its real share to `keyed_zero` above (via
+    # `is_auto_row` matching in `is_modelled`/`is_producing`) but reported
+    # `logged_share_pct: 0.0` here and sorted last — the renderer named 0.0%
+    # of exactly the mass it had just called "keyed-but-zero". Fixed: auto
+    # rows are matched through the SAME `is_auto_row` predicate the modelled/
+    # producing sums use, and reported as ONE combined entry with their real
+    # logged share.
+    def is_auto_row(r):
+        if r[0] >= 0 or not has_autos:
+            return False
+        name = r[1] or ""
+        if "[" not in name:
+            return True
+        tag = name[name.index("[") + 1:].rstrip("]").strip()
+        return tag.lower() == (r[4] or "").lower()
+
     logged_by_sid = {r[0]: r for r in rows}
+    auto_rows_logged = sum(r[2] for r in rows if is_auto_row(r))
     zero_list = []
     for sid, entry in per_ability.items():
+        if sid in ("auto_mh", "auto_oh"):
+            continue                    # handled once, combined, below
         if sid in producing_ids:
             continue
         lr = logged_by_sid.get(sid)
@@ -521,6 +544,13 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
             "logged_share_pct": (round(100.0 * lr[2] / total, 1)
                                  if lr else 0.0),
             "why": _keyed_zero_reason(entry),
+        })
+    if has_autos and not autos_producing and auto_rows_logged:
+        auto_entry = per_ability.get("auto_mh") or per_ability.get("auto_oh")
+        zero_list.append({
+            "spell_id": "auto", "name": "Auto attacks (MH+OH)",
+            "logged_share_pct": round(100.0 * auto_rows_logged / total, 1),
+            "why": _keyed_zero_reason(auto_entry) if auto_entry else "unknown",
         })
     zero_list.sort(key=lambda z: -z["logged_share_pct"])
     return {
@@ -753,12 +783,16 @@ def main():
                          f"({HOLDOUT_SLUG}). Withheld by default: reading it is a "
                          "close-out action, and a holdout read every run is not a "
                          "holdout. Never tune against it")
-    ap.add_argument("--allow-dirty", action="store_true",
-                    help="3h A7 — permit writing the committed manifest from a "
-                         "DIRTY working tree. Refused by default: both prior "
-                         "manifests shipped git_working_tree_dirty=true, so their "
-                         "git_sha did not identify the code that produced the "
-                         "numbers. The flag is recorded in the manifest")
+    ap.add_argument("--allow-dirty-reason", type=str, default=None,
+                    help="3h A7 / 3i E6 — permit writing the committed manifest "
+                         "from a DIRTY working tree, WITH A STATED REASON. "
+                         "Refused by default: both prior manifests shipped "
+                         "git_working_tree_dirty=true with a bare boolean flag "
+                         "(AUDIT_3G asked for the reason; a bool is not one), so "
+                         "their git_sha did not identify the code that produced "
+                         "the numbers. The reason string is recorded in the "
+                         "manifest verbatim — e.g. "
+                         "--allow-dirty-reason \"scratch run, not for citation\"")
     args = ap.parse_args()
 
     if not BUILDS_DB_PATH.exists():
@@ -1397,7 +1431,8 @@ def main():
                         read_holdout=args.read_holdout,
                         n_qualifying=len(rows), excluded=excluded,
                         band_n=slice_accuracy_band_n(tuning),
-                        allow_dirty=args.allow_dirty)
+                        allow_dirty=bool(args.allow_dirty_reason),
+                        allow_dirty_reason=args.allow_dirty_reason)
     return 0
 
 
@@ -1423,7 +1458,7 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                         rider_met, slice_bands, corpus, cohort_ids, dropped,
                         outside, cohort_spec, read_holdout=False,
                         n_qualifying=None, excluded=(), band_n=None,
-                        allow_dirty=False):
+                        allow_dirty=False, allow_dirty_reason=None):
     """3d E2 — a small COMMITTED record of what a gate run actually measured.
 
     Until now the gate's headline numbers were reproducible only on the owner's
@@ -1507,9 +1542,18 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             f"🛑 REFUSING to write {GATE_MANIFEST_PATH.name}: the working tree "
             f"is {'DIRTY' if dirty else 'in an UNKNOWN git state'}, so git_sha "
             f"{sha[:8] if sha else '?'} would not identify the code that "
-            f"produced these numbers. Commit first, or pass --allow-dirty to "
-            f"record the mismatch explicitly. (stdout and the markdown report "
+            f"produced these numbers. Commit first, or pass "
+            f"--allow-dirty-reason \"<why>\" to record the mismatch "
+            f"explicitly, with a reason. (stdout and the markdown report "
             f"above were still produced — only the committed manifest refused)")
+    # 🆕 3i E6 (AUDIT_3G / AUDIT_3H) — a BOOL flag isn't a reason. Refuse the
+    # combination that would ship a dirty-write with no explanation of why.
+    if allow_dirty and not allow_dirty_reason:
+        raise SystemExit(
+            f"🛑 REFUSING to write {GATE_MANIFEST_PATH.name}: allow_dirty is "
+            f"True with no allow_dirty_reason. A dirty-tree write with no "
+            f"stated reason is the exact gap AUDIT_3G/AUDIT_3H flagged — pass "
+            f"--allow-dirty-reason \"<why>\".")
 
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1517,6 +1561,9 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
         "git_working_tree_dirty": dirty,
         # 3h A7 — recorded so a dirty-tree manifest names itself as one.
         "dirty_tree_write_allowed_by_flag": bool(allow_dirty),
+        # 🆕 3i E6 — the REASON, not just the bool. None when the tree was
+        # clean (the flag was never needed).
+        "dirty_tree_write_allowed_reason": allow_dirty_reason,
         "realm": season_config.REALM,
         "season": season_config.SEASON,
         "criteria_in_force": {
@@ -1783,10 +1830,15 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
               # record. `within_tolerance_before_admissibility` preserves
               # what the coverage/tolerance test alone would have said, so a
               # reader can see the override rather than just its result.
-              "not_admissible": r["not_admissible"],
-              "not_admissible_flags": r["not_admissible_flags"],
+              # .get() with defaults — a caller building rows by hand (e.g.
+              # check_refusals.py's manifest-integrity fixture, which tests
+              # a different invariant) may not set these; the gate's own
+              # loop always does.
+              "not_admissible": r.get("not_admissible", False),
+              "not_admissible_flags": r.get("not_admissible_flags") or [],
               "within_tolerance_before_admissibility":
-                  r["within_tolerance_before_admissibility"]}
+                  r.get("within_tolerance_before_admissibility",
+                       r["within_tolerance"])}
              for r in tuning), key=lambda d: d["character_id"]),
     }
     # 🛑 3f F6 — THE MANIFEST MUST NOT BE ABLE TO CONTRADICT ITSELF. Every
