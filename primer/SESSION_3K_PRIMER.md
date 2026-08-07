@@ -1,6 +1,13 @@
 # SESSION `3K` PRIMER — resolve the flip, then coverage. Modelling, pre-registered.
 
-> **`LIVE`** — the work order for session `3k`, drafted 2026-08-07 (evening) from
+> **`SUPERSEDED BY primer/Session_2026-08-07_3k_coverage.md`** — this work order
+> ran and `3k` closed on 2026-08-07. Its expiry condition, stated below when it
+> was born, is met. Read the session record for what actually happened; in
+> particular **Block 0 landed in none of the three shapes this file enumerates**
+> (Molten Core went top-level *and* Zul'Gurub stayed active — two active
+> top-levels, the STOP-POINT 0 branch), and **Block C was not done**.
+>
+> *(Originally:)* **`LIVE`** — the work order for session `3k`, drafted 2026-08-07 (evening) from
 > `AUDIT_3J_ADVERSARIAL.md` (§5 is the source list; this file orders and scopes it).
 > **Expiry: superseded by the `3k` session record when `3k` closes** — mark it
 > `SUPERSEDED BY` that file, per the established pattern. *(Born `LIVE`, inside the

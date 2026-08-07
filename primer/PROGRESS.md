@@ -2,6 +2,85 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-07 — SESSION `3k` IS DONE.** Record:
+> `primer/Session_2026-08-07_3k_coverage.md`. Work order it ran:
+> `primer/SESSION_3K_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3J_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE DID NOT MOVE: `0 of 35 within ±20% · 0 qualified · slice 26.3%
+> (n=23)` at every commit.** `3k` was a MODELLING session and was *permitted*
+> to move it. It did not, and §3 of the record says exactly why — that is the
+> honest outcome, not a shortfall. ⚠ **The denominator changed 36 → 35 for a
+> reason that is not modelling at all**: the previous reading came from a
+> `builds.db` built before the day's own crawl commit was ingested.
+>
+> * 🚨 **THE PHASE FLIP LANDED IN A SHAPE WITH NO PROTOCOL, AND IT WOULD HAVE
+>   NULLED THE CORPUS INDEFINITELY.** `Phase 2 - Molten Core / Onyxia` opened
+>   **top-level** at `2026-08-07T18:00:00Z` — **and `Phase 1 - Zul'Gurub`
+>   stayed `is_active`.** Two active top-level phases. `3g` G0's
+>   `len(tops) != 1` read that as *"a transition in progress"* and refused
+>   **every** `phase_label`, in a condition that could never clear itself.
+>   🆕 **Owner decision: TRANSITIONS ON THIS SERVER ARE ADDITIVE** — raids get
+>   added, none removed, so actives accumulate every phase and a count can
+>   never mean "transition in progress". The current phase is the
+>   **latest-STARTING active top-level**, on both sides (`assert_phase` died on
+>   the same arm, so a `core/`-only fix leaves the crawler unable to capture).
+>   The ambiguity protection **moved** rather than vanished: same-`start_date`
+>   top-levels still refuse. `NEXT_PHASE_BOUNDARY` self-retired as designed.
+>   **Zero corpus captures fall on the new side** (latest is `16:02:50Z`).
+> * 🚨 **COVERAGE IS NOT ACCURACY, and this session measured it rather than
+>   assuming it.** Absent mass moved **62.9% → 59.9%** on one target — and
+>   slice accuracy did **not move at all**, while the producing median *fell*
+>   `0.2727 → 0.2573`. Righteous Vengeance came back at ratios of
+>   **0.004–0.005**: it moved from `absent` straight into `producing at ~0.5%
+>   of reality`. **Never quote coverage as progress toward the gate.**
+> * ✅ **A DERIVATION THAT HAD NEVER ONCE RUN.** `tiers.py` has derived
+>   Righteous Vengeance from `ev.get("crit_damage")` since `2e`, and **nothing
+>   in the tree ever wrote that key** — 0 sim rows for 61840 across the whole
+>   cohort against 9 characters logging it. Fixed, **with** a card-ownership
+>   gate: populating the key alone would have given all 35 characters an RV row
+>   and that is phantom production. Phantom share *fell* 58.4% → **53.8%**.
+> * 🛑 **TWO OF FIVE BLOCK-B PREDICTIONS FALSIFIED, REPORTED NOT RESCUED** —
+>   P2 (7 of 9, not ≥8) and P4 (slice unchanged). Block 0's P1 falsified too,
+>   by a stale baseline. **A gate reading is only a baseline if the corpus
+>   under it was derived from the tree you are about to change.**
+> * ⚠ **M52 AND M53 WERE BOTH VACUOUS ON FIRST DRAFT** and only running them
+>   showed it: one check was satisfied by *the comment introducing its own
+>   fix*; the other by a name a stub leaves in place. Both now read the AST.
+>   M50–M53 registered.
+>
+> **Next session is `3l`, and TUNING is the load-bearing problem** — producing
+> median **0.2573**, and `3k` proved coverage alone does not move the slice.
+> 🛑 **Block C was NOT done and has now been carried twice**: the
+> `gear_tier_stats(phase=…)` production caller and corpus-measured
+> `ContentProfile` presets. Do them first. Two named refusals
+> (Consecrated Holy Weapon 200818, Seal of Command 20424 — 3.5 points of
+> absent mass over 10 characters) need **one** owner-gated `--with-dbc` run
+> scoped to include `SpellItemEnchantment.dbc`.
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 35) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **26.3% (n=23)** |
+> | absent share of cohort logged damage | **59.9%** (was 62.9%) |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |
+>
+> 🛑 The holdout row is **not** like-for-like with the rows above it and the
+> direction is known: it was read before E15 was fixed, so **9.8% UNDER-states
+> it**. Do not read it as a floor, and do not compute a tuning-vs-holdout gap
+> from this table.
+>
+> 🆕 **Phase 3 exit, audited honestly: 2 of 7 criteria met.** The per-criterion
+> table now lives in `primer/PHASE_3_builds_repo.md` — criterion 1's
+> *"MET as written (4 of 41)"* fossil is corrected there by appending.
+
+<details><summary>Superseded: the <code>3j</code> top block</summary>
+
+
 > ✅ **2026-08-07 — SESSION `3j` IS DONE.** Record:
 > `primer/Session_2026-08-07_3j_integrity.md`. Work order it ran:
 > `primer/SESSION_3J_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
@@ -108,6 +187,9 @@
 > 20.5% → 26.3% with no modelling change. **So 9.8% UNDER-states the holdout.**
 > Do not read it as a current floor, and do not compute a tuning-vs-holdout gap
 > from this table.
+
+
+</details>
 
 <details><summary>Superseded: the <code>3i</code> top block</summary>
 
