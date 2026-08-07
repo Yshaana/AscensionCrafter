@@ -84,7 +84,7 @@ EXPECTED_PHASE_NAME = "Phase 1 - Zul'Gurub"
 # or after this date, the payload has modelled the boundary and the guard
 # disarms itself. Leaving a stale value here costs nothing. Setting it to None
 # when a boundary is outstanding costs a mis-stamped day.
-NEXT_PHASE_BOUNDARY = "2026-08-08T00:00:00Z"
+NEXT_PHASE_BOUNDARY = "2026-08-07T17:00:00Z"    # was 2026-08-08T00:00:00Z
 
 
 class RealmSeasonMismatch(RuntimeError):
