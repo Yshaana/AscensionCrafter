@@ -6,14 +6,34 @@
 > Session record: `primer/Session_2026-08-06_3f_instruments.md`.
 > Work order it ran: `primer/SESSION_3F_PRIMER.md`.
 >
-> 🚨 **DEADLINE, THIS WEEK: the server flips to PHASE 2 on 2026-08-08.**
-> The pre-flip baseline capture is scheduled **2026-08-07 20:00**, and `3f`
-> fixed three things that would each have broken it. Leaderboards and armory are
-> the ONLY data a flip destroys — reports persist, so the report backfill has no
-> deadline. After the flip: bump `season_config.py`'s `EXPECTED_PHASE_NAME` (and
-> `SEASON` if the season rolled), then re-crawl `/api/phases` before reading any
-> gear tier — phase derivation returns NULL past the last phases payload's fetch
-> time, on purpose.
+> 🚨 **DEADLINE: the server flips to PHASE 2 on 2026-08-08.**
+> **Checked live at `2026-08-07T00:35Z` (`3g` G0): the flip HAS NOT HAPPENED.**
+> `/api/phases` returns the same three records as on 2026-08-06 — Phase 0
+> (closed), `Phase 1 - Zul'Gurub` (active, `end_date` null), and `Phase 1.1`
+> (`phase_number` 2, a **child**). No Phase 2 record anywhere; `assert_phase()`
+> passes. `data/source/crawl/baseline_phase1/` is byte-identical to its
+> committed state. The pre-flip baseline capture is scheduled **2026-08-07
+> 20:00**, and `3f` fixed three things that would each have broken it.
+> Leaderboards and armory are the ONLY data a flip destroys — reports persist,
+> so the report backfill has no deadline.
+>
+> **After the flip:** bump `season_config.py`'s `EXPECTED_PHASE_NAME` (and
+> `SEASON` if the season rolled), then re-crawl `/api/phases` and re-run
+> `py ingest/logs_gg/build_builds_db.py` before reading any gear tier.
+>
+> 🆕 **`3g` G0 — the flip is now defended by a POSITIVE ASSERTION, not by the
+> fetch-time horizon.** The horizon defended against the wrong thing: the first
+> post-flip daily crawl appends a post-flip payload (`crawl_phases()` writes
+> before it asserts, deliberately), the horizon jumps past the flip, Phase 1's
+> window is still open-ended, and **every post-flip capture would have resolved
+> to `Phase 1 - Zul'Gurub`** — the exact failure F8b exists to prevent.
+> Three defences now: the payload's active top-level phase must match
+> `EXPECTED_PHASE_NAME` or **nothing** takes a label; a capture at or after
+> `season_config.NEXT_PHASE_BOUNDARY` takes no label while no window reaches it
+> (the child-phase case — a Phase 2 shipped like Phase 1.1 would be invisible to
+> both the resolver *and* `assert_phase`); and `horizon is None` now fails
+> **closed** instead of returning Phase 1. The boundary **self-retires** once
+> the payload carries a window reaching it, so a stale constant costs nothing.
 >
 > **THE GATE DID NOT MOVE, AND THAT WAS THE POINT.**
 >
@@ -74,9 +94,14 @@
 > per-ability damage aggregation — `parse_log.py` produces crit rates and
 > avoidance only, no damage totals.
 >
-> 🛑 **SIX QUESTIONS ARE WAITING IN "Blocked on the user" BELOW.** Four were
-> asked at session start; the session ran unattended on stated defaults, all of
-> which are reversible.
+> 🛑 **THE QUESTIONS WAITING ARE THE ROWS IN "Blocked on the user" BELOW.**
+> Each was asked with the default it ran on, and every default is reversible.
+> ⚠ `3g` G9 — **the numeral is deliberately gone.** It read *"SIX"* here while
+> the table held **seven** `3f` rows and `3f`'s closing statement said
+> **eight**: three numbers for one countable thing, in the live block a new
+> chat reads first, in the session that made hand-transcribed magnitudes a
+> standing rule. A phrase that points at the table cannot go stale; a numeral
+> typed beside it goes stale the next time a row is added.
 
 ---
 
@@ -1192,9 +1217,14 @@ they're answered.
 
 | Item | Blocking | Asked on |
 |---|---|---|
+| 🆕 **`3g` Q1 — if the phase flips MID-SESSION, do I bump `season_config.EXPECTED_PHASE_NAME`?** **Default taken: NO.** I refuse, print the mismatch and leave the constant to you. Bumping it changes what every subsequent record is stamped with, which is a written-row decision, not a code one — so §0.9's non-reversible rule applies and the session stops rather than defaults. G0's guard now makes that refusal total: an inconsistent payload labels **nothing**, not just post-flip captures | Nothing tonight — the flip had not happened at `2026-08-07T00:35Z` (live `/api/phases` re-fetched; still `Phase 1 - Zul'Gurub`, no Phase 2 record) | 2026-08-07 (`3g` start) |
+| 🆕 **`3g` Q2 — when phase labelling refuses, should `build_builds_db.py` still build?** **Default taken: YES** — it builds with every `phase_label` NULL and a `🛑 PHASE LABELLING REFUSED` banner naming the reason. Refusing the whole corpus build over a labelling inconsistency would take down every read that does not depend on phase at all. Reversible: one branch in `main()` | Nothing. Confirmation only | 2026-08-07 (`3g` G0) |
+| 🆕 **`3g` Q3 — `gear_tier_stats(phase=…)` still has NO production caller.** `grep -rn gear_tier_stats` outside `gear.py` returns only `primer/*.md` and my own verification script. **Default taken: declare it rather than invent one.** ⚠ **So `3f` exit condition 10 reads ✅ on a function nothing calls** — the phase scoping is implemented, tested and correct, and the first person to read a gear tier after the flip will still call it with no `phase=` and get the blended answer, because there is no caller to pass one. Building a read surface unprompted is scope creep on a session that must keep every gate move attributable. Generated 2026-08-07: population 246, `phase="Phase 1 - Zul'Gurub"` keeps 238 and excludes 8, Phase 0 keeps exactly 8 (the floor) | A phase-scoped gear-tier read existing at all. **This is the one G0 item left undone on purpose** | 2026-08-07 (`3g` G0) |
+| 🆕 **`3g` Q4 — stop-point 2, run unattended.** If E13's fix moves the gate in the *better* direction, the work order says stop. **Default taken:** stop, name the second cause, and do not stack G2 on an unexplained move; if I can name it and it is legitimate I continue and say so in the record, otherwise G2 waits and the session reports the anomaly instead | Nothing unless it fires | 2026-08-07 (`3g` start) |
+| 🆕 **`3g` Q5 — do I take E10 → E7 → E8 if E13/E14 land early?** **Default taken:** only if the clock genuinely allows, one commit per defect, same pre-registration discipline. Closing `3g`'s stated scope well beats half-opening four more defects | Nothing | 2026-08-07 (`3g` start) |
 | 🆕 **`3f` F8c — TWO documents whose status I could not determine, flagged rather than guessed** (rule 6; a file mislabelled `HISTORICAL` becomes invisible, one mislabelled `LIVE` becomes a trap, and both are worse than an open question). **(a) `PHASE_2_simulation.md`** — Phase 2 is complete so it is the record of a finished phase, but it is still cited for sim DESIGN decisions and carries the pair-ratio calibration targets that other work reads as current. Marked `HISTORICAL`. **(b) `ADDENDUM_3E_to_3F.md`** — a session-to-session handover, consumed by `3f`, but you added §3.7 and a NEW STANDING RULE to it on 2026-08-07, and a standing rule is live content. Marked `HISTORICAL`; its §4 standing rules should probably move somewhere `LIVE` | Whether either can be cited as current truth | 2026-08-07 (`3f` F8c) |
 | 🆕 **`3f` Q1 — the gate manifest vs the holdout.** Running the gate used to rewrite the committed manifest's holdout block to REDACTED, so `3f`'s own per-commit gate reporting would have destroyed `3e`'s close-out reading on its first run. **Default taken:** a run without `--read-holdout` now CARRIES THE PREVIOUS READING FORWARD, stamped with the commit that took it (`c7d2892`) and marked as not from this run. Reversible — confirm, or say you would rather it redact and the gate be run less often | Nothing today; it is implemented and tested. Confirmation only | 2026-08-06 (`3f` start) |
-| 🆕 **`3f` Q2 — the corpus is TWO phases, not one.** Against `/api/phases`' own dates, **182 of 412 snapshots (44.2%) are Phase 0**, not Phase 1. Every doc said otherwise because the `user_confirmed` `server_phases` seed gives Phase 1 a NULL start. **Default taken:** F8b implemented as written — derive from the live API, report the split. Gear tiers lose only 3.1% (their `pieces >= 12` population is 216/7) and the gate cohort is 40/1, so nothing is disrupted; but "the corpus is all Phase 1" is now false project-wide, and you may want the seeded timeline corrected too | Any phase-scoped reading of the corpus. Not blocking the gate | 2026-08-06 (`3f` start) |
+| 🆕 **`3f` Q2 — the corpus is TWO phases, not one.** Against `/api/phases`' own dates a large minority of snapshots are **Phase 0**, not Phase 1. Every doc said otherwise because the `user_confirmed` `server_phases` seed gives Phase 1 a NULL start. **Default taken:** F8b implemented as written — derive from the live API, report the split. Gear tiers and the gate cohort are barely affected; but "the corpus is all Phase 1" is now false project-wide, and you may want the seeded timeline corrected too. ⚠ **`3g` G9 — the figures that were typed into this row are gone.** They read 44.2% and `216/7`; one corpus rebuild a day later made them 42.0% and `238/8`. `corpus_phase_census()` and `gear_tier_stats`' own `phase_scoping` print both, and `build_builds_db.py` emits the census every run | Any phase-scoped reading of the corpus. Not blocking the gate | 2026-08-06 (`3f` start) |
 | 🆕 **`3f` Q3 — does the first log ingestion write a `prediction_outcomes` row at all?** The four registered predictions are all sim predictions against `raid_boss` / `mythic_dungeon` profiles, while every capture folder is a **training-dummy** parse. Writing an outcome across that content mismatch is a fabricated comparison. **Default:** build the path and have it REFUSE with a named reason when no prediction matches the capture's content profile | `3g` Block C's exit condition 8 | 2026-08-06 (`3f` start) |
 | 🆕 **`3f` Q4 — F9's tolerance is pre-registered at ±25%** (the gate's ±20% widened once, because the fixture carries ZERO talents by construction), committed one commit before the assertion ran. It **failed at +6,427%**, which is the correct outcome and is recorded as a number. Confirm it stands, or set a different one **before** the next run | Nothing — registered and failing as designed | 2026-08-06 (`3f` start) |
 | 🆕 **`3f` — the 20% successor floor's attribution**, logged retroactively as `AUDIT_3E` §6 asks. It is attributed to you three times in `3e`'s record and is numerically identical to `SLICE_COVERAGE_FLOOR_PCT`, a constant Code chose in A2 and justified in its own voice. Probably fine; unverifiable from the repo, and the next auditor will raise it again | Nothing. Confirm or correct the attribution | 2026-08-06 (`3f`, on the auditor's behalf) |

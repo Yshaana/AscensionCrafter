@@ -27,25 +27,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import config  # noqa: E402
 from config import BUILDS_DB_PATH, CRAWL_DIR, DB_PATH, ensure_derived_dir  # noqa: E402
 from core.builds import corpus, gear  # noqa: E402
-from core.builds.phases import phase_windows  # noqa: E402
+import season_config  # noqa: E402
+from core.builds.phases import (describe_horizon, phase_guard,  # noqa: E402
+                                phase_windows)
 from core.spells import crosswalk  # noqa: E402
 
 config.ensure_utf8_stdout()
 
 
-def latest_phase_windows():
-    """The most recently captured `/api/phases` payload, as phase windows.
+def latest_phase_context():
+    """`(windows, horizon, refuse_reason, boundary)` for the newest payload.
 
-    🛑 `3f` F8b — THE BOUNDARY COMES FROM THE LIVE RESPONSE, cached with its
+    🛑 `3f` F8b — THE TIMELINE COMES FROM THE LIVE RESPONSE, cached with its
     fetch time, never from a date typed into a constant. `season_config.py` is
     the one place that knows the EXPECTED phase; it is deliberately not the
     place a phase timeline is read from, and neither is the `user_confirmed`
     `server_phases` seed (whose Phase 1 has a NULL start, which is why the
-    corpus has been described as "all Phase 1" when 38.6% of it predates
-    Phase 1's actual start).
+    corpus has been described as "all Phase 1" when nearly half of it predates
+    Phase 1's actual start — the census below prints the real figure).
 
     The newest capture wins: an older payload knows about fewer phases, and its
     fetch time becomes the horizon past which nothing can be resolved.
+
+    🚨 `3g` G0 — **but the newest payload is exactly what makes the horizon
+    unsafe.** The first post-flip daily crawl appends a post-flip payload, so
+    the horizon jumps past the flip while Phase 1's window is still open-ended,
+    and every post-flip capture up to that fetch time resolves to Phase 1. So
+    the timeline is now gated by `phase_guard()`: the payload's own active
+    top-level phase must still be `season_config.EXPECTED_PHASE_NAME`, and a
+    capture at or after `season_config.NEXT_PHASE_BOUNDARY` takes no label
+    until the payload carries a window that reaches it. This function is where
+    `ingest/` — which may import `season_config` — hands those two constants to
+    `core/`, which may not.
     """
     best = None
     for path in sorted(CRAWL_DIR.glob("*/phases.jsonl.gz")):
@@ -59,8 +72,14 @@ def latest_phase_windows():
         except (OSError, KeyError, json.JSONDecodeError):
             continue
     if best is None:
-        return [], None
-    return phase_windows(best[1], best[0])
+        return [], None, ("no /api/phases capture found under "
+                          "data/source/crawl/*/phases.jsonl.gz"), None
+    windows, horizon = phase_windows(best[1], best[0])
+    refuse, boundary = phase_guard(
+        best[1], windows,
+        expected_phase_name=season_config.EXPECTED_PHASE_NAME,
+        unmodelled_boundary=season_config.NEXT_PHASE_BOUNDARY)
+    return windows, horizon, refuse, boundary
 
 # Ingestion order matters only mildly (characters before performance makes the
 # character upserts richer first), but reports must precede the per-ability
@@ -182,14 +201,30 @@ def main():
               f"every card left spell_id NULL / 'unresolved'")
 
     print("[post] deduping gear into the items table…")
-    windows, horizon = latest_phase_windows()
+    windows, horizon, phase_refuse, phase_boundary = latest_phase_context()
+    # 3g G0 — the corpus still BUILDS when phase labelling refuses; it just
+    # labels nothing. Refusing the whole build over a labelling inconsistency
+    # would take down every read that does not depend on phase at all.
+    if phase_refuse:
+        print(f"  🛑 PHASE LABELLING REFUSED — every phase_label is NULL.\n"
+              f"     {phase_refuse}")
+    elif phase_boundary is not None:
+        print(f"  ⚠ declared boundary {phase_boundary:%Y-%m-%d %H:%M}Z is ARMED "
+              f"— /api/phases carries no phase reaching it, so captures at or "
+              f"after it take no label (season_config.NEXT_PHASE_BOUNDARY)")
     item_stats = gear.build_items_from_gear(
-        conn, phase_windows=windows, phase_horizon=horizon)
+        conn, phase_windows=windows, phase_horizon=horizon,
+        phase_refuse_reason=phase_refuse, phase_boundary=phase_boundary)
     print(f"  {item_stats['items']} items, {item_stats['with_stats']} with resolved "
           f"stat blocks (provenance: {item_stats['provenance']})")
     if item_stats["phase_labels_derived"]:
+        # 3g G0 — `horizon` is None whenever the payload's fetch time did not
+        # parse, and `f"{None:%Y-%m-%d}"` raises. This is F5's exact crash
+        # class, reintroduced inside F8b's own code; a guard that cannot run
+        # must SAY so, not die reporting it. `describe_horizon` is in core/ so
+        # it can be tested without a corpus rebuild.
         print(f"  phase_label derived from /api/phases "
-              f"(horizon {horizon:%Y-%m-%d %H:%M}Z): "
+              f"(horizon {describe_horizon(horizon)}): "
               + ", ".join(f"{k}={v}"
                           for k, v in item_stats["items_by_phase_label"].items()))
         for why, n in item_stats["phase_unresolved_by_reason"].items():
@@ -197,6 +232,15 @@ def main():
     else:
         print("  ⚠ phase_label left NULL on every row — no /api/phases capture "
               "found under data/source/crawl/*/phases.jsonl.gz")
+
+    # 3g G9 — the corpus phase split, PRINTED. It shipped as two different
+    # hand-typed percentages (44.2% and 38.6%); now it has an owner.
+    census = gear.corpus_phase_census(
+        conn, phase_windows=windows, phase_horizon=horizon,
+        phase_refuse_reason=phase_refuse, phase_boundary=phase_boundary)
+    print(f"  corpus phase census: {census['snapshots']} snapshots — "
+          + ", ".join(f"{k}: {v} ({census['pct_by_phase_label'][k]}%)"
+                      for k, v in census["by_phase_label"].items()))
 
     print("[post] linking performance rows to build snapshots…")
     link = corpus.link_performance_snapshots(conn)

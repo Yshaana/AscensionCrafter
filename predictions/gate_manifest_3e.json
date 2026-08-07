@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-06T23:36:02+00:00",
- "git_sha": "36101824c4b03c785d53f6f39525fe0cadb78c85",
+ "generated_at": "2026-08-07T00:44:56+00:00",
+ "git_sha": "06714147152bb45bb275f19196ccfbf3128855f8",
  "git_working_tree_dirty": true,
  "realm": "Darkmoon",
  "season": "S10",
@@ -65,14 +65,14 @@
   }
  },
  "corpus_row_counts": {
-  "characters": 4140,
-  "character_snapshots": 412,
-  "snapshot_cards": 19684,
-  "snapshot_gear": 6896,
-  "encounters": 5487,
-  "capture_scopes": 1544,
-  "encounter_performance": 19878,
-  "ability_performance": 309733
+  "characters": 4164,
+  "character_snapshots": 436,
+  "snapshot_cards": 21271,
+  "snapshot_gear": 7308,
+  "encounters": 5573,
+  "capture_scopes": 1560,
+  "encounter_performance": 20056,
+  "ability_performance": 313747
  },
  "cohort_definition": {
   "source_file": "predictions/cohort_frozen_3e.json",
@@ -83,7 +83,7 @@
   "scored": 41,
   "dropped": [],
   "excluded_after_selection": [],
-  "qualifying_but_not_frozen_in": 116,
+  "qualifying_but_not_frozen_in": 139,
   "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat. TWO exits: `dropped` is the completeness filter, `excluded_after_selection` is the scoring loop. frozen_size == still_qualifying + len(dropped), and still_qualifying == scored + len(excluded_after_selection)."
  },
  "holdout": {

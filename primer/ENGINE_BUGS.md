@@ -62,6 +62,22 @@ codepoint (made an encoding assertion unfalsifiable).
 | M12 | drop the holdout carry-forward | 2 |
 | M13 | treat CHILD phases as top-level in `phase_windows` | 2 |
 | M14 | drop the horizon rule in `resolve_phase` | 2 |
+| M15 🆕 | drop the `expected_phase_name` branch in `phase_guard()` | 2 |
+| M16 🆕 | drop the declared-boundary branch in `resolve_phase()` | 1 |
+| M17 🆕 | restore the fail-**open** horizon (`horizon is not None and ts > horizon`) | 1 |
+| M18 🆕 | revert `describe_horizon()` to a bare f-string (F5's crash class) | 1 |
+| M19 🆕 | drop the boundary's self-retirement, so it never disarms | 2 |
+
+**M15–M19 are `3g` G0's**, all in `core/builds/phases.py`, all red-counted by
+running `tools/audit/check_refusals.py` under each mutation and restoring —
+harness output pasted into the `3g` session record. ⚠ **M17's first draft was
+malformed and is worth recording**: replacing only the `horizon is None` branch
+with `if False:` left the following `ts > horizon` comparing against `None`, so
+the check **crashed with a traceback instead of going red** — 0 red, which a
+harness counting FAIL lines would have scored as *vacuous*. The mutation has to
+restore the real prior code (one branch guarded by `horizon is not None`), not
+merely disable the new one. **A mutation that changes the failure MODE is not
+the mutation you meant to run.**
 
 Checks live in `tools/audit/check_sim_engine.py` (the engine harness),
 `tools/audit/check_gate_exclusion.py` (cohort integrity) and

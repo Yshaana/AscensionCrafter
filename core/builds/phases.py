@@ -16,14 +16,48 @@ Phase 1, not the Phase 2 content launch. `PROGRESS.md` recorded that trap on
 2026-08-04 and `season_config` already honours it; so does this.
 
 🚨 **THE FIELD IS `start_date`, AND THERE IS NO PHASE 2 RECORD YET.** Measured
-against the captured payloads on 2026-08-06, `/api/phases` returns exactly
-three records — Phase 0 (`2026-07-24T00:00Z`), Phase 1 - Zul'Gurub
-(`2026-07-31T18:00Z`, active) and Phase 1.1 (a child). The 2026-08-08 Phase 2
-boundary appears **nowhere in the API**; its only source in the tree is the
-`user_confirmed` seed in `server_phases` and `season_config`. So this module
-resolves what the API actually states and returns NULL past the edge of what
-the payload could know — see `resolve_phase`'s horizon rule. It does not
-invent the flip, and it does not read the seeded date.
+against the captured payloads on 2026-08-06 and re-checked live on 2026-08-07,
+`/api/phases` returns exactly three records — Phase 0 (`2026-07-24T00:00Z`),
+Phase 1 - Zul'Gurub (`2026-07-31T18:00Z`, active) and Phase 1.1 (a child). The
+2026-08-08 Phase 2 boundary appears **nowhere in the API**; its only source in
+the tree is the `user_confirmed` seed in `server_phases` and `season_config`.
+
+🚨 **`3g` G0 — THE HORIZON RULE DEFENDED AGAINST THE WRONG THING, AND IT IS
+REPLACED BY A POSITIVE ASSERTION.** The horizon is *when we fetched*, not
+*what the payload knows*. The first post-flip daily crawl appends a post-flip
+payload (`crawl_phases()` writes before it asserts, deliberately, for the
+daily crawler), the horizon jumps past the flip, Phase 1's window is still
+`open_ended`, and **every post-flip capture up to that fetch time resolves to
+`Phase 1 - Zul'Gurub`** — precisely the silent mis-read F8b exists to prevent,
+arriving through a door the horizon does not cover. Reproduced by the `3f`
+auditor against the committed payload.
+
+Three defences now, and they are ordered so the widest fires first:
+
+1. **`phase_guard()` — the payload's own phase set must agree with what this
+   clone expects.** If the live active top-level phase is not the expected one
+   (or there is not exactly one), **every** label is NULL with that as the
+   reason. Nothing compared the two before.
+2. **A DECLARED boundary that the payload has not caught up to.** The
+   child-phase precedent is the reason this exists: the server published its
+   last content boundary (Phase 1.1) as a **child**, which `phase_windows`
+   correctly drops — so a Phase 2 published the same way would be invisible to
+   the resolver while `assert_phase()` still passes, and defence 1 would not
+   fire either. A capture at or after a boundary no window has reached is NULL
+   **regardless of fetch time**. The boundary **self-retires**: the moment the
+   payload carries a top-level window starting at or after it, the payload has
+   modelled it and the guard disarms itself.
+3. **The horizon, which now fails CLOSED.** `horizon is None` used to fail
+   open — `resolve_phase("2027-01-01…", w, None)` returned Phase 1.
+
+⚠ **A position this module used to hold, and no longer does.** Its previous
+docstring said it *"does not read the seeded date"*. That was the right
+instinct about *coupling* and the wrong answer about *safety*: refusing to
+know the boundary did not make the boundary go away, it just meant the one
+case the module existed for was the case it could not see. The date is now a
+**parameter with no default**, supplied by the caller (`ingest/` may import
+`season_config`; `core/` still may not). Purity is preserved by the layering,
+not by ignorance.
 
 Pure logic (`core/` rules): takes records and returns labels. It never fetches,
 never opens a file, and never reads a constant naming a date.
@@ -87,7 +121,95 @@ def phase_windows(payload, fetched_at):
     return rows, _parse_ts(fetched_at)
 
 
-def resolve_phase(captured_at, windows, horizon):
+def describe_horizon(horizon):
+    """The horizon as a short UTC string, or `"UNKNOWN"` when it is None.
+
+    🛑 `3g` G0 — this exists because `build_builds_db.py:192` did
+    `f"(horizon {horizon:%Y-%m-%d %H:%M}Z)"` on a value that is `None` whenever
+    the payload's fetch time did not parse. That raises `TypeError`, so **the
+    line reporting the failure was the line that crashed** — F5's exact crash
+    class, reintroduced inside F8b's own code, in the session that fixed F5.
+
+    It lives here rather than at the call site so it can be tested without
+    running a corpus rebuild. A guard that cannot run must say so; a guard that
+    cannot even print must not exist.
+    """
+    return f"{horizon:%Y-%m-%d %H:%M}Z" if horizon is not None else "UNKNOWN"
+
+
+def _active_top_level(payload):
+    """Active phases with no progression parent — the real "what phase is the
+    server on" answer.
+
+    Deliberately a local re-implementation of `season_config`'s function of the
+    same shape: `core/` may not import `season_config`, and this is two lines
+    of field access rather than a rule that could drift. The rule that COULD
+    drift — which name to expect — is a parameter.
+    """
+    return [p for p in (payload or {}).get("phases", [])
+            if p.get("is_active")
+            and p.get("progression_parent_phase_id") in (None, 0)]
+
+
+def phase_guard(payload, windows, *, expected_phase_name=None,
+                unmodelled_boundary=None):
+    """`(refuse_reason, armed_boundary)` — may this payload label anything?
+
+    🛑 **`3g` G0 — this is the positive assertion the horizon rule was not.**
+    It answers a question nothing in the tree asked before: *does the payload
+    we are about to resolve against still describe the server this clone
+    believes it is pointed at?* A payload that does not gets to label
+    **nothing** — not "nothing after some date", nothing at all — because if
+    the phase set has moved, we do not know which of its windows are still
+    what they say they are.
+
+    `expected_phase_name` is `season_config.EXPECTED_PHASE_NAME`, passed in.
+    Passing `None` skips the check and says so by returning no reason; that is
+    for the pure-logic tests, not for a caller with a real corpus.
+
+    `unmodelled_boundary` is a DECLARED boundary date (ISO-8601) that the
+    server has announced and the API does not yet carry —
+    `season_config.NEXT_PHASE_BOUNDARY`. It is returned **armed** only while no
+    top-level window has reached it. Once the payload carries a window starting
+    at or after it, the payload has modelled the boundary and the guard
+    disarms: the constant does not have to be removed by hand, and a clone that
+    forgets to remove it is not punished with permanent NULLs.
+
+    Why the boundary is needed at all, given defence 1: the server published
+    its last content boundary as a **child** phase, which `phase_windows` drops
+    and `assert_phase` ignores. A Phase 2 published the same way leaves the
+    active top-level name unchanged — defence 1 sees nothing wrong, and without
+    this the resolver would happily stretch Phase 1 across the flip.
+    """
+    if expected_phase_name is not None:
+        tops = _active_top_level(payload)
+        if not (payload or {}).get("phases"):
+            return ("the /api/phases payload carries no phases at all — "
+                    "refusing to label any capture against it"), None
+        if len(tops) != 1:
+            names = [p.get("name") for p in tops]
+            return (f"expected exactly ONE active top-level phase, the payload "
+                    f"has {len(tops)}: {names}. Either a phase transition is "
+                    f"in progress or the schema changed; every phase_label is "
+                    f"NULL until it is resolved by hand"), None
+        live = tops[0].get("name")
+        if live != expected_phase_name:
+            return (f"PHASE FLIP: the payload's active top-level phase is "
+                    f"{live!r}, this clone expects "
+                    f"{expected_phase_name!r}. Every phase_label is NULL until "
+                    f"season_config.EXPECTED_PHASE_NAME is updated and the "
+                    f"corpus re-derived — a mis-stamped phase cannot be "
+                    f"repaired later"), None
+
+    boundary = _parse_ts(unmodelled_boundary)
+    if boundary is not None and any(w["starts_at"] >= boundary
+                                    for w in (windows or [])):
+        boundary = None         # the payload has caught up; disarm
+    return None, boundary
+
+
+def resolve_phase(captured_at, windows, horizon, *,
+                  refuse_reason=None, boundary=None):
     """`(label, reason)` — the phase this timestamp fell in, or `(None, why)`.
 
     🛑 **EXACTLY ONE WINDOW, OR NOTHING.** Rule 2: unconfirmed is flagged, never
@@ -96,18 +218,39 @@ def resolve_phase(captured_at, windows, horizon):
     different amounts of information when a phase-scoped query reports how much
     of its population it dropped.
 
-    The horizon rule is the one that matters this week: a timestamp AFTER the
-    phases payload was fetched cannot be resolved by that payload, even though
-    the last window looks open-ended. Resolving it would silently label
-    post-flip captures as Phase 1 — the exact silent mis-read this task exists
-    to prevent, arriving through the back door.
+    `refuse_reason` and `boundary` come from `phase_guard()` and are checked
+    FIRST and SECOND, before any window is consulted. Their order is the point:
+    a payload that no longer describes this server may label nothing, and a
+    capture past a boundary the payload has not modelled may take no label even
+    though the payload is otherwise fine.
+
+    🛑 **`horizon is None` FAILS CLOSED** (`3g` G0). It used to fail open, so
+    `resolve_phase("2027-01-01…", w, None)` returned Phase 1. `horizon` is
+    `_parse_ts(fetched_at)`, which returns `None` for any unparseable fetch
+    time — meaning the one input that says how far this payload can be trusted
+    was missing, and the resolver answered anyway.
     """
+    if refuse_reason:
+        return None, refuse_reason
     ts = _parse_ts(captured_at)
     if ts is None:
         return None, "no parseable capture timestamp"
     if not windows:
         return None, "no phase windows could be built from the payload"
-    if horizon is not None and ts > horizon:
+    if boundary is not None and ts >= boundary:
+        return None, (f"captured {ts:%Y-%m-%d %H:%M}Z, at or after the declared "
+                      f"phase boundary {boundary:%Y-%m-%d %H:%M}Z, which this "
+                      f"/api/phases payload does not carry a phase for. The "
+                      f"boundary may have been published as a CHILD phase, "
+                      f"which is invisible to the resolver. Re-crawl "
+                      f"/api/phases; if it now names the new phase, update "
+                      f"season_config and re-derive")
+    if horizon is None:
+        return None, ("the phases payload has no parseable fetch time, so "
+                      "there is no horizon past which it stops being "
+                      "trustworthy — refusing to resolve rather than trusting "
+                      "an open-ended window forever")
+    if ts > horizon:
         return None, (f"captured {ts:%Y-%m-%d %H:%M}Z, AFTER the phases payload "
                       f"was fetched ({horizon:%Y-%m-%d %H:%M}Z) — that payload "
                       f"cannot know which phase this fell in. Re-crawl "

@@ -420,17 +420,20 @@ def check_holdout_reading_is_not_erased():
 # --------------------------------------------------------------------------
 # F8b — a capture resolves to exactly one phase, or to none
 # --------------------------------------------------------------------------
+# `is_active` mirrors the live payload, re-fetched 2026-08-07: Phase 0 closed,
+# Phase 1 and its child both active. `3g` G0's guard reads it, so a fixture
+# without it models a payload shape the server does not send.
 _PHASES = {"phases": [
-    {"id": 1, "name": "Phase 0", "phase_number": 0,
+    {"id": 1, "name": "Phase 0", "phase_number": 0, "is_active": False,
      "progression_parent_phase_id": None,
      "start_date": "2026-07-24T00:00:00.000Z"},
     {"id": 2, "name": "Phase 1 - Zul'Gurub", "phase_number": 1,
-     "progression_parent_phase_id": None,
+     "is_active": True, "progression_parent_phase_id": None,
      "start_date": "2026-07-31T18:00:00.000Z"},
     # 🛑 phase_number 2, named "Phase 1.1", CHILD of Phase 1. Reading
     # phase_number instead of the parent id says the server is on Phase 2,
     # which is false — PROGRESS.md recorded this trap on 2026-08-04.
-    {"id": 3, "name": "Phase 1.1", "phase_number": 2,
+    {"id": 3, "name": "Phase 1.1", "phase_number": 2, "is_active": True,
      "progression_parent_phase_id": 2,
      "start_date": "2026-08-03T18:00:00.000Z"},
 ]}
@@ -491,6 +494,101 @@ def check_phase_resolution():
           f"{got!r} — {(reason or '')[:70]}")
 
 
+def check_phase_guard():
+    """`3g` G0 — the positive assertion the horizon rule was not.
+
+    RED: delete the `expected_phase_name` branch in `phase_guard()`, or the
+    `boundary` branch in `resolve_phase()`, or restore `horizon is not None
+    and ts > horizon`. Each turns its own assertion below red.
+
+    GREEN: these go green on the FIX and only on the fix — a payload whose
+    active top-level phase matches, with a boundary the payload has reached,
+    resolves normally (the last two assertions), so a guard that simply
+    refused everything would fail them.
+    """
+    from core.builds.phases import phase_guard, phase_windows, resolve_phase
+
+    wins, horizon = phase_windows(_PHASES, "2026-08-06T06:40:10+00:00")
+
+    # --- 1. the payload still describes the server this clone expects -------
+    refuse, boundary = phase_guard(_PHASES, wins,
+                                   expected_phase_name="Phase 1 - Zul'Gurub",
+                                   unmodelled_boundary="2026-08-08T00:00:00Z")
+    check("[G0] a payload whose active top-level phase is the expected one "
+          "does NOT refuse", refuse is None, f"refuse={refuse!r}")
+
+    # The flip, as a top-level record. `assert_phase` catches this one too.
+    flipped = {"phases": [dict(p) for p in _PHASES["phases"]]}
+    flipped["phases"][1]["name"] = "Phase 2 - Ruins of Ahn'Qiraj"
+    refuse_flip, _ = phase_guard(flipped, wins,
+                                 expected_phase_name="Phase 1 - Zul'Gurub")
+    check("[G0] a payload naming a phase season_config does not expect refuses "
+          "EVERY label, not just post-flip ones",
+          refuse_flip is not None and "PHASE FLIP" in refuse_flip,
+          (refuse_flip or "(no refusal)")[:80])
+    got, why = resolve_phase("2026-08-01T00:00:00Z", wins, horizon,
+                             refuse_reason=refuse_flip)
+    check("[G0] …and the refusal reaches resolve_phase — a capture safely "
+          "inside Phase 1 is still NULL while the payload is inconsistent",
+          got is None and why == refuse_flip, f"{got!r}")
+
+    # --- 2. the CHILD-phase case: nothing about the payload changes ---------
+    # This is the one defence 1 cannot make. The server published its last
+    # boundary as a child, which phase_windows drops and assert_phase ignores.
+    check("[G0] the declared boundary is ARMED while no window reaches it "
+          "(the child-phase case: the payload looks completely normal)",
+          boundary is not None and boundary.year == 2026
+          and (boundary.month, boundary.day) == (8, 8), repr(boundary))
+    got, why = resolve_phase("2026-08-08T12:00:00Z", wins, horizon,
+                             boundary=boundary)
+    check("[G0] a capture at or after the declared boundary is NULL even "
+          "though the payload is consistent and the horizon is far later",
+          got is None and "declared phase boundary" in (why or ""),
+          f"{got!r} — {(why or '')[:70]}")
+
+    # …and it SELF-RETIRES once the payload catches up.
+    caught_up = {"phases": _PHASES["phases"] + [
+        {"id": 4, "name": "Phase 2 - Ruins of Ahn'Qiraj", "phase_number": 3,
+         "progression_parent_phase_id": None, "is_active": True,
+         "start_date": "2026-08-08T00:00:00.000Z"}]}
+    wins2, horizon2 = phase_windows(caught_up, "2026-08-09T06:00:00+00:00")
+    _, boundary2 = phase_guard(caught_up, wins2,
+                               unmodelled_boundary="2026-08-08T00:00:00Z")
+    check("[G0] the boundary DISARMS itself once /api/phases carries a window "
+          "reaching it — a stale constant costs nothing",
+          boundary2 is None, repr(boundary2))
+    got, _ = resolve_phase("2026-08-08T12:00:00Z", wins2, horizon2,
+                           boundary=boundary2)
+    check("[G0] …and the same capture then resolves to the NEW phase, so the "
+          "guard cannot be satisfied by refusing everything",
+          got == "Phase 2 - Ruins of Ahn'Qiraj", repr(got))
+
+    # --- 3. horizon is None must fail CLOSED --------------------------------
+    got, why = resolve_phase("2027-01-01T00:00:00Z", wins, None)
+    check("[G0] horizon=None FAILS CLOSED — it used to return Phase 1 for a "
+          "timestamp years past anything the payload knew",
+          got is None and "no horizon" in (why or "").replace("there is no ",
+                                                              "no "),
+          f"{got!r} — {(why or '')[:70]}")
+
+    # --- 4. …and reporting that state must not crash (F5's crash class) ----
+    # `f"(horizon {None:%Y-%m-%d})"` raises TypeError. build_builds_db.py:192
+    # did exactly that, inside F8b's own code, in the session that fixed F5.
+    # RED: revert `describe_horizon` to a bare f-string.
+    from core.builds.phases import describe_horizon
+    try:
+        none_desc, real_desc = describe_horizon(None), describe_horizon(horizon)
+        raised = False
+    except TypeError:
+        none_desc = real_desc = None
+        raised = True
+    check("[G0] describing a None horizon does not raise — the guard that "
+          "reports the failure must not be the thing that crashes",
+          not raised and none_desc == "UNKNOWN"
+          and real_desc.startswith("2026-08-06"),
+          f"None->{none_desc!r}, real->{real_desc!r}")
+
+
 def main():
     print("=== 3f: the guards that must not fail open "
           "(F0 / F4 / F5 / F6 / F7 / F8b) ===\n")
@@ -505,6 +603,7 @@ def main():
     check_holdout_reading_is_not_erased()
     print()
     check_phase_resolution()
+    check_phase_guard()
 
     print()
     if FAILURES:

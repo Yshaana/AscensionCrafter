@@ -68,6 +68,24 @@ SEASON = "S10"               # `seasons.label` / DB-stamp form
 # in ONE place, then re-run.
 EXPECTED_PHASE_NAME = "Phase 1 - Zul'Gurub"
 
+# The next content boundary the server has ANNOUNCED but `/api/phases` does not
+# yet carry a phase record for. ISO-8601 UTC, or None when there is no such
+# boundary outstanding.
+#
+# 🛑 DECLARED, not verified — same tier as SEASON. Nothing we fetch states it.
+# It exists because `assert_phase()` and the phase resolver both read the
+# payload, and the payload is exactly what a boundary published as a CHILD
+# phase does not change: the server shipped its last content boundary
+# ("Phase 1.1", `phase_number` 2) as a child of Phase 1, invisible to both.
+# `core.builds.phases.phase_guard()` takes this as a parameter and NULLs every
+# capture at or after it, regardless of when the payload was fetched.
+#
+# ✅ It SELF-RETIRES: once `/api/phases` carries a top-level phase starting at
+# or after this date, the payload has modelled the boundary and the guard
+# disarms itself. Leaving a stale value here costs nothing. Setting it to None
+# when a boundary is outstanding costs a mis-stamped day.
+NEXT_PHASE_BOUNDARY = "2026-08-08T00:00:00Z"
+
 
 class RealmSeasonMismatch(RuntimeError):
     """The clone's declared server state disagrees with the live server.

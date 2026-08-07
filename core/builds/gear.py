@@ -108,7 +108,36 @@ def init_items_schema(conn):
     conn.executescript(ITEMS_SCHEMA)
 
 
-def build_items_from_gear(conn, *, phase_windows=None, phase_horizon=None):
+def corpus_phase_census(conn, *, phase_windows=None, phase_horizon=None,
+                        phase_refuse_reason=None, phase_boundary=None):
+    """`{label_or_reason: n}` over every `character_snapshots` row, plus totals.
+
+    🆕 `3g` G9 — **this exists so a percentage stops being hand-typed.** The
+    same figure shipped as **44.2%** at `:402,414` and **38.6%** at `:518` and
+    `build_builds_db.py:44`, in the session that adopted *"a magnitude never
+    appears in a markdown file except as generated output."* One of them was
+    wrong and neither had an owner. Now the tool prints it.
+    """
+    from .phases import resolve_phase
+    rows = conn.execute("SELECT captured_at FROM character_snapshots").fetchall()
+    by_label = {}
+    for (captured_at,) in rows:
+        label, why = resolve_phase(captured_at, phase_windows or [],
+                                   phase_horizon,
+                                   refuse_reason=phase_refuse_reason,
+                                   boundary=phase_boundary)
+        key = label or "(unresolved)"
+        by_label[key] = by_label.get(key, 0) + 1
+    total = len(rows)
+    return {"snapshots": total,
+            "by_phase_label": dict(sorted(by_label.items())),
+            "pct_by_phase_label": {k: round(100.0 * v / total, 1)
+                                   for k, v in sorted(by_label.items())}
+            if total else {}}
+
+
+def build_items_from_gear(conn, *, phase_windows=None, phase_horizon=None,
+                          phase_refuse_reason=None, phase_boundary=None):
     """Dedupe `snapshot_gear` by item_id into `items`. Owns its own deletion.
 
     🆕 `3f` F8b — `phase_label` is DERIVED, not written as literal `None`.
@@ -143,7 +172,9 @@ def build_items_from_gear(conn, *, phase_windows=None, phase_horizon=None):
     labels, unresolved = [], {}
     for r in rows:
         if phase_windows:
-            label, why = resolve_phase(r[10], phase_windows, phase_horizon)
+            label, why = resolve_phase(r[10], phase_windows, phase_horizon,
+                                       refuse_reason=phase_refuse_reason,
+                                       boundary=phase_boundary)
             if label is None:
                 key = (why or "unresolvable").split(" — ")[0] \
                     .split(", before")[0].split(", AFTER")[0]
@@ -371,6 +402,7 @@ def slot_budget_medians(conn):
 
 def gear_tier_stats(conn, *, path=None, role=None, phase=None,
                     phase_windows=None, phase_horizon=None,
+                    phase_refuse_reason=None, phase_boundary=None,
                     tiers=(("fresh", 0.25), ("mid", 0.50), ("bis", 0.90))):
     """Fresh / mid / BiS stat blocks, MEASURED from what characters wear.
 
@@ -398,22 +430,36 @@ def gear_tier_stats(conn, *, path=None, role=None, phase=None,
     a different coat, and this project has now found four caveats that were
     printed and not enforced.
 
-    ⚠ **The corpus is NOT single-phase, which every doc said it was.** Against
-    the API's own dates, **182 of 412 snapshots (44.2%)** were captured before
-    Phase 1 started (`2026-07-31T18:00Z`) and belong to **Phase 0**; so do 714
-    of 2,384 items by first sighting. Nothing is unresolvable — it is cleanly
-    two phases. The "currently all Phase 1" claim came from the
-    `user_confirmed` `server_phases` seed, which gives Phase 1 a NULL start and
-    so swallows everything before the flip.
+    ⚠ **The corpus is NOT single-phase, which every doc said it was.** The
+    split is printed by `corpus_phase_census()` and by `build_builds_db.py`'s
+    `[post]` block — **do not retype it here.** Generated 2026-08-07 by
+    `py ingest/logs_gg/build_builds_db.py`:
+
+        corpus phase census: 436 snapshots — Phase 0: 183 (42.0%),
+        Phase 1 - Zul'Gurub: 253 (58.0%)
+
+    🛑 `3g` G9 — **this figure shipped as two different hand-typed numbers**,
+    44.2% here and **38.6%** at the bottom of this function and in
+    `build_builds_db.py`. 38.6% belonged to nothing and is retracted.
+    ⚠ **And 44.2% was right when written and is already wrong**: it was
+    182/412, and one corpus rebuild a day later makes it 183/436 = 42.0%. That
+    is the better argument for the census function than either error — the
+    number is not a fact about the world, it is a **reading of the corpus at a
+    moment**, and only a tool can keep it current.
+
+    Nothing is unresolvable — it is cleanly two phases. The "currently all
+    Phase 1" claim came from the `user_confirmed` `server_phases` seed, which
+    gives Phase 1 a NULL start and so swallows everything before the flip.
 
     ✅ **But scoping costs THIS function very little, and the difference is the
-    `pieces >= 12` filter.** Its own population is 223 snapshots — 216 Phase 1
-    and **7** Phase 0 — so `phase="Phase 1 - Zul'Gurub"` drops **3.1%**, not
-    44%. Phase 0 alone falls below the 8-snapshot floor and correctly returns
-    `insufficient_sample` rather than three tiers built on seven characters.
-    The corpus-wide 44.2% is the number to quote about the CORPUS; 3.1% is the
-    number to quote about gear tiers, and conflating them overstates the
-    disruption by 14x. *(Measured 2026-08-06.)*
+    `pieces >= 12` filter.** Read it off `phase_scoping` in this function's own
+    return rather than from prose; as generated 2026-08-07 its population is
+    246 snapshots, of which `phase="Phase 1 - Zul'Gurub"` keeps **238** and
+    excludes **8** (`snapshots_excluded`, all *"captured in 'Phase 0'"*) — a
+    3.3% drop, not 42%. Phase 0 alone keeps exactly 8, which is the floor.
+    The corpus-wide figure is the number to quote about the CORPUS; the
+    `phase_scoping` figure is the number to quote about gear tiers, and
+    conflating them overstates the disruption by an order of magnitude.
 
     🔬 The **gate cohort is effectively unaffected**: 40 of the frozen 41 have
     their lag-0 snapshot in Phase 1 and exactly one in Phase 0. This changes
@@ -449,7 +495,9 @@ def gear_tier_stats(conn, *, path=None, role=None, phase=None,
          captured_at) in conn.execute(sql, params):
         if phase is not None:
             label, why = resolve_phase(captured_at, phase_windows or [],
-                                       phase_horizon)
+                                       phase_horizon,
+                                       refuse_reason=phase_refuse_reason,
+                                       boundary=phase_boundary)
             if label is None:
                 key = why or "unresolvable"
                 # Collapse the per-timestamp detail to its mechanism so the
@@ -515,10 +563,10 @@ def gear_tier_stats(conn, *, path=None, role=None, phase=None,
         }
     # 3f F8b — the hardcoded `"caveat": "single-phase corpus; re-derive per
     # phase after 2026-08-08"` is GONE. It was wrong on both halves: the corpus
-    # is not single-phase (38.6% of snapshots predate Phase 1 by the API's own
-    # dates), and it was a printed caveat with nothing enforcing it — the
-    # fourth of those this project has found. `phase_scoping` replaces it with
-    # what the function actually did.
+    # is not single-phase (see the census in this function's docstring — the
+    # 38.6% that used to be quoted here was wrong, 3g G9), and it was a printed
+    # caveat with nothing enforcing it — the fourth of those this project has
+    # found. `phase_scoping` replaces it with what the function actually did.
     return {"verdict": "ok", "population": len(scored), "tiers": out,
             "unmapped_stat_keys": sorted(all_unmapped),
             "provenance": "crawl_resolved_bisbeard",
