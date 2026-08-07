@@ -27,6 +27,7 @@ from .swings import (
     swing_events, expected_swing, seal_procs, righteous_vengeance_damage,
     SEAL_PROC_PER_MELEE_EVENT, SEAL_PROC_RATE_EVIDENCE,
     RIGHTEOUS_VENGEANCE_SPELL_ID, RIGHTEOUS_VENGEANCE_FRACTION,
+    RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS,
 )
 
 # retail_hypothesis: 1.5s base GCD, floored at 1.0s, reduced by spell haste for
@@ -543,7 +544,7 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
     swing_damage, _ = _add_swing_sources(
         conn, char_state, content, available, per_ability, melee_ability_hits,
-        warnings)
+        warnings, build_spec=build_spec)
     total += swing_damage
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
@@ -737,7 +738,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
         if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
     swing_damage, seal_note = _add_swing_sources(
         conn, char_state, content, available, per_ability, melee_ability_hits,
-        warnings)
+        warnings, build_spec=build_spec)
     total += swing_damage
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
@@ -805,12 +806,21 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
 
 
 def _add_swing_sources(conn, char_state, content, available, per_ability,
-                       melee_ability_hits, warnings):
+                       melee_ability_hits, warnings, build_spec=None):
     """Auto-attacks, seal riders and Righteous Vengeance (session `2e`, T1).
 
     Returns the damage added. Every source that cannot be computed is WARNED and
     contributes zero — never estimated, never fitted from the parse it is meant
     to be checked against.
+
+    🚨 `3k` B3 — `build_spec` is what gates Righteous Vengeance on actually
+    HOLDING the card. It was not needed while the derivation was dead code
+    (`ev["crit_damage"]` was a key nothing wrote, so the value was always 0);
+    the moment that key is populated, an ungated derivation gives all 35 cohort
+    characters a Righteous Vengeance row and only 9 of them log one. That is
+    phantom production, which is as wrong as a missing key. Passing `None`
+    keeps the old ungated behaviour for callers that have no spec, and **says
+    so in a warning** rather than silently assuming ownership.
     """
     added = 0.0
     mh, oh, w = swing_events(char_state, available)
@@ -860,7 +870,27 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
         for ev in rec.get("events") or ():
             if ev.get("crit_damage"):
                 crit_damage += ev["crit_damage"] * rec["casts"]
-    if crit_damage > 0:
+
+    # `3k` B3 — does this character actually HOLD Righteous Vengeance? The
+    # talent card resolves to one of three rank ids. A build_spec of None means
+    # the caller could not say, and that is warned rather than assumed.
+    holds_rv = None
+    if build_spec is not None:
+        holds_rv = any(c.spell_id in RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS
+                       for c in (build_spec.talents or ()))
+    if crit_damage > 0 and holds_rv is False:
+        warnings.append(
+            f"Righteous Vengeance NOT modelled — this build does not slot the "
+            f"card ({crit_damage:,.0f} crit damage would otherwise have "
+            f"derived {righteous_vengeance_damage(crit_damage):,.0f}). "
+            "Deriving it from crit damage alone would credit every critting "
+            "build with a talent it does not have")
+    elif crit_damage > 0 and holds_rv is None:
+        warnings.append(
+            "Righteous Vengeance derived WITHOUT a card-ownership check — the "
+            "caller passed no build_spec, so whether this build slots the "
+            "talent is unknown. Treat the RV row as an upper bound")
+    if crit_damage > 0 and holds_rv is not False:
         rv = righteous_vengeance_damage(crit_damage)
         added += rv
         per_ability[RIGHTEOUS_VENGEANCE_SPELL_ID] = {

@@ -796,6 +796,12 @@ class ResolvedAbility:
         scale = mitigation * bucket_mult
         e_crit_factor = 1.0 + p_crit * (mult - 1.0)
         mean = p_land * base_avg * scale * e_crit_factor
+        # `3k` B3 — the damage dealt BY critical strikes, as opposed to the
+        # expected damage of a hit that might crit. Both factors are already in
+        # hand; computing it here rather than in the caller keeps the crit model
+        # in one place. Righteous Vengeance is 30% OF A CRIT, so it needs this
+        # and not `mean`.
+        crit_damage_each = p_land * base_avg * scale * p_crit * mult
 
         # variance: uniform base on [dmin,dmax], mixture over outcomes
         # E[D^2] for uniform = (a^2+ab+b^2)/3
@@ -841,7 +847,8 @@ class ResolvedAbility:
                 "p_land": p_land, "p_crit_given_land": p_crit,
                 "avoidance": {k: v / 100.0 for k, v in probs.items()
                               if k not in ("land", "hit", "crit")},
-                "crit_multiplier": mult, "mitigation_factor": mitigation,
+                "crit_multiplier": mult, "crit_damage_each": crit_damage_each,
+                "mitigation_factor": mitigation,
                 "base_min": dmin, "base_max": dmax,
             },
             per_metric={Metric.DAMAGE_DONE: mean,
@@ -933,6 +940,19 @@ class ResolvedAbility:
                 "mean_total": res.mean * n,
                 "p_land": res.breakdown.get("p_land"),
                 "p_crit": res.breakdown.get("p_crit_given_land"),
+                # 🚨 `3k` B3 — THE KEY `tiers.py` HAS ALWAYS READ AND NOTHING
+                # HAS EVER WRITTEN. `_add_swing_sources` derives Righteous
+                # Vengeance as 30% of the rotation's crit damage via
+                # `ev.get("crit_damage")`; that returned None on every event of
+                # every ability, so the sum was always 0.0, the
+                # `if crit_damage > 0` branch never fired, and RV was modelled
+                # as zero for every character since `2e`. Measured before the
+                # fix: 0 sim rows for 61840 across the whole cohort, against 9
+                # cohort characters logging it.
+                # Not a new quantity — `expected_hit` already computes both
+                # factors; this only stops discarding them.
+                "crit_damage": res.breakdown.get("crit_damage_each", 0.0) * n,
+                "crit_multiplier": res.breakdown.get("crit_multiplier"),
             })
         if unresolved:
             warnings.append(

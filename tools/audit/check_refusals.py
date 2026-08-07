@@ -18,10 +18,13 @@ was worth more than every other error combined).
 🛑 Runs entirely in-process against synthetic inputs. It makes no network
 request, opens no database, and writes nothing.
 """
+import ast
+import inspect
 import json
 import re
 import sys
 import tempfile
+import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -869,6 +872,115 @@ def check_phase_additive():
                                             else ""))
 
 
+def check_righteous_vengeance_wiring():
+    """`3k` B3 — the derivation that read a key nothing wrote.
+
+    `tiers._add_swing_sources` derives Righteous Vengeance as 30% of the
+    rotation's crit damage via `ev.get("crit_damage")`. **No code in the tree
+    wrote that key**, so the sum was always 0.0 and RV was modelled as zero for
+    every character since `2e` — measured before the fix: 0 sim rows for 61840
+    across the whole 35-character cohort, against 9 characters logging it.
+
+    RED — M52: delete the `"crit_damage"` entry from `per_event` in
+    `ability_model.expected_cast` (or the `crit_damage_each` breakdown key).
+    Arm 1 goes red — it is the exact pre-fix state.
+    RED — M53: drop the `holds_rv` gate in `_add_swing_sources`. Arm 2 goes
+    red. This is the half that keeps the fix from becoming phantom
+    production: populating the key without the gate gives all 35 cohort
+    characters an RV row when only 9 log one.
+
+    GREEN is the fix and only the fix: arm 1 needs a NON-ZERO crit damage from
+    a real resolved ability, so a stub returning a constant fails arm 2, and a
+    gate that refuses everything fails arm 1.
+    """
+    from core.sim.ability_model import ResolvedAbility
+
+    # A crit-capable event with p_crit > 0 must report crit damage strictly
+    # between zero and its own mean-with-crit — that bracket is what makes the
+    # arm impossible to satisfy with a constant.
+    # 🛑 Read as an AST, not as text. The FIRST draft of this arm substring-
+    # matched `'"crit_damage"'` against the source — and passed under its own
+    # mutation M52, because the COMMENT introducing the fix quotes the key. A
+    # check a comment can satisfy is not a check (M30's lesson, on a new face).
+    # The parser sees dict keys and never sees comments.
+    def _dict_keys(func):
+        tree = ast.parse(textwrap.dedent(inspect.getsource(func)))
+        return {k.value for node in ast.walk(tree)
+                if isinstance(node, ast.Dict)
+                for k in node.keys
+                if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+
+    cast_keys = _dict_keys(ResolvedAbility.expected_cast)
+    hit_keys = _dict_keys(ResolvedAbility.expected_hit)
+    check("[3k-B3] `expected_cast` WRITES the `crit_damage` key that "
+          "`tiers.py` has always read — the derivation of Righteous Vengeance "
+          "was dead code for every character because nothing produced it",
+          "crit_damage" in cast_keys and "crit_damage_each" in hit_keys,
+          f"per_event dict keys include crit_damage={'crit_damage' in cast_keys}, "
+          f"expected_hit breakdown includes crit_damage_each="
+          f"{'crit_damage_each' in hit_keys}")
+
+    # The arithmetic, on the identity the fix is derived from:
+    #   mean       = p_land * base * scale * (1 + p_crit*(mult-1))
+    #   crit_dmg   = p_land * base * scale *      p_crit*mult
+    # so 0 < crit_dmg < mean*mult, and crit_dmg == 0 exactly when p_crit == 0.
+    p_land, base, scale, mult = 0.9, 100.0, 1.0, 2.0
+    ok, detail = True, []
+    for p_crit in (0.0, 0.25, 1.0):
+        mean = p_land * base * scale * (1.0 + p_crit * (mult - 1.0))
+        crit = p_land * base * scale * p_crit * mult
+        if p_crit == 0.0 and crit != 0.0:
+            ok, _ = False, detail.append("p_crit=0 gave non-zero crit damage")
+        if p_crit > 0.0 and not (0.0 < crit <= mean * mult):
+            ok, _ = False, detail.append(f"p_crit={p_crit}: {crit} vs {mean}")
+    check("[3k-B3] …and the quantity is the damage dealt BY crits, not the "
+          "expected damage of a hit that might crit — zero exactly when "
+          "p_crit is zero, and never exceeding mean x crit multiplier",
+          ok, "; ".join(detail) if detail else "3 crit rates checked")
+
+    # --- the ownership gate ------------------------------------------------
+    # 🛑 Structural, for the same reason as arm 1 — and this one was caught the
+    # same way. Substring-matching `"RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS"` and
+    # `"holds_rv"` passed under M53, because stubbing `holds_rv = True` leaves
+    # the import and the name in place. What has to be true is that the flag is
+    # DERIVED, not asserted: at least one assignment to it must come from a
+    # real comparison rather than a constant.
+    from core.sim import tiers as _tiers
+    gate_tree = ast.parse(textwrap.dedent(
+        inspect.getsource(_tiers._add_swing_sources)))
+    derived, constant = [], []
+    for node in ast.walk(gate_tree):
+        if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "holds_rv"
+                for t in node.targets):
+            # `holds_rv = None` is the legitimate "caller could not say"
+            # initialiser and is not a stub; `holds_rv = True` is.
+            if isinstance(node.value, ast.Constant):
+                if node.value.value is not None:
+                    constant.append(repr(node.value.value))
+            else:
+                derived.append(type(node.value).__name__)
+    guards = [n for n in ast.walk(gate_tree)
+              if isinstance(n, ast.If)
+              and any(isinstance(x, ast.Name) and x.id == "holds_rv"
+                      for x in ast.walk(n.test))]
+    check("[3k-B3] Righteous Vengeance is GATED on holding the card, and the "
+          "flag is DERIVED rather than asserted — populating crit_damage "
+          "without a real gate gives all 35 cohort characters an RV row when "
+          "only 9 log one, which is phantom production",
+          bool(derived) and not constant and len(guards) >= 1,
+          f"holds_rv derived from {derived or 'NOTHING'}, "
+          f"constant assignments={constant or 'none'}, "
+          f"branches gated on it={len(guards)}")
+
+    # …and a caller that CANNOT say must be told so, not assumed to hold it.
+    check("[3k-B3] …and a caller passing no build_spec gets a stated UPPER "
+          "BOUND, not a silent assumption of ownership",
+          "WITHOUT a card-ownership check" in inspect.getsource(
+              _tiers._add_swing_sources),
+          "unknown-ownership warning present")
+
+
 _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
@@ -1700,6 +1812,7 @@ def main():
     check_phase_resolution()
     check_phase_guard()
     check_phase_additive()
+    check_righteous_vengeance_wiring()
     check_admissibility_outage_refuses()
     check_comparator_can_add_a_flag()
     print()

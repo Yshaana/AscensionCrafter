@@ -67,6 +67,15 @@ SEAL_PROC_RATE_EVIDENCE = (
 # with the value supplied by the caster, which is exactly why it has zero
 # `spell_effect_values` rows and can never be resolved from numeric fields.
 RIGHTEOUS_VENGEANCE_SPELL_ID = 61840
+
+# `3k` B3 — the three RANK ids of the Righteous Vengeance TALENT CARD, which are
+# a different id space from the 61840 DoT the damage logs under. Measured from
+# the corpus: `SELECT DISTINCT spell_id FROM snapshot_cards WHERE name LIKE
+# '%Righteous Vengeance%'` gives exactly these three, all `tree='talents'`, and
+# all 9 cohort characters that LOG 61840 hold one of them. This is a card-id
+# membership test, never a name match (CLAUDE.md: never relate two spell ids by
+# name) and never a join of 61840 to a card id (they are different spaces).
+RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS = frozenset({53380, 53381, 53382})
 RIGHTEOUS_VENGEANCE_FRACTION = 0.30
 RIGHTEOUS_VENGEANCE_DURATION = 8.0
 RIGHTEOUS_VENGEANCE_PERIOD = 2.0
