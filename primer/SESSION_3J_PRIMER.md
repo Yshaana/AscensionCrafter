@@ -1,8 +1,14 @@
 # SESSION `3J` PRIMER — gate integrity, then the E15 aftermath. No modelling.
 
-> **`WORK ORDER`** — the brief for session `3j`, drafted 2026-08-08 from
+> **`LIVE`** — the work order for session `3j`, drafted from
 > `primer/AUDIT_3I_ADVERSARIAL.md` (§10 is the source list; this file orders and
-> scopes it). Becomes `SUPERSEDED BY` the `3j` session record when `3j` closes.
+> scopes it). **Must be true today, and is citable as current truth.** Reclassify
+> **`SUPERSEDED BY primer/Session_<date>_3j_*.md`** at close-out.
+> *(Born with a status line and an expiry condition, per `3f` F8c. It was born with
+> `WORK ORDER` instead — a word outside the four-status vocabulary — which made it
+> UNCLASSIFIED to `check_refusals.py`'s F8c census and left the suite failing at
+> `18c2333`. Corrected in `3j`; the status vocabulary is closed, and a document that
+> invents a fifth status is invisible rather than merely unusual.)*
 
 **Audit implemented:** `primer/AUDIT_3I_ADVERSARIAL.md`.
 **Previous session record:** `primer/Session_2026-08-07_3i_gate_repair.md`.
