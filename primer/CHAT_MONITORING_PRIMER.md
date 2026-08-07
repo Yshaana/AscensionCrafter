@@ -1,11 +1,12 @@
-# CHAT MONITORING PRIMER v3 — AscensionCrafter
+# CHAT MONITORING PRIMER v4 — AscensionCrafter
 
 > **`LIVE`** — the standing brief for the oversight chat. **Must be true today, and is
-> citable as current truth.** Supersede at **v4** when `3h` closes. *(v2 was `LIVE` and
-> three sessions stale when `3h` replaced it — the `3f` audit flagged it at two.)*
+> citable as current truth.** Supersede at **v5** when `3i` closes. *(v3 expired the moment
+> `3h` closed and was still `LIVE` when the `3h` audit found it — the same trap v2 fell into.
+> **If you are reading this after `3i` has closed, it is stale: say so and rewrite it.**)*
 
-**Paste this at the start of a fresh monitoring chat.** Supersedes v1 and v2. Written
-2026-08-07, at the end of the session that audited `3g` and drafted `3h`.
+**Paste this at the start of a fresh monitoring chat.** Supersedes v1, v2 and v3. Written
+2026-08-07, at the end of the session that audited `3h` and drafted `3i`.
 
 This chat's job is **oversight and verification** — Claude Code writes the code locally.
 That split is not bureaucratic: everything useful this chat has produced came from checking
@@ -26,7 +27,8 @@ git clone --depth 40 https://github.com/Yshaana/AscensionCrafter.git repo
 what makes the findings possible — most come from `grep`-ing across the whole tree.
 
 Then read `primer/PROGRESS.md`'s top block. **If a claim isn't in the tree, it isn't
-confirmed.**
+confirmed.** ⚠ And read the *rest* of `PROGRESS.md` too: the `3h` audit found its
+`## Current position` section three sessions stale and still issuing live instructions.
 
 ⚠ **The owner may connect the local repo** (`C:\Users\Yshaana\Documents\GitHub\AscensionCrafter`)
 via `device_list_dir` / `device_stage_files` / `device_commit_files`. That is file read/write
@@ -49,97 +51,110 @@ parses. **The owner is the tier-1 evidence source.**
 
 ---
 
-## Where things stand, 2026-08-07
+## Where things stand, 2026-08-07 (post-`3h`)
 
-**Session map:** `3d` ✅ → `3e` ✅ → `3f` ✅ → `3g` ✅ → **`3h` (instrument session, work
-order written)** → then E9/E11/E12 → re-read Phase 3 exit honestly → Phase 4.
+**Session map:** `3d` ✅ → `3e` ✅ → `3f` ✅ → `3g` ✅ → `3h` ✅ → **`3i` (first gate-moving
+commits since `3g`, work order written)** → E9/E11/E12 → re-read Phase 3 exit honestly →
+Phase 4.
 
 **The gate:** `1 of 36 within ±20% · 1 qualified · slice accuracy 20.5% at coverage ≥20%
-(n=23)`. Holdout, read once at `3g` close-out: **0 of 5, −79% to −98%**, median slice
-**9.8%** — worse than the tuning set, so 20.5% is the optimistic end.
+(n=23)` — **unmoved across all ten `3h` commits**, because `3h` was an instrument session
+and touched no file under `core/`. Holdout, read once at `3g` close-out: **0 of 5, −79% to
+−98%**, median slice **9.8% (n=4)** — worse than the tuning set, so 20.5% is the optimistic
+end.
 
-🚨 **THE PROBLEM IS THE UNDER-PRODUCTION ITSELF.** `3g` fixed E13 (every white swing
-**exactly 100×** over) and E14 (12,000 ticks per cast) and the gate got **five times
-worse — on purpose, pre-registered, and that is the session working.** Slice accuracy did
-not drift from 64.3% to 20.5%; **64.3% was never true.**
+**Phase 3 exit: NOT met.**
 
-**Phase 3 exit: NOT met**, and further from met than before.
+🚨 **`3h`'s result, in one line: the sim is not uniformly ~5× under.** It is **absent** for
+most logged damage, **zero-producing** for a tenth, and **wrong in both directions** on the
+rest — and the aggregates cancel. Slice accuracy was the last inferred headline; it is now a
+measured distribution. Producing paired abilities: median ratio **0.253**, only **11%**
+inside [0.8, 1.25]. ⚠ **All of those figures need re-stating in `3i`** — see the open
+threads.
 
 **Key documents, in reading order for a new chat:**
 
 | File | What |
 |---|---|
-| `primer/PROGRESS.md` | live state — top block first, always |
-| `primer/AUDIT_3G_ADVERSARIAL.md` | the current audit; §4 and §5 are the live findings |
-| `primer/SESSION_3H_PRIMER.md` | the work order in flight |
-| `primer/ENGINE_BUGS.md` | the defect registry, `LIVE`, enforced both ways by `check_sim_engine.py` |
-| `primer/Session_2026-08-07_3g_explosions.md` | what `3g` actually did |
-| `predictions/CALIBRATION_TOLERANCE.md` | the stamped tolerances and the slice-accuracy record |
+| `primer/PROGRESS.md` | live state — top block first, then check `## Current position` is not stale |
+| `primer/AUDIT_3H_ADVERSARIAL.md` | the current audit; §4 is the serious findings, §10 is the list `3i` works from |
+| `primer/SESSION_3I_PRIMER.md` | the work order in flight |
+| `primer/ENGINE_BUGS.md` | the defect registry, `LIVE` — ⚠ its "enforced in both directions" claim has no parser behind it |
+| `primer/Session_2026-08-07_3h_measurement.md` | what `3h` actually did |
+| `predictions/CALIBRATION_TOLERANCE.md` | the stamped tolerances, the slice-accuracy record, and successor #3 (parse admissibility) |
 | `predictions/gate_manifest_3e.json` | ⚠ named for `3e`, holds the **current** numbers |
-| `primer/AUDIT_3F_ADVERSARIAL.md` | the previous audit; §7 is the list `3g` worked from |
+| `primer/AUDIT_3G_ADVERSARIAL.md` | the previous audit; §7 is the list `3g` worked from |
 
 ---
 
 ## The open threads, in priority order
 
-**1. 🚨 Coverage counts abilities the sim produced ZERO damage for.**
-`sim_spell_ids = set(res.per_ability.keys())` (`calibrate_crawled.py:745`), but
-`core/sim/tiers.py:496` writes a `per_ability` entry **unconditionally** — including when
-every event was REFUSED (`ability_model.py:918-924`) or nothing resolved (`:735-742`).
-`modelled_damage_share`'s docstring says *"spells the sim produced any damage for"*; that is
-**false**. Since `slice = (100 + delta) / coverage`, a keyed-but-zero ability pushes slice
-accuracy down twice — and `3g`'s E14 fix **added** refusals into that bucket. **So `20.5%`
-conflates magnitude error with zero production.** `3h` Block B.
+**1. 🚨 E15 — pet damage is stored TWICE and the fix is not in.** `ability_performance`'s
+primary key includes `is_pet` (`corpus.py:156`) and pet rows carry the **owner's**
+`character_id` (`:425-434`), so the owner copy and the pet copy coexist: 15,551
+byte-identical groups. `corpus.py:594-614` then computes `dps = (total_damage + pet_damage)
+/ dur` where `total_damage` already contains the pet damage — **every pet-owner's logged DPS
+is inflated, and that is the gate's own comparison target.** Green path run and reverted in
+`3h`: consumer dedupe alone moves the gate to `1 / 1 / 19.8%`. Fix at **ingest**, not just
+the consumer. `3i` Block A.
 
-**2. 🚨 Slice accuracy is inferred, not measured.** `(100 + delta) / coverage` is a ratio of
-two aggregates. The direct per-ability comparison — `res.per_ability[sid]["damage"]` vs
-`ability_performance.damage_total` — has never been run at cohort scale, and both sides are
-already joined on spell id inside `modelled_damage_share`. **It is the last headline number
-in the project on the wrong side of the equals sign.** `3h` Block C.
+**2. 🚨 `per_ability_accuracy.py`'s logged side does not agree with itself.** `:154` sums
+duplicate rows into `total_logged`; `:204` collapses them with a dict assignment and no
+`ORDER BY`. So the per-row shares in its own artifact **do not sum to 100%**, and for the
+5,234 groups whose copies *differ*, **which one survives is nondeterministic**. Consequence:
+`62.2% absent` has an **indeterminate sign and is plausibly understated**; the ratio
+distribution is largely clean *except* the auto row. **Do not pick modelling targets from
+the pre-repair distribution.** `3i` Block B.
 
-**3. 🛑 `Boomcat` (16501) is the ONLY passing row and is not yet trustworthy.** `3c`
-retracted it on a suspected death-deflated parse (APM ratio 0.24 vs Elric's known death case
-0.38); `3e` preflight ruled out the cast-time explanation. `dps = total_damage / SUM(encounter
-duration)` (`corpus.py:614`) is **wall-clock, not active time**, so a death deflates the
-denominator and *flatters* the delta against a sim that under-produces — `Ari`'s shape on the
-log side. ⚠ `deaths` appears **exactly once** in the Python tree (`corpus.py:137`, the
-`CREATE TABLE`): declared, never written, never read. And the APM ratio has no implementation
-at all. `3h` Block D.
+**3. ⚠ The stamped admissibility rule is narrower than it reads.** Predicates 4 and 5 are
+`print()` statements, not computations (`parse_admissibility.py:198-202`) — and **predicate
+4's hardcoded "every capture predates the 2026-08-08 boundary" stops being true on the 8th.**
+Every refusal path (out-of-regime, `<2` other scopes, NULL casts) lands on *admissible*, and
+the regime test itself fails open four ways, so `resolved_entries` is computed and never
+printed: *"regime valid, 0 cast-time entries"* is indistinguishable from *"nothing resolved"*.
+"5 of 41" is a lower bound, not the rule's reach. `3i` Block C.
 
-**4. ⚠ `gear_tier_stats(phase=…)` still has no production caller**, so `3f` exit condition 10
-reads ✅ on a function nothing calls. Stated in `PROGRESS.md`'s blocked table for two
-sessions running.
+**4. ⚠ Two of `3h`'s own new check arms cannot go red.** `check_refusals.py:821` asserts a
+sum that is true by construction (`keyed_zero = modelled - producing`); `:836` is green under
+the exact defect it excludes. The `3g` G6 tautology family, one session later.
 
-**5. ⚠ `ContentProfile` presets are FAILED, not unverified** — 6 of 8 self-declare
+**5. ⚠ `gear_tier_stats(phase=…)` still has no production caller**, so `3f` exit condition 10
+reads ✅ on a function nothing calls. In `PROGRESS.md`'s blocked table for **three** sessions.
+
+**6. ⚠ `ContentProfile` presets are FAILED, not unverified** — 6 of 8 self-declare
 `provenance="assumption: …"`. `PHASE_3` exit criterion 7, untouched since `3d` named it, now
-the oldest unaddressed criterion.
+the oldest unaddressed criterion by a wide margin.
 
 ---
 
 ## Corrections worth carrying — do not let these creep back
 
-- ❌ **"E13 is ~78× "** — the bracket's value at one crit rate. It is a **unit** error:
-  **exactly 100**, invariant across builds.
+- ❌ **"E13 is ~78×"** — the bracket's value at one crit rate. It is a **unit** error:
+  **exactly 100**, invariant across builds. **Fixed at `3g` G1.**
 - ❌ **"slice accuracy is 64.3% / the sim under-produces by about a third"** — measured on a
-  sim with a 100× auto-attack. **20.5%**, and the holdout says ~10%.
+  sim with a 100× auto-attack. **20.5%**, and the holdout says ~10%. **⚠ `PROGRESS.md:527-580`
+  was still printing `5 of 36 / 64.3%` and "FIX E13 FIRST" as live instruction at `3h` close.**
 - ❌ **"at ~62–64%, both levers have to roughly double"** — at 20.5% the coverage lever is
-  arithmetically dead. `slice × coverage = 1.0` needs slice ~4.9× higher even at 100%
-  coverage.
+  arithmetically dead. `slice × coverage = 1.0` needs slice ~4.9× higher even at 100% coverage.
+- ❌ **"the sim under-produces uniformly"** — `3h` C3 killed this. It is absent for most,
+  zero for a tenth, and wrong in both directions on the rest; **17% of producing abilities are
+  OVER 1.25×**. A single multiplier will not fix this model.
 - ❌ **"the residual is not in the mechanisms" (`3e`)** — the **inference** is retracted, the
-  measurement is not. `3e`'s six repairs really did leave the gate byte-identical; what
-  cannot be concluded is *where the residual lives*, because the metric was dominated by a
-  defect none of the six touched. Seeded as
-  `retractions.residual_is_not_in_the_mechanisms`.
+  measurement is not. Seeded as `retractions.residual_is_not_in_the_mechanisms`.
 - ❌ **"E14 needs a refusal"** — the component's own duration is one join away. **Stopping
-  the mixing** fixed eleven silently-wrong components as well as the loud one.
-- ❌ **"the modelled slice is over-produced by ~60%"** (`3d`) — a low-coverage artifact.
-  Still retracted, and now shipping bare in `predictions/gate_manifest.json` as
-  `cohort_median_slice_accuracy_pct: 159.79`. That file is the **frozen `3d`** record; the
-  live numbers are in `gate_manifest_3e.json`.
+  the mixing** fixed eleven silently-wrong components as well as the loud one. **And `3h` B
+  measured the aftermath: zero of the 90 keyed-but-zero entries are refusals — all 90 are
+  GCD starvation (E6/E7).** The `3g` audit's §4 worry is measurably absent.
+- ❌ **"the modelled slice is over-produced by ~60%"** (`3d`) — a low-coverage artifact,
+  retracted, shipping bare in `predictions/gate_manifest.json` as `159.79`. That file is the
+  **frozen `3d`** record and says so; the live numbers are in `gate_manifest_3e.json`.
+- ❌ **"coverage means the sim produces damage for X%"** — it means the sim **has a key for**
+  X%. `3h` B1 fixed the docstring and the per-character line; ⚠ `calibrate_crawled.py:692`
+  and `tools/scrapers/scrape_ascension_db.py:12` still carry the old phrasing.
 - ❌ **"`casts` is `SPELL_CAST_SUCCESS`, generally"** — true for all-instant kits, false for
   cast-time casters; the two event types are **disjoint by cast type**. **22 of the 41
-  cohort boards are cast-time casters**, so any `casts`-derived metric needs a stated
-  regime.
+  cohort boards are cast-time casters**, so any `casts`-derived metric needs a stated regime.
+  *(This is why the APM ratio has one — and why it refuses on most of the cohort.)*
 
 Still true and still load-bearing: the **eight rules**, `entry_id` ≠ `spells.id`, the
 catalog's wrong-rank problem, class-from-`SkillLine`.
@@ -152,24 +167,32 @@ catalog's wrong-rank problem, class-from-`SkillLine`.
 2. **Spot-check claims against committed files, not prose.** Every significant finding has
    come from reading code that contradicted a document.
 3. **Run the greps the docs imply.** *"This guard is implemented"* is checkable in seconds.
-4. 🆕 **Check the `LIVE` documents against the code, in both directions.** `3g`'s engine work
-   was flawless and three `LIVE` documents still described the pre-`3g` world — including
-   `ENGINE_BUGS.md`, which carried both fixed defects as unfixed while the session record
-   claimed the correction had landed there. **Code discipline and document discipline are
-   now failing separately, and the documents are the weaker half.**
-5. Confirm 🛑 stop-points were asked, not guessed, and that pre-registrations are committed
-   **before** the commit they predict.
-6. **Ask of every check and metric: does it have a regime where it returns a number it cannot
-   support?** This is still the most productive single question here. It has found
-   fail-open checks (`3d`), permanently-red checks (`3g` G5 — worse, because a permanent
-   alarm gets silenced rather than satisfied), tautological arms (`3g` G6), and now a
-   coverage denominator that counts refusals as coverage.
-7. 🆕 **Ask also: is this number measured, or derived from two other numbers?** Everything
-   this project has retracted was derived.
+4. **Check the `LIVE` documents against the code, in both directions.** `3g` and `3h` both
+   shipped good code beside stale `LIVE` prose. **Document discipline has now been the weaker
+   half for two consecutive sessions** — budget audit time accordingly.
+5. 🆕 **Trace a headline number from the schema up, not from the summary down.** The `3h`
+   audit's sharpest finding came from reading `CREATE TABLE`, then the ingest, then the query,
+   then the four lines that consume the query — and finding the same rows counted one way in
+   the denominator and another in the numerator. **Summaries are where errors hide; primary
+   keys are where they are decided.**
+6. Confirm 🛑 stop-points were asked, not guessed, and that pre-registrations are committed
+   **before** the commit they predict. 🆕 Also check the prereg's *predicate*: `3h` reported
+   "removes 3 failing characters" against a prereg that registered a different predicate
+   (two of the three qualify; the third was removed by a rule not in the registration).
+7. **Ask of every check and metric: does it have a regime where it returns a number it cannot
+   support?** Still the most productive single question here. It has found fail-open checks
+   (`3d`), permanently-red checks (`3g` G5), tautological arms (`3g` G6 — and again at `3h`
+   B4), a coverage denominator counting refusals as coverage (`3g`), and fail-open
+   admissibility predicates (`3h`).
+8. **Ask also: is this number measured, or derived from two other numbers?** Everything this
+   project has retracted was derived. 🆕 **And: is it committed?** `3h`'s headline result
+   lives only in gitignored `data/derived/`, so it is the one number a monitoring chat cannot
+   check — the reverse of the provenance progress the same session made on the manifest.
 
 **Tone:** this project's value comes from falsifiable checking, not cheerleading. If
 something looks off, say so plainly, with the file:line. If it is genuinely good, a short
-confirmation is enough — and `3g` earned several.
+confirmation is enough — and `3h` earned several: the structural holdout exclusion, the
+rate-normalised ratio, the fail-closed dirty-tree refusal, and reporting P4 false.
 
 ---
 
@@ -184,9 +207,9 @@ confirmation is enough — and `3g` earned several.
 
 ## 🚨 Time-critical
 
-**`season_config.NEXT_PHASE_BOUNDARY` is `2026-08-08T00:00:00Z`.** Checked live at
-`2026-08-07T00:35Z` (`3g` G0): **the flip had NOT happened** — `/api/phases` still returns
-Phase 1 - Zul'Gurub active with Phase 1.1 as a **child**.
+**`season_config.NEXT_PHASE_BOUNDARY` is `2026-08-08T00:00:00Z` — it arms tonight.** At the
+last live check (`3g` G0, `2026-08-07T00:35Z`) the flip had **not** happened: `/api/phases`
+still returned Phase 1 - Zul'Gurub active with Phase 1.1 as a **child**.
 
 `3g` built three defences, widest first: `phase_guard()` asserts the payload's active
 top-level phase equals `EXPECTED_PHASE_NAME`; a **declared boundary** catches a Phase 2
@@ -199,6 +222,10 @@ that `EXPECTED_PHASE_NAME` was bumped and the corpus re-derived **before** any g
 read. Leaderboards and armory are the only data a flip destroys; reports persist, so the
 report backfill has no deadline.
 
+🆕 **And from the 8th, `parse_admissibility.py:198-199` prints a claim that is no longer
+true** — predicate 4's hardcoded *"every corpus capture predates the boundary, so this
+removes nobody today"*. It is a string, not a test.
+
 ---
 
 ## Things to check rather than inherit
@@ -207,17 +234,23 @@ Each is a real gap in what has been verified.
 
 1. **Every gate number is read from a committed manifest, not reproduced.** `data/derived/`
    is gitignored and no `.db` is committed, so `1 of 36`, `20.5%` and the holdout's five
-   members are checkable only on the owner's machine. Both manifests also report
-   `git_working_tree_dirty: true`, so the sha does not identify the code that produced them.
-   **This is the limiting factor on what a monitoring chat can verify**, and it has been
-   unchanged for four sessions.
-2. **Thread 1's magnitude is still unmeasured.** How many keyed-but-zero abilities exist in
-   the cohort could be three or a third of it, and which one changes the whole `3h` payoff.
-3. **F9's frost-mage number and the cohort median disagree.** −66.9% (33.1% of measured) with
-   **no coverage term**, against a cohort slice of 20.5%. Two measurements of the same
-   quantity, 1.6× apart, and nobody has reconciled them.
-4. **`Boomcat` is one row.** With `1 of 36` passing, it *is* the gate. A single high-coverage
-   passer is exactly the shape E13 taught this project to distrust — `Ari` was also a
-   qualified pass.
+   members are checkable only on the owner's machine. **✅ Improved at `3h` A7:** the
+   manifest now **refuses to write from a dirty tree**, so `e06a8c3` onward the `git_sha`
+   identifies the code. ⚠ But `--allow-dirty` records a bool nothing reads, and
+   `gate_manifest.json` still ships `git_working_tree_dirty: true` unflagged.
+2. 🆕 **`3h`'s headline distribution is in no committed artifact at all** —
+   `per_ability_accuracy.py` writes only to `data/derived/`. **This is now the limiting
+   factor**, having replaced item 1 as the thing a monitoring chat most wants and cannot get.
+3. **F9's frost-mage number and the cohort median.** −66.9% (33.1% of measured) against
+   producing-only 30.7% — `3h` P5 called this reconciled at 2.4 points. ⚠ The two medians are
+   over **different populations** (n=20 vs n=23, selected on different denominators), so the
+   reconciliation is not yet a paired comparison.
+4. **`Boomcat` is one row, and `3h` explained rather than rescued it.** APM ratio **0.27**
+   (implemented, confirming `3c`'s hand-computed 0.24), and its +0.8% pass is per-ability
+   **compensation** — top logged ability starved to 0 against two at 2–3.5× over. `Ari`'s
+   shape on the passing side. Applying the stamped rule takes `within ±20%` from **1 to 0**.
 5. **Whether `3d`'s engine fixtures can expose more than the defects already found.** They
-   are permanent; nobody has run them adversarially.
+   are permanent; nobody has run them adversarially. Unchanged for five sessions.
+6. 🆕 **`ENGINE_BUGS.md` claims it is "enforced in both directions" and nothing parses it.**
+   `resolve_generality()` enforces check *names* against `EXPECTED_FAILURES`, not the
+   document. It has already drifted twice. Either build the parser or downgrade the claim.
