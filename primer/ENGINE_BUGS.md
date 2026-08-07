@@ -97,6 +97,15 @@ broken while everything reports green* — applied to the registry itself.
 | M27 🆕 | **F9's two ground-truth entries** — n/a, still red | — | 🟡 **no green path named, and this one is the point.** They close when the sim stops under-producing by ~5×. That is the project's open problem, not a defect with a fix | **`ascension.db`** |
 | M28 🆕 | `contaminate()` also nulls `gear_stats_json` — i.e. changes more than `source` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
 | M29 🆕 | `contaminate()` also hits a NON-cohort character, perturbing `outside` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
+| M30 🆕 | delete the status line from any file in `primer/` | 1 | ✅ restore it — which IS the fix, because an unlabelled document cannot be cited at all (`3g` G9) | — |
+
+⚠ **M30's FIRST DRAFT WAS TOO WEAK, and it is M17's lesson a second time.**
+Mutating `` `LIVE` `` → `LIVE-ish` still matches the marker regex (`-` is a word
+boundary), so it returned **0 red** — which a harness counting `FAIL` lines
+would have scored as *vacuous*, condemning a check that was fine. The mutation
+has to **delete** the status line, not deform it. **Two of `3g`'s mutations were
+wrong on first attempt and both were caught only by running them** — which is
+the entire argument for the run-it half of the rule.
 
 🆕 **M28/M29 replace two arms of `check_gate_exclusion.py` that were
 TAUTOLOGICAL** (`3g` G6, confirming the `3f` audit §2.3). `victim in cohort_ids
