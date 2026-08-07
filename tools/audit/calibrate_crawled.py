@@ -666,6 +666,12 @@ def main():
                          f"({HOLDOUT_SLUG}). Withheld by default: reading it is a "
                          "close-out action, and a holdout read every run is not a "
                          "holdout. Never tune against it")
+    ap.add_argument("--allow-dirty", action="store_true",
+                    help="3h A7 — permit writing the committed manifest from a "
+                         "DIRTY working tree. Refused by default: both prior "
+                         "manifests shipped git_working_tree_dirty=true, so their "
+                         "git_sha did not identify the code that produced the "
+                         "numbers. The flag is recorded in the manifest")
     args = ap.parse_args()
 
     if not BUILDS_DB_PATH.exists():
@@ -1169,7 +1175,8 @@ def main():
                         cohort_ids, dropped, outside, cohort_spec,
                         read_holdout=args.read_holdout,
                         n_qualifying=len(rows), excluded=excluded,
-                        band_n=slice_accuracy_band_n(tuning))
+                        band_n=slice_accuracy_band_n(tuning),
+                        allow_dirty=args.allow_dirty)
     return 0
 
 
@@ -1194,7 +1201,8 @@ def corpus_totals(bdb):
 def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                         rider_met, slice_bands, corpus, cohort_ids, dropped,
                         outside, cohort_spec, read_holdout=False,
-                        n_qualifying=None, excluded=(), band_n=None):
+                        n_qualifying=None, excluded=(), band_n=None,
+                        allow_dirty=False):
     """3d E2 — a small COMMITTED record of what a gate run actually measured.
 
     Until now the gate's headline numbers were reproducible only on the owner's
@@ -1265,10 +1273,29 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
     except Exception:                                # noqa: BLE001
         sha, dirty = None, None
 
+    # 🛑 3h A7 — A MANIFEST FROM A DIRTY TREE CARRIES A SHA THAT DOES NOT
+    # IDENTIFY THE CODE THAT PRODUCED IT. Both prior manifests shipped
+    # `git_working_tree_dirty: true` (3f audit §3.3, 3g audit §7), which
+    # undercuts the whole point of stamping the sha: "one commit moved the gate
+    # for one reason" was checkable only from the session record, not from the
+    # repo. Refused rather than warned, because a committed record with an
+    # unverifiable provenance is worse than no record. `dirty is None` (git
+    # itself failed) also refuses: an UNKNOWN tree state is not a clean one.
+    if dirty is not False and not allow_dirty:
+        raise SystemExit(
+            f"🛑 REFUSING to write {GATE_MANIFEST_PATH.name}: the working tree "
+            f"is {'DIRTY' if dirty else 'in an UNKNOWN git state'}, so git_sha "
+            f"{sha[:8] if sha else '?'} would not identify the code that "
+            f"produced these numbers. Commit first, or pass --allow-dirty to "
+            f"record the mismatch explicitly. (stdout and the markdown report "
+            f"above were still produced — only the committed manifest refused)")
+
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "git_sha": sha,
         "git_working_tree_dirty": dirty,
+        # 3h A7 — recorded so a dirty-tree manifest names itself as one.
+        "dirty_tree_write_allowed_by_flag": bool(allow_dirty),
         "realm": season_config.REALM,
         "season": season_config.SEASON,
         "criteria_in_force": {
@@ -1279,7 +1306,14 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "note": "the ±20% pass definition is PHASE_2 §8.2, unchanged; the "
                     "qualified rider was stamped 2026-08-06 before the run it "
                     "judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
-            "within_tolerance_coverage_floor_pct": None,
+            # 🆕 3h A3 — this key was a hardcoded None while the floor was IN
+            # FORCE at the within_tolerance site, beside a `result` block whose
+            # `coverage_floor_pct_applied` said 20.0 — the exact
+            # self-contradiction G8 removed from `scored`, in the adjacent key
+            # (AUDIT_3G_ADVERSARIAL §3). The F6 block below now asserts the two
+            # agree, so the manifest cannot ship this contradiction again.
+            "within_tolerance_coverage_floor_pct": SUCCESSOR_COVERAGE_FLOOR_PCT,
+            "floor_applied_from": SUCCESSOR_FLOOR_APPLIED_FROM,
             "within_tolerance_zero_coverage": "reports None, never False (3e A3)",
             "successor_coverage_floor_pct": SUCCESSOR_COVERAGE_FLOOR_PCT,
             "successor_floor_effective_from": SUCCESSOR_FLOOR_EFFECTIVE_FROM,
@@ -1488,6 +1522,23 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             f"{len(cd['excluded_after_selection'])} != still_qualifying "
             f"{cd['still_qualifying']}. A member lost in the scoring loop must "
             f"be named, not silently removed from the denominator.")
+    # 🆕 3h A3 — the assertion F6 is NAMED for and did not make: the criteria
+    # the manifest CLAIMS were in force must be the criteria the result was
+    # COMPUTED under. The 3g audit found `criteria_in_force` shipping a None
+    # floor beside a `result` floor of 20.0 — a manifest contradicting itself
+    # about which rules produced its own numbers, which the two wiring guards
+    # above are structurally blind to. Red mutation: revert the
+    # `within_tolerance_coverage_floor_pct` key to None.
+    ci = manifest["criteria_in_force"]
+    if ci["within_tolerance_coverage_floor_pct"] != \
+            manifest["result"]["coverage_floor_pct_applied"]:
+        raise SystemExit(
+            f"🛑 GATE MANIFEST IS INTERNALLY INCONSISTENT and was NOT written: "
+            f"criteria_in_force.within_tolerance_coverage_floor_pct "
+            f"{ci['within_tolerance_coverage_floor_pct']} != "
+            f"result.coverage_floor_pct_applied "
+            f"{manifest['result']['coverage_floor_pct_applied']}. The criteria "
+            f"block must describe the criteria that produced the result.")
 
     GATE_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     GATE_MANIFEST_PATH.write_text(

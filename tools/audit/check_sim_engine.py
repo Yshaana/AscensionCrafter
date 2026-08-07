@@ -178,11 +178,13 @@ EXPECTED_FAILURES = {
         "The ordinary under-production, now MEASURED per ability against a "
         "real capture for the first time: Frostbolt -34%, Ray of Frost -33%, "
         "Ice Lance -60%, Frozen Orb within, Icicle (830445) not modelled at "
-        "all. This is the same ~64% slice accuracy the gate reports, "
-        "reproduced on a single character with a verified same-session stat "
-        "block — so it corroborates the cohort figure rather than restating "
-        "it. This entry is the one a future modelling session should be "
-        "trying to close",
+        "all. Same direction as the gate's slice accuracy (20.5% at >=20% "
+        "coverage since 3g; the ~64% this message cited until 3h was E13's "
+        "number), on a single character with a verified same-session stat "
+        "block — corroboration, not restatement. NOTE the whole-character "
+        "figure is 457/1,382 = 33.1% with NO coverage term, vs the cohort's "
+        "20.5% — reconciling those two is 3h Block C5. This entry is the one "
+        "a future modelling session should be trying to close",
 }
 
 # A DAMAGING ability whose magnitude is genuinely unknown, used to exercise the

@@ -294,8 +294,13 @@ def check_manifest_cannot_contradict_itself():
     try:
         cc.GATE_MANIFEST_PATH = tmp
         rows = [_fake_result(1, "A", 60.0, 5.0)]
+        # ⚠ 3h A7 — `allow_dirty=True` here is DELIBERATE: this harness runs
+        # from whatever tree state the developer has, and these cases test the
+        # cohort arithmetic, not provenance. The dirty-tree refusal gets its
+        # own case below, where allow_dirty is NOT passed.
         kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 2, 3],
-                  dropped=[], outside=[], cohort_spec={}, read_holdout=False)
+                  dropped=[], outside=[], cohort_spec={}, read_holdout=False,
+                  allow_dirty=True)
         # 🛑 BOTH assertions get their own case. The first version of this
         # check only exercised the scoring-loop one, so disabling the
         # completeness-filter assertion left it green — the same
@@ -346,6 +351,81 @@ def check_manifest_cannot_contradict_itself():
         check("[F6] ...and the same run WITH the two losses named writes fine "
               "— the assertion tests the arithmetic, not the loss",
               wrote, f"written={wrote}" + (f", refused: {err}" if err else ""))
+
+        # 🆕 3h A3 — the THIRD assertion: criteria_in_force must describe the
+        # criteria that produced result. RED MUTATION (run at 3h A3): revert
+        # calibrate_crawled.py's `within_tolerance_coverage_floor_pct` to the
+        # hardcoded None — this case goes red because the manifest then ships
+        # a floor the result block contradicts. GREEN PATH: the key reads
+        # SUCCESSOR_COVERAGE_FLOOR_PCT, same constant as
+        # `coverage_floor_pct_applied`. Both were run.
+        #
+        # Both sides read the same module constant, so a live disagreement can
+        # only come from one side being hardcoded — which is exactly what the
+        # red mutation restores. From here, assert the INVARIANT on the honest
+        # run's written artifact: the two keys carry equal values.
+        try:
+            written = json.loads(tmp.read_text(encoding="utf-8")) if tmp.exists() else None
+        except (OSError, ValueError):
+            written = None
+        if written is None:
+            try:
+                cc.write_gate_manifest(
+                    rows, [], rows, rows, True, True, n_qualifying=3,
+                    excluded=[(2, "B", "sim error"), (3, "C", "no preset")], **kw)
+                written = json.loads(tmp.read_text(encoding="utf-8"))
+            except SystemExit as e:
+                # Under the red mutation the writer refuses this write too —
+                # report that as the failure rather than dying mid-suite.
+                check("[A3] the written manifest's criteria_in_force floor "
+                      "EQUALS result.coverage_floor_pct_applied — the manifest "
+                      "cannot ship the 3g-audit §3 self-contradiction",
+                      False, f"writer refused the honest run: {e}")
+                written = None
+        if written is not None:
+            check("[A3] the written manifest's criteria_in_force floor EQUALS "
+                  "result.coverage_floor_pct_applied — the manifest cannot ship "
+                  "the 3g-audit §3 self-contradiction",
+                  written["criteria_in_force"]["within_tolerance_coverage_floor_pct"]
+                  == written["result"]["coverage_floor_pct_applied"],
+                  f"criteria={written['criteria_in_force']['within_tolerance_coverage_floor_pct']}, "
+                  f"result={written['result']['coverage_floor_pct_applied']}, "
+                  f"floor_applied_from={written['criteria_in_force'].get('floor_applied_from')!r}")
+
+        # 🆕 3h A7 — a dirty tree REFUSES without --allow-dirty. This harness
+        # itself runs from a dirty tree during development; when the tree is
+        # actually clean the refusal cannot fire, so the case is skipped with
+        # a printed reason rather than reported as exercised.
+        import subprocess as sp
+        repo = Path(__file__).resolve().parents[2]
+        tree_dirty = bool(sp.run(["git", "status", "--porcelain"], cwd=repo,
+                                 capture_output=True, text=True,
+                                 timeout=30).stdout.strip())
+        if tree_dirty:
+            tmp.unlink(missing_ok=True)
+            kw_no_allow = {**kw, "allow_dirty": False}
+            try:
+                cc.write_gate_manifest(
+                    rows, [], rows, rows, True, True, n_qualifying=3,
+                    excluded=[(2, "B", "sim error"), (3, "C", "no preset")],
+                    **kw_no_allow)
+                refused_dirty = False
+            except SystemExit:
+                refused_dirty = True
+            check("[A7] a DIRTY tree refuses to write the manifest unless "
+                  "--allow-dirty is passed — a sha that does not identify the "
+                  "code is worse than no record",
+                  refused_dirty and not tmp.exists(),
+                  f"refused={refused_dirty}, file written={tmp.exists()}")
+            check("[A7] ...and the SAME call with allow_dirty records the flag "
+                  "in the manifest",
+                  bool(written and written.get("dirty_tree_write_allowed_by_flag")),
+                  f"dirty_tree_write_allowed_by_flag="
+                  f"{written.get('dirty_tree_write_allowed_by_flag') if written else 'no manifest written'}")
+        else:
+            print("  [A7] tree is CLEAN — the dirty-tree refusal cannot fire "
+                  "from here; exercised only when the harness runs dirty "
+                  "(stated, not silently skipped)")
     finally:
         cc.GATE_MANIFEST_PATH = saved
 
@@ -369,9 +449,12 @@ def check_holdout_reading_is_not_erased():
         cc.GATE_MANIFEST_PATH = tmp
         rows = [_fake_result(1, "A", 60.0, 5.0)]
         hold = [_fake_result(9, "H", 30.0, -50.0)]
+        # ⚠ 3h A7 — allow_dirty=True: these cases test holdout carry-forward,
+        # not provenance; the dirty-tree refusal has its own case in
+        # check_manifest_cannot_contradict_itself.
         kw = dict(slice_bands={20.0: 64.3}, corpus={}, cohort_ids=[1, 9],
                   dropped=[], outside=[], cohort_spec={}, n_qualifying=2,
-                  excluded=())
+                  excluded=(), allow_dirty=True)
         cc.write_gate_manifest(rows, hold, rows, rows, True, True,
                                read_holdout=True, **kw)
         first = json.loads(tmp.read_text(encoding="utf-8"))["holdout"]
@@ -593,23 +676,10 @@ def check_phase_guard():
 _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
-def check_primer_status_census():
-    """`3f` F8c + `3g` G9 — every `primer/` file carries a status line, AND the
-    census is PRINTED rather than typed into a document.
-
-    MUTATION THAT MAKES THIS FAIL (red): delete the status line from any file in
-    `primer/`. The count of unclassified files goes above zero and it is named.
-    GREEN PATH: restore it — which is the fix, because the rule is that a
-    document without a status line cannot be cited at all.
-
-    🛑 **Why this prints a census as well as asserting.** `CLAUDE.md` carried the
-    figure `13 / 32 / 0 / 6` typed by hand, and it was wrong within a day of
-    being written — two documents landed and nothing recounted. That is the
-    standing rule's own failure mode (*a magnitude never appears in a markdown
-    file except as generated output*) sitting in the file every session reads
-    first. The number now has an owner.
-    """
-    root = Path(__file__).resolve().parents[2] / "primer"
+def _status_census(root):
+    """Count status lines over one directory's `*.md`. Shared by the `primer/`
+    and `predictions/` walks (`3h` A5) so the two cannot drift apart in how
+    they classify."""
     files = sorted(p for p in root.glob("*.md"))
     counts = {s: 0 for s in _STATUSES}
     unclassified = []
@@ -635,14 +705,68 @@ def check_primer_status_census():
             counts[hit] += 1
         else:
             unclassified.append(p.name)
+    return files, counts, unclassified
+
+
+def check_primer_status_census():
+    """`3f` F8c + `3g` G9 + `3h` A4/A5 — every `primer/` AND `predictions/`
+    file carries a status line, the census is PRINTED rather than typed into a
+    document, and `CLAUDE.md`'s pasted copy is ASSERTED against the print.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete the status line from any file in
+    `primer/` or `predictions/`, or change one digit of `CLAUDE.md`'s pasted
+    census line. GREEN PATH: restore it — which is the fix, because the rule is
+    that a document without a status line cannot be cited at all, and a pasted
+    census that disagrees with the generated one is the hand-typed-figure
+    failure wearing a paste's clothes.
+
+    🛑 **Why this prints a census as well as asserting.** `CLAUDE.md` carried the
+    figure `13 / 32 / 0 / 6` typed by hand, and it was wrong within a day of
+    being written — two documents landed and nothing recounted. That is the
+    standing rule's own failure mode (*a magnitude never appears in a markdown
+    file except as generated output*) sitting in the file every session reads
+    first. The number now has an owner. ⚠ And generated-then-pasted only bought
+    one more day: the census moved TWICE inside `3g` itself (55 → 56 files), so
+    `3h` A4 added the assertion that the paste matches the print.
+
+    `3h` A5 — the walk covers `predictions/` too. Four files there carried no
+    status line, including `CALIBRATION_TOLERANCE.md`, the file the gate's
+    numbers live in. F8c's lifecycle stopped one directory short of the gate.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    files, counts, unclassified = _status_census(repo / "primer")
     census = " / ".join(f"{counts[s]} {s}" for s in _STATUSES)
-    print(f"[census] primer/ status lines: {len(files)} files — {census}")
+    census_line = (f"[census] primer/ status lines: {len(files)} files — "
+                   f"{census}")
+    print(census_line)
     check("[F8c] EVERY file in primer/ carries a status line — a document "
           "without one cannot be cited as current truth, so an unclassified "
           "file is invisible rather than merely undocumented",
           not unclassified,
           f"{len(files)} files, {census}"
           + (f"; UNCLASSIFIED: {unclassified}" if unclassified else ""))
+
+    # 3h A5 — the same rule, one directory over, where the gate's numbers live.
+    pfiles, pcounts, punclassified = _status_census(repo / "predictions")
+    pcensus = " / ".join(f"{pcounts[s]} {s}" for s in _STATUSES)
+    print(f"[census] predictions/ status lines: {len(pfiles)} files — "
+          f"{pcensus}")
+    check("[A5] EVERY file in predictions/ carries a status line — F8c's "
+          "lifecycle extended to the directory the gate's numbers live in",
+          not punclassified,
+          f"{len(pfiles)} files, {pcensus}"
+          + (f"; UNCLASSIFIED: {punclassified}" if punclassified else ""))
+
+    # 3h A4 — the pasted census in CLAUDE.md must EQUAL the generated one.
+    claude_md = (repo / "CLAUDE.md").read_text(encoding="utf-8",
+                                               errors="replace")
+    pasted = [ln.strip() for ln in claude_md.splitlines()
+              if ln.strip().startswith("[census] primer/ status lines:")]
+    check("[A4] CLAUDE.md's pasted census line EQUALS the generated one — "
+          "generated-once-and-pasted is one document-landing from wrong",
+          len(pasted) == 1 and pasted[0] == census_line,
+          (f"pasted {pasted[0]!r} vs generated {census_line!r}" if pasted
+           else "no pasted census line found in CLAUDE.md"))
     return counts, len(files)
 
 
