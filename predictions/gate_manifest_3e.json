@@ -1,7 +1,8 @@
 {
- "generated_at": "2026-08-07T01:37:21+00:00",
- "git_sha": "80a66e998c79aea82c560da101e0584866453a86",
- "git_working_tree_dirty": true,
+ "generated_at": "2026-08-07T07:10:59+00:00",
+ "git_sha": "d41930a0f4ab3bc02c39303b455639c802698e3e",
+ "git_working_tree_dirty": false,
+ "dirty_tree_write_allowed_by_flag": false,
  "realm": "Darkmoon",
  "season": "S10",
  "criteria_in_force": {
@@ -10,7 +11,8 @@
   "qualified_coverage_pct": 50.0,
   "min_qualified": 3,
   "note": "the \u00b120% pass definition is PHASE_2 \u00a78.2, unchanged; the qualified rider was stamped 2026-08-06 before the run it judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
-  "within_tolerance_coverage_floor_pct": null,
+  "within_tolerance_coverage_floor_pct": 20.0,
+  "floor_applied_from": "3g (2026-08-07)",
   "within_tolerance_zero_coverage": "reports None, never False (3e A3)",
   "successor_coverage_floor_pct": 20.0,
   "successor_floor_effective_from": "the gate run AFTER 3e (stamped 2026-08-06)",
