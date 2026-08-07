@@ -9,9 +9,10 @@ Why this exists (session `3d`, Block A1). These constants were hardcoded in
 **five** places (`tools/scrapers/crawl_ascensionlogs.py:82`, `cli/mechanics.py:38`,
 `cli/relationships.py:30`, `ingest/dbc/resolve_numeric_formulas.py:56`,
 `ingest/changelog/ingest_changelog.py:52`) with nothing checking any of them
-against the live server. **Phase 2 flips on 2026-08-08**, and the failure mode
-of a stale constant is silent: every record captured after the flip is stamped
-against a phase that has ended, and nothing says so.
+against the live server. **Phase 2 landed 2026-08-07T18:00:00Z** (announced for
+the 8th, arrived a day early — additively; see `EXPECTED_PHASE_NAME`'s note),
+and the failure mode of a stale constant is silent: every record captured after
+a flip is stamped against a phase that has ended, and nothing says so.
 
 ---
 
@@ -26,7 +27,8 @@ realm and it does **not** state a season. So:
   the constant and the URL must agree or one of them is wrong. `assert_realm()`.
 * **`EXPECTED_PHASE_NAME` IS checkable** — `assert_phase()` compares it against
   the live active top-level phase and hard-fails on a mismatch. This is what
-  makes the 2026-08-08 flip **self-announcing**.
+  makes a phase flip **self-announcing** — it fired for real on the 2026-08-07
+  Molten Core boundary (`3k` B0), on the wrong arm; see `assert_phase`'s note.
 * **`SEASON` IS NOT CHECKABLE from this endpoint.** Nothing in the payload
   names a season. It is a **declared** value, anchored only indirectly: the
   expected phase belongs to S10, so a phase mismatch is also the signal that the
