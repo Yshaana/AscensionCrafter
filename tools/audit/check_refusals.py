@@ -984,6 +984,80 @@ def check_righteous_vengeance_wiring():
 _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
+# --------------------------------------------------------------------------
+# 3l D2 — the SpellItemEnchantment parse must decode synthetic records exactly
+# --------------------------------------------------------------------------
+def _enchant_blob(field_count, records, string_block=b"\x00"):
+    """A minimal WDBC container: header + fixed-size records + string block."""
+    import struct as _s
+    record_size = field_count * 4
+    packed = b"".join(r.ljust(record_size, b"\x00")[:record_size] for r in records)
+    head = _s.pack("<4s4I", b"WDBC", len(records), field_count, record_size,
+                   len(string_block))
+    return head + packed + string_block
+
+
+def check_enchant_record_parse():
+    """[3l-D2] parse_enchant_record decodes a synthetic client record exactly.
+
+    This is owner-gated-path insurance (`3b`: the extract exporter was broken
+    from `2e` to `3b` and nothing noticed, because only the --with-dbc run
+    exercises it). The parse core is pure (bytes in, dict out), so it is
+    testable on every clone with no client and no StormLib.
+
+    MUTATION THAT MAKES THIS FAIL (red, M54): in `parse_enchant_record`, read
+    `amounts_min` from the unsigned slots — `slots[5:8]` instead of
+    `slots_i[5:8]`. The fixture's EffectPointsMin is negative (real enchants
+    carry negative points, e.g. -armor curses), so a sign regression decodes
+    -5 as 4294967291 and the exact-match assertion goes red.
+    """
+    import struct as _s
+    try:
+        from ingest.dbc.build_dbc_index import (
+            ENCHANT_FIELD_COUNT, load_dbc, parse_enchant_record)
+    except Exception as e:                                    # noqa: BLE001
+        check("[3l-D2] enchant parse importable without the client", False,
+              f"import failed: {e}")
+        return
+
+    sb = b"\x00Test Enchant\x00"
+    rec = _s.pack("<2I", 23387, 0)                        # id, charges
+    rec += _s.pack("<3I", 1, 3, 0)                        # effect types
+    rec += _s.pack("<3i", -5, 10, 0)                      # points min (SIGNED)
+    rec += _s.pack("<3i", 6, 10, 0)                       # points max
+    rec += _s.pack("<3I", 200818, 99999, 0)               # effect args
+    rec += _s.pack("<16I", 1, *([0] * 15))                # name locs (enUS=1)
+    rec += _s.pack("<I", 0)                               # name flags
+    rec += _s.pack("<7I", 0, 1, 0, 0, 0, 0, 60)           # visual..min_level
+    dbc = load_dbc(_enchant_blob(ENCHANT_FIELD_COUNT, [rec], sb))
+    p = parse_enchant_record(dbc["records"][0], dbc["string_block"],
+                             dbc["field_count"])
+    got = (p["id"], p["effect_types"], p["amounts_min"], p["amounts_max"],
+           p["effect_args"], p["description"], p["min_level"])
+    want = (23387, [1, 3, 0], [-5, 10, 0], [6, 10, 0], [200818, 99999, 0],
+            "Test Enchant", 60)
+    check("[3l-D2] synthetic 38-slot enchant record decodes exactly "
+          "(incl. a NEGATIVE points-min)", got == want,
+          f"got {got}" if got != want else "")
+
+    # The honest boundary: a non-stock field_count must trust the numeric
+    # prefix only — string offsets are layout-dependent and a junk offset must
+    # come back as None, never as garbage text read from a wrong slot.
+    rec20 = rec[:14 * 4] + _s.pack("<6I", *([7] * 6))     # junk where strings were
+    dbc20 = load_dbc(_enchant_blob(20, [rec20], sb))
+    p20 = parse_enchant_record(dbc20["records"][0], dbc20["string_block"], 20)
+    ok20 = (p20 is not None and p20["amounts_min"] == [-5, 10, 0]
+            and p20["description"] is None and p20["min_level"] is None)
+    check("[3l-D2] non-stock field_count: numeric prefix decodes, strings and "
+          "trailing scalars refuse as None", ok20,
+          "" if ok20 else f"desc={p20 and p20['description']!r} "
+                          f"min_level={p20 and p20['min_level']!r}")
+
+    p10 = parse_enchant_record(b"\x00" * 40, b"\x00", 10)
+    check("[3l-D2] field_count below the numeric prefix returns None, not a "
+          "partial guess", p10 is None)
+
+
 def _status_census(root):
     """Count status lines over one directory's `*.md`. Shared by the `primer/`
     and `predictions/` walks (`3h` A5) so the two cannot drift apart in how
@@ -1818,6 +1892,7 @@ def main():
     print()
     check_null_spell_id_cannot_escape_dedupe()
     check_corpus_schema_gate()
+    check_enchant_record_parse()
     print()
     check_primer_status_census()
     check_predictions_json_status()

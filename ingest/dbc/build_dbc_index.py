@@ -596,8 +596,12 @@ def export_dbc_extract_json(cur):
     spell_dbc_raw = [dict(zip(cols, row)) for row in cur.fetchall()]
 
     support_tables = {}
+    # dbc_spellitemenchantment (3l): created unconditionally by its extractor,
+    # so this SELECT cannot crash even when the archive was missing — the
+    # export then carries an honest empty list rather than dying.
     for table_name in ('dbc_spellduration', 'dbc_spellrange', 'dbc_spellcasttimes',
-                        'dbc_spellradius', 'dbc_talent', 'dbc_talenttab'):
+                        'dbc_spellradius', 'dbc_talent', 'dbc_talenttab',
+                        'dbc_spellitemenchantment'):
         cur.execute(f'SELECT * FROM {table_name}')
         table_cols = [d[0] for d in cur.description]
         support_tables[table_name] = [dict(zip(table_cols, row)) for row in cur.fetchall()]
@@ -847,6 +851,142 @@ def extract_gt_tables(cur, mpqs, dll_path):
         cur.executemany('INSERT INTO dbc_gt_tables VALUES (?,?,?,?)', rows)
         total += len(rows)
     print(f'dbc_gt_tables: {total} rows across {len(gt_files)} tables')
+
+
+# ---------------------------------------------------------------------------
+# SpellItemEnchantment.dbc (session 3l, D2). The route to enchant-DELIVERED
+# damage: Consecrated Holy Weapon (200818) decodes a nominal flat of 1 in its
+# own Spell.dbc record and db.ascension.gg independently states `Value: 1` —
+# two sources agreeing on a nominal 1 prove the magnitude is NOT in the spell's
+# own record (primer v31 §2). The enchant record is where the delivery link
+# lives: `effect_args` carries the proc-spell ids an enchant fires.
+#
+# Stock 3.3.5a layout (TrinityCore DBCStructure.h SpellItemEnchantmentEntry /
+# wowdev WDBC docs), 38 slots:
+#   0 ID | 1 Charges | 2-4 Effect[3] | 5-7 EffectPointsMin[3]
+#   8-10 EffectPointsMax[3] | 11-13 EffectArg[3] | 14-29 Name_lang[16]
+#   30 NameFlags | 31 ItemVisual | 32 Flags | 33 SrcItemID | 34 ConditionID
+#   35 RequiredSkillID | 36 RequiredSkillRank | 37 MinLevel
+# ---------------------------------------------------------------------------
+ENCHANT_FIELD_COUNT = 38
+ENCHANT_NUMERIC_PREFIX = 14      # slots 0-13: everything load-bearing is here
+
+
+def parse_enchant_record(record_bytes, string_block, field_count):
+    """One SpellItemEnchantment record -> dict, or None if unparseable.
+
+    Kept as a pure function (bytes in, dict out) so the client-less harness can
+    exercise it on synthetic records — this is exactly the class of owner-gated
+    code the 3b lesson is about: a path only the --with-dbc run executes can
+    stay broken for sessions while every routine rebuild reports green.
+
+    Honest boundary: if the client's field_count is not the stock 38, only the
+    numeric prefix (slots 0-13) is trusted — the string offsets and trailing
+    scalars are layout-dependent and are returned as None rather than guessed.
+    """
+    if field_count < ENCHANT_NUMERIC_PREFIX:
+        return None
+    slots = struct.unpack_from(f'<{field_count}I', record_bytes, 0)
+    slots_i = struct.unpack_from(f'<{field_count}i', record_bytes, 0)
+    out = {
+        'id': slots[0],
+        'charges': slots[1],
+        'effect_types': list(slots[2:5]),
+        # EffectPointsMin can legitimately be negative (i32); max/arg likewise.
+        'amounts_min': list(slots_i[5:8]),
+        'amounts_max': list(slots_i[8:11]),
+        'effect_args': list(slots[11:14]),
+        'description': None, 'item_visual': None, 'flags': None,
+        'src_item_id': None, 'condition_id': None, 'required_skill_id': None,
+        'required_skill_rank': None, 'min_level': None,
+    }
+    if field_count == ENCHANT_FIELD_COUNT:
+        # Loc block: enUS is slot 14; fall back to the first non-empty locale.
+        desc = read_cstr(string_block, slots[14])
+        if not desc:
+            for loc in range(15, 30):
+                desc = read_cstr(string_block, slots[loc])
+                if desc:
+                    break
+        out.update({
+            'description': desc or None,
+            'item_visual': slots[31], 'flags': slots[32],
+            'src_item_id': slots[33], 'condition_id': slots[34],
+            'required_skill_id': slots[35], 'required_skill_rank': slots[36],
+            'min_level': slots[37],
+        })
+    return out
+
+
+def extract_spell_item_enchantment(cur, mpqs, dll_path):
+    """SpellItemEnchantment.dbc -> dbc_spellitemenchantment (all rows, unscoped
+    — the table is a few thousand records, and enchant ids arrive from item
+    strings and buff captures, not from any catalog scope rule).
+
+    The table is created UNCONDITIONALLY so export_dbc_extract_json can always
+    SELECT from it: a missing archive leaves an empty table plus a loud warning
+    (a guard that cannot run must say so), never a crash at export time.
+    """
+    cur.execute('DROP TABLE IF EXISTS dbc_spellitemenchantment')
+    cur.execute('''CREATE TABLE dbc_spellitemenchantment (
+        id INTEGER PRIMARY KEY, charges INTEGER,
+        effect_types_json TEXT, amounts_min_json TEXT, amounts_max_json TEXT,
+        effect_args_json TEXT, description TEXT,
+        item_visual INTEGER, flags INTEGER, src_item_id INTEGER,
+        condition_id INTEGER, required_skill_id INTEGER,
+        required_skill_rank INTEGER, min_level INTEGER, source_archive TEXT)''')
+    internal = 'DBFilesClient\\SpellItemEnchantment.dbc'
+    archive = pick_final_archive(find_owning_archive(mpqs, internal, dll_path),
+                                 'SpellItemEnchantment.dbc')
+    if archive is None:
+        print('⚠ SpellItemEnchantment.dbc: NOT FOUND in any archive — '
+              'dbc_spellitemenchantment is EMPTY and the enchant-delivered '
+              'damage ask (200818) stays blocked', file=sys.stderr)
+        return
+    with MpqArchive(archive, dll_path) as mpq:
+        dbc = load_dbc(mpq.read_file(internal))
+    if dbc['field_count'] != ENCHANT_FIELD_COUNT:
+        print(f'⚠ SpellItemEnchantment.dbc field_count={dbc["field_count"]} != '
+              f'stock 3.3.5a {ENCHANT_FIELD_COUNT}: trusting the numeric prefix '
+              f'(slots 0-13) only; description/trailing scalars stored as NULL',
+              file=sys.stderr)
+    rows, weird_types = [], 0
+    for rec in dbc['records']:
+        p = parse_enchant_record(rec, dbc['string_block'], dbc['field_count'])
+        if p is None:
+            continue
+        # Layout smoke check: stock enchant effect types are 0..8. A slot
+        # misalignment would land spell ids / amounts here, so a large share
+        # of out-of-range values means the parse is reading the wrong slots.
+        weird_types += sum(1 for t in p['effect_types'] if t > 16)
+        rows.append((p['id'], p['charges'],
+                     json.dumps(p['effect_types']), json.dumps(p['amounts_min']),
+                     json.dumps(p['amounts_max']), json.dumps(p['effect_args']),
+                     p['description'], p['item_visual'], p['flags'],
+                     p['src_item_id'], p['condition_id'],
+                     p['required_skill_id'], p['required_skill_rank'],
+                     p['min_level'], os.path.basename(archive)))
+    cur.executemany('INSERT OR REPLACE INTO dbc_spellitemenchantment VALUES '
+                    '(' + ','.join('?' * 15) + ')', rows)
+    total_type_slots = max(1, 3 * len(rows))
+    weird_pct = 100.0 * weird_types / total_type_slots
+    print(f'dbc_spellitemenchantment: {len(rows)} rows from '
+          f'{os.path.basename(archive)} (field_count={dbc["field_count"]}, '
+          f'effect-type slots >16: {weird_pct:.1f}% — near 0% expected; '
+          f'a large value means the layout guess is WRONG, do not trust)')
+    # The ask that drove this extraction, surfaced in the run output so the
+    # owner's pasted console is itself the proof it landed (or did not).
+    for probe in (23387,):
+        row = cur.execute('SELECT effect_types_json, amounts_min_json, '
+                          'amounts_max_json, effect_args_json, description '
+                          'FROM dbc_spellitemenchantment WHERE id=?',
+                          (probe,)).fetchone()
+        if row:
+            print(f'  enchant {probe}: types={row[0]} min={row[1]} max={row[2]} '
+                  f'args={row[3]} desc={(row[4] or "")[:80]!r}')
+        else:
+            print(f'  ⚠ enchant {probe} (Consecrated Weapon, calib 2e) NOT in '
+                  f'the client table — the 200818 ask needs a different route')
 
 
 def extract_rank_lines(cur, rank_index, rank_lines):
@@ -1189,6 +1329,7 @@ def main():
         extract_spell_class(cur, skill_names)
     extract_character_advancement(cur, mpqs, args.stormlib_dll)
     extract_gt_tables(cur, mpqs, args.stormlib_dll)
+    extract_spell_item_enchantment(cur, mpqs, args.stormlib_dll)
     extract_rank_lines(cur, rank_index, rank_lines)
     report_level_rank_gap(cur, rank_index, rank_lines)
     conn.commit()

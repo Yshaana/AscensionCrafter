@@ -45,6 +45,7 @@ _PK = {
     "dbc_spell_class": "spell_id",
     "dbc_skill_line": "id",
     "spell_dbc_raw": "id",
+    "dbc_spellitemenchantment": "id",   # 3l: enchant-delivered damage route
 }
 
 
