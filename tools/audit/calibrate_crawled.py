@@ -784,6 +784,24 @@ def main():
           + (f": {', '.join(str(i) for i in outside[:12])}"
              + (" ..." if len(outside) > 12 else "") if outside else ""))
 
+    # 🆕 3i D — the stamped parse-admissibility rule, APPLIED (owner decision
+    # 2026-08-07, Q4: yes — deferring it because the number gets worse is the
+    # fitting behaviour the stamp-first discipline exists to prevent).
+    # predictions/CALIBRATION_TOLERANCE.md successor #3. `admissibility_for()`
+    # is the SAME function tools/audit/parse_admissibility.py's own main()
+    # calls, so the two can never disagree about who is flagged. Computed
+    # per character, BLIND (parse properties only — window, APM ratio, phase
+    # resolution, snapshot lag), before this loop's delta/verdict exists for
+    # that row. Pre-registered: predictions/prereg_3i_admissibility.md.
+    import parse_admissibility as pa
+    if not pa.assert_stamped_thresholds():
+        print("🛑 REFUSING to apply the admissibility rule — "
+              "parse_admissibility.py's constants disagree with the stamped "
+              "text. Gate runs WITHOUT the rule applied until reconciled.")
+        pa = None
+    else:
+        phase_ctx = pa.latest_phase_context()
+
     results, excluded, seen_chars = [], [], set()
     for (cid, cname, snapshot_id, dps, path, boss, ctype, dur, enc_id,
          lag, level, scope_id, _longest) in rows:
@@ -848,6 +866,26 @@ def main():
         sim_total = sum(sim_by_ability.values())
         auto_dmg = sum(v for k, v in sim_by_ability.items()
                        if k in ("auto_mh", "auto_oh"))
+
+        # 🆕 3i D — parse admissibility, computed BLIND (parse properties
+        # only) before the verdict below is finalised. `not_admissible`
+        # overrides `within_tolerance` to None regardless of what it would
+        # otherwise be — the rule excludes on what the PARSE is, never on
+        # what the DELTA is, so this line runs before `delta` is consulted
+        # by anything downstream.
+        admiss = (pa.admissibility_for(
+                      bdb, asc, phase_ctx, character_id=cid,
+                      character_name=cname, snapshot_id=snapshot_id,
+                      scope_id=scope_id, window_s=dur, snapshot_lag_hours=lag)
+                  if pa is not None else None)
+
+        # 3e A3 / 3g G4 — computed first so admissibility can override it;
+        # the pre-admissibility verdict is preserved below for auditability.
+        wt_before_admissibility = (
+            None if ((modelled or {}).get("modelled_damage_pct") or 0.0)
+            < SUCCESSOR_COVERAGE_FLOOR_PCT
+            else abs(delta) <= AGGREGATE_TOLERANCE_PCT)
+
         results.append({
             "character_id": cid, "name": cname, "path": token, "boss": boss,
             "content_type": ctype, "sim_preset": preset,
@@ -873,9 +911,11 @@ def main():
             # 4.6% coverage landing inside ±20% is arithmetic about 4.6% of a
             # kit, not a calibration.
             "within_tolerance": (
-                None if ((modelled or {}).get("modelled_damage_pct") or 0.0)
-                < SUCCESSOR_COVERAGE_FLOOR_PCT
-                else abs(delta) <= AGGREGATE_TOLERANCE_PCT),
+                None if admiss and admiss["not_admissible"]
+                else wt_before_admissibility),
+            "within_tolerance_before_admissibility": wt_before_admissibility,
+            "not_admissible": bool(admiss and admiss["not_admissible"]),
+            "not_admissible_flags": (admiss or {}).get("flags") or [],
             "gear_coverage_pct": cov["coverage_pct"],
             "gear_unresolved_pieces": len(cov["missing"]),
             "gear_name_matched_pieces": len(cov["name_matched"]),
@@ -937,7 +977,15 @@ def main():
     slice_median = slice_bands.get(SLICE_COVERAGE_FLOOR_PCT)
 
     passing = [r for r in tuning if r["within_tolerance"] is True]
-    unscoreable = [r for r in tuning if r["within_tolerance"] is None]
+    # 🛑 3i D — a character's `within_tolerance` is None for TWO structurally
+    # different reasons now: insufficient coverage (the pre-existing 3e/3g
+    # rule) or inadmissibility (3i D, on parse properties unrelated to
+    # coverage — Nodding sits at 58.2% coverage, well above the floor). The
+    # not-admissible line above already names those; excluding them here
+    # stops a character being printed twice under two different, and for
+    # Nodding actively MISLEADING, explanations.
+    unscoreable = [r for r in tuning
+                  if r["within_tolerance"] is None and not r["not_admissible"]]
     qualified = [r for r in passing
                  if (r["modelled"] or {}).get("modelled_damage_pct", 0)
                  >= QUALIFIED_COVERAGE_PCT]
@@ -950,6 +998,17 @@ def main():
     print(f"[gate] of those, {len(qualified)} also have "
           f"≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage modelled "
           f"(rider: ≥{MIN_QUALIFIED}) -> {'PASS' if rider_met else 'NOT MET'}")
+    # 🆕 3i D — the applied admissibility rule, reported by name.
+    not_admissible = [r for r in tuning if r["not_admissible"]]
+    if not_admissible:
+        print(f"[gate] {len(not_admissible)} character(s) are NOT ADMISSIBLE "
+              f"(predictions/CALIBRATION_TOLERANCE.md successor #3 — "
+              f"excluded on what the PARSE is, never what the DELTA is): "
+              + "; ".join(
+                  f"{r['name']} (was "
+                  f"{'PASS' if r['within_tolerance_before_admissibility'] is True else 'FAIL' if r['within_tolerance_before_admissibility'] is False else 'not-scoreable'}"
+                  f", {'; '.join(r['not_admissible_flags'])})"
+                  for r in not_admissible))
     if unscoreable:
         # 3g G4 — the two reasons are separated, because "the sim modelled
         # nothing" and "the sim modelled too little to judge" are different
@@ -1468,6 +1527,14 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "note": "the ±20% pass definition is PHASE_2 §8.2, unchanged; the "
                     "qualified rider was stamped 2026-08-06 before the run it "
                     "judges (predictions/CALIBRATION_TOLERANCE.md addendum)",
+            # 🆕 3i D — applied (owner decision 2026-08-07, Q4). Excludes on
+            # what the PARSE is, never what the DELTA is; verdict is None
+            # (NOT ADMISSIBLE), never False. Implementation:
+            # tools/audit/parse_admissibility.py :: admissibility_for().
+            "parse_admissibility_rule_applied": True,
+            "parse_admissibility_rule_source":
+                "predictions/CALIBRATION_TOLERANCE.md successor #3 "
+                "(stamped 3h D4, applied 3i D)",
             # 🆕 3h A3 — this key was a hardcoded None while the floor was IN
             # FORCE at the within_tolerance site, beside a `result` block whose
             # `coverage_floor_pct_applied` said 20.0 — the exact
@@ -1711,7 +1778,15 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
               # object, so it cannot be read without it.
               "slice_accuracy_caveat": slice_accuracy_caveat(
                   (r["modelled"] or {}).get("modelled_damage_pct")),
-              "within_tolerance": r["within_tolerance"]}
+              "within_tolerance": r["within_tolerance"],
+              # 🆕 3i D — the applied admissibility rule, in the committed
+              # record. `within_tolerance_before_admissibility` preserves
+              # what the coverage/tolerance test alone would have said, so a
+              # reader can see the override rather than just its result.
+              "not_admissible": r["not_admissible"],
+              "not_admissible_flags": r["not_admissible_flags"],
+              "within_tolerance_before_admissibility":
+                  r["within_tolerance_before_admissibility"]}
              for r in tuning), key=lambda d: d["character_id"]),
     }
     # 🛑 3f F6 — THE MANIFEST MUST NOT BE ABLE TO CONTRADICT ITSELF. Every
