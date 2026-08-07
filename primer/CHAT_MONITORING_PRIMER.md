@@ -1,17 +1,20 @@
-# CHAT MONITORING PRIMER v4 — AscensionCrafter
+# CHAT MONITORING PRIMER v5 — AscensionCrafter
 
 > **`LIVE`** — the standing brief for the oversight chat. **Must be true today, and is
-> citable as current truth.** Supersede at **v5** when `3i` closes. *(v3 expired the moment
-> `3h` closed and was still `LIVE` when the `3h` audit found it — the same trap v2 fell into.
-> **If you are reading this after `3i` has closed, it is stale: say so and rewrite it.**)*
+> citable as current truth.** Supersede at **v6** when `3j` closes. *(v4 expired the
+> moment `3i` closed and — for the third consecutive version — was still marked `LIVE`
+> when the next audit found it. **If you are reading this after `3j` has closed, it is
+> stale: say so and rewrite it.** The fix `3j` C2 owes is committing THIS content into
+> `primer/CHAT_MONITORING_PRIMER.md` — **the file is versionless and updated in
+> place; the version lives in the title line only. Never commit a `_v5` sibling:** a
+> versioned copy beside the live file is the exact mechanism by which v2–v4 each
+> stayed marked `LIVE` after expiring.)*
 
-**Paste this at the start of a fresh monitoring chat.** Supersedes v1, v2 and v3. Written
-2026-08-07, at the end of the session that audited `3h` and drafted `3i`.
+**Paste this at the start of a fresh monitoring chat.** Supersedes v1–v4. Written
+2026-08-08, at the end of the session that audited `3i` and drafted `3j`.
 
 This chat's job is **oversight and verification** — Claude Code writes the code locally.
-That split is not bureaucratic: everything useful this chat has produced came from checking
-Code's output against the tree independently. **If this chat writes the code, nobody is left
-to audit it.**
+If this chat writes the code, nobody is left to audit it.
 
 ---
 
@@ -23,234 +26,169 @@ Clone and read the tree. Do not work from prose, this file included.
 git clone --depth 40 https://github.com/Yshaana/AscensionCrafter.git repo
 ```
 
-~130 MB, under a minute. Working from a clone rather than `curl`-ing individual files is
-what makes the findings possible — most come from `grep`-ing across the whole tree.
-
-Then read `primer/PROGRESS.md`'s top block. **If a claim isn't in the tree, it isn't
-confirmed.** ⚠ And read the *rest* of `PROGRESS.md` too: the `3h` audit found its
-`## Current position` section three sessions stale and still issuing live instructions.
-
-⚠ **The owner may connect the local repo** (`C:\Users\Yshaana\Documents\GitHub\AscensionCrafter`)
-via `device_list_dir` / `device_stage_files` / `device_commit_files`. That is file read/write
-on his machine with **no shell** — you cannot run `cli/rebuild.py`, the purity check,
-`check_sim_engine.py`, or the gate. Use it for **documents**. **Do not write code with it**:
-unrunnable code in a repo whose discipline is "never manufacture confidence" is the exact
-failure mode `3d` found three instances of.
+Then `primer/PROGRESS.md`'s top block. **If a claim isn't in the tree, it isn't
+confirmed.** The owner may connect the local repo via `device_list_dir` /
+`device_stage_files` / `device_commit_files` — file read/write, **no shell**. Use it
+for documents only; never write code through it.
 
 ---
 
 ## What this project is (one paragraph)
 
-A theorycrafting toolkit for **Project Ascension** — a classless WoW private server (3.3.5
-client, realm **Darkmoon**, Season 10) where characters slot abilities and talents from any
-class. Five layers: a provenance-enforced spell/mechanics database, a crawled +
-live-captured builds repo, a ported-SimC damage simulator, a "lego box" of reusable build
-components, and a theorycrafter that designs builds and emits guides. Built in phases by
-Claude Code running locally; the owner plays the game and validates findings with real
-parses. **The owner is the tier-1 evidence source.**
+A theorycrafting toolkit for **Project Ascension** — a classless WoW private server
+(3.3.5 client, realm **Darkmoon**, Season 10). Five layers: a provenance-enforced
+spell/mechanics database, a crawled + live-captured builds repo, a ported-SimC damage
+simulator, a "lego box" of build components, and a theorycrafter. Built in phases by
+Claude Code locally; the owner plays the game and is the tier-1 evidence source.
 
 ---
 
-## Where things stand, 2026-08-07 (post-`3h`)
+## Where things stand, 2026-08-08 (post-`3i`)
 
-**Session map:** `3d` ✅ → `3e` ✅ → `3f` ✅ → `3g` ✅ → `3h` ✅ → **`3i` (first gate-moving
-commits since `3g`, work order written)** → E9/E11/E12 → re-read Phase 3 exit honestly →
-Phase 4.
+**Session map:** `3d`✅ → `3e`✅ → `3f`✅ → `3g`✅ → `3h`✅ (instruments) → `3i`✅ (gate
+repair: E15 fixed, admissibility applied) → **`3j` (integrity, work order written)** →
+`3k` (modelling/coverage) → re-read Phase 3 exit honestly → Phase 4.
 
-**The gate:** `1 of 36 within ±20% · 1 qualified · slice accuracy 20.5% at coverage ≥20%
-(n=23)` — **unmoved across all ten `3h` commits**, because `3h` was an instrument session
-and touched no file under `core/`. Holdout, read once at `3g` close-out: **0 of 5, −79% to
-−98%**, median slice **9.8% (n=4)** — worse than the tuning set, so 20.5% is the optimistic
-end.
+**The gate:** `0 of 36 within ±20% · 0 qualified · slice accuracy 26.3% at coverage
+≥20% (n=23)`. It moved twice in `3i`, each with a pre-registration: `1/1/20.5%` →
+`1/1/26.3%` (E15 fixed at ingest — logged DPS was pet-inflated) → `0/0/26.3%`
+(admissibility applied; the only passer, `Boomcat`, was a compensation pass on an
+inadmissible parse). **Zero passers is the honest state, not a regression.**
+Holdout: **not re-read since `3g`** — `0 of 5`, median slice 9.8% (n=4) — and 🚨 **it
+is pre-E15**: computed against the inflated logged side, so it is not like-for-like
+with the 26.3% tuning figure. Phase 3 exit (≥3 of 36): **NOT met.**
 
-**Phase 3 exit: NOT met.**
+**The distribution that decides `3k`'s shape** (`predictions/per_ability_summary.json`,
+committed, tool-produced, internally consistent — verified): **63.9%** of cohort
+logged damage has **no sim key at all**; 24.8% producing; 11.3% keyed-but-starved
+(GCD allocation, not refusals). Producing median ratio **0.273**, 58.4% of sim damage
+lands on abilities the log never saw (phantom production). **Slice is arithmetically
+capped near ~36% until absent keys exist** — `3k` is a coverage problem first, a
+tuning problem second.
 
-🚨 **`3h`'s result, in one line: the sim is not uniformly ~5× under.** It is **absent** for
-most logged damage, **zero-producing** for a tenth, and **wrong in both directions** on the
-rest — and the aggregates cancel. Slice accuracy was the last inferred headline; it is now a
-measured distribution. Producing paired abilities: median ratio **0.253**, only **11%**
-inside [0.8, 1.25]. ⚠ **All of those figures need re-stating in `3i`** — see the open
-threads.
-
-**Key documents, in reading order for a new chat:**
+**Key documents, reading order:**
 
 | File | What |
 |---|---|
-| `primer/PROGRESS.md` | live state — top block first, then check `## Current position` is not stale |
-| `primer/AUDIT_3H_ADVERSARIAL.md` | the current audit; §4 is the serious findings, §10 is the list `3i` works from |
-| `primer/SESSION_3I_PRIMER.md` | the work order in flight |
-| `primer/ENGINE_BUGS.md` | the defect registry, `LIVE` — ⚠ its "enforced in both directions" claim has no parser behind it |
-| `primer/Session_2026-08-07_3h_measurement.md` | what `3h` actually did |
-| `predictions/CALIBRATION_TOLERANCE.md` | the stamped tolerances, the slice-accuracy record, and successor #3 (parse admissibility) |
-| `predictions/gate_manifest_3e.json` | ⚠ named for `3e`, holds the **current** numbers |
-| `primer/AUDIT_3G_ADVERSARIAL.md` | the previous audit; §7 is the list `3g` worked from |
+| `primer/PROGRESS.md` | live state — top block first |
+| `primer/AUDIT_3I_ADVERSARIAL.md` | current audit; §10 is the list `3j` works from |
+| `primer/SESSION_3J_PRIMER.md` | the work order in flight |
+| `primer/Session_2026-08-07_3i_gate_repair.md` | what `3i` actually did |
+| `predictions/gate_manifest_3e.json` | ⚠ named `3e` (frozen cohort slug), holds **current** numbers, ⚠ no status key yet |
+| `predictions/per_ability_summary.json` | the repaired distribution — pick modelling targets from THIS |
+| `predictions/CALIBRATION_TOLERANCE.md` | stamped tolerances — ⚠ band table stale until `3j` C3 regenerates it |
+| `primer/ENGINE_BUGS.md` | defect registry — Checks rows parser-enforced; ⚠ mutation table is NOT (M32/M33 missing) |
 
 ---
 
 ## The open threads, in priority order
 
-**1. 🚨 E15 — pet damage is stored TWICE and the fix is not in.** `ability_performance`'s
-primary key includes `is_pet` (`corpus.py:156`) and pet rows carry the **owner's**
-`character_id` (`:425-434`), so the owner copy and the pet copy coexist: 15,551
-byte-identical groups. `corpus.py:594-614` then computes `dps = (total_damage + pet_damage)
-/ dur` where `total_damage` already contains the pet damage — **every pet-owner's logged DPS
-is inflated, and that is the gate's own comparison target.** Green path run and reverted in
-`3h`: consumer dedupe alone moves the gate to `1 / 1 / 19.8%`. Fix at **ingest**, not just
-the consumer. `3i` Block A.
+**1. 🚨 The phase flip fired last night (`2026-08-08T00:00:00Z`) and the admissibility
+rule turns a payload outage into a cohort verdict.** `resolve_phase`'s FIRST branch
+returns the payload-level `refuse_reason` for every timestamp (`phases.py:233-234`);
+`admissibility_for` passes it through → all 41 members flagged "unresolved phase" →
+gate publishes `0 of 36` on an infrastructure outage. The crawler writes the post-flip
+payload **before** `assert_phase` raises, so the poison payload is on disk the first
+morning. **Any gate number produced post-flip, pre-fix, is invalid.** `3j` Block 0.
 
-**2. 🚨 `per_ability_accuracy.py`'s logged side does not agree with itself.** `:154` sums
-duplicate rows into `total_logged`; `:204` collapses them with a dict assignment and no
-`ORDER BY`. So the per-row shares in its own artifact **do not sum to 100%**, and for the
-5,234 groups whose copies *differ*, **which one survives is nondeterministic**. Consequence:
-`62.2% absent` has an **indeterminate sign and is plausibly understated**; the ratio
-distribution is largely clean *except* the auto row. **Do not pick modelling targets from
-the pre-repair distribution.** `3i` Block B.
+**2. 🚨 The gate fails OPEN on stamp drift, then asserts the rule ran.**
+`calibrate_crawled.py:830-837` sets `pa = None` and continues when
+`assert_stamped_thresholds()` fails; `:1581` hardcodes
+`parse_admissibility_rule_applied: True`. A drifted stamp ships a manifest claiming a
+rule that did not run. `3j` A1.
 
-**3. ⚠ The stamped admissibility rule is narrower than it reads.** Predicates 4 and 5 are
-`print()` statements, not computations (`parse_admissibility.py:198-202`) — and **predicate
-4's hardcoded "every capture predates the 2026-08-08 boundary" stops being true on the 8th.**
-Every refusal path (out-of-regime, `<2` other scopes, NULL casts) lands on *admissible*, and
-the regime test itself fails open four ways, so `resolved_entries` is computed and never
-printed: *"regime valid, 0 cast-time entries"* is indistinguishable from *"nothing resolved"*.
-"5 of 41" is a lower bound, not the rule's reach. `3i` Block C.
+**3. 🚨 The D5 comparator tightening is un-pre-registered and one-way.** The change
+landed 7 seconds *before* its prereg, which covers only the wiring; its measured
+effect (blind roster 5→3 of 41) was in the change's own commit message. Every arm can
+only remove flags. Under `3h` P9's registered predicate: 0 failing removed, 1 passing
+removed — the exact asymmetry `CLAUDE.md` calls a fitting device. Honestly disclosed,
+wrongly sequenced. `3j` A2. The stamp↔code assertion (D6) checks three regex'd numbers
+and is blind to the comparator definition — the thing D5 changed. `3j` A3.
 
-**4. ⚠ Two of `3h`'s own new check arms cannot go red.** `check_refusals.py:821` asserts a
-sum that is true by construction (`keyed_zero = modelled - producing`); `:836` is green under
-the exact defect it excludes. The `3g` G6 tautology family, one session later.
+**4. 🚨 E15 is fixed only for fresh ingests, and its check cannot fail.** No migration,
+no `user_version`; legacy DBs still double-count through three `is_pet`-blind
+consumers; the committed check exercises a hand-built fixture, not the corpus; a
+NULL-`spell_id` row bypasses PK dedupe in both tables (reachable — 5 report ids
+re-ingest). `3j` B1–B3.
 
-**5. ⚠ `gear_tier_stats(phase=…)` still has no production caller**, so `3f` exit condition 10
-reads ✅ on a function nothing calls. In `PROGRESS.md`'s blocked table for **three** sessions.
+**5. ⚠ E3's repair has no check (full revert leaves the suite green) and dropped rows
+it must name** (zero-producing auto keys with no logged auto row vanish from the
+named zero list). E2 is still green under the `3h`-registered mutation. `3j` A4–A5.
 
-**6. ⚠ `ContentProfile` presets are FAILED, not unverified** — 6 of 8 self-declare
-`provenance="assumption: …"`. `PHASE_3` exit criterion 7, untouched since `3d` named it, now
-the oldest unaddressed criterion by a wide margin.
+**6. ⚠ Four+ sessions old, needs a decision not a carry:** `gear_tier_stats(phase=…)`
+has no production caller (Phase 3 exit 10 reads ✅ on a function nothing calls);
+`ContentProfile` presets are 6/8 `provenance="assumption:…"` (criterion 7, open since
+`3d`).
 
 ---
 
 ## Corrections worth carrying — do not let these creep back
 
-- ❌ **"E13 is ~78×"** — the bracket's value at one crit rate. It is a **unit** error:
-  **exactly 100**, invariant across builds. **Fixed at `3g` G1.**
-- ❌ **"slice accuracy is 64.3% / the sim under-produces by about a third"** — measured on a
-  sim with a 100× auto-attack. **20.5%**, and the holdout says ~10%. **⚠ `PROGRESS.md:527-580`
-  was still printing `5 of 36 / 64.3%` and "FIX E13 FIRST" as live instruction at `3h` close.**
-- ❌ **"at ~62–64%, both levers have to roughly double"** — at 20.5% the coverage lever is
-  arithmetically dead. `slice × coverage = 1.0` needs slice ~4.9× higher even at 100% coverage.
-- ❌ **"the sim under-produces uniformly"** — `3h` C3 killed this. It is absent for most,
-  zero for a tenth, and wrong in both directions on the rest; **17% of producing abilities are
-  OVER 1.25×**. A single multiplier will not fix this model.
-- ❌ **"the residual is not in the mechanisms" (`3e`)** — the **inference** is retracted, the
-  measurement is not. Seeded as `retractions.residual_is_not_in_the_mechanisms`.
-- ❌ **"E14 needs a refusal"** — the component's own duration is one join away. **Stopping
-  the mixing** fixed eleven silently-wrong components as well as the loud one. **And `3h` B
-  measured the aftermath: zero of the 90 keyed-but-zero entries are refusals — all 90 are
-  GCD starvation (E6/E7).** The `3g` audit's §4 worry is measurably absent.
-- ❌ **"the modelled slice is over-produced by ~60%"** (`3d`) — a low-coverage artifact,
-  retracted, shipping bare in `predictions/gate_manifest.json` as `159.79`. That file is the
-  **frozen `3d`** record and says so; the live numbers are in `gate_manifest_3e.json`.
-- ❌ **"coverage means the sim produces damage for X%"** — it means the sim **has a key for**
-  X%. `3h` B1 fixed the docstring and the per-character line; ⚠ `calibrate_crawled.py:692`
-  and `tools/scrapers/scrape_ascension_db.py:12` still carry the old phrasing.
-- ❌ **"`casts` is `SPELL_CAST_SUCCESS`, generally"** — true for all-instant kits, false for
-  cast-time casters; the two event types are **disjoint by cast type**. **22 of the 41
-  cohort boards are cast-time casters**, so any `casts`-derived metric needs a stated regime.
-  *(This is why the APM ratio has one — and why it refuses on most of the cohort.)*
-
-Still true and still load-bearing: the **eight rules**, `entry_id` ≠ `spells.id`, the
-catalog's wrong-rank problem, class-from-`SkillLine`.
+- ❌ **"1 of 36 / 1 qualified / 20.5%"** — pre-`3i`. Current: **0 / 0 / 26.3%**.
+- ❌ **"E15 is not fixed"** — fixed at ingest+dps in `3i` B (`corpus.py`), verified by
+  execution. What remains is migration + a check that can fail (thread 4).
+- ❌ **"62.2% absent, indeterminate sign / producing median 0.253"** — pre-repair
+  figures. Measured post-repair: **63.9% / 0.273**. The move is **Block B's corpus
+  fix**, not Block C's dedupe — the dedupe is dormant by construction post-B.
+- ❌ **"5 of 41 flagged"** — the stamped figure. Post-tightening: **3 of 41**
+  (Nodding, Boomcat, Deyindra) — and under the narrow P9 predicate, 0.
+- ❌ **"the admissibility rule is stamped but NOT applied"** — applied `3i` D
+  (`0fbffd5`). ⚠ `CLAUDE.md:199` still says otherwise until `3j` C1 lands.
+- ❌ **"the sim is ~5× under, uniformly"** — killed `3h`. Absent for most, zero for a
+  tenth, both directions on the rest; a single multiplier cannot fix it.
+- ❌ **"the holdout (0 of 5, 9.8%) is comparable to the 26.3% tuning slice"** — it is
+  **pre-E15**; the corpus under it was corrected afterwards. Annotate or re-read
+  (`3j` C6) before citing the pair together.
+- ❌ **"E13 is ~78×"** — exactly 100, unit error, fixed `3g`. — ❌ **"64.3% slice"** —
+  measured on the 100× auto sim, dead since `3g`.
+- Still true and load-bearing: the eight rules, `entry_id` ≠ `spells.id`, the
+  catalog's wrong-rank problem, class-from-`SkillLine`, "coverage = has a key for,
+  not produces damage for".
 
 ---
 
 ## How to review a session (the loop that works)
 
-1. Clone fresh. Read `PROGRESS.md`, then the session's own handoff, then the work order it ran.
-2. **Spot-check claims against committed files, not prose.** Every significant finding has
-   come from reading code that contradicted a document.
-3. **Run the greps the docs imply.** *"This guard is implemented"* is checkable in seconds.
-4. **Check the `LIVE` documents against the code, in both directions.** `3g` and `3h` both
-   shipped good code beside stale `LIVE` prose. **Document discipline has now been the weaker
-   half for two consecutive sessions** — budget audit time accordingly.
-5. 🆕 **Trace a headline number from the schema up, not from the summary down.** The `3h`
-   audit's sharpest finding came from reading `CREATE TABLE`, then the ingest, then the query,
-   then the four lines that consume the query — and finding the same rows counted one way in
-   the denominator and another in the numerator. **Summaries are where errors hide; primary
-   keys are where they are decided.**
-6. Confirm 🛑 stop-points were asked, not guessed, and that pre-registrations are committed
-   **before** the commit they predict. 🆕 Also check the prereg's *predicate*: `3h` reported
-   "removes 3 failing characters" against a prereg that registered a different predicate
-   (two of the three qualify; the third was removed by a rule not in the registration).
-7. **Ask of every check and metric: does it have a regime where it returns a number it cannot
-   support?** Still the most productive single question here. It has found fail-open checks
-   (`3d`), permanently-red checks (`3g` G5), tautological arms (`3g` G6 — and again at `3h`
-   B4), a coverage denominator counting refusals as coverage (`3g`), and fail-open
-   admissibility predicates (`3h`).
-8. **Ask also: is this number measured, or derived from two other numbers?** Everything this
-   project has retracted was derived. 🆕 **And: is it committed?** `3h`'s headline result
-   lives only in gitignored `data/derived/`, so it is the one number a monitoring chat cannot
-   check — the reverse of the provenance progress the same session made on the manifest.
+1. Clone fresh. `PROGRESS.md`, the session's handoff, the work order it ran.
+2. **Spot-check claims against committed files, not prose.**
+3. **Run the greps the docs imply**; run the harness (`check_refusals.py` runs clean
+   on a clone; `check_sim_engine.py` needs the local db — but see `3j` A6).
+4. **Check `LIVE` documents against code, both directions.** Document discipline has
+   now been the weaker half for **three** consecutive sessions.
+5. **Trace headline numbers from the schema up.** Primary keys are where errors are
+   decided; summaries are where they hide.
+6. Confirm 🛑 stop-points were asked; **check prereg commit ORDER against the change
+   commit** — `3i`'s sharpest finding was a prereg landing 7 seconds *after* the
+   change it "predicts", with the effect already in the change's commit message.
+   `git log --format='%H %ci %s'` takes seconds.
+7. **Ask of every check: does it have a regime where it returns a number it cannot
+   support?** Still the most productive question. New sub-question from `3i`: **can
+   the check's fixture even express the defect?** (E2's correct answer *was* the
+   maximal-producing answer; E1's fixture had no auto rows.)
+8. **Ask: measured or derived? committed or gitignored?** And new from `3i`: **does
+   the mutation claimed as "registered" exist in the registry?** (M32/M33 don't.)
+9. 🆕 **Run the claimed repairs' reverts.** The one-line test that found `3i`'s worst
+   check finding: revert the fix (`if False:`), run the suite, count failures. Zero
+   failures = no check.
 
-**Tone:** this project's value comes from falsifiable checking, not cheerleading. If
-something looks off, say so plainly, with the file:line. If it is genuinely good, a short
-confirmation is enough — and `3h` earned several: the structural holdout exclusion, the
-rate-normalised ratio, the fail-closed dirty-tree refusal, and reporting P4 false.
+**Tone:** falsifiable checking, not cheerleading. `3i` earned real credit — E15 at the
+right layer, a falsified prereg reported without rescue, the committed distribution
+artifact — and its audit says so in §1 before anything else. Do the same.
 
 ---
 
 ## Standing owner actions (not session tasks)
 
-- **Daily:** the crawler runs automatically at logon (Task Scheduler) — row-count canary,
-  scoped auto-commit, changelog exit code, live phase assertion.
-- **Occasional, overnight, manual:** `catchup_crawler.bat` — deliberately not scheduled.
-- **Per client patch:** `run_dbc_extract.bat`. ⚠ Its last **successful** run is the staleness
-  clock, not its last commit.
-- **The stat-export addon** — verified byte-identical to the repo copy at `v2026-08-06c`.
+- **Daily:** crawler at logon (Task Scheduler) — ⚠ **post-flip it will be dying at
+  `assert_phase` until `3j` Block 0 runs; the poison phases payload is still written.**
+- **Occasional, overnight, manual:** `catchup_crawler.bat`.
+- **Per client patch:** `run_dbc_extract.bat` — last *successful* run is the clock.
+- **Stat-export addon** — byte-identical at `v2026-08-06c`.
 
-## 🚨 Time-critical
+## Reproducibility limit (standing)
 
-**`season_config.NEXT_PHASE_BOUNDARY` is `2026-08-08T00:00:00Z` — it arms tonight.** At the
-last live check (`3g` G0, `2026-08-07T00:35Z`) the flip had **not** happened: `/api/phases`
-still returned Phase 1 - Zul'Gurub active with Phase 1.1 as a **child**.
-
-`3g` built three defences, widest first: `phase_guard()` asserts the payload's active
-top-level phase equals `EXPECTED_PHASE_NAME`; a **declared boundary** catches a Phase 2
-shipped as a child (which `phase_windows` drops and `assert_phase` ignores); and
-`horizon is None` now fails **closed**.
-
-🛑 **Nobody has seen any of it fire.** On the 8th, check that the boundary armed, that
-`phase_label` goes **NULL** rather than mis-stamping, and — if the flip really happened —
-that `EXPECTED_PHASE_NAME` was bumped and the corpus re-derived **before** any gear tier was
-read. Leaderboards and armory are the only data a flip destroys; reports persist, so the
-report backfill has no deadline.
-
-🆕 **And from the 8th, `parse_admissibility.py:198-199` prints a claim that is no longer
-true** — predicate 4's hardcoded *"every corpus capture predates the boundary, so this
-removes nobody today"*. It is a string, not a test.
-
----
-
-## Things to check rather than inherit
-
-Each is a real gap in what has been verified.
-
-1. **Every gate number is read from a committed manifest, not reproduced.** `data/derived/`
-   is gitignored and no `.db` is committed, so `1 of 36`, `20.5%` and the holdout's five
-   members are checkable only on the owner's machine. **✅ Improved at `3h` A7:** the
-   manifest now **refuses to write from a dirty tree**, so `e06a8c3` onward the `git_sha`
-   identifies the code. ⚠ But `--allow-dirty` records a bool nothing reads, and
-   `gate_manifest.json` still ships `git_working_tree_dirty: true` unflagged.
-2. 🆕 **`3h`'s headline distribution is in no committed artifact at all** —
-   `per_ability_accuracy.py` writes only to `data/derived/`. **This is now the limiting
-   factor**, having replaced item 1 as the thing a monitoring chat most wants and cannot get.
-3. **F9's frost-mage number and the cohort median.** −66.9% (33.1% of measured) against
-   producing-only 30.7% — `3h` P5 called this reconciled at 2.4 points. ⚠ The two medians are
-   over **different populations** (n=20 vs n=23, selected on different denominators), so the
-   reconciliation is not yet a paired comparison.
-4. **`Boomcat` is one row, and `3h` explained rather than rescued it.** APM ratio **0.27**
-   (implemented, confirming `3c`'s hand-computed 0.24), and its +0.8% pass is per-ability
-   **compensation** — top logged ability starved to 0 against two at 2–3.5× over. `Ari`'s
-   shape on the passing side. Applying the stamped rule takes `within ±20%` from **1 to 0**.
-5. **Whether `3d`'s engine fixtures can expose more than the defects already found.** They
-   are permanent; nobody has run them adversarially. Unchanged for five sessions.
-6. 🆕 **`ENGINE_BUGS.md` claims it is "enforced in both directions" and nothing parses it.**
-   `resolve_generality()` enforces check *names* against `EXPECTED_FAILURES`, not the
-   document. It has already drifted twice. Either build the parser or downgrade the claim.
+Tier-2 captures gitignored; no `.db` committed. Corpus figures (15,551 / 22,427 /
+530.5M / n=23…) are unverifiable from the clone — verify function behaviour with
+synthetic fixtures and manifest-internal arithmetic instead. The committed
+`per_ability_summary.json` and clean-tree `git_sha` manifests are real progress;
+neither makes the *inputs* checkable.
