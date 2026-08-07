@@ -113,14 +113,16 @@ EXPECTED_FAILURES = {
     # 🛑 DO NOT WIDEN THE TOLERANCE TO CLOSE THESE. They are the instrument.
     "[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the "
     "measured capture":
-        "ENGINE_BUGS.md E13 + E14, and the size is the finding: modelled "
-        "90,202 DPS vs a measured 1,382 — +6,427%. It is NOT diffuse error: "
-        "TWO defects supply 99.6% of the sim's total. Absolute Zero alone is "
-        "6.24M of 6.77M damage (E14, 12,000 ticks per cast) and the melee auto "
-        "is 0.50M (E13, a percent-vs-fraction unit error, ~78x). Strip both "
-        "and the fixture models ~373 DPS against 1,382, i.e. -73% — the "
-        "ordinary under-production family. FIXING EITHER MOVES THE GATE, so "
-        "both are registered here and left alone per 3f's invariant",
+        "🆕 3g — E13 AND E14 ARE BOTH FIXED, AND THIS IS STILL RED. It has "
+        "moved 90,202 -> 83,610 (G1, E13) -> 457 modelled DPS against a "
+        "measured 1,382: +6,427% -> +5,950% -> -66.9%. The tolerance is "
+        "UNCHANGED at ±25% and was not touched at any step. What remains is "
+        "the ordinary under-production family — the same direction and roughly "
+        "the same size as the cohort's slice accuracy, on a single character "
+        "with a verified same-session stat block. This entry is no longer "
+        "about two explosions; it is now the same open problem as the "
+        "per-ability entry below, and closing it is a modelling question "
+        "rather than a defect hunt",
     # 🛑 3f F10 — E9..E12 REGISTERED, NOT FIXED. Each is a real defect in the
     # code 3e wrote, each would move the gate, and each therefore belongs in a
     # modelling session with a before/after pair. 3d's D3 discipline: entries
@@ -169,19 +171,8 @@ EXPECTED_FAILURES = {
     # from this registry — a check that has started passing must LEAVE it, or
     # the registry stops meaning "these are the known failures". They still run,
     # every run, and a regression turns them into ordinary hard failures.
-    "[engine] E14: no periodic component scores more occurrences per cast "
-    "than the sanity limit its sibling branch already enforces":
-        "ENGINE_BUGS.md E14 — Absolute Zero scores 12,000 ticks per cast. The "
-        "periodic-trigger DELIVERY branch of occurrences_per_cast has enforced "
-        "PULSE_COUNT_SANITY_LIMIT since 2b; the plain periodic branch six "
-        "lines below it never did. The guard existed and was not applied to "
-        "its own sibling",
-    "[engine] E14: a refused tick count SAYS which two spells it refused to "
-    "mix, rather than returning a number":
-        "ENGINE_BUGS.md E14 — the CAUSE is mixed provenance: the duration "
-        "comes from the card (285148, 12.0s) and the tick from the triggered "
-        "spell (285149, 0.001s). A duration and a period from two different "
-        "spells describe no single aura, and the refusal must name both",
+    # ✅ E14's three assertions are CLOSED in 3g G2 and are deliberately absent
+    # for the same reason as E13's.
     "[frost_mage] every well-sampled ability's modelled per-cast mean is "
     "within ±25% of its measured non-crit mean":
         "The ordinary under-production, now MEASURED per ability against a "
@@ -884,13 +875,46 @@ def check_e13_e14_units(conn):
            f"The periodic-trigger DELIVERY branch six lines above has enforced "
            f"this same limit since 2b; the plain periodic branch never did")
 
+    # ⚠ THIS ASSERTION WAS RE-DERIVED IN 3g G2, and the reason is on the record
+    # BEFORE the fix ran (predictions/prereg_3g_e14.md, committed at 5872b53).
+    # Its first form asserted that Absolute Zero REFUSES and names both spells,
+    # because the work order specified a refusal. Measuring first showed the
+    # component's own duration is one join away (duration_index ->
+    # dbc_spellduration), so the mixing can be STOPPED rather than detected —
+    # and Absolute Zero then resolves correctly to ONE application instead of
+    # refusing. An assertion that encodes a MECHANISM breaks when a better
+    # mechanism arrives; this one now states the PROPERTY.
     ev_p = next((e for e in ab.events() if e.kind == "periodic"), None)
-    n_p, note_p = ab.occurrences_per_cast(ev_p) if ev_p else (None, None)
-    gcheck("[engine] E14: a refused tick count SAYS which two spells it "
-           "refused to mix, rather than returning a number",
-           ev_p is not None and n_p is None
-           and "285149" in (note_p or "") and "285148" in (note_p or ""),
-           f"n={n_p}, note={(note_p or '(none)')[:110]}")
+    n_p, _ = ab.occurrences_per_cast(ev_p) if ev_p else (None, None)
+    own = ab.component_durations.get(ev_p.source_spell_id) if ev_p else None
+    gcheck("[engine] E14: a periodic component's tick count comes from ONE "
+           "spell's duration and that same spell's tick, never from two",
+           ev_p is not None and own is not None and n_p == max(1, round(
+               own / (ev_p.tick_interval_seconds or 1))),
+           f"285149 states its own duration ({own}s) and its own tick "
+           f"({ev_p.tick_interval_seconds if ev_p else None}s) -> n={n_p}. The "
+           f"card's 12.0s is no longer consulted. ⚠ Measured across the frozen "
+           f"cohort, the card's duration DISAGREES with the component's own in "
+           f"11 of the 12 events built this way — Absolute Zero is only where "
+           f"the disagreement is four orders of magnitude")
+
+    # The refusal still exists, for what stays genuinely unknowable. No spell in
+    # the corpus reaches it today (all 12 mixed-provenance components state a
+    # duration), so it is exercised synthetically rather than left untested — an
+    # untested refusal is a refusal nobody has seen refuse.
+    class _Ev:
+        key, source_spell_id, via, kind = "hidden_ref:999:periodic", 999, "hidden_ref", "periodic"
+        tick_interval_seconds, is_attributed = 2.0, True
+        fields = {"duration_seconds": 30.0}
+        delivery = None
+
+    stub = ab.__class__(**{**ab.__dict__, "component_durations": {}})
+    n_s, note_s = stub.occurrences_per_cast(_Ev())
+    gcheck("[engine] E14: when the component states NO duration of its own, "
+           "the mix is REFUSED and both spells are named",
+           n_s is None and "999" in (note_s or "")
+           and str(ab.spell_id) in (note_s or ""),
+           f"n={n_s}, note={(note_s or '(none)')[:120]}")
 
 
 _CS_FOR_E12 = (None, None)      # filled by check_nonpaladin_fixtures

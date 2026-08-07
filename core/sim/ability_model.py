@@ -131,6 +131,13 @@ class ResolvedAbility:
     rank_note: str | None
     resolution_warnings: list
     component_fields: dict = field(default_factory=dict)   # source_spell_id -> fields
+    # 🆕 3g G2 / E14 — source_spell_id -> that spell's OWN duration in seconds,
+    # from its own `duration_index` -> `dbc_spellduration`. Kept separate from
+    # `component_fields` on purpose: that dict holds doc-confirmed combat-table
+    # facts, and `_fields_for` uses its emptiness to decide whether to warn that
+    # a component fell back to the card's fields. Folding a duration into it
+    # would silence that warning for every attributed component.
+    component_durations: dict = field(default_factory=dict)
     # SpellFamilyName / SpellClassMask — what a talent SpellMod's class mask is
     # matched against (T4b). None means the client record was unavailable, which
     # is NOT the same as "no talent reaches this ability"; the talent path warns.
@@ -634,8 +641,66 @@ class ResolvedAbility:
         if ev.kind != "periodic":
             return 1, None
         tick = ev.tick_interval_seconds or ev.fields.get("tick_interval_seconds")
+
+        # 🚨 3g G2 / E14 — A DURATION AND A PERIOD FROM TWO DIFFERENT SPELLS
+        # DESCRIBE NO SINGLE AURA. For a trigger-reached component `tick` is the
+        # COMPONENT's, while `dur` came from `ev.fields`, which `_fields_for`
+        # fills from the CARD whenever the component has no doc-confirmed facts
+        # of its own. Absolute Zero divided the card's 12.0s by the triggered
+        # spell's 0.001s tick and scored 12,000 ticks for one cast — 92% of the
+        # frost-mage fixture's damage.
+        #
+        # 🛑 Measured across the frozen cohort (1,055 spell ids): 12 events are
+        # built this way and the two durations DISAGREE IN ELEVEN OF THEM. So
+        # this was never a one-spell defect; Absolute Zero is only where the
+        # disagreement is four orders of magnitude rather than one tick.
+        #
+        # The fix STOPS THE MIXING rather than detecting it, because the
+        # component's own duration is one join away (`duration_index` ->
+        # `dbc_spellduration`, which the card has always used). Refusing would
+        # have fixed the loud case by throwing away eleven working numbers.
+        dur_owner = self.spell_id
+        if ev.is_attributed and ev.source_spell_id is not None:
+            own = self.component_durations.get(ev.source_spell_id)
+            if own is not None:
+                dur, dur_owner = own, ev.source_spell_id
+            elif tick and dur:
+                # Genuinely unknowable: the component states a period but no
+                # duration of its own, so the only duration available belongs to
+                # a different spell. THIS is where the work order's refusal
+                # belongs, and it names both spells.
+                return None, (
+                    f"{self.name} event {ev.key}: REFUSED — the tick interval "
+                    f"({tick:g}s) is spell {ev.source_spell_id}'s and the only "
+                    f"duration available ({dur:g}s) is spell {self.spell_id}'s. "
+                    "A duration and a period from two different spells describe "
+                    "no single aura, and spell "
+                    f"{ev.source_spell_id} states no duration of its own. Not "
+                    "defaulted, not clamped")
+
         if tick and dur:
-            return max(1, round(dur / tick)), None
+            # A non-positive duration is the DBC's sentinel, not a measurement
+            # (92557 reads -0.001s). Refused rather than floored to one tick,
+            # which would look like a reading.
+            if dur <= 0:
+                return None, (
+                    f"{self.name} event {ev.key}: REFUSED — spell {dur_owner} "
+                    f"states a non-positive duration ({dur:g}s), which is the "
+                    "DBC's 'no value' sentinel rather than a measurement")
+            n = max(1, round(dur / tick))
+            # The SAME limit the periodic-TRIGGER-DELIVERY branch above has
+            # enforced since 2b. It was never applied to its sibling — E14 is an
+            # unapplied guard, not a missing one.
+            if n > PULSE_COUNT_SANITY_LIMIT:
+                return None, (
+                    f"{self.name} event {ev.key}: {n} ticks per cast "
+                    f"({tick:g}s tick over a {dur:g}s duration, both from spell "
+                    f"{dur_owner}), above the {PULSE_COUNT_SANITY_LIMIT} sanity "
+                    "limit — REFUSED, not applied and not clamped. Either the "
+                    "period field means something else for this spell or the "
+                    "duration is wrong; verify before trusting any number for "
+                    "this component")
+            return n, None
         return None, (
             f"{self.name} event {ev.key}: periodic with "
             f"{'no duration' if not dur else 'no tick interval'} — tick count "
@@ -981,6 +1046,21 @@ def resolve_ability(conn, spell_id, level=60, _redirected=False) -> ResolvedAbil
             component_fields[src] = {
                 f: (vt if vt is not None else vr) for f, vt, vr in rows}
 
+    # 🆕 3g G2 / E14 — each reached component's OWN duration, so a periodic
+    # component's tick count is never `card duration / component tick`. The join
+    # is the one `core/spells/mechanics.py:317,335` already performs for the
+    # card; it had simply never been performed for a component. Stored raw —
+    # including the DBC's non-positive sentinel — so `occurrences_per_cast` can
+    # refuse on it by name rather than receive a silently absent key.
+    component_durations = {}
+    for src in sorted(s for s in sources if s):
+        row = conn.execute(
+            "SELECT d.duration FROM spell_dbc_raw r "
+            "JOIN dbc_spellduration d ON d.id = r.duration_index "
+            "WHERE r.id = ?", (src,)).fetchone()
+        if row and row[0] is not None:
+            component_durations[src] = row[0] / 1000.0
+
     identity = prof["identity"]
 
     # SpellFamilyName + SpellClassMask: what a talent's SpellMod class mask is
@@ -999,4 +1079,5 @@ def resolve_ability(conn, spell_id, level=60, _redirected=False) -> ResolvedAbil
         damage_terms=damage_terms, healing_terms=healing_terms,
         triggered_components=triggered, rank_note=rank_note,
         resolution_warnings=warnings, component_fields=component_fields,
+        component_durations=component_durations,
         spell_family=family, spell_class_mask=class_mask)
