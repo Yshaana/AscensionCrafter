@@ -53,7 +53,7 @@ absence of labels rather than the presence of files.
 a silent gap. As generated 2026-08-07:
 
 ```
-[census] primer/ status lines: 56 files — 13 LIVE / 35 HISTORICAL / 2 SUPERSEDED / 6 FINDING
+[census] primer/ status lines: 59 files — 14 LIVE / 35 HISTORICAL / 2 SUPERSEDED / 8 FINDING
 ```
 
 | status | meaning |

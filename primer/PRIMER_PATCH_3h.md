@@ -1,6 +1,6 @@
-# Primer patch — the `LIVE` document corrections `3h` Block A must land
+# Primer patch — the three stale-document corrections `3h` Block A must land
 
-> **`FINDING 2026-08-07`** — exact find/replace blocks for the three stale `LIVE`
+> **`FINDING 2026-08-07`** — exact find/replace blocks for the three stale citable-as-current
 > documents named in `primer/AUDIT_3G_ADVERSARIAL.md` §1–3. **This file is scaffolding:
 > delete it once the edits are committed.** Expiry condition: `3h` Block A closes.
 
@@ -342,43 +342,9 @@ the two levers could share the load. Neither is true.
 
 ---
 
-## 5. `primer/PROGRESS.md` — insert above the `3g` top block
+## 5. ~~`primer/PROGRESS.md`~~ — ✅ APPLIED 2026-08-07, before `3h` started
 
-```
-> ✅ **2026-08-07 — `3g` AUDITED. Next session is `3h`, and it is an INSTRUMENT session.**
-> Audit: `primer/AUDIT_3G_ADVERSARIAL.md` (`FINDING 2026-08-07`).
-> Work order: `primer/SESSION_3H_PRIMER.md`.
->
-> **The audit confirmed the engine work and failed the documents.** E13 and E14 are
-> correctly fixed at file:line, every consumer accounted for, and the `EXPECTED_FAILURES`
-> registry is exemplary. **Three `LIVE` documents were describing the pre-`3g` world**,
-> including `ENGINE_BUGS.md`, which still carried both defects as unfixed with *"it is the
-> first thing that session should do"* — while the session record claimed the correction had
-> landed there. `3h` Block A closes all three.
->
-> 🚨 **AND ONE MEASUREMENT PROBLEM IS STRUCTURAL.** `sim_spell_ids = set(res.per_ability
-> .keys())`, but `core/sim/tiers.py:496` writes a `per_ability` entry **unconditionally** —
-> including for abilities whose every event was REFUSED or never resolved.
-> `modelled_damage_share`'s docstring says *"spells the sim produced any damage for"*; that
-> is **false**. Since `slice = (100 + delta) / coverage`, a keyed-but-zero ability raises the
-> denominator and lowers the numerator — it pushes slice accuracy down twice. **`3g` G2's
-> E14 fix ADDED refusals into that bucket.**
->
-> **So `20.5%` conflates magnitude error with zero production**, and those are two defect
-> families with two different fixes. `3h` Block B splits them; Block C replaces the derived
-> ratio with the direct per-ability measurement both sides of which are already joined on
-> spell id inside `modelled_damage_share`.
->
-> 🛑 **`Boomcat` is the only passing row and it is NOT yet trustworthy.** `3c` retracted it
-> on a suspected death-deflated parse (APM ratio 0.24 vs Elric's known death case 0.38);
-> `3e` preflight ruled out the cast-time explanation, so the hypothesis stands. `dps =
-> total_damage / SUM(encounter duration)` — **wall-clock, not active time** — so a death
-> deflates the denominator and *flatters* the delta against a sim that under-produces.
-> That is `Ari`'s shape one layer over, on the log side. ⚠ **`deaths` appears exactly ONCE
-> in the Python tree** — `core/builds/corpus.py:137`, the `CREATE TABLE` — declared, never
-> written, never read. E11's shape in the corpus layer. `3h` Block D.
->
-> ⚠ **No engine defect is fixed in `3h`.** E9/E11/E12 keep their run green paths and stay
-> registered. The gate must read `1 / 1 / 20.5%` at **every** commit; a commit that moves it
-> is a defect in that commit.
-```
+The `3h` pointer block is **already committed** at the top of `PROGRESS.md`, with the `3g`
+block folded under `<details>` in the file's own convention. **Do not re-apply it.** It went
+in ahead of Block A rather than at close-out because `PROGRESS.md` is the pointer that tells
+a session where to look — including this one.

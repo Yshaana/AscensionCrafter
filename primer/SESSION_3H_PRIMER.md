@@ -53,7 +53,7 @@ distribution, not from a median.**
 
 ## Block A — the documents (no code, no gate move)
 
-Full find/replace blocks are in `PRIMER_PATCH_3h.md`. Land them **first**, in **one commit
+Full find/replace blocks are in `primer/PRIMER_PATCH_3h.md` (§5 is already applied — do not re-apply it). Land them **first**, in **one commit
 that touches no `.py`**, because every later document quotes these.
 
 **A1.** `primer/ENGINE_BUGS.md` — E13 and E14 get the `— ✅ FIXED (3g Gn)` heading suffix

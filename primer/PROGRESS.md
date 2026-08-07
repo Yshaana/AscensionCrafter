@@ -2,6 +2,69 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-07 — `3g` IS AUDITED. Next session is `3h`, and it is an INSTRUMENT session.**
+> Audit: `primer/AUDIT_3G_ADVERSARIAL.md` (`FINDING 2026-08-07`).
+> Work order: `primer/SESSION_3H_PRIMER.md`. Its Block A document edits are pre-drafted in
+> `primer/PRIMER_PATCH_3h.md` (scaffolding — **delete it when Block A closes**).
+>
+> **The gate, unchanged and unmoved by anything in this pointer:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 36) | **1** |
+> | qualified (≥50% coverage) | **1** |
+> | slice accuracy at ≥20% coverage | **20.5% (n=23)** |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, read once at `3g` close-out | **0 of 5, −79% to −98%**, median slice **9.8%** |
+>
+> ⚠ **The holdout is WORSE than the tuning set, so 20.5% is the optimistic end.**
+>
+> **The audit confirmed the engine work and failed the documents.** E13 and E14 are correctly
+> fixed at file:line, every consumer accounted for tree-wide, and the `EXPECTED_FAILURES`
+> registry is exemplary. **Three `LIVE` documents were still describing the pre-`3g` world** —
+> including `ENGINE_BUGS.md`, which carries both defects as unfixed with *"it is the first
+> thing that session should do"*, while the `3g` record states the correction landed there.
+> 🛑 **Code discipline and document discipline are now failing separately, and the documents
+> are the weaker half.** `3h` Block A closes all three.
+>
+> 🚨 **AND ONE MEASUREMENT PROBLEM IS STRUCTURAL.** `sim_spell_ids = set(res.per_ability.keys())`
+> (`calibrate_crawled.py:745`), but `core/sim/tiers.py:496` writes a `per_ability` entry
+> **unconditionally** — including for abilities whose every event was REFUSED
+> (`ability_model.py:918-924`) or never resolved (`:735-742`).
+> `modelled_damage_share`'s docstring says *"spells the sim produced any damage for"*; **that
+> is false.** Since `slice = (100 + delta) / coverage`, a keyed-but-zero ability raises the
+> denominator and lowers the numerator — **it pushes slice accuracy down twice.** ⚠ **`3g`
+> G2's E14 fix ADDED refusals into that bucket.**
+>
+> **So `20.5%` conflates magnitude error with zero production**, and those are two defect
+> families with two different fixes. `3h` Block B splits them. **Block C replaces the derived
+> ratio with the direct per-ability measurement** — `res.per_ability[sid]["damage"]` against
+> `ability_performance.damage_total`, both already joined on spell id inside
+> `modelled_damage_share`. Slice accuracy is the last headline number in this project that is
+> **inferred rather than measured**, and everything this project has retracted was derived.
+>
+> 🛑 **`Boomcat` (16501) IS THE ONLY PASSING ROW AND IS NOT YET TRUSTWORTHY.** `3c` retracted
+> it on a suspected death-deflated parse (APM ratio 0.24 vs Elric's known death case 0.38);
+> `3e` preflight ruled out the cast-time explanation, so the hypothesis stands. `corpus.py:614`
+> computes `dps = total_damage / SUM(encounter duration)` — **wall-clock, not active time** —
+> so a death deflates the denominator and *flatters* the delta against a sim that
+> under-produces. **That is `Ari`'s shape one layer over, on the log side.** ⚠ `deaths` appears
+> **exactly ONCE** in the Python tree (`core/builds/corpus.py:137`, the `CREATE TABLE`):
+> declared, never written, never read — **E11's shape in the corpus layer.** The APM ratio the
+> retraction rests on has **no implementation at all** (`grep -rn "apm"` returns nothing).
+> `3h` Block D reconciles it and **stamps** a parse-admissibility rule without applying it.
+>
+> ⚠ **NO ENGINE DEFECT IS FIXED IN `3h`.** E9/E11/E12 keep their run green paths and stay
+> registered. **The gate must read `1 / 1 / 20.5%` at EVERY commit; a commit that moves it is
+> a defect in that commit.** The holdout is **not** read.
+>
+> 🚨 **Still time-critical:** `season_config.NEXT_PHASE_BOUNDARY` is `2026-08-08T00:00:00Z`.
+> `3g` G0's three defences are in place and **nobody has seen any of them fire.**
+
+---
+
+<details><summary>Superseded: the <code>3g</code> top block</summary>
+
 > ✅ **2026-08-07 — SESSION `3g` IS DONE.**
 > Session record: `primer/Session_2026-08-07_3g_explosions.md`.
 > Work order it ran: `primer/SESSION_3G_PRIMER.md` (now `SUPERSEDED`).
@@ -51,6 +114,9 @@
 >
 > ⚠ **`gear_tier_stats(phase=…)` still has NO caller**, so `3f` exit condition 10 reads ✅
 > on a function nothing calls. Stated in the blocked table rather than fixed.
+
+
+</details>
 
 ---
 
