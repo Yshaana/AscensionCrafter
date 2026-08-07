@@ -17,8 +17,13 @@ that file is ~1,700 lines and carries the gate; the measurement stays out of
 the thing being measured. It REUSES the gate's own selection and sim path by
 import, so the population and the builds are identical by construction.
 
-🛑 THIS TOOL MOVES NO GATE. It writes data/derived/ artifacts only (both
-gitignored) and never touches predictions/gate_manifest*.json.
+🛑 THIS TOOL MOVES NO GATE. It never touches predictions/gate_manifest*.json.
+Full rows land in data/derived/ (gitignored); 🆕 3i C7 — the SUMMARY
+statistics additionally land in predictions/per_ability_summary.json, a small
+COMMITTED artifact, because 3h's headline result lived only in gitignored
+files and was the one number a monitoring chat could not check (AUDIT_3H §2).
+Same dirty-tree discipline as the gate manifest: the committed artifact is
+refused when the working tree is dirty.
 
 Units: the sim's per-ability damage is a total over `content.fight_duration`;
 the log's is a total over the encounter's `duration_seconds`. The ratio is
@@ -28,6 +33,15 @@ therefore taken over RATES:
 
 Pre-registration: predictions/prereg_3h_per_ability.md, committed BEFORE this
 tool's first run.
+
+🆕 3i Block C — the logged side is repaired: one policy for duplicated rows
+(is_pet = 0 at the query, per E15's rows[]-canonical decision; residual
+same-spell_id duplicates MERGED deterministically and named), the per-row
+shares are asserted to sum to 100 ± ε per character (C2, mutation M32), and
+the phantom-production cell (producing sim keys the log has no row for) is
+reported (C4). Re-run prereg: SESSION_3I_PRIMER.md Block C6 (committed before
+this run) — the absent share is predicted to move UP, the producing-ratio
+median to move little.
 
 key_state vocabulary (the work order's, plus one measured addition):
   producing            the key produced sim damage > 0
@@ -69,6 +83,8 @@ config.ensure_utf8_stdout()
 
 JSON_PATH = DATA_DERIVED / "per_ability_accuracy.json"
 MD_PATH = DATA_DERIVED / "per_ability_accuracy.md"
+SUMMARY_PATH = (Path(__file__).resolve().parents[2] / "predictions"
+                / "per_ability_summary.json")
 
 # C4 — the round numbers and orders of magnitude a unit error looks like.
 # E13 was exactly 100; E14 was exactly card_duration / component_tick. Integers
@@ -146,10 +162,19 @@ def rows_for_character(bdb, asc, conv, cand):
     sim_fight_s = content.fight_duration or 1.0
     per_ability = res.per_ability or {}
 
+    # 🛑 3i C1 — is_pet = 0 ONLY: the rows[]-canonical policy (E15). Before
+    # this, the same duplicated rows were handled FOUR ways inside this
+    # function (summed at total_logged, last-wins-dropped in logged_by_sid,
+    # accumulated in auto_logged, kept as rows in other_negative), so the
+    # numerator and denominator disagreed and the per-row shares did not sum
+    # to 100 (AUDIT_3H §4.2). On the post-B corpus the filter is a no-op —
+    # 0 is_pet=1 rows exist — and the C2 assertion below makes any recurrence
+    # loud instead of silent.
     logged = bdb.execute(
         "SELECT spell_id, spell_name, damage_total, is_pet, spell_school "
         "FROM ability_performance "
-        "WHERE scope_id = ? AND character_id = ? AND damage_total > 0",
+        "WHERE scope_id = ? AND character_id = ? AND damage_total > 0 "
+        "AND is_pet = 0",
         (scope_id, cid)).fetchall()
     total_logged = sum(r[2] for r in logged)
     if not total_logged or not dur:
@@ -192,7 +217,13 @@ def rows_for_character(bdb, asc, conv, cand):
             "round_flag": round_flag(ratio),
         })
 
+    # 🛑 3i C3 — `logged_by_sid[r[0]] = r` was last-wins with no ORDER BY:
+    # for a duplicated spell_id, WHICH copy survived was up to SQLite's row
+    # order, so two runs against the same database could differ. Duplicates
+    # are now MERGED deterministically (damage summed, names joined) and the
+    # merge is counted and printed — named, never silently picked.
     logged_by_sid = {}
+    merged_sids = []
     auto_logged = 0.0
     other_negative = []                 # extra-attack procs etc. — absent keys
     for r in logged:
@@ -200,8 +231,18 @@ def rows_for_character(bdb, asc, conv, cand):
             auto_logged += r[2]
         elif r[0] < 0:
             other_negative.append(r)
+        elif r[0] in logged_by_sid:
+            prev = logged_by_sid[r[0]]
+            names = sorted({prev[1] or "", r[1] or ""} - {""})
+            logged_by_sid[r[0]] = (r[0], " + ".join(names),
+                                   prev[2] + r[2], prev[3] or r[3], prev[4])
+            merged_sids.append(r[0])
         else:
             logged_by_sid[r[0]] = r
+    if merged_sids:
+        print(f"[merged] {cname} ({cid}): {len(merged_sids)} duplicated "
+              f"spell_id group(s) merged deterministically: "
+              f"{sorted(set(merged_sids))}")
 
     # 1. every sim key, paired to its logged row (0.0 when the log has none)
     for sid, entry in per_ability.items():
@@ -231,6 +272,24 @@ def rows_for_character(bdb, asc, conv, cand):
         emit(sid, r[1], 0.0, r[2], None, is_pet=r[3])
     for r in other_negative:
         emit(r[0], r[1], 0.0, r[2], None, is_pet=r[3])
+
+    # 🛑 3i C2 — THE INVARIANT THE 3h AUDIT FOUND VIOLATED, now asserted:
+    # every logged row lands in exactly one emitted row, so the per-row
+    # coverage_share_of_logged values MUST sum to 100 ± ε per character.
+    # Before C1/C3 they did not, for any character with a duplicated ability,
+    # and nothing noticed. A violation is a defect in THIS TOOL — crash loud,
+    # never skip quietly. Registered mutation M32 (RUN 2026-08-07): scale
+    # total_logged by 1.01 — every character's shares sum to ~99 and this
+    # raises (verified: Boomcat, 99.02). Green path: the C1/C3 single-policy
+    # accounting above, which IS the fix.
+    share_sum = sum(r["coverage_share_of_logged"] for r in out)
+    if abs(share_sum - 100.0) > 0.5:
+        raise AssertionError(
+            f"C2 invariant violated for {cname} ({cid}): per-row "
+            f"coverage_share_of_logged sums to {share_sum:.2f}, not 100 — "
+            f"the numerator and denominator of the logged side disagree "
+            f"(the AUDIT_3H §4.2 defect class). Refusing to report numbers "
+            f"from an inconsistent accounting.")
 
     return out, None
 
@@ -326,6 +385,22 @@ def main():
     print(f"[absent] {len(absent)} paired rows with NO sim key, carrying "
           f"{absent_share:.1f}% of cohort logged damage")
 
+    # 🛑 3i C4 — the fourth cell of the 2×2, measured and never reported
+    # until now (AUDIT_3H §7.2): sim keys the LOG has no row for. Sim damage
+    # landing on abilities the character never used inflates the aggregate
+    # delta while earning zero coverage credit — a mechanism that makes the
+    # aggregate look better than the per-ability truth. The rows were always
+    # in the JSON; this is the statistic that covers them.
+    phantom = [r for r in all_rows
+               if r["logged_damage"] == 0 and r["key_state"] == "producing"]
+    total_sim_all = sum(r["sim_damage"] for r in all_rows) or 1.0
+    phantom_sim = sum(r["sim_damage"] for r in phantom)
+    print(f"[phantom] {len(phantom)} producing sim keys with NO logged row — "
+          f"{100.0 * phantom_sim / total_sim_all:.1f}% of cohort sim damage "
+          f"lands on abilities the log never saw "
+          f"({sum(1 for r in all_rows if r['logged_damage'] == 0)} sim-only "
+          f"rows in all, incl. non-producing)")
+
     # ---- C4 — the unit-error hunt -----------------------------------------
     flagged = [r for r in paired if r["round_flag"] is not None
                and r["coverage_share_of_logged"] >= 1.0]
@@ -363,6 +438,89 @@ def main():
         if len(rows) > 10:
             print(f"    ... {len(rows) - 10} more rows in the JSON artifact "
                   f"(stated, not silent)")
+
+    # ---- 3i C7 — the committed summary artifact ---------------------------
+    # 3h's headline result (0.253 / 11% / 25% / 62.2%) lived only in
+    # gitignored data/derived/ and was "the single number a monitoring chat
+    # cannot check" (AUDIT_3H §2). The summary statistics — never the row
+    # dump — land in predictions/, self-identifying like the gate manifest,
+    # and refused on a dirty tree for the same reason the manifest is.
+    import subprocess
+    repo_root = Path(__file__).resolve().parents[2]
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"],
+                             capture_output=True, text=True, cwd=repo_root,
+                             check=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "status", "--porcelain"],
+                                    capture_output=True, text=True,
+                                    cwd=repo_root, check=True).stdout.strip())
+    except Exception:                                   # noqa: BLE001
+        sha, dirty = None, None
+
+    per_char_split = []
+    for (ccid, ccname), rows in sorted(by_char.items(),
+                                       key=lambda kv: kv[0][1].lower()):
+        tot = sum(x["logged_damage"] for x in rows) or 1.0
+        per_char_split.append({
+            "character_id": ccid, "name": ccname,
+            "keyed_pct": round(100.0 * sum(
+                x["logged_damage"] for x in rows
+                if x["key_state"] != "absent") / tot, 1),
+            "producing_pct": round(100.0 * sum(
+                x["logged_damage"] for x in rows
+                if x["key_state"] == "producing") / tot, 1),
+            "absent_pct": round(100.0 * sum(
+                x["logged_damage"] for x in rows
+                if x["key_state"] == "absent") / tot, 1),
+        })
+    summary = {
+        "_status_note": "FINDING — regenerated by every run of "
+                        "tools/audit/per_ability_accuracy.py on a clean tree; "
+                        "true as of generated_at, at git_sha",
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "git_sha": sha,
+        "git_working_tree_dirty": dirty,
+        "tool": "tools/audit/per_ability_accuracy.py (3h C1, repaired 3i C)",
+        "prereg": ["predictions/prereg_3h_per_ability.md (first run)",
+                   "primer/SESSION_3I_PRIMER.md Block C6 (3i re-run)"],
+        "population": {"characters": len(seen) - len(skipped),
+                       "ability_rows": len(all_rows)},
+        "histogram_paired_keyed_ratio": {
+            b: hist.get(b, 0) for b in order if hist.get(b, 0) or b == "= 0"},
+        "key_state_share_of_cohort_logged_pct": {
+            state: round(100.0 * sum(r["logged_damage"] for r in paired
+                                     if r["key_state"] == state)
+                         / total_logged_all, 1)
+            for state, _ in Counter(r["key_state"] for r in paired).most_common()},
+        "producing": ({
+            "n": len(prod),
+            "median_ratio": round(statistics.median(prod), 4),
+            "quartiles": ([round(q, 4) for q in
+                           statistics.quantiles(prod, n=4)]
+                          if len(prod) >= 4 else None),
+            "in_band_0.8_1.25": sum(1 for x in prod if 0.8 <= x <= 1.25),
+        } if prod else None),
+        "zeros": {"paired_keyed_at_exactly_zero": zero_paired,
+                  "paired_keyed_total": len(keyed)},
+        "absent": {"rows": len(absent),
+                   "share_of_cohort_logged_pct": round(absent_share, 1)},
+        "phantom": {"producing_sim_only_keys": len(phantom),
+                    "share_of_cohort_sim_damage_pct": round(
+                        100.0 * phantom_sim / total_sim_all, 1),
+                    "sim_only_rows_total": sum(
+                        1 for r in all_rows if r["logged_damage"] == 0)},
+        "per_character_coverage_split": per_char_split,
+    }
+    if dirty is False:
+        SUMMARY_PATH.write_text(json.dumps(summary, indent=1) + "\n",
+                                encoding="utf-8")
+        print(f"\n[summary] {SUMMARY_PATH} (committed artifact, git {sha[:8]})")
+    else:
+        print(f"\n🛑 [summary] REFUSED to write {SUMMARY_PATH}: the working "
+              f"tree is {'DIRTY' if dirty else 'in an UNKNOWN git state'}, so "
+              f"git_sha would not identify the code that produced it — the "
+              f"same rule as the gate manifest. Commit first and re-run. "
+              f"(The data/derived artifacts below are still written.)")
 
     # ---- artifacts --------------------------------------------------------
     JSON_PATH.write_text(json.dumps({

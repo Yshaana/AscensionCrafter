@@ -1009,6 +1009,26 @@ def main():
           + f" AT PRODUCING COVERAGE ≥{SLICE_COVERAGE_FLOOR_PCT:g}% "
           f"(n={len(prod_xs)}) — same ratio with keyed-but-zero keys removed "
           f"from the denominator (3h B)")
+    # 🛑 3i C5 — the PAIRED medians, over the SAME members. The two lines
+    # above select on different floors (modelled_damage_pct vs
+    # modelled_and_producing_pct), so their populations differ and the
+    # members dropped from the producing-only figure are by construction the
+    # worst cases — the producing-only median is upward-biased by selection
+    # (AUDIT_3H §7.1). This line removes the selection difference.
+    paired_members = [
+        r for r in tuning
+        if r.get("slice_accuracy_pct") is not None
+        and r.get("slice_accuracy_producing_pct") is not None
+        and ((r["modelled"] or {}).get("modelled_damage_pct") or 0)
+        >= SLICE_COVERAGE_FLOOR_PCT]
+    if paired_members:
+        pm_head = statistics.median(
+            [r["slice_accuracy_pct"] for r in paired_members])
+        pm_prod = statistics.median(
+            [r["slice_accuracy_producing_pct"] for r in paired_members])
+        print(f"[slice] PAIRED over the same n={len(paired_members)} members "
+              f"(headline floor): headline {pm_head:.1f}% / producing-only "
+              f"{pm_prod:.1f}% — the selection-bias-free comparison (3i C5)")
     # 3h B — what coverage was actually counting: the cohort's keyed-but-zero
     # exposure, so §4 of the 3g audit is a measured quantity from this line on.
     kbz = [((r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0)
@@ -1555,6 +1575,21 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                 if r.get("slice_accuracy_producing_pct") is not None
                 and (r["modelled"] or {}).get("modelled_and_producing_pct", 0)
                 >= SLICE_COVERAGE_FLOOR_PCT]),
+            # 🆕 3i C5 — the PAIRED medians over the SAME members (headline
+            # floor), removing the selection difference that upward-biases
+            # the producing-only figure (AUDIT_3H §7.1).
+            "paired_medians_same_members_at_headline_floor": (
+                {"n": len(pm),
+                 "headline_pct": round(statistics.median(
+                     [r["slice_accuracy_pct"] for r in pm]), 2),
+                 "producing_only_pct": round(statistics.median(
+                     [r["slice_accuracy_producing_pct"] for r in pm]), 2)}
+                if (pm := [
+                    r for r in tuning
+                    if r.get("slice_accuracy_pct") is not None
+                    and r.get("slice_accuracy_producing_pct") is not None
+                    and ((r["modelled"] or {}).get("modelled_damage_pct") or 0)
+                    >= SLICE_COVERAGE_FLOOR_PCT]) else None),
             "keyed_but_zero_pct_median": (
                 round(statistics.median(ys), 2) if (ys := [
                     ((r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0)
