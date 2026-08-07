@@ -102,6 +102,9 @@
 > chat reads first, in the session that made hand-transcribed magnitudes a
 > standing rule. A phrase that points at the table cannot go stale; a numeral
 > typed beside it goes stale the next time a row is added.
+> **If you want the number, have the tool print it** —
+> `py tools/audit/check_refusals.py` emits `[census] PROGRESS.md 'Blocked on
+> the user': N open row(s)` by parsing the table itself.
 
 ---
 

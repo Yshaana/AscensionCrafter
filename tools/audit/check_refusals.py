@@ -19,6 +19,7 @@ was worth more than every other error combined).
 request, opens no database, and writes nothing.
 """
 import json
+import re
 import sys
 import tempfile
 from datetime import datetime
@@ -589,6 +590,92 @@ def check_phase_guard():
           f"None->{none_desc!r}, real->{real_desc!r}")
 
 
+_STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
+
+
+def check_primer_status_census():
+    """`3f` F8c + `3g` G9 — every `primer/` file carries a status line, AND the
+    census is PRINTED rather than typed into a document.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete the status line from any file in
+    `primer/`. The count of unclassified files goes above zero and it is named.
+    GREEN PATH: restore it — which is the fix, because the rule is that a
+    document without a status line cannot be cited at all.
+
+    🛑 **Why this prints a census as well as asserting.** `CLAUDE.md` carried the
+    figure `13 / 32 / 0 / 6` typed by hand, and it was wrong within a day of
+    being written — two documents landed and nothing recounted. That is the
+    standing rule's own failure mode (*a magnitude never appears in a markdown
+    file except as generated output*) sitting in the file every session reads
+    first. The number now has an owner.
+    """
+    root = Path(__file__).resolve().parents[2] / "primer"
+    files = sorted(p for p in root.glob("*.md"))
+    counts = {s: 0 for s in _STATUSES}
+    unclassified = []
+    for p in files:
+        head = p.read_text(encoding="utf-8", errors="replace")[:1200]
+        # The marker is the status word introduced by a backtick or bold, and
+        # it may carry a qualifier: `LIVE`, `HISTORICAL`, `SUPERSEDED BY <path>`,
+        # `FINDING 2026-08-07`. ⚠ Matching on the bare word would hit any file
+        # that merely mentions "live" in its opening prose, which is why the
+        # delimiter is required.
+        hit = next((s for s in _STATUSES
+                    if re.search(rf"[`*]{s}\b", head)), None)
+        if hit:
+            counts[hit] += 1
+        else:
+            unclassified.append(p.name)
+    census = " / ".join(f"{counts[s]} {s}" for s in _STATUSES)
+    print(f"[census] primer/ status lines: {len(files)} files — {census}")
+    check("[F8c] EVERY file in primer/ carries a status line — a document "
+          "without one cannot be cited as current truth, so an unclassified "
+          "file is invisible rather than merely undocumented",
+          not unclassified,
+          f"{len(files)} files, {census}"
+          + (f"; UNCLASSIFIED: {unclassified}" if unclassified else ""))
+    return counts, len(files)
+
+
+def check_blocked_question_count():
+    """`3g` G9 — the "Blocked on the user" table counts ITSELF.
+
+    MUTATION (red): change the header row's column count, or remove the table.
+    GREEN PATH: restore it.
+
+    `PROGRESS.md:77` said SIX questions were waiting while the table held SEVEN
+    `3f` rows and `3f`'s closing statement said EIGHT — three numbers for one
+    countable thing, in the live block a new chat reads first. The numeral is
+    gone from the prose (a phrase pointing at the table cannot go stale); this
+    prints the real figure so a session that WANTS a number has one with an
+    owner.
+    """
+    p = Path(__file__).resolve().parents[2] / "primer" / "PROGRESS.md"
+    lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+    try:
+        start = next(i for i, ln in enumerate(lines)
+                     if ln.strip().startswith("## Blocked on the user"))
+    except StopIteration:
+        check("[G9] PROGRESS.md has a 'Blocked on the user' table to count",
+              False, "section heading not found")
+        return 0
+    rows, seen_header = 0, False
+    for ln in lines[start:]:
+        s = ln.strip()
+        if s.startswith("|---") or s.startswith("|:--"):
+            seen_header = True
+            continue
+        if seen_header and s.startswith("|"):
+            rows += 1
+        elif seen_header and not s.startswith("|") and s:
+            break
+    print(f"[census] PROGRESS.md 'Blocked on the user': {rows} open row(s)")
+    check("[G9] the blocked-on-the-user table is COUNTABLE from its own rows, "
+          "so no document has to carry the numeral",
+          rows > 0, f"{rows} rows parsed")
+    return rows
+
+
 def main():
     print("=== 3f: the guards that must not fail open "
           "(F0 / F4 / F5 / F6 / F7 / F8b) ===\n")
@@ -604,6 +691,9 @@ def main():
     print()
     check_phase_resolution()
     check_phase_guard()
+    print()
+    check_primer_status_census()
+    check_blocked_question_count()
 
     print()
     if FAILURES:

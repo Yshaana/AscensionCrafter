@@ -41,11 +41,20 @@ prose lag behind commits — this has produced a confidently wrong answer in thi
 
 ### 🆕 EVERY FILE IN `primer/` CARRIES A STATUS LINE. Read it before citing the file.
 
-Added `3f` F8c, 2026-08-07, because 53 files sat in one namespace with identical
-formatting and **nothing on a file said which kind of file it was** — so a session reading
+Added `3f` F8c, 2026-08-07, because **every file in this folder** sat in one namespace with
+identical formatting and **nothing on a file said which kind of file it was** — so a session reading
 `PLAN_3C_clean_exit.md` got a *retracted* claim stated as settled. The information loss a
 destructive cleanup was feared to cause was already happening, and it was caused by the
 absence of labels rather than the presence of files.
+
+🆕 **`3g` G9 — the count is GENERATED, and the numeral that used to sit in that sentence
+("53 files") was already wrong.** `py tools/audit/check_refusals.py` prints the census and
+**asserts that no file is unclassified**, so an unlabelled file is a hard failure rather than
+a silent gap. As generated 2026-08-07:
+
+```
+[census] primer/ status lines: 55 files — 14 LIVE / 34 HISTORICAL / 0 SUPERSEDED / 7 FINDING
+```
 
 | status | meaning |
 |---|---|

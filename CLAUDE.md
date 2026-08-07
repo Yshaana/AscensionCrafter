@@ -163,9 +163,20 @@ Schema in `INDEX_GUIDE.md`.
   cited as current truth** (`3f` F8c, 2026-08-07). `LIVE` = must be true today ·
   `HISTORICAL` = a past session or completed phase, **may contain claims that are false
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
-  date, not maintained. Today: 13 / 32 / 0 / 6, plus 2 flagged uncertain in `PROGRESS.md`'s
-  blocked table. **A new document is born with a status line and with its expiry condition
-  stated** — *"superseded when X lands"* — in the commit that creates it. Status acquired
+  date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
+  `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
+  as generated 2026-08-07:
+
+  ```
+  [census] primer/ status lines: 55 files — 14 LIVE / 34 HISTORICAL / 0 SUPERSEDED / 7 FINDING
+  ```
+
+  ⚠ This line previously read `13 / 32 / 0 / 6`, typed by hand, and was **wrong within a day
+  of being written** — two documents landed and nothing recounted. It is the standing rule's
+  own failure mode sitting in the file every session reads first. Two files are still flagged
+  uncertain in `PROGRESS.md`'s blocked table. **A new document is born with a status line and
+  with its expiry condition stated** — *"superseded when X lands"* — in the commit that
+  creates it. Status acquired
   in a later cleanup is status nobody trusted in between. Full rule in
   `primer/START_HERE_FOR_CODE.md`.
 - 🆕 **A magnitude never appears in a markdown file except as generated output, pasted with
