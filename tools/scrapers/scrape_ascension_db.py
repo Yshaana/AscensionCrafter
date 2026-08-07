@@ -78,9 +78,15 @@ def demand_list(bconn, coverage=None, limit=None):
     Measured demand, not a guess at what matters — and it is why this scraper
     never enumerates the site.
     """
+    # 🛑 3j B1 (`AUDIT_3I` §7.1) — this ranks what the scraper fetches, so on a
+    # pre-3i corpus it would rank pet-carried spells roughly twice as urgent as
+    # they are. `spell_id > 0` already excludes the 3j B3 unresolved sentinel.
+    from core.builds.corpus import assert_schema_current
+    assert_schema_current(bconn, what="demand_list")
     rows = bconn.execute(
         "SELECT spell_id, SUM(damage_total) d, COUNT(DISTINCT character_id) c "
-        "FROM ability_performance WHERE damage_total > 0 AND spell_id > 0 "
+        "FROM ability_performance "
+        "WHERE damage_total > 0 AND spell_id > 0 AND is_pet = 0 "
         "GROUP BY spell_id ORDER BY d DESC").fetchall()
     total = sum(r[1] for r in rows) or 1.0
     out, run = [], 0.0

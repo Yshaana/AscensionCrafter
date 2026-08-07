@@ -1185,6 +1185,51 @@ def check_e15_pet_row_double_count():
            f"modelled_damage_pct={out and out['modelled_damage_pct']} "
            f"(counted once it is 50.0; the double-count reads 66.7)")
 
+    # 🆕 3j B2 (`AUDIT_3I_ADVERSARIAL` §7.2) — THE ARM THAT READS THE REAL
+    # CORPUS. Everything above builds its own in-memory table and exercises
+    # only `modelled_damage_share`'s READ-side filter, so it is green
+    # regardless of what `ingest_abilities_record` does. A silently-broken pet
+    # ingest yields `pet_damage = NULL` everywhere and prints nothing — the
+    # fixture cannot see it, because the fixture is not the corpus.
+    #
+    # MUTATION THAT MAKES THIS FAIL (red): make `ingest_abilities_record` write
+    # the pet restatement back into `ability_performance` (i.e. revert 3i B2 —
+    # append the `pets` tuples to `out` with `is_pet=1`) and rebuild. The arm
+    # then reports a non-zero `is_pet=1` count against the real corpus. GREEN
+    # PATH: the ingest as it stands, which IS the E15 fix.
+    #
+    # ⚠ Skipped WITH A PRINTED REASON when builds.db is absent — a clean clone
+    # has no corpus, and a check that cannot run must say so rather than pass.
+    from config import BUILDS_DB_PATH
+    if not BUILDS_DB_PATH.exists():
+        print(f"SKIP  [corpus] the REAL-corpus E15 arm cannot run — "
+              f"{BUILDS_DB_PATH.name} is absent (gitignored by design). "
+              f"Build it: py ingest/logs_gg/build_builds_db.py")
+    else:
+        bconn = _sq.connect(BUILDS_DB_PATH)
+        n_pet = bconn.execute("SELECT COUNT(*) FROM ability_performance "
+                              "WHERE is_pet = 1").fetchone()[0]
+        n_side = bconn.execute(
+            "SELECT COUNT(*) FROM pet_ability_damage").fetchone()[0]
+        n_owners = bconn.execute(
+            "SELECT COUNT(DISTINCT character_id) FROM pet_ability_damage"
+        ).fetchone()[0]
+        schema_v = bconn.execute("PRAGMA user_version").fetchone()[0]
+        bconn.close()
+        gcheck("[corpus] the REAL builds.db carries ZERO is_pet=1 rows in "
+               "ability_performance — asserted against the corpus the gate "
+               "actually reads, not against a fixture that cannot see ingest",
+               n_pet == 0, f"is_pet=1 rows={n_pet}")
+        gcheck("[corpus] ...and pet_ability_damage is NON-EMPTY, so the "
+               "restatement was RE-HOMED rather than dropped — the failure "
+               "mode a zero-row assertion alone cannot distinguish",
+               n_side > 0,
+               f"pet_ability_damage rows={n_side} across {n_owners} owner(s)")
+        gcheck("[corpus] ...and the corpus declares the post-E15 schema "
+               "version, so a retained pre-3i builds.db is refused rather "
+               "than read (3j B1)",
+               schema_v >= 1, f"PRAGMA user_version={schema_v} (expected >= 1)")
+
 
 def check_nonpaladin_fixtures(conn, ct, conv):
     """Generality checks. See §9 above — these are MEANT to fail today."""
@@ -1423,9 +1468,15 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                   f"today only because {len(never)} of {len(periodic)} never "
                   f"cast at all — see the check above.")
 
-        # No pet model exists in core/sim while corpus.py:614 computes
-        # dps = (total_damage + pet_damage)/duration, so any pet class is
-        # guaranteed to miss low against the corpus it is calibrated on.
+        # No pet model exists in core/sim while the corpus DPS INCLUDES pet
+        # damage, so any pet class is guaranteed to miss low against the corpus
+        # it is calibrated on.
+        #
+        # ⚠ 3j B4 — this comment read `dps = (total_damage + pet_damage)/
+        # duration`, which 3i B3 fixed (that expression counted pet damage
+        # TWICE — E15). Current: `dps = total_damage / duration`. The gap
+        # survives the fix: the endpoint merges pets into rows[], so
+        # total_damage already contains pet damage — once now, twice before.
         #
         # ⚠ 3e B6 — this used to find pets by STRING-MATCHING "summon" in the
         # ability's name, which is the thing rule 5 forbids, inside the harness

@@ -1334,6 +1334,132 @@ def check_comparator_can_add_a_flag():
           f"excluded={filtered['n_comparator_scopes_excluded']}")
 
 
+def check_null_spell_id_cannot_escape_dedupe():
+    """`3j` B3 (`AUDIT_3I_ADVERSARIAL` §7.5) — a row whose `spell_id` will not
+    decode must not escape `INSERT OR REPLACE`.
+
+    SQLite permits NULLs in a rowid table's PRIMARY KEY columns, so
+    `_int_or_none(spell_id) -> None` made a row un-deduplicatable: re-ingesting
+    the same record appended it again, straight into `total_damage -> dps ->`
+    the gate. Reachable — `spell_id` is a string field in the source payload
+    and 5 report ids (79, 104, 105, 106, 107) appear twice across the committed
+    crawl days.
+
+    ⚠ MEASURED BEFORE FIXING, per the work order's own instruction: the real
+    corpus carries **0 of 291,320** such rows in `ability_performance` and
+    **0 of 22,427** in `pet_ability_damage`. So this closes a latent route
+    rather than correcting a live inflation, and it CANNOT move the gate —
+    there is nothing to de-duplicate. Had the count been non-zero, the work
+    order says it would have been a finding and a pre-registered gate move for
+    a later session, not a fix here.
+
+    MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-07): point `_spell_key` at
+    `_int_or_none`, restoring the NULL. Three ingests of one record then
+    produce 3 rows and 3000 damage — the auditor's measurement, reproduced.
+    GREEN PATH: `_spell_key` as written, 1 row and 1000 damage.
+    """
+    import sqlite3
+    from core.builds import corpus
+
+    rec = {"realm": "Darkmoon", "season": "S10",
+           "captured_at": "2026-08-01T00:00:00Z", "report_id": 79,
+           "scope": "boss_single", "encounter_ids": [1],
+           "payload": {"rows": [{"character_type": "player",
+                                 "character_id": 7, "character_name": "X",
+                                 "spell_id": "not-an-int",
+                                 "spell_name": "Mystery",
+                                 "total_damage": 1000.0}]}}
+    conn = sqlite3.connect(":memory:")
+    corpus.init_schema(conn)
+    for _ in range(3):
+        corpus.ingest_abilities_record(conn, dict(rec))
+    n, dmg = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM(damage_total), 0) "
+        "FROM ability_performance").fetchone()
+    sids = [r[0] for r in conn.execute(
+        "SELECT DISTINCT spell_id FROM ability_performance")]
+    check("[3j-B3] three ingests of ONE record with an undecodable spell_id "
+          "produce ONE row, not three — a NULL in a rowid table's PRIMARY KEY "
+          "escapes INSERT OR REPLACE and re-ingests as a duplicate",
+          n == 1 and abs(dmg - 1000.0) < 0.01,
+          f"rows={n}, damage={dmg:.0f} (the NULL route gives 3 / 3000)")
+    check("[3j-B3] ...and the row is VISIBLE as unresolved rather than NULL, "
+          "so it can be counted — the sentinel is outside both Spell.dbc space "
+          "and the log's auto-attack ids, so it cannot collide",
+          sids == [corpus.UNRESOLVED_SPELL_ID],
+          f"spell_ids={sids}, sentinel={corpus.UNRESOLVED_SPELL_ID}")
+
+
+def check_corpus_schema_gate():
+    """`3j` B1 (`AUDIT_3I_ADVERSARIAL` §7.1) — a pre-`3i` corpus is migrated or
+    refused, never quietly read.
+
+    `init_schema` was `CREATE TABLE IF NOT EXISTS` only, `PRAGMA user_version`
+    was 0 and never set, and no backfill existed — so a retained pre-`3i`
+    `builds.db` kept its doubled `is_pet=1` rows while `pet_damage` silently
+    became NULL. Three consumers summed it with no `is_pet` filter
+    (`compute_damage_share`, `demand_list`, `build_extract_scope_request`).
+    The only thing preventing a wrong answer was `build_builds_db.py` unlinking
+    the DB on every build — a habit, not a guard.
+
+    MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-07): replace the `raise` in
+    `assert_schema_current` with `if False:`. A v0 database is then accepted by
+    every consumer. GREEN PATH: the raise, plus `migrate_schema()` for callers
+    that want repair instead of refusal — both reachable, neither a stub.
+    """
+    import sqlite3
+    from core.builds import corpus
+
+    fresh = sqlite3.connect(":memory:")
+    corpus.init_schema(fresh)
+    check("[3j-B1] a freshly initialised corpus declares its schema version — "
+          "`init_schema` used to be CREATE-TABLE-only, leaving user_version 0 "
+          "and every DB indistinguishable from a pre-E15 one",
+          corpus.schema_version(fresh) == corpus.CORPUS_SCHEMA_VERSION,
+          f"user_version={corpus.schema_version(fresh)}, expected "
+          f"{corpus.CORPUS_SCHEMA_VERSION}")
+
+    legacy = sqlite3.connect(":memory:")
+    corpus.init_schema(legacy)
+    legacy.execute("PRAGMA user_version = 0")
+    refused = None
+    try:
+        corpus.assert_schema_current(legacy, what="check fixture")
+    except corpus.CorpusSchemaTooOld as e:
+        refused = str(e)
+    check("[3j-B1] a v0 (pre-E15) corpus is REFUSED, not read — every SUM over "
+          "its ability_performance double-counts pet damage",
+          refused is not None and "user_version is 0" in refused,
+          f"refused={(refused or 'NOTHING').splitlines()[0][:70]!r}")
+
+    # ...and the migration is a real path, not a stub: it deletes the
+    # restatement rows and stamps the version, and a migrated DB then passes.
+    legacy.execute(
+        "INSERT INTO capture_scopes (scope_id, report_id, scope, "
+        "encounter_ids_json) VALUES (1, 79, 'boss_single', '[1]')")
+    legacy.executemany(
+        "INSERT INTO ability_performance (scope_id, character_id, spell_id, "
+        "spell_name, is_pet, damage_total) VALUES (?,?,?,?,?,?)",
+        [(1, 7, 555, "Pet Spell", 0, 1000.0),
+         (1, 7, 555, "Pet Spell", 1, 1000.0)])
+    legacy.execute("PRAGMA user_version = 0")
+    frm, to, note = corpus.migrate_schema(legacy)
+    remaining = legacy.execute(
+        "SELECT COUNT(*) FROM ability_performance").fetchone()[0]
+    passed_after = True
+    try:
+        corpus.assert_schema_current(legacy, what="check fixture")
+    except corpus.CorpusSchemaTooOld:
+        passed_after = False
+    check("[3j-B1] ...and `migrate_schema` is a REACHABLE green path, not a "
+          "stub: it deletes the is_pet=1 restatement, stamps the version, and "
+          "the same DB then passes the guard",
+          frm == 0 and to == corpus.CORPUS_SCHEMA_VERSION
+          and remaining == 1 and passed_after,
+          f"v{frm}->v{to}, rows left={remaining} (was 2), passes after="
+          f"{passed_after}; {note}")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -1390,6 +1516,9 @@ def main():
     check_phase_guard()
     check_admissibility_outage_refuses()
     check_comparator_can_add_a_flag()
+    print()
+    check_null_spell_id_cannot_escape_dedupe()
+    check_corpus_schema_gate()
     print()
     check_primer_status_census()
     check_blocked_question_count()

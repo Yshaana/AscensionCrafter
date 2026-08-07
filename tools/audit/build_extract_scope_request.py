@@ -57,10 +57,16 @@ def main():
     b = sqlite3.connect(BUILDS_DB_PATH)
     a = sqlite3.connect(DB_PATH) if DB_PATH.exists() else None
 
+    # 🛑 3j B1 (`AUDIT_3I` §7.1) — this drives what the OWNER-GATED DBC extract
+    # is asked for, so a doubled ranking wastes the one step that needs the
+    # game client. `spell_id > 0` already excludes the 3j B3 sentinel.
+    from core.builds.corpus import assert_schema_current
+    assert_schema_current(b, what="build_extract_scope_request")
     rows = b.execute(
         "SELECT spell_id, SUM(damage_total) d, SUM(hits) h, "
         "       COUNT(DISTINCT character_id) c "
-        "FROM ability_performance WHERE damage_total > 0 AND spell_id > 0 "
+        "FROM ability_performance "
+        "WHERE damage_total > 0 AND spell_id > 0 AND is_pet = 0 "
         "GROUP BY spell_id ORDER BY d DESC").fetchall()
 
     already = set()

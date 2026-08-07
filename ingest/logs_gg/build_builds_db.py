@@ -125,7 +125,46 @@ def stem_of(path):
     return path.name.split(".")[0]
 
 
+def migrate_existing():
+    """`py ingest/logs_gg/build_builds_db.py --migrate` — bring an existing
+    `builds.db` to the current schema version WITHOUT rebuilding it.
+
+    🆕 `3j` B1. The rebuild path already produces a current database (it drops
+    and recreates), so this exists for the case the audit actually found: a
+    **retained** `builds.db` that is read rather than rebuilt. `3j`'s own
+    corpus was exactly that — post-`3i` in content (0 `is_pet=1` rows, 22,427
+    `pet_ability_damage` rows) but written before `PRAGMA user_version` existed,
+    so every consumer's new `assert_schema_current` refused it.
+
+    Preferred over a rebuild when the gate must not move: migrating a corpus
+    that already has no restatement rows changes **no data at all**, so it
+    cannot shift a single number. A rebuild re-reads `data/source/crawl/` and
+    may legitimately pick up a new crawl day.
+    """
+    if not BUILDS_DB_PATH.exists():
+        print(f"{BUILDS_DB_PATH} does not exist — nothing to migrate. "
+              f"Run without --migrate to build it.")
+        return 1
+    conn = sqlite3.connect(BUILDS_DB_PATH)
+    before = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM(damage_total), 0) "
+        "FROM ability_performance").fetchone()
+    frm, to, note = corpus.migrate_schema(conn)
+    after = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM(damage_total), 0) "
+        "FROM ability_performance").fetchone()
+    conn.close()
+    print(f"[migrate] {BUILDS_DB_PATH.name}: schema v{frm} -> v{to} — {note}")
+    print(f"[migrate] ability_performance rows {before[0]} -> {after[0]}, "
+          f"damage_total {before[1]:.1f} -> {after[1]:.1f}"
+          + ("  (UNCHANGED — this migration touched no data)"
+             if before == after else "  ⚠ CHANGED — restatement rows removed"))
+    return 0
+
+
 def main():
+    if "--migrate" in sys.argv:
+        return migrate_existing()
     ensure_derived_dir()
     if BUILDS_DB_PATH.exists():
         BUILDS_DB_PATH.unlink()
@@ -252,12 +291,49 @@ def main():
     n = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
          for t in ["characters", "character_snapshots", "snapshot_cards", "snapshot_gear",
                    "encounters", "capture_scopes", "encounter_performance",
-                   "ability_performance", "ability_avoidance", "leaderboard_entries"]}
+                   "ability_performance",
+                   # 🆕 3j B2 — the E15 side table, in the census. `AUDIT_3I`
+                   # §7.2: it was omitted, so a silently-broken pet ingest
+                   # produced `pet_damage = NULL` everywhere and PRINTED
+                   # NOTHING. A table whose emptiness is invisible cannot be
+                   # noticed to be empty.
+                   "pet_ability_damage",
+                   "ability_avoidance", "leaderboard_entries"]}
+    # 🆕 3j B2 — the E15 invariant, asserted against the REAL corpus at the end
+    # of every build, not against a fixture. `check_e15_pet_row_double_count`
+    # builds its own in-memory table and exercises only `modelled_damage_share`'s
+    # filter, so it is green regardless of what `ingest_abilities_record` does.
+    n_pet_rows = conn.execute(
+        "SELECT COUNT(*) FROM ability_performance WHERE is_pet = 1").fetchone()[0]
+    n_unresolved = conn.execute(
+        "SELECT COUNT(*) FROM ability_performance WHERE spell_id = ?",
+        (corpus.UNRESOLVED_SPELL_ID,)).fetchone()[0]
+    schema_v = corpus.schema_version(conn)
     conn.close()
 
     print(f"\nBuilt {BUILDS_DB_PATH}")
     for t, c in n.items():
         print(f"  {t:<24} {c:>8}")
+    print(f"  {'PRAGMA user_version':<24} {schema_v:>8}")
+    print(f"\n[E15] ability_performance rows with is_pet=1: {n_pet_rows} "
+          f"(must be 0 — the endpoint's per-pet restatement belongs in "
+          f"pet_ability_damage, and summing both double-counts every "
+          f"pet-owner's damage)")
+    print(f"[E15] pet_ability_damage rows: {n['pet_ability_damage']}")
+    print(f"[3j-B3] ability_performance rows with an UNRESOLVED spell_id "
+          f"({corpus.UNRESOLVED_SPELL_ID}): {n_unresolved} — these used to be "
+          f"NULL, which escapes the PRIMARY KEY and re-ingests as duplicates")
+    if n_pet_rows:
+        print(f"🛑 E15 REGRESSION — {n_pet_rows} is_pet=1 row(s) landed in "
+              f"ability_performance. Every damage total over this corpus is "
+              f"inflated for pet-owning characters. Do not run the gate "
+              f"against it.")
+        return 1
+    if not n["pet_ability_damage"]:
+        print("⚠ pet_ability_damage is EMPTY. That is correct only if no "
+              "captured scope had a pet-owning player in it; if the corpus "
+              "has pet owners, the restatement is being dropped rather than "
+              "re-homed. Check before trusting a per-pet breakdown.")
     if totals["bad_lines"]:
         print(f"  ⚠ {totals['bad_lines']} unparseable line(s) skipped "
               f"(crawler mid-append is the usual cause)")

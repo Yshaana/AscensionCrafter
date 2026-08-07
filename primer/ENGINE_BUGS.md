@@ -364,7 +364,7 @@ either direction and the sim does not say so.**
 | | |
 |---|---|
 | **Checks** | `[cp_melee] pet damage is modelled or explicitly named as a gap`, and the same for `[dot_caster]` |
-| **Where** | no pet model anywhere in `core/sim/`; `core/builds/corpus.py:614` computes `dps = (total_damage + pet_damage) / duration` |
+| **Where** | no pet model anywhere in `core/sim/`; `core/builds/corpus.py :: compute_encounter_performance` computes `dps = total_damage / duration`, and `total_damage` sums the endpoint's **owner-merged** `rows[]`, which already contain pet damage |
 | **Predicted by** | §4.J; owner decision 2026-08-06 was already "model pets" |
 
 Both fixtures summon (`Summon Felguard`, `Summon Voidwalker`, `Summon Void Zone`;
@@ -374,6 +374,19 @@ silently, which is the part that matters. Roughly 10% of the cohort's real damag
 
 Naming it as a gap is the minimum; modelling it is the owner's decision and is
 `3e` work.
+
+⚠ **`3j` B4 — the FORMULA in the Where row was stale, the FINDING is not.** It
+read `dps = (total_damage + pet_damage) / duration`, which `3i` B3 fixed as
+E15 — that expression counted pet damage **twice**. The current expression is
+`dps = total_damage / duration`. **E3 survives the E15 fix**: the endpoint
+merges pets into `rows[]`, so `total_damage` still contains pet damage — once
+now, twice before. Corrected rather than closed, per the primer's v25 rule that
+retracting a mechanism does not retract the conclusion it supported. Three
+sibling copies of the same stale string were corrected in the same commit
+(`core/sim/pets.py`, `ingest/export/seed_epistemics.py`,
+`tools/audit/check_sim_engine.py`); the copy in **E15's own entry below is left
+verbatim**, because there it is a description of the defect as it stood, not a
+claim about today.
 
 </details>
 

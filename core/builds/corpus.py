@@ -132,6 +132,18 @@ CREATE TABLE IF NOT EXISTS encounter_performance (
     snapshot_lag_hours REAL,        -- how stale the matched build is
     role TEXT,
     path TEXT,                      -- character_spec from the parse (per-parse Path!)
+    -- total_damage: the WHOLE logged total for this character. The endpoint's
+    --   rows[] are owner-MERGED, so this already contains pet damage.
+    -- pet_damage: a RESTATEMENT — "of that total, this much was pet-delivered".
+    --   NEVER added to total_damage; dps = total_damage / duration (3i B3, E15).
+    -- 🆕 3j B5 — pet_damage's NULL-vs-0 semantics, stated rather than left to
+    --   be rediscovered: it is a correlated SUM over pet_ability_damage, and
+    --   SUM over an empty set is NULL, so **NULL means "no pet rows for this
+    --   (scope, character)" and 0 never occurs.** Measured on the live corpus:
+    --   12,062 rows NULL, 0 rows exactly 0, 7,245 rows > 0. Consequence for
+    --   callers: use `COALESCE(pet_damage, 0)` when summing, and do NOT read
+    --   NULL as "unknown" — it is a positive statement that this character
+    --   fielded no pet in this scope.
     total_damage REAL, pet_damage REAL, dps REAL,
     total_healing REAL, effective_healing REAL, hps REAL,
     damage_taken REAL, deaths INTEGER,
@@ -233,8 +245,107 @@ CREATE INDEX IF NOT EXISTS idx_gear_item ON snapshot_gear(item_id);
 _ROLE_MAP = {"DAMAGER": "dps", "TANK": "tank", "HEALER": "healer"}
 
 
+# 🆕 3j B1 (`AUDIT_3I_ADVERSARIAL` §7.1) — THE CORPUS SCHEMA VERSION.
+#
+#   0  pre-3i. `ability_performance` holds pet rows (`is_pet = 1`) that are a
+#      RESTATEMENT of damage already merged into `rows[]`, so every SUM over it
+#      double-counts pet damage, and `dps` adds `pet_damage` to a total that
+#      already contains it (E15).
+#   1  post-3i-B. Pet restatements live in `pet_ability_damage`;
+#      `ability_performance` is owner rows only. Post-3j-B3, `spell_id` is
+#      never NULL in either table (`UNRESOLVED_SPELL_ID`).
+#
+# `init_schema` was `CREATE TABLE IF NOT EXISTS` only, `PRAGMA user_version`
+# was 0 and never set, and there was no backfill — so a retained pre-3i
+# `builds.db` kept its doubled rows, silently, while `pet_damage` became NULL
+# (a correlated subquery over an empty side table). Three consumers have no
+# `is_pet` filter and would have gone on double-counting: `compute_damage_share`
+# (feeds `core/builds/search.py`), `demand_list` (ranks scraper priority) and
+# `build_extract_scope_request` (drives DBC extract requests). The only thing
+# standing between that and a wrong answer was `build_builds_db.py` unlinking
+# the DB on every build — a habit, not a guard.
+CORPUS_SCHEMA_VERSION = 1
+
+
+class CorpusSchemaTooOld(RuntimeError):
+    """A `builds.db` written before the E15 fix, opened for reading.
+
+    🛑 There is no third path here. Either migrate it (`migrate_schema`) or
+    refuse to read it. Reading it "carefully" is what the three unguarded
+    consumers were already doing.
+    """
+
+
 def init_schema(conn):
     conn.executescript(SCHEMA)
+    conn.execute(f"PRAGMA user_version = {CORPUS_SCHEMA_VERSION}")
+
+
+def schema_version(conn):
+    return conn.execute("PRAGMA user_version").fetchone()[0]
+
+
+def migrate_schema(conn):
+    """Bring a pre-`3i` corpus to `CORPUS_SCHEMA_VERSION`, or say it cannot.
+
+    Returns `(from_version, to_version, notes)`. Idempotent: on an
+    already-current DB it changes nothing and reports so.
+
+    🛑 **The v0 → v1 migration DELETES rather than moves.** The `is_pet = 1`
+    rows in `ability_performance` are a restatement of damage already present
+    in the owner rows, so they are pure duplication — there is nothing in them
+    to preserve. `pet_ability_damage` cannot be reconstructed from them either,
+    because the per-pet attribution the endpoint carried was never stored. A
+    migrated v0 database therefore has **correct totals and an empty pet side
+    table**, which is a different state from a freshly built v1 and is reported
+    as such rather than papered over. The honest fix for a v0 DB is a rebuild;
+    this exists so that a DB which is *read* rather than rebuilt cannot be read
+    wrong.
+    """
+    v = schema_version(conn)
+    if v >= CORPUS_SCHEMA_VERSION:
+        return v, v, "already current — nothing to migrate"
+    conn.executescript(SCHEMA)
+    n_pet = conn.execute(
+        "SELECT COUNT(*) FROM ability_performance WHERE is_pet = 1").fetchone()[0]
+    conn.execute("DELETE FROM ability_performance WHERE is_pet = 1")
+    n_side = conn.execute(
+        "SELECT COUNT(*) FROM pet_ability_damage").fetchone()[0]
+    conn.execute(f"PRAGMA user_version = {CORPUS_SCHEMA_VERSION}")
+    conn.commit()
+    note = (f"deleted {n_pet} is_pet=1 restatement row(s) from "
+            f"ability_performance (E15). pet_ability_damage holds {n_side} "
+            f"row(s)")
+    if not n_side:
+        note += (" — EMPTY, and it cannot be reconstructed from the deleted "
+                 "rows: the per-pet attribution was never stored. Totals are "
+                 "now correct; per-pet breakdowns need a rebuild")
+    return v, CORPUS_SCHEMA_VERSION, note
+
+
+def assert_schema_current(conn, *, what="this tool"):
+    """Refuse to read a corpus written before the E15 fix.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete the `raise`. A v0 database then
+    reads clean through `compute_damage_share` / `demand_list` /
+    `build_extract_scope_request`, every one of which sums
+    `ability_performance` with no `is_pet` filter and would double-count pet
+    damage exactly as it did before `3i`. GREEN PATH: the raise as written,
+    plus `migrate_schema()` for a caller that wants to repair rather than
+    refuse — both reachable, neither a stub.
+    """
+    v = schema_version(conn)
+    if v < CORPUS_SCHEMA_VERSION:
+        raise CorpusSchemaTooOld(
+            f"{what} refuses to read this builds.db: PRAGMA user_version is "
+            f"{v}, this code expects {CORPUS_SCHEMA_VERSION}.\n"
+            f"A v0 corpus stores pet damage TWICE in ability_performance "
+            f"(E15), so every SUM over it — damage share, scraper demand, DBC "
+            f"extract scope — is inflated for every pet-owning character.\n"
+            f"Fix it by rebuilding (py ingest/logs_gg/build_builds_db.py), or "
+            f"call core.builds.corpus.migrate_schema(conn) to delete the "
+            f"restatement rows in place.")
+    return v
 
 
 # ---------------------------------------------------------------------------
@@ -425,11 +536,46 @@ def _scope_id(conn, rec):
     return row[0], row[1]
 
 
+# 🆕 3j B3 (`AUDIT_3I_ADVERSARIAL` §7.5) — the sentinel a NULL `spell_id`
+# becomes. SQLite permits NULLs in a rowid table's PRIMARY KEY columns, so a
+# row whose `spell_id` decodes to None escapes `INSERT OR REPLACE` dedupe
+# entirely: the auditor measured 3 ingests of one record producing 3 rows and
+# 3000 damage in `ability_performance`, straight into `total_damage -> dps ->`
+# the gate. Reachable — `spell_id` is a string field in the source payload and
+# 5 report ids (79, 104, 105, 106, 107) appear twice across the committed crawl
+# days.
+#
+# ⚠ MEASURED BEFORE FIXING, per the work order: the real corpus carries
+# **0 of 291,320** NULL-`spell_id` rows in `ability_performance` and **0 of
+# 22,427** in `pet_ability_damage`. So this is a latent route, not a live
+# inflation, and closing it CANNOT move the gate — there is nothing to
+# de-duplicate. Had the count been non-zero it would have been a finding and a
+# pre-registered gate move for a later session, not a fix here.
+#
+# The sentinel is negative and far outside both the client's Spell.dbc space
+# and the log's auto-attack ids (-1, -22..-26), so it can never collide with a
+# real key, and it is VISIBLE: a query can find these rows and count them,
+# which `NULL` made impossible.
+UNRESOLVED_SPELL_ID = -999999
+
+
 def _int_or_none(v):
     try:
         return int(v)
     except (TypeError, ValueError):
         return None
+
+
+def _spell_key(v):
+    """`spell_id` as a PRIMARY-KEY-safe value — never NULL.
+
+    🛑 `3j` B3. `_int_or_none` is still the right decoder (a `spell_id` we
+    cannot read is not a spell id), but its `None` must not reach a PK column.
+    Rows keep their unresolved status explicitly, as `UNRESOLVED_SPELL_ID`,
+    where dedupe can see them and a reader can count them.
+    """
+    sid = _int_or_none(v)
+    return UNRESOLVED_SPELL_ID if sid is None else sid
 
 
 def ingest_abilities_record(conn, rec):
@@ -444,7 +590,7 @@ def ingest_abilities_record(conn, rec):
                         rec.get("realm"), rec.get("captured_at"))
         out.append((
             scope_id, enc_id, r.get("character_id"),
-            _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
+            _spell_key(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
             0, r.get("casts"), r.get("hits"), r.get("crits"),
             r.get("total_damage"), None, None, None,
         ))
@@ -459,7 +605,7 @@ def ingest_abilities_record(conn, rec):
                 continue
             pets.append((
                 scope_id, enc_id, _int_or_none(owner_id),
-                _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
+                _spell_key(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
                 r.get("casts"), r.get("hits"), r.get("crits"),
                 r.get("total_damage"),
             ))
@@ -486,7 +632,7 @@ def ingest_healing_record(conn, rec):
             continue
         out.append((
             scope_id, enc_id, r.get("character_id"),
-            _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
+            _spell_key(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
             0, r.get("casts"), r.get("hits"), r.get("crits"),
             None, r.get("total_healing"), r.get("overhealing"), r.get("total_absorbs"),
         ))
@@ -508,7 +654,7 @@ def ingest_avoidance_record(conn, rec):
     scope_id, enc_id = _scope_id(conn, rec)
     out = [(
         scope_id, enc_id, r.get("target_character_id"),
-        _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
+        _spell_key(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
         r.get("damage"), r.get("hit_count"), r.get("casts"),
         r.get("miss_count"), r.get("dodge_count"), r.get("parry_count"),
         r.get("deflect_count"), r.get("immune_count"), r.get("reflect_count"),
@@ -536,7 +682,7 @@ def ingest_damage_taken_record(conn, rec):
     scope_id, enc_id = _scope_id(conn, rec)
     out = [(
         scope_id, enc_id, r.get("target_character_id"),
-        _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
+        _spell_key(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
         r.get("damage"), r.get("hit_count"),
     ) for r in rows]
     conn.executemany(
@@ -623,6 +769,30 @@ def compute_encounter_performance(conn):
     DPS uses the summed duration of the scope's encounters — exact for
     boss_single, an aggregate mean for grouped scopes (which is all the
     endpoint ever offered for them).
+
+    🆕 **`3j` B5 — the cohort-composition change `3i` B made, measured and
+    named** (`AUDIT_3I_ADVERSARIAL` §7.4). This selects `FROM
+    ability_performance`, so a character present ONLY in
+    `pet_spell_damage_by_owner` now produces **no** `encounter_performance`
+    row. Before the E15 fix its pet rows lived in `ability_performance`, so it
+    got a row with `dps = pet_damage/dur`, which cleared
+    `calibrate_crawled.py`'s `ep.dps > 100` cohort filter.
+
+    **Measured on the live corpus, 2026-08-07:**
+
+    * **695** distinct owner ids appear in `pet_ability_damage` with no owner
+      row anywhere in `ability_performance`;
+    * **0 of those 695 are in `characters`** — `_seen_character` runs only for
+      `rows[]` entries with `character_type == "player"`, so every one of them
+      is a non-player owner the corpus never tracked as a character. They are
+      not players who vanished; they are rows that should never have produced a
+      character-shaped record, and pre-fix they did;
+    * **0 of the 41 frozen cohort members are affected** — all 41 have owner
+      rows and all 41 have `encounter_performance` rows.
+
+    So the change is real, is in the correct direction, and touches nothing the
+    gate reads. Recorded because "it happens not to matter here" and "it does
+    not happen" are different statements, and only one of them stays true.
     """
     conn.execute("DELETE FROM encounter_performance")
     # 🛑 3i B3 (E15) — total_damage is the whole logged total: rows[] is
@@ -669,12 +839,19 @@ def compute_encounter_performance(conn):
 
 
 def compute_damage_share(conn):
+    # 🛑 3j B1 — one of the three consumers `AUDIT_3I` §7.1 found summing
+    # `ability_performance` with NO `is_pet` filter. On a v0 corpus the
+    # denominator counts pet damage twice for every pet-owning character, so
+    # every share here is wrong. Refuse rather than compute.
+    assert_schema_current(conn, what="compute_damage_share")
     conn.execute("""
         UPDATE ability_performance AS ap
         SET damage_share_pct = 100.0 * ap.damage_total / t.total
         FROM (SELECT scope_id, character_id,
                      SUM(COALESCE(damage_total, 0)) AS total
-              FROM ability_performance GROUP BY scope_id, character_id) AS t
+              FROM ability_performance
+              WHERE is_pet = 0
+              GROUP BY scope_id, character_id) AS t
         WHERE t.scope_id = ap.scope_id AND t.character_id = ap.character_id
           AND t.total > 0 AND ap.damage_total IS NOT NULL
     """)

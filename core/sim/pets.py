@@ -1,9 +1,23 @@
 """Phase 3 / `3e` B6 — summoned pets: detected and named, NOT yet modelled.
 
-ENGINE_BUGS E3: no pet model exists anywhere in `core/sim/`, while
-`core/builds/corpus.py` computes `dps = (total_damage + pet_damage) / duration`.
-So every pet-carrying build is guaranteed to miss low against the corpus number
-it is calibrated on — **silently**, which is the part that matters.
+ENGINE_BUGS E3: no pet model exists anywhere in `core/sim/`, while the corpus
+DPS this is calibrated against **includes pet damage**. So every pet-carrying
+build is guaranteed to miss low against the corpus number it is calibrated on —
+**silently**, which is the part that matters.
+
+⚠ **`3j` B4 — the FORMULA in this docstring was stale; the CONCLUSION is not.**
+It read `dps = (total_damage + pet_damage) / duration`, which `3i` B3 fixed
+(that expression counted pet damage twice — E15). The current expression is
+`dps = total_damage / duration`. **The gap this module warns about survives the
+fix**, because the endpoint merges pets into `rows[]` and `total_damage` sums
+those owner rows: pet damage is in the denominator exactly once, where before
+it was there twice. `pet_damage` is now a *restatement* — "of that total, this
+much was pet-delivered" — and is never added back.
+
+Recorded this way deliberately, per the primer's v25 rule: **retracting a
+mechanism does not retract the conclusion it supported.** The wrong formula
+would have been an easy excuse to close E3; the measurement it rests on is
+unaffected.
 
 🛑 **WHY THIS MODULE DETECTS AND WARNS RATHER THAN SIMULATING.**
 
@@ -101,7 +115,9 @@ def pet_gap_warning(summons):
         f"pet(s): {named}"
         + (" ..." if len(summons) > 6 else "")
         + f". The corpus DPS this is calibrated against INCLUDES pet damage "
-        f"(corpus.py builds dps from total_damage + pet_damage), so a "
+        f"(the endpoint merges pets into rows[], so corpus.py's total_damage "
+        f"already contains it; 3j B4 — pet_damage is a restatement and is NOT "
+        f"added on top, which 3i B3 fixed), so a "
         f"pet-carrying build misses low by roughly the pet's whole share — "
         f"{MEASURED_PET_SHARE_NOTE}. Creature stats live in the server's "
         f"creature_template, NOT in any client DBC, so no wider extract "
