@@ -958,7 +958,12 @@ def extract_spell_item_enchantment(cur, mpqs, dll_path):
         # Layout smoke check: stock enchant effect types are 0..8. A slot
         # misalignment would land spell ids / amounts here, so a large share
         # of out-of-range values means the parse is reading the wrong slots.
-        weird_types += sum(1 for t in p['effect_types'] if t > 16)
+        # 0xFFFFFFFF is excluded: measured on the 2026-08-08 run, all 4,236
+        # out-of-range slots were exactly -1 as u32 — the DBC's own "unset"
+        # sentinel in empty effect slots, not misalignment (the anchor row
+        # 23387 decodes cleanly alongside them).
+        weird_types += sum(1 for t in p['effect_types']
+                           if t > 16 and t != 0xFFFFFFFF)
         rows.append((p['id'], p['charges'],
                      json.dumps(p['effect_types']), json.dumps(p['amounts_min']),
                      json.dumps(p['amounts_max']), json.dumps(p['effect_args']),
