@@ -213,11 +213,39 @@ def effective_dodge_parry(target: TargetProfile, expertise_points,
 
 @dataclass
 class AttackTable:
-    """Ordered outcome segments; probabilities in percent, summing to 100."""
-    segments: list                    # [(outcome_name, pct), ...]
+    """Ordered outcome segments, stored as PERCENT and summing to 100.
+
+    🛑 **`3g` G1 / E13 — the two representations are now separated by name, and
+    that separation is the fix.** `segments` is percent because `roll()` draws
+    `uniform(0, 100)` from it and every table-building function reasons in
+    percentage points (an 8% hit cap, a 32.6% glancing chance). But
+    `probabilities()` used to return those same percentages, and
+    `swings.expected_swing` multiplied by them **as if they were fractions** —
+    so every white swing came out **exactly 100× over** for as long as both
+    functions have existed.
+
+    Nothing detected it because a function called `probabilities` returning
+    `{"hit": 50.0}` reads correctly at every call site: the name says 0..1, the
+    value says 0..100, and only multiplying the two together reveals which one
+    the caller believed.
+
+    **So `probabilities()` now returns FRACTIONS**, matching what its name has
+    always claimed, and `probabilities_pct()` exists for a caller that genuinely
+    wants percentage points. Patching the multiply site alone was the tempting
+    fix and the wrong one — it would have left a function whose name means one
+    thing and whose values mean another, which is the condition that produced
+    the defect.
+    """
+    segments: list                    # [(outcome_name, pct), ...] — PERCENT
     warnings: list = field(default_factory=list)
 
     def probabilities(self):
+        """`{outcome: fraction}` in **0..1**, summing to 1.0. Multiply directly."""
+        return {name: pct / 100.0 for name, pct in self.segments if pct > 0}
+
+    def probabilities_pct(self):
+        """`{outcome: percent}` in **0..100**, summing to 100. For display and
+        for anything reasoning in percentage points alongside `segments`."""
         return {name: pct for name, pct in self.segments if pct > 0}
 
     def roll(self, rng):

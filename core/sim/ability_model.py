@@ -675,9 +675,14 @@ class ResolvedAbility:
 
         warnings = list(self.resolution_warnings) + list(ev.notes)
         table = self._avoidance_table(ev, char_state, content, warnings)
+        # 3g G1 / E13 — `probabilities()` returns FRACTIONS now, so the `/100.0`
+        # this line used to carry is gone. This consumer was the CORRECT one all
+        # along: it divided, `swings.expected_swing` did not, and the two had
+        # disagreed about the unit of the same function's return value since
+        # both were written.
         probs = table.probabilities()
         p_land = probs.get("land", probs.get("hit", 0.0) + probs.get("crit", 0.0)
-                           + probs.get("glancing", 0.0)) / 100.0
+                           + probs.get("glancing", 0.0))
 
         can_crit, always = self._can_crit(ev, warnings)
         talents = getattr(char_state, "talents", None)

@@ -165,24 +165,10 @@ EXPECTED_FAILURES = {
     # could be closed individually and the registry's "registered + now
     # PASSING -> hard failure" rule could not tell which of the two had moved.
     # These are UNIT invariants: true of any build, any content, any weapon.
-    "[engine] E13: AttackTable.probabilities() returns FRACTIONS summing to "
-    "1.0, which is what every consumer multiplies by":
-        "ENGINE_BUGS.md E13 — probabilities() returns percent by its own "
-        "docstring and expected_swing multiplies by it as fractions, so every "
-        "white swing is ~78x over. Split from the frost_mage aggregate in 3g "
-        "G3 so it can be closed on its own",
-    "[engine] E13: one white swing's EXPECTED damage never exceeds one "
-    "critical strike on the weapon's maximum roll":
-        "ENGINE_BUGS.md E13 — the arithmetic consequence, stated so it holds "
-        "however the representation question is answered. A mean above the "
-        "single-crit ceiling is impossible from a probability-weighted sum",
-    "[engine] E13: SwingOutcome's *_fraction fields actually hold fractions, "
-    "as their names say":
-        "ENGINE_BUGS.md E13 — crit_fraction and landed_fraction are filled "
-        "with PERCENTS. 🆕 3g: grepped tree-wide (core/, tools/, cli/, "
-        "ingest/) and they have ZERO readers, so the mis-unit has never "
-        "reached a number — but a write-only field whose name contradicts its "
-        "value is a trap armed for the first reader",
+    # ✅ E13's three assertions are CLOSED in 3g G1 and are deliberately absent
+    # from this registry — a check that has started passing must LEAVE it, or
+    # the registry stops meaning "these are the known failures". They still run,
+    # every run, and a regression turns them into ordinary hard failures.
     "[engine] E14: no periodic component scores more occurrences per cast "
     "than the sanity limit its sibling branch already enforces":
         "ENGINE_BUGS.md E14 — Absolute Zero scores 12,000 ticks per cast. The "

@@ -156,10 +156,21 @@ def expected_swing(char_state, weapon, target, *, is_offhand=False,
             "term is NOT small. The glancing CHANCE is measured, the penalty "
             "is not — a log that flags glancing per swing would settle it")
 
+    # 🛑 `3g` G1 / E13 — this line is UNCHANGED, and that is the point. It was
+    # always written correctly for fractions; `probabilities()` was returning
+    # percent, so it multiplied by ~78 where it meant ~0.78 and every white
+    # swing came out exactly 100× over. The fix is at the boundary
+    # (`combat_engine.AttackTable.probabilities`), not here — patching this
+    # multiply would have left the function's name and its values disagreeing,
+    # which is the condition that produced the defect in the first place.
     mean = base * (p.get("hit", 0.0)
                    + p.get("crit", 0.0) * crit_mult
                    + p.get("glancing", 0.0) * glance_mult)
     landed = p.get("hit", 0.0) + p.get("crit", 0.0) + p.get("glancing", 0.0)
+    # `crit_fraction` and `landed_fraction` now hold what their names say. They
+    # had ZERO readers tree-wide (core/, tools/, cli/, ingest/ all grepped), so
+    # the mis-unit never reached a number — but a write-only field whose name
+    # contradicts its value is a trap armed for its first reader.
     return SwingOutcome(mean, p.get("crit", 0.0), landed, table, warnings)
 
 
