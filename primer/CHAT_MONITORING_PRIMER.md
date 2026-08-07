@@ -13,6 +13,29 @@
 **Paste this at the start of a fresh monitoring chat.** Supersedes v1–v4. Written
 2026-08-08, at the end of the session that audited `3i` and drafted `3j`.
 
+> 🆕 **`3j` ADDENDUM (2026-08-07, appended at `3j` close-out — v6 is DUE).**
+> `3j` ran and closed as an **integrity session**: it moved **no** gate number.
+> Everything this brief says about the gate is therefore still current —
+> `0 / 0 / 26.3% (n=23)`, 3 of 41 not admissible, producing median 0.273, 63.9% absent.
+> What changed is the machinery, and a monitoring chat should know four things:
+>
+> 1. **The gate now fails CLOSED.** A stamp↔code drift raises instead of running without
+>    the rule, and a refused `/api/phases` payload makes the gate **refuse to publish**
+>    rather than flag all 41 members and report `0 of 36`. If you see a gate run refuse,
+>    that is the guard working, not a breakage.
+> 2. **The comparator definition was amended** (owner decision, stamp-follows-code):
+>    predicate 1 now names the three filters. `AUDIT_3I` §4's *"no arm of the change can
+>    add a flag"* was **falsified** — it is false of the median.
+> 3. **`3j`'s own not-done list is in its record's §6** and is short and honest. The
+>    `gear_tier_stats` caller and `ContentProfile`'s 6/8 presets are **scheduled into
+>    `3k`** as named deliverables, not carried again.
+> 4. **The phase boundary is still armed.** `3j` made the outage path safe; the
+>    `EXPECTED_PHASE_NAME` bump and corpus re-derivation are still owed after the flip.
+>
+> 🛑 **This file's own rule applies to this addendum: it is v5 + a patch, and its expiry
+> condition has fired.** Treat a **v6 rewrite as due** — the addendum exists so a `3k`
+> monitoring chat is not handed a stale brief on day one, not to postpone the rewrite.
+
 This chat's job is **oversight and verification** — Claude Code writes the code locally.
 If this chat writes the code, nobody is left to audit it.
 

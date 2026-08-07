@@ -2,6 +2,88 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-07 — SESSION `3j` IS DONE.** Record:
+> `primer/Session_2026-08-07_3j_integrity.md`. Work order it ran:
+> `primer/SESSION_3J_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3I_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE READ `0 / 0 / 26.3% (n=23)` AT EVERY ONE OF THE SESSION'S TEN
+> COMMITS.** `3j` was an INTEGRITY session: it repaired the machinery that
+> produces the number and did not move it. **No modelling block was opened** —
+> that is `3k`'s.
+>
+> * ✅ **A PHASE OUTAGE NOW REFUSES TO PUBLISH.** `phase_guard`'s payload-level
+>   `refuse_reason` was passed into `resolve_phase`, so one infrastructure fault
+>   would have flagged all 41 members *"unresolved phase"* and published
+>   **`0 of 36`** as a measurement — firing on the first crawl on or after the
+>   8th with **zero code changes**. Predicate 4 is suppressed under a payload
+>   refusal; `assert_publishable()` raises instead. ✅ **The flip had NOT
+>   happened** (checked live 2026-08-07T12:04Z, ~12 h before the boundary):
+>   `EXPECTED_PHASE_NAME` not bumped, corpus not re-derived, STOP-POINT 0 not
+>   triggered.
+> * ✅ **THE GATE FAILS CLOSED ON STAMP DRIFT.** `assert_stamped_thresholds()`
+>   failing set `pa = None` and *continued*, then the manifest asserted
+>   `parse_admissibility_rule_applied: True` from a hardcoded literal. It now
+>   raises; the claim is derived from the rows and asserted against them.
+> * ✅ **THE STAMP ASSERTION IS ANCHORED**, and the comparator definition
+>   amended (owner decision: stamp-follows-code). Deleting the whole stamped
+>   block used to leave it GREEN — the regex found D7's *quotation* 36 lines
+>   below. Pre-registered in `predictions/prereg_3j_comparator.md`; **P1–P4 all
+>   confirmed**, including that `AUDIT_3I` §4's *"no arm of the change can add a
+>   flag"* is **false of the median** (0.762 admissible → **0.421 flagged**).
+> * ✅ **THREE CHECKS THAT COULD NOT FAIL, NOW FAIL.** E3's repair had no check
+>   at all (its full revert left the suite green) **and had regressed** the list
+>   it repaired; E2's correct answer *was* the maximal-producing answer.
+>   `check_sim_engine.py`'s doc-sync verdict now reaches the exit code on a
+>   clean clone — **verified on a real fresh clone**, exit 2 → 1 under M31.
+> * ✅ **THE E15 AFTERMATH.** `PRAGMA user_version` + migrate-or-refuse (this
+>   session's own corpus was v0 and the new check caught it; repaired by
+>   migration, which **touched no data**); an E15 check that reads the **real**
+>   corpus; the NULL-`spell_id` PK escape closed (**measured first: 0 of
+>   291,320 rows**, so it cannot move the gate).
+> * ✅ **THE DOCUMENT HALF, and two generated tables now ASSERTED.**
+>   `CLAUDE.md`'s *"NOT applied"* corrected; the band table generated from the
+>   manifest and checked, after its own *"regenerate, do not retype"* warning
+>   was ignored twice; **M32–M49 landed** and `check_engine_bugs_doc_sync` now
+>   parses the mutation table — the drift class it was built for.
+>
+> **Next session is `3k`, and it is a MODELLING session — coverage first.**
+> 63.9% of logged damage has no sim key, so the slice is capped near ~36% until
+> keys exist; ratio tuning is second (producing median 0.273). **Pre-register
+> which of the two it is doing before touching `core/`.** The gate has **zero**
+> passers: expect to *build* a pass, not defend one. Two named deliverables
+> scheduled by owner decision 2026-08-07: the `gear_tier_stats(phase=…)`
+> production caller, and `ContentProfile` presets replaced with
+> **corpus-measured** durations for the content types the gate's scopes use
+> (measurement, not re-verification — and load-bearing, since presets feed the
+> sim side).
+>
+> 🚨 **Time-critical, still: the phase boundary arms `2026-08-08T00:00:00Z`.**
+> `3j` made the outage path fail closed, so a post-flip crawl now makes the gate
+> **refuse** rather than publish `0 of 36` — but the `EXPECTED_PHASE_NAME` bump
+> and the corpus re-derivation are still owed. Check `/api/phases` live before
+> any gear tier is read.
+>
+> **The gate, closing state — unchanged from `3i`:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 36) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **26.3% (n=23)** |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried forward from `3g` (not re-read, **PRE-E15**) | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
+>
+> 🛑 **The holdout row is NOT like-for-like with the four above it, and the
+> direction is known** (`3j` C6, owner decision: annotate, do not spend a
+> re-read). It was read before E15 was fixed, against a logged denominator that
+> double-counted pet damage — the same correction moved the *tuning* slice
+> 20.5% → 26.3% with no modelling change. **So 9.8% UNDER-states the holdout.**
+> Do not read it as a current floor, and do not compute a tuning-vs-holdout gap
+> from this table.
+
+<details><summary>Superseded: the <code>3i</code> top block</summary>
+
 > ✅ **2026-08-07 — SESSION `3i` IS DONE.** Record:
 > `primer/Session_2026-08-07_3i_gate_repair.md`. Work order it ran:
 > `primer/SESSION_3I_PRIMER.md` (now `SUPERSEDED`).
@@ -83,6 +165,8 @@
 > ⚠ **The admissibility rule removed the cohort's only passer.** This is the
 > intended direction of a rule stamped before its effect was known — not a
 > regression to chase.
+
+</details>
 
 <details><summary>Superseded: the <code>3h</code> top block</summary>
 
