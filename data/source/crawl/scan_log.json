@@ -1,5 +1,5 @@
 {
- "next_report_id": 109,
+ "next_report_id": 115,
  "reports": {
   "2": {
    "crawled_at": "2026-08-04T18:00:59.900800+00:00",
@@ -420,6 +420,31 @@
    "crawled_at": "2026-08-06T17:31:23.589665+00:00",
    "encounters": 75,
    "bosses": 11
+  },
+  "110": {
+   "crawled_at": "2026-08-07T15:55:06.621313+00:00",
+   "encounters": 1,
+   "bosses": 0
+  },
+  "111": {
+   "crawled_at": "2026-08-07T15:55:11.214555+00:00",
+   "encounters": 1,
+   "bosses": 0
+  },
+  "112": {
+   "crawled_at": "2026-08-07T15:55:23.280232+00:00",
+   "encounters": 11,
+   "bosses": 2
+  },
+  "113": {
+   "crawled_at": "2026-08-07T15:56:09.841036+00:00",
+   "encounters": 50,
+   "bosses": 11
+  },
+  "114": {
+   "crawled_at": "2026-08-07T15:57:08.717091+00:00",
+   "encounters": 79,
+   "bosses": 13
   }
  },
  "missing_reports": [
@@ -446,527 +471,528 @@
   89,
   98,
   99,
-  100
+  100,
+  109
  ],
  "characters": {
   "460": {
    "name": "Qt",
-   "last_armory_at": "2026-08-06T00:50:51.588317+00:00",
+   "last_armory_at": "2026-08-07T15:57:30.362239+00:00",
    "armory_hash": "779fc5581b2934979b2c0827dc5697cbb89ea99dbe3f87aeeb3be1a4c605118d"
   },
   "24610": {
    "name": "Zyzz",
-   "last_armory_at": "2026-08-06T00:50:54.364694+00:00",
+   "last_armory_at": "2026-08-07T15:57:31.362127+00:00",
    "armory_hash": "deeacedff7479c8dae4e6fdf2d52961d04606aa10abcb3b561a485d4800f377b"
   },
   "465": {
    "name": "Mcflurry",
-   "last_armory_at": "2026-08-06T00:50:57.133986+00:00",
+   "last_armory_at": "2026-08-07T15:57:32.300059+00:00",
    "armory_hash": "e61c01de226697c0ad74615c931ec08224f06fbdb94acb10e9ac7fc8a048eec9"
   },
   "11431": {
    "name": "Lootgoblin",
-   "last_armory_at": "2026-08-06T00:50:59.911303+00:00",
+   "last_armory_at": "2026-08-07T15:57:33.314488+00:00",
    "armory_hash": "f34850e2cb34b2be2333672f9b6fbd2f33ac1be3457c055ca10775598a95a329"
   },
   "22640": {
    "name": "David",
-   "last_armory_at": "2026-08-06T00:51:02.610738+00:00",
+   "last_armory_at": "2026-08-07T15:57:34.247430+00:00",
    "armory_hash": "03e90d47435c02d171c40ac7d70ff5e9d2d5040e8a6acb7de20e4a124ba14f48"
   },
   "33712": {
    "name": "Malo",
-   "last_armory_at": "2026-08-06T00:51:05.327497+00:00",
+   "last_armory_at": "2026-08-07T15:57:35.166693+00:00",
    "armory_hash": "ae972c2aab43ea5871fd7670da14c1355cce1b091b5a6a6b616ccdbfe70d038c"
   },
   "7674": {
    "name": "Blix",
-   "last_armory_at": "2026-08-06T00:51:08.025043+00:00",
+   "last_armory_at": "2026-08-07T15:57:36.100868+00:00",
    "armory_hash": "c88b2ccaa30821d9c9a4d49e7fba365051bfc7a3c37fd02b9afab750e6f01e32"
   },
   "30915": {
    "name": "Professorpp",
-   "last_armory_at": "2026-08-06T00:51:10.809031+00:00",
+   "last_armory_at": "2026-08-07T15:57:37.115255+00:00",
    "armory_hash": "9469efa8d07c8ecba455d3df30a0b591b5120c8559baae8e0925a01b5c765f33"
   },
   "11407": {
    "name": "Trace",
-   "last_armory_at": "2026-08-06T00:51:13.597204+00:00",
+   "last_armory_at": "2026-08-07T15:57:38.121370+00:00",
    "armory_hash": "9e9f07f438ed343857ef46ef91ed37e07c8d90103faeb705fa1e307c65df6b39"
   },
   "22728": {
    "name": "Zavulon",
-   "last_armory_at": "2026-08-06T00:51:16.411056+00:00",
+   "last_armory_at": "2026-08-07T15:57:39.121405+00:00",
    "armory_hash": "117c3290355fbad7195a75da5ef01cd7a319bb39dfede3f8e2da443c1e57d593"
   },
   "16274": {
    "name": "Chastie",
-   "last_armory_at": "2026-08-06T00:51:19.185488+00:00",
+   "last_armory_at": "2026-08-07T15:57:40.122605+00:00",
    "armory_hash": "20bcca44c539af4847cc4a1ab1f4a8b9a831d1481a0f25d6d883c9b8ba37800b"
   },
   "461": {
    "name": "Ryno",
-   "last_armory_at": "2026-08-06T00:51:21.882479+00:00",
+   "last_armory_at": "2026-08-07T15:57:41.063419+00:00",
    "armory_hash": "cee9d49349c9c1882cc984a71f92c3d5534435fe1a268e039249c0038a071448"
   },
   "462": {
    "name": "Billyeye",
-   "last_armory_at": "2026-08-06T00:51:24.733779+00:00",
+   "last_armory_at": "2026-08-07T15:57:42.056891+00:00",
    "armory_hash": "d0bfbd5600b103538c7077e514d1f50f358bd833941d3e819450a35d6843dde6"
   },
   "7650": {
    "name": "Me",
-   "last_armory_at": "2026-08-06T00:51:27.515012+00:00",
+   "last_armory_at": "2026-08-07T15:57:43.045512+00:00",
    "armory_hash": "adcf936fdcbfdb441a6ae5c4fc439476fa4e636e7c7b372776d55bc338a91051"
   },
   "10266": {
    "name": "Titanus",
-   "last_armory_at": "2026-08-06T00:51:30.333788+00:00",
+   "last_armory_at": "2026-08-07T15:57:44.036724+00:00",
    "armory_hash": "a0e8b8b6e5ea0d99beb96d02bcad27c1493df5a37a387da25a3ad1ef85d3aa17"
   },
   "17884": {
    "name": "Xyz",
-   "last_armory_at": "2026-08-06T00:51:33.192281+00:00",
+   "last_armory_at": "2026-08-07T15:57:45.041028+00:00",
    "armory_hash": "21e1da05c4aab7ab1407ef84f016a04eeddb9c10c7a0e10746a4d14b651b0272"
   },
   "468": {
    "name": "Onur",
-   "last_armory_at": "2026-08-06T00:51:36.005663+00:00",
+   "last_armory_at": "2026-08-07T15:57:46.057144+00:00",
    "armory_hash": "53e1f8a079c4e2063585efaf71fdeae5b45cb2b42466900fddab6e0d86561c9d"
   },
   "463": {
    "name": "Wynta",
-   "last_armory_at": "2026-08-06T00:51:38.780822+00:00",
-   "armory_hash": "b7caea6db6a807ab6436e23a78d9ce4de7c749119816d77274b9a6a377f5df95"
+   "last_armory_at": "2026-08-07T15:57:48.864445+00:00",
+   "armory_hash": "8e4a6b00819fde5c19f850623c8012e0c7c14920b2457bf0f3f63cd8f8cf47a8"
   },
   "33407": {
    "name": "Candle",
-   "last_armory_at": "2026-08-06T00:51:41.566305+00:00",
+   "last_armory_at": "2026-08-07T15:57:49.864386+00:00",
    "armory_hash": "305a7a2e0b058fb73aeacd821d476a28042b3616aa5b163c402264305b8c158a"
   },
   "38900": {
    "name": "Microplastic",
-   "last_armory_at": "2026-08-06T00:51:44.272025+00:00",
+   "last_armory_at": "2026-08-07T15:57:50.781401+00:00",
    "armory_hash": "b7533c2673b3aacee2f0372231b8934ebaa7054992219ee01b5df499226e870a"
   },
   "42126": {
    "name": "Bigolecrits",
-   "last_armory_at": "2026-08-06T00:51:46.995369+00:00",
+   "last_armory_at": "2026-08-07T15:57:51.705385+00:00",
    "armory_hash": "bc048fa41bbb050ea917c7216fa51590d64a8a66fc71622aa198ba4a11345661"
   },
   "464": {
    "name": "Ari",
-   "last_armory_at": "2026-08-06T00:51:49.954087+00:00",
+   "last_armory_at": "2026-08-07T15:57:52.739507+00:00",
    "armory_hash": "e1024c6166a8ce25367e7ee7ff7e3220c6d1e09205d23f794d1145215276f281"
   },
   "22833": {
    "name": "Meritania",
-   "last_armory_at": "2026-08-06T00:51:52.735731+00:00",
+   "last_armory_at": "2026-08-07T15:57:53.675909+00:00",
    "armory_hash": "aa5b342a3b68edd23ed9e80b5c8986ca25340d615445d117227fae92ec913423"
   },
   "33686": {
    "name": "Jamppa",
-   "last_armory_at": "2026-08-06T00:51:55.486125+00:00",
+   "last_armory_at": "2026-08-07T15:57:54.707105+00:00",
    "armory_hash": "a3bfa882888419a27760700c86960b60414391b0a4de9de57a77b2feafc8d553"
   },
   "51750": {
    "name": "Verdict",
-   "last_armory_at": "2026-08-06T00:51:58.256331+00:00",
+   "last_armory_at": "2026-08-07T15:57:55.658468+00:00",
    "armory_hash": "45a3aa223d4d39aecf842f2f2c46f112c2416e970eccbecd7adc2957a6d24979"
   },
   "2328": {
    "name": "Davy",
-   "last_armory_at": "2026-08-06T00:52:01.044089+00:00",
+   "last_armory_at": "2026-08-07T15:57:56.653700+00:00",
    "armory_hash": "21504eeb53dff16f33559a62b44ab933ab917860173d1797c4d8ad6a74898ce7"
   },
   "1142": {
    "name": "Zsp",
-   "last_armory_at": "2026-08-06T00:52:03.824206+00:00",
+   "last_armory_at": "2026-08-07T15:57:57.635457+00:00",
    "armory_hash": "40d1ec2565f4c11fd362f5d5ce06e6a575b9b7498b6571d2209268362600f992"
   },
   "9975": {
    "name": "Tikers",
-   "last_armory_at": "2026-08-06T00:52:06.605312+00:00",
+   "last_armory_at": "2026-08-07T15:57:58.634339+00:00",
    "armory_hash": "95b53985fdee891e99c560e377df0ca7c766fda0ee99d5e72f56d8c4548afa3c"
   },
   "9428": {
    "name": "Windchime",
-   "last_armory_at": "2026-08-06T00:52:09.295326+00:00",
+   "last_armory_at": "2026-08-07T15:57:59.573232+00:00",
    "armory_hash": "f717f3476c0b70493887ca5942ec517be9a627bbe623f4c3ead98124657a97ec"
   },
   "11419": {
    "name": "Oglunchkingz",
-   "last_armory_at": "2026-08-06T00:52:12.014127+00:00",
+   "last_armory_at": "2026-08-07T15:58:00.526637+00:00",
    "armory_hash": "b1ce6522a8cbf9b576d7699530b8acdeb5662855827ccf97d435af497a7fc9f7"
   },
   "67837": {
    "name": "Ariv",
-   "last_armory_at": "2026-08-06T00:52:14.800717+00:00",
+   "last_armory_at": "2026-08-07T15:58:02.874894+00:00",
    "armory_hash": "ec54f3a28a52488a6c547bd2c34baa328a654352d5f6817ad5c5cb9b038f25f6"
   },
   "2326": {
    "name": "Nuisance",
-   "last_armory_at": "2026-08-06T00:52:17.548546+00:00",
+   "last_armory_at": "2026-08-07T15:58:03.863660+00:00",
    "armory_hash": "e8a08ab9cf84bd392b91fcecc37be5e27cae7a914034bf55600f5b2ee66f4025"
   },
   "49384": {
    "name": "Turb",
-   "last_armory_at": "2026-08-06T00:52:20.202386+00:00",
+   "last_armory_at": "2026-08-07T15:58:04.785155+00:00",
    "armory_hash": "7d84844a6b19f0afe0262832954b3d3ed7a6c518aa5972efd46e57fbc9e28d50"
   },
   "67834": {
    "name": "Emily",
-   "last_armory_at": "2026-08-06T00:52:22.874051+00:00",
+   "last_armory_at": "2026-08-07T15:58:05.679607+00:00",
    "armory_hash": "6ecdcbe74a52f92883989aa111e485c6e1c8e2f387b1af438663c6f6cf3341be"
   },
   "1134": {
    "name": "Webber",
-   "last_armory_at": "2026-08-06T00:52:25.635096+00:00",
+   "last_armory_at": "2026-08-07T15:58:06.722969+00:00",
    "armory_hash": "29406b6d8aec50c0e18fb2e6249a13fb3f2ceab629a92b718775ecb3614afd86"
   },
   "30931": {
    "name": "Gothgirl",
-   "last_armory_at": "2026-08-06T00:52:28.377717+00:00",
+   "last_armory_at": "2026-08-07T15:58:07.715799+00:00",
    "armory_hash": "0ed7736c150bfbf81828cdef70bedc25d1b52d606fd07e1c65ef61bc1009a96b"
   },
   "11471": {
    "name": "Fiddy",
-   "last_armory_at": "2026-08-06T00:52:31.182406+00:00",
+   "last_armory_at": "2026-08-07T15:58:09.812397+00:00",
    "armory_hash": "a0a1851f21e5d2173dd59b5c8a91b63a3eef41d06ede5b9f6a8311204fcfdfb8"
   },
   "6023": {
    "name": "Flaskan",
-   "last_armory_at": "2026-08-06T00:52:34.751650+00:00",
+   "last_armory_at": "2026-08-07T15:58:11.665540+00:00",
    "armory_hash": "d1159a04d01b6deaca59b4a895a73cdbbcf1f40b19a8c6daeba23c01b34a5020"
   },
   "11405": {
    "name": "Owtl",
-   "last_armory_at": "2026-08-06T00:52:37.455417+00:00",
+   "last_armory_at": "2026-08-07T15:58:12.587607+00:00",
    "armory_hash": "12ec28c2847f8ddd80fc6c5e99d30563c5996c8f4b43dddaa72f516211d312b9"
   },
   "2739": {
    "name": "Phantomx",
-   "last_armory_at": "2026-08-06T00:52:40.149337+00:00",
+   "last_armory_at": "2026-08-07T15:58:13.509948+00:00",
    "armory_hash": "861807adaf326ef0f8e15e97b2bcfc734640b99fe6fa4be30c9a6a1e43777c08"
   },
   "10547": {
    "name": "Robbery",
-   "last_armory_at": "2026-08-06T00:52:43.778131+00:00",
+   "last_armory_at": "2026-08-07T15:58:15.346453+00:00",
    "armory_hash": "d7da6758c0cf8180edd07db9922b7b001ad374971a94e81efcca49359237139d"
   },
   "11388": {
    "name": "Frostarch",
-   "last_armory_at": "2026-08-06T00:52:46.540859+00:00",
+   "last_armory_at": "2026-08-07T15:58:16.272528+00:00",
    "armory_hash": "4929d54c4153ea901a2a4f35b56b409b699322b95f9abb12131498a7db9e99d7"
   },
   "16501": {
    "name": "Boomcat",
-   "last_armory_at": "2026-08-06T00:52:49.271780+00:00",
+   "last_armory_at": "2026-08-07T15:58:17.275160+00:00",
    "armory_hash": "7247ff16ef8a1d7556719b6161fc0ecaa2ade071c111412f0a9b1fd9159b8af2"
   },
   "34075": {
    "name": "Munii",
-   "last_armory_at": "2026-08-06T00:52:52.039036+00:00",
+   "last_armory_at": "2026-08-07T15:58:18.298291+00:00",
    "armory_hash": "4b1c7975418ba80468e6af792457dbe89a36ce01e1bcc3498356f76e926b4a64"
   },
   "55146": {
    "name": "Synn",
-   "last_armory_at": "2026-08-06T00:52:54.785758+00:00",
+   "last_armory_at": "2026-08-07T15:58:19.291520+00:00",
    "armory_hash": "6370ab10495273919753e22c709d8b3155d9176cb3247ca15d1a7af3c849fd16"
   },
   "55123": {
    "name": "Deleted",
-   "last_armory_at": "2026-08-06T00:52:57.490213+00:00",
+   "last_armory_at": "2026-08-07T15:58:20.208475+00:00",
    "armory_hash": "5b882f06babd52d401aa7fd64740304f8981fa01bbe42403f2707d676adc3dc5"
   },
   "20461": {
    "name": "Deyindra",
-   "last_armory_at": "2026-08-06T00:53:00.223625+00:00",
+   "last_armory_at": "2026-08-07T15:58:21.200128+00:00",
    "armory_hash": "70ed45551ad2a25d6c1c0812b03abd317d1785f4de514a6a47edece718bdd40b"
   },
   "1225": {
    "name": "Sinon",
-   "last_armory_at": "2026-08-06T00:53:02.913401+00:00",
+   "last_armory_at": "2026-08-07T15:58:22.127977+00:00",
    "armory_hash": "0ba0341d078b26c4bf5a0f8a7c5a6b015af766c2e8370873e5ca93f4011814cc"
   },
   "32037": {
    "name": "Shana",
-   "last_armory_at": "2026-08-06T00:53:05.590628+00:00",
+   "last_armory_at": "2026-08-07T15:58:23.040002+00:00",
    "armory_hash": "b478f5fefc088817e4ae1aabb4983cd1854950c57d6d89e578598be8892df98e"
   },
   "20593": {
    "name": "Thaldoren",
-   "last_armory_at": "2026-08-06T00:53:08.326686+00:00",
+   "last_armory_at": "2026-08-07T15:58:24.031528+00:00",
    "armory_hash": "fe3ff5f5821a191fb144b4ec8ed08f1191b36c32e0fa0b16ae535c411ce82c83"
   },
   "55150": {
    "name": "Defskill",
-   "last_armory_at": "2026-08-06T00:53:11.079340+00:00",
+   "last_armory_at": "2026-08-07T15:58:24.994194+00:00",
    "armory_hash": "31a4c65ccb3b5efb888ba0dc5e6c210c1c38eeee8fcd557ae29b663b29b95089"
   },
   "22788": {
    "name": "Notayoshi",
-   "last_armory_at": "2026-08-06T00:53:13.830007+00:00",
+   "last_armory_at": "2026-08-07T15:58:25.989271+00:00",
    "armory_hash": "c4f502b85307aeb127b7b851cace5d3b65ee41eb4f44cc99db96c00e095e280c"
   },
   "42787": {
    "name": "Ek",
-   "last_armory_at": "2026-08-06T00:53:16.538312+00:00",
+   "last_armory_at": "2026-08-07T15:58:26.914652+00:00",
    "armory_hash": "52fb8fd79c6d24f8fd7709c27277f3768853363b32bf9e55157dc0e031c6ce40"
   },
   "22642": {
    "name": "Kcdq",
-   "last_armory_at": "2026-08-06T00:53:19.243322+00:00",
+   "last_armory_at": "2026-08-07T15:58:27.901307+00:00",
    "armory_hash": "f0e46e90d7014ddcb582e36c06d802b6d82ffc939df2089e3ff77fcf54ff43af"
   },
   "20518": {
    "name": "Smonk",
-   "last_armory_at": "2026-08-06T00:53:24.589476+00:00",
+   "last_armory_at": "2026-08-07T15:58:29.742837+00:00",
    "armory_hash": "e13a9cea21eebff911cae807ab980b0ee9030d4004c8ff89e3c12b985db49f21"
   },
   "39717": {
    "name": "Xoller",
-   "last_armory_at": "2026-08-06T00:53:27.317447+00:00",
+   "last_armory_at": "2026-08-07T15:58:30.719752+00:00",
    "armory_hash": "e7d9870275e04c13ecdfeb290cba362ea65efb6b1df42b75735bb91036a234aa"
   },
   "55137": {
    "name": "Linny",
-   "last_armory_at": "2026-08-06T00:53:32.766165+00:00",
+   "last_armory_at": "2026-08-07T15:58:32.593352+00:00",
    "armory_hash": "80f2d8e8531cd282752114a32791977a8e7f5fc1379d0c91f0d19c48f22bbe50"
   },
   "17883": {
    "name": "Murlok",
-   "last_armory_at": "2026-08-06T00:53:37.171075+00:00",
+   "last_armory_at": "2026-08-07T15:58:35.264161+00:00",
    "armory_hash": "93c1a0b48a05808a50834dbe5fe394fc9aac25d56239dc9faf9c789f4447cce5"
   },
   "33486": {
    "name": "Bigtoelarry",
-   "last_armory_at": "2026-08-06T00:53:44.257001+00:00",
+   "last_armory_at": "2026-08-07T15:58:40.571589+00:00",
    "armory_hash": "aaed4a148ef257f9497f563a6cd6f50139750bdf274da05d2fc93267e495df52"
   },
   "14954": {
    "name": "Drugs",
-   "last_armory_at": "2026-08-06T00:53:46.937121+00:00",
+   "last_armory_at": "2026-08-07T15:58:41.489529+00:00",
    "armory_hash": "661536c130c1bd7a504cf6b891f05508198ef39ebc1d2bab8b9d4031e84f1bb2"
   },
   "20483": {
    "name": "Trulle",
-   "last_armory_at": "2026-08-06T00:53:49.634708+00:00",
+   "last_armory_at": "2026-08-07T15:58:42.435162+00:00",
    "armory_hash": "c1f92d2656f088e8a0b5f5efb4da1251c6415b33524066d025bb7de2fed1eba3"
   },
   "2855": {
    "name": "Alicion",
-   "last_armory_at": "2026-08-06T00:53:52.401270+00:00",
+   "last_armory_at": "2026-08-07T15:58:43.409805+00:00",
    "armory_hash": "a2f586018b84343b2a3c1bc740da0d14375f7f0ec803b15113cb3e20fb564383"
   },
   "100075": {
    "name": "Hopsi",
-   "last_armory_at": "2026-08-06T00:53:55.192870+00:00",
+   "last_armory_at": "2026-08-07T15:58:44.401434+00:00",
    "armory_hash": "bc493de7debffce17be11a1c91490ad66f3c08ff696cff082afd3396de629464"
   },
   "75629": {
    "name": "Germarona",
-   "last_armory_at": "2026-08-06T00:53:58.813825+00:00",
+   "last_armory_at": "2026-08-07T15:58:46.261875+00:00",
    "armory_hash": "24aefa230f3871f3a1241488d93fa631cbf6a466cd748546de5cc2762cef6061"
   },
   "26116": {
    "name": "Prithika",
-   "last_armory_at": "2026-08-06T00:54:03.264792+00:00",
+   "last_armory_at": "2026-08-07T15:58:49.041197+00:00",
    "armory_hash": "fd2e6fb5dd174fc179b4caa761e7ac9037f453c74d2b5d604af832514f269740"
   },
   "95970": {
    "name": "Celembris",
-   "last_armory_at": "2026-08-06T00:54:05.944104+00:00",
+   "last_armory_at": "2026-08-07T15:58:49.955750+00:00",
    "armory_hash": "21d48ce21c0c1462a3ec607cd665664b0fa34d90c50f304ce56f143bd264c1b5"
   },
   "15025": {
    "name": "Dao",
-   "last_armory_at": "2026-08-06T00:54:09.531859+00:00",
+   "last_armory_at": "2026-08-07T15:58:51.764251+00:00",
    "armory_hash": "d900a395ddccb030fe486a5cc0b06905856b3fab842e39030a1d5d616c45abc4"
   },
   "11861": {
    "name": "Cartmonculus",
-   "last_armory_at": "2026-08-06T00:54:12.256805+00:00",
+   "last_armory_at": "2026-08-07T15:58:52.686481+00:00",
    "armory_hash": "8bfdf53c8be776431273a893f5ac41fc70166ba5d3e7e38063485af01f0d069c"
   },
   "20773": {
    "name": "Blasted",
-   "last_armory_at": "2026-08-06T00:54:15.003247+00:00",
-   "armory_hash": "43a1fb69d28312ab884a6abf45661b72ca551cf0701aafdeeae75da789e54455"
+   "last_armory_at": "2026-08-07T15:58:55.365095+00:00",
+   "armory_hash": "d52b8a7ad9d36f2c3158103e637c46d0e4e108b918c6d3e811283ec16053d04c"
   },
   "100074": {
    "name": "Bizforyou",
-   "last_armory_at": "2026-08-06T00:54:17.716171+00:00",
+   "last_armory_at": "2026-08-07T15:58:56.345415+00:00",
    "armory_hash": "50f0bd393c0e209ec080d2248bfe387087359d8655773a2f5f3c91a2aa4df5df"
   },
   "7042": {
    "name": "Serathuli",
-   "last_armory_at": "2026-08-06T00:54:21.273981+00:00",
-   "armory_hash": "65c037b9164fcd38414aba49415fa4c2471d63e99df101b51f5e3a8d424e22f4"
+   "last_armory_at": "2026-08-07T15:58:59.881501+00:00",
+   "armory_hash": "2666a0b5be5b7d6a082e1f69382971b8c2a33fe13c42d39ceb2b7404f5bec99f"
   },
   "42800": {
    "name": "Tdoctor",
-   "last_armory_at": "2026-08-06T00:54:27.483095+00:00",
+   "last_armory_at": "2026-08-07T15:59:04.278729+00:00",
    "armory_hash": "5b39b2c79d8f9b1f4b58f79116bee6de8c695fa86c541ba08b07925be6c3231d"
   },
   "1175": {
    "name": "Mishu",
-   "last_armory_at": "2026-08-06T00:54:33.635626+00:00",
+   "last_armory_at": "2026-08-07T15:59:08.698507+00:00",
    "armory_hash": "f1cc59020d37c3c69b25738199f02bcac6d88b17ab3164eb6be9fff3de2546f9"
   },
   "60487": {
    "name": "Psy",
-   "last_armory_at": "2026-08-06T00:54:38.008233+00:00",
+   "last_armory_at": "2026-08-07T15:59:11.342328+00:00",
    "armory_hash": "81805e373e3f84c6f673cfcdeb4ca528bba734876c8d4dd0c8935716581f7dcd"
   },
   "22648": {
    "name": "Vana",
-   "last_armory_at": "2026-08-06T00:54:41.515387+00:00",
+   "last_armory_at": "2026-08-07T15:59:15.081241+00:00",
    "armory_hash": "3d55bbbd97ec29a00dbd40732fb5849dc09690bf81c85ce125a9f1062eccb7a5"
   },
   "10456": {
    "name": "Nodding",
-   "last_armory_at": "2026-08-06T00:54:47.874838+00:00",
+   "last_armory_at": "2026-08-07T15:59:17.848244+00:00",
    "armory_hash": "a44eeb05e4c042d79098e88b60d1e4fcac53f5e2a0b772f06f7e2ea38b4188f3"
   },
   "5164": {
    "name": "Seaz",
-   "last_armory_at": "2026-08-06T00:54:50.674508+00:00",
+   "last_armory_at": "2026-08-07T15:59:18.836111+00:00",
    "armory_hash": "4806b3c38ede615e1dab2a3a6a7d97ca986ef69ead8a6b8d4ea518594b474488"
   },
   "11591": {
    "name": "Robottikyrpa",
-   "last_armory_at": "2026-08-06T00:54:53.437714+00:00",
+   "last_armory_at": "2026-08-07T15:59:19.828937+00:00",
    "armory_hash": "4cabc0afe33dc40cc4cc8cfe56ef8182e2a06e4a9136a0388676337f252178ce"
   },
   "1139": {
    "name": "Hazed",
-   "last_armory_at": "2026-08-06T00:54:58.906795+00:00",
+   "last_armory_at": "2026-08-07T15:59:23.581390+00:00",
    "armory_hash": "2a7ff0f186f077df5ec84d7b59cb49cbd1775381a9b1816e887ead8e3c6623e3"
   },
   "24695": {
    "name": "Qtgamora",
-   "last_armory_at": "2026-08-06T00:54:56.176731+00:00",
-   "armory_hash": "88dcb5110235e580f32e452d994e323f53c23c2cd3c24e2bb0d0ff068a3c12de"
+   "last_armory_at": "2026-08-07T15:59:22.603670+00:00",
+   "armory_hash": "2965b1ef6b1136e9cf865f8f417f9ec53b7cafd4fcff1bece35bd62ebbe4d799"
   },
   "24659": {
    "name": "Ikkura",
-   "last_armory_at": "2026-08-06T00:55:01.659128+00:00",
+   "last_armory_at": "2026-08-07T15:59:24.536149+00:00",
    "armory_hash": "9b33895b995bd4883b146e808f3254ef524da4a2a49fcbe07523dd73e5e175a9"
   },
   "3101": {
    "name": "Kurn",
-   "last_armory_at": "2026-08-06T00:55:04.458061+00:00",
+   "last_armory_at": "2026-08-07T15:59:25.523510+00:00",
    "armory_hash": "1172cf883d9b65c4e873c20fc031640841815193875c521e276f56c0fc150363"
   },
   "1582": {
    "name": "Acality",
-   "last_armory_at": "2026-08-06T00:55:07.193374+00:00",
+   "last_armory_at": "2026-08-07T15:59:26.474060+00:00",
    "armory_hash": "91d72d0dda9a9c5e35e47f0ab87ec20c259d95d1487f6746f8ecdef217384b96"
   },
   "52872": {
    "name": "Winner",
-   "last_armory_at": "2026-08-06T00:55:13.645467+00:00",
+   "last_armory_at": "2026-08-07T15:59:29.370122+00:00",
    "armory_hash": "6841c05cb038ec349398b5bc41f512bb7a2c42f895dfae228609a76a7ce28a9f"
   },
   "40568": {
    "name": "Frediib",
-   "last_armory_at": "2026-08-06T00:55:10.881476+00:00",
+   "last_armory_at": "2026-08-07T15:59:28.383448+00:00",
    "armory_hash": "5d13a9fb1fcacad276332071299543e035434f425ac2665090688b327c645d5b"
   },
   "33642": {
    "name": "Mutaforma",
-   "last_armory_at": "2026-08-06T00:55:16.322147+00:00",
+   "last_armory_at": "2026-08-07T15:59:30.283387+00:00",
    "armory_hash": "c0ce02aa282d5a19e93f08db33cbeef1457f0e19cf6816a7c0145dfd7ef529d6"
   },
   "10520": {
    "name": "Pedroporro",
-   "last_armory_at": "2026-08-06T00:55:19.977448+00:00",
+   "last_armory_at": "2026-08-07T15:59:32.160594+00:00",
    "armory_hash": "4f88b53cc7702cace0bcb16d3951eab33839e1bfb9b900d9fe93ae0522a1b7c1"
   },
   "107413": {
    "name": "Azzo",
-   "last_armory_at": "2026-08-06T00:55:22.730417+00:00",
+   "last_armory_at": "2026-08-07T15:59:33.139602+00:00",
    "armory_hash": "3fec24cb9f4c7a20ea3fbe940c941a25fa7e354a52a075b5d22e332263f6108b"
   },
   "5166": {
    "name": "Heytrix",
-   "last_armory_at": "2026-08-06T00:55:25.528483+00:00",
+   "last_armory_at": "2026-08-07T15:59:36.101481+00:00",
    "armory_hash": "6d0d65fb1f33476d070e6966802368c5dbbd2805aca292cf0356ba824263952d"
   },
   "17192": {
    "name": "Isabella",
-   "last_armory_at": "2026-08-06T00:55:28.207585+00:00",
-   "armory_hash": "b5480410a8eaafb745b5161c3539c5633ca2bab1c5edd33befd4058b44a9e9fe"
+   "last_armory_at": "2026-08-07T15:59:48.624222+00:00",
+   "armory_hash": "6293e31971e2a0070750eb47ff0ac746ff3a020f0787184443438d91c4b1615d"
   },
   "27404": {
    "name": "Brighteyed",
-   "last_armory_at": "2026-08-06T00:55:30.931877+00:00",
+   "last_armory_at": "2026-08-07T15:59:49.592643+00:00",
    "armory_hash": "3ae938b9a70462548946d5017c084e59e6eb06d0555a972ebebacca19f6f3c19"
   },
   "32127": {
    "name": "Milkjug",
-   "last_armory_at": "2026-08-06T00:55:33.619516+00:00",
-   "armory_hash": "fe08e1b6915c396e1beca260ccd70c53a0201ce6671b2cab3286b1f7551a3024"
+   "last_armory_at": "2026-08-07T15:59:52.280261+00:00",
+   "armory_hash": "757474969d86443f4a55896976c3dde6c9a574ed55cbe18569d6788fd6e5d68e"
   },
   "7051": {
    "name": "Dads",
-   "last_armory_at": "2026-08-06T00:55:36.283024+00:00",
+   "last_armory_at": "2026-08-07T15:59:53.220378+00:00",
    "armory_hash": "1384abde552a5350dbf350dad0f9ae987c25f0a4bbc4edd9e00f6234e025d77d"
   },
   "11500": {
    "name": "Abefroman",
-   "last_armory_at": "2026-08-06T00:55:39.039838+00:00",
-   "armory_hash": "58202b4eca84b6aabfdf39d8dd284f5738023acd8c66cc0e6275937411fa10e6"
+   "last_armory_at": "2026-08-07T15:59:56.681174+00:00",
+   "armory_hash": "d4a7502e678c02818012a30e79dcf39a1055a04810b11ecb3dc63dcc783478bd"
   },
   "20419": {
    "name": "Huskeer",
-   "last_armory_at": "2026-08-06T00:55:41.675964+00:00",
-   "armory_hash": "01853b3a41a783f67a12759b87c54db5816715cbad69dcdfa53e2787f91c5085"
+   "last_armory_at": "2026-08-07T15:59:59.395425+00:00",
+   "armory_hash": "4b9cf7520e25cdf04b551b9cd42e85aada9a4e51b93059c1ebeedd2a66bf6566"
   },
   "20491": {
    "name": "Zaczao",
-   "last_armory_at": "2026-08-06T00:55:44.416710+00:00",
+   "last_armory_at": "2026-08-07T16:00:00.363397+00:00",
    "armory_hash": "a106f9e2178742fe6f562a8a4252054c20310cbfd03b8d4bbb8ee6c1e4462062"
   },
   "47630": {
    "name": "Mess",
-   "last_armory_at": "2026-08-06T00:55:47.143947+00:00",
-   "armory_hash": "ecc4b9bdbf9fc7e45032496b825bccac385fb7c0f003732e09b23f999085a610"
+   "last_armory_at": "2026-08-07T16:00:03.042424+00:00",
+   "armory_hash": "0839ca6b2c58cecbe4b68f8493c9c838a9a1d5ac225f5720417b6d0f1b44213e"
   },
   "20439": {
    "name": "Pkhumble",
-   "last_armory_at": "2026-08-06T00:55:51.613649+00:00",
+   "last_armory_at": "2026-08-07T16:00:07.561780+00:00",
    "armory_hash": "1ba22997fde854759af3c450a83ca85b038998e471d72e1e51568f709b793938"
   },
   "11971": {
    "name": "Oldarthas",
-   "last_armory_at": "2026-08-06T00:55:54.329571+00:00",
-   "armory_hash": "82ad4a972b9cd1f3a8b6ec47dbcf5cab739fa135d35a7881e9ab80378a0d61ec"
+   "last_armory_at": "2026-08-07T16:00:10.342236+00:00",
+   "armory_hash": "60e0a20563274c929b6e2cc80e795ae80fda7868e4d8675c83f16e6555a895dc"
   },
   "7661": {
    "name": "Iwannakissms",
-   "last_armory_at": "2026-08-06T00:55:57.889578+00:00",
-   "armory_hash": "bbeaa80641c60d6843ec0558e4d42896bd56e3da4e3c49731651f209af188523"
+   "last_armory_at": "2026-08-07T16:00:15.715437+00:00",
+   "armory_hash": "d851c20e42c6d4bc5964e123aaa3da647607880b84b420180050228a3b899ecd"
   },
   "2815": {
    "name": "Crimsonrayne",
-   "last_armory_at": "2026-08-06T00:56:00.590921+00:00",
+   "last_armory_at": "2026-08-07T16:00:16.691649+00:00",
    "armory_hash": "73270cd4eaa6dc606aa55aea633ba429d4c0e6f5c317b5a5d6dd1ca62094b734"
   },
   "33818": {
    "name": "Xizek",
-   "last_armory_at": "2026-08-06T00:56:03.230547+00:00",
+   "last_armory_at": "2026-08-07T16:00:17.621872+00:00",
    "armory_hash": "124ab8e8cad8080c90bad9d1eaee0e435ce7cf5519aabf0e82cfb43737b14670"
   },
   "47321": {
    "name": "Rolfkartofel",
-   "last_armory_at": "2026-08-06T00:55:08.195657+00:00",
+   "last_armory_at": "2026-08-07T15:59:27.458453+00:00",
    "armory_hash": "554216236304d5477961e295aa33799ed8d99ca8e8633ff14abdb079710bd15d"
   },
   "32124": {
    "name": "Striker",
-   "last_armory_at": "2026-08-06T00:55:17.298964+00:00",
+   "last_armory_at": "2026-08-07T15:59:31.248874+00:00",
    "armory_hash": "6560b9bf7e087a8534d94b4958f09d089ce487baeaa019148a7536abd85a55d6"
   },
   "10573": {
@@ -1236,7 +1262,7 @@
   },
   "31988": {
    "name": "Treah",
-   "last_armory_at": "2026-08-06T00:56:29.037129+00:00",
+   "last_armory_at": "2026-08-07T16:00:24.052859+00:00",
    "armory_hash": "9e5882db65c46281e84f682075d97e5ea3725d4b753b176d5917f4fd8025b2e8"
   },
   "30919": {
@@ -1341,7 +1367,7 @@
   },
   "7029": {
    "name": "Hsbubble",
-   "last_armory_at": "2026-08-06T01:00:18.775091+00:00",
+   "last_armory_at": "2026-08-07T16:02:36.281592+00:00",
    "armory_hash": "69f702365a8a5c3fb6f70810b59fe47895643be80562713f4432c35ba94fe081"
   },
   "9573": {
@@ -1541,23 +1567,23 @@
   },
   "2310": {
    "name": "Fallen",
-   "last_armory_at": "2026-08-06T00:53:21.932893+00:00",
+   "last_armory_at": "2026-08-07T15:58:28.833327+00:00",
    "armory_hash": "73ad3ab0ceb7ed1b44f215926d4b36fbae89263ef5a2df7e1d7ca7c11ef3e738"
   },
   "33399": {
    "name": "Catt",
-   "last_armory_at": "2026-08-06T00:53:30.082202+00:00",
+   "last_armory_at": "2026-08-07T15:58:31.675228+00:00",
    "armory_hash": "313c04e92df0cc3e560c679de99b48c61f7a41a5dba2aa8a2e37a15f9b757c66"
   },
   "16454": {
    "name": "Mallow",
-   "last_armory_at": "2026-08-06T00:54:44.183665+00:00",
+   "last_armory_at": "2026-08-07T15:59:15.992209+00:00",
    "armory_hash": "5f9c49b0b0cb0730554bbf375b1badeb36c1afed9cb60167f6683eed6fb724b4"
   },
   "20465": {
    "name": "Atone",
-   "last_armory_at": "2026-08-06T00:56:05.988033+00:00",
-   "armory_hash": "f68d53604ba0c14a0a58b66482f6939fb51523b785de2b66fa83fd25ca382a41"
+   "last_armory_at": "2026-08-07T16:00:20.366622+00:00",
+   "armory_hash": "a6c641b8fbb994b65ee279fcde3eb435109ae5d5cfb8a2777f34105a9aceb28e"
   },
   "15324": {
    "name": "Melsius",
@@ -1716,8 +1742,8 @@
   },
   "11622": {
    "name": "Treymanblok",
-   "last_armory_at": "2026-08-06T01:01:00.293461+00:00",
-   "armory_hash": "a22dd7f59cbc54f9a91f942f97d357b382b731dd4a1ef93ef501e300a72ada35"
+   "last_armory_at": "2026-08-07T16:02:45.266139+00:00",
+   "armory_hash": "4ca3f293398a6aacd501478b57dfbdf7d309983a3b08b3776b772bbf00aa0cc7"
   },
   "20407": {
    "name": "Android",
@@ -1776,7 +1802,7 @@
   },
   "2718": {
    "name": "Basic",
-   "last_armory_at": "2026-08-06T01:07:07.008755+00:00",
+   "last_armory_at": "2026-08-07T16:00:36.346884+00:00",
    "armory_hash": "bd441eb0b1ea92db50c969c291853767cce0a19336a14ab508eb06ca9dc4d3f4"
   },
   "2879": {
@@ -1806,7 +1832,7 @@
   },
   "7017": {
    "name": "Archstone",
-   "last_armory_at": "2026-08-06T01:07:35.546677+00:00",
+   "last_armory_at": "2026-08-07T16:00:22.214351+00:00",
    "armory_hash": "e51ad759791d7db8e5d4df10d103ccb53bed1451cab1add601a23bc14f022869"
   },
   "47087": {
@@ -2246,8 +2272,8 @@
   },
   "22714": {
    "name": "Ash",
-   "last_armory_at": "2026-08-06T01:21:55.510979+00:00",
-   "armory_hash": "ca586ffea15e73112a44cc9402147e50bcf1ba35e36e3e336c187980ef5fb75e"
+   "last_armory_at": "2026-08-07T16:02:47.971595+00:00",
+   "armory_hash": "ffcc5623ca4ed20b526b7361b9f5daf73a326e34e384e3c4355b547a06f1a8fd"
   },
   "20771": {
    "name": "Baga",
@@ -2351,8 +2377,8 @@
   },
   "47306": {
    "name": "Breaker",
-   "last_armory_at": "2026-08-06T01:25:34.750785+00:00",
-   "armory_hash": "ff88a91247ac3d853a58d900bf4000c8ec298de6ab163b31786b806a8af70447"
+   "last_armory_at": "2026-08-07T16:02:42.599274+00:00",
+   "armory_hash": "88fb8ee330a5bb9d76ac82c61d88de87936eb28994c66299a6a9eea75f2a046f"
   },
   "61037": {
    "name": "Wildblood",
@@ -2391,7 +2417,7 @@
   },
   "60422": {
    "name": "Seabazz",
-   "last_armory_at": "2026-08-06T01:29:24.379722+00:00",
+   "last_armory_at": "2026-08-07T16:00:55.498564+00:00",
    "armory_hash": "06e248717a7be5d0e629d3edd12c759ac2fe42e4406351e7a20fe04ae397a645"
   },
   "96073": {
@@ -2401,67 +2427,67 @@
   },
   "39772": {
    "name": "Elric",
-   "last_armory_at": "2026-08-06T17:31:43.569318+00:00",
-   "armory_hash": "ca41fcb5b8aeb2c08ecab95539cb52622b4e3df668ecee55eeb2407d32870a43"
+   "last_armory_at": "2026-08-07T15:57:29.317760+00:00",
+   "armory_hash": "45fd2418deb023e4ca2af3a86c09f3b4fa0c181346e68e3d23d22d0791f45053"
   },
   "125641": {
    "name": "Misakasis",
-   "last_armory_at": "2026-08-06T17:32:08.844668+00:00",
+   "last_armory_at": "2026-08-07T15:59:34.129259+00:00",
    "armory_hash": "f654964126d08ad5b9aa1ef3ba381f27d8130c0e75fece043fe06c8d87726a2b"
   },
   "125630": {
    "name": "Dameron",
-   "last_armory_at": "2026-08-06T17:32:11.597073+00:00",
+   "last_armory_at": "2026-08-07T15:59:35.094985+00:00",
    "armory_hash": "7dd6380733c0391961119903743b66b72ceda6301695147e01b50ab0cc7ccb7e"
   },
   "125668": {
    "name": "Unknowny",
-   "last_armory_at": "2026-08-06T17:32:14.333779+00:00",
+   "last_armory_at": "2026-08-07T15:59:37.065544+00:00",
    "armory_hash": "26ecea46169ad44a1ac713b894e6e404c0ed8ba85237ce70a95337426d925e93"
   },
   "24814": {
    "name": "Banboo",
-   "last_armory_at": "2026-08-06T17:32:17.081488+00:00",
+   "last_armory_at": "2026-08-07T15:59:38.048704+00:00",
    "armory_hash": "27b80ddda27cd309a7d3e78d64020f8acd94ac0605c584b6622282ff023a724a"
   },
   "125633": {
    "name": "Justbenben",
-   "last_armory_at": "2026-08-06T17:32:19.765678+00:00",
+   "last_armory_at": "2026-08-07T15:59:39.035989+00:00",
    "armory_hash": "299a322dad1db7c36f4528c84f1cb1485bf063a69f9bbd75003593edb1b38aaa"
   },
   "125679": {
    "name": "Timonis",
-   "last_armory_at": "2026-08-06T17:32:22.493793+00:00",
+   "last_armory_at": "2026-08-07T15:59:40.039156+00:00",
    "armory_hash": "8fbf05c15eb3c74daff74dba7f83c848672d0d224564963cc520abd70ca06350"
   },
   "125639": {
    "name": "Kukuge",
-   "last_armory_at": "2026-08-06T17:32:25.205677+00:00",
+   "last_armory_at": "2026-08-07T15:59:41.032304+00:00",
    "armory_hash": "28b3c701107a1dcc7623ce8c608053ef577a70614dffbcb4f604c4d3463e22e4"
   },
   "125674": {
    "name": "Nicodimus",
-   "last_armory_at": "2026-08-06T17:32:27.941385+00:00",
+   "last_armory_at": "2026-08-07T15:59:42.026864+00:00",
    "armory_hash": "1fb34ce50cd765f7e2fad84b76a8be12dab2b139fe94a880be99ae2cd9e2c15c"
   },
   "125673": {
    "name": "Astronica",
-   "last_armory_at": "2026-08-06T17:32:30.662800+00:00",
+   "last_armory_at": "2026-08-07T15:59:42.996323+00:00",
    "armory_hash": "36f7956dc15581a22723de30949d240cd09c3bbf29ce80ea613c963b9b5c28d0"
   },
   "125652": {
    "name": "Shrekia",
-   "last_armory_at": "2026-08-06T17:32:33.412978+00:00",
+   "last_armory_at": "2026-08-07T15:59:43.985788+00:00",
    "armory_hash": "8859180093a296c335f24f0d07bda4606934d83c4846290a9c03faad0d0dcd5e"
   },
   "125664": {
    "name": "Talipala",
-   "last_armory_at": "2026-08-06T17:32:36.135134+00:00",
+   "last_armory_at": "2026-08-07T15:59:44.969547+00:00",
    "armory_hash": "f4903dab693b620db8c84bc7dd891dd1b8f5c9540e92c340b928ceb72c127ee7"
   },
   "125662": {
    "name": "Fentacola",
-   "last_armory_at": "2026-08-06T17:32:38.894284+00:00",
+   "last_armory_at": "2026-08-07T15:59:45.948551+00:00",
    "armory_hash": "df26278392b466b2e4d9ba5981f5cc6fefa26f32270f856228b0d7136c16db9d"
   },
   "53212": {
@@ -2518,6 +2544,106 @@
    "name": "Deadcereal",
    "last_armory_at": "2026-08-06T17:34:57.225995+00:00",
    "armory_hash": "659c0850e376297d05c0b19b93f2dcae0ec9eeea1033427b473862afe77df4a7"
+  },
+  "47241": {
+   "name": "Turf",
+   "last_armory_at": "2026-08-07T15:59:14.170080+00:00",
+   "armory_hash": "7ad7ed12286d681a08138fed631764fcc1403e920e9a50d0400d312796ce8d54"
+  },
+  "43580": {
+   "name": "Schmoopy",
+   "last_armory_at": "2026-08-07T16:00:06.580679+00:00",
+   "armory_hash": "08e9929d16375500b390df0769984c26d96e543f180c7fa4e55d77683b295861"
+  },
+  "27363": {
+   "name": "Bacon",
+   "last_armory_at": "2026-08-07T16:00:13.009209+00:00",
+   "armory_hash": "9db9a6af38582ecc4c8eaa303bccbb242992bc87cca0c338ffd44fac5d92f8d1"
+  },
+  "7915": {
+   "name": "Silentdraw",
+   "last_armory_at": "2026-08-07T16:00:41.632937+00:00",
+   "armory_hash": "4eeeaeb347fded33798442aecc1312807049b77d990e82c0e31ab8d0a5fe0399"
+  },
+  "2340": {
+   "name": "Influx",
+   "last_armory_at": "2026-08-07T16:01:57.294652+00:00",
+   "armory_hash": "0f96d6a46cce848bf2d88cb9b210eb5332c725876260eb314c44edaf495a8716"
+  },
+  "128030": {
+   "name": "Baconbish",
+   "last_armory_at": "2026-08-07T16:02:00.023457+00:00",
+   "armory_hash": "083e2e8eef55e7ee049a12e06ff8edd5fc76a77a6565e374d53350d088ec06f6"
+  },
+  "49479": {
+   "name": "Neruune",
+   "last_armory_at": "2026-08-07T16:02:02.732891+00:00",
+   "armory_hash": "7d6b1fb1d85a0471db1bd44288818aa68f54697d3128887e4b3b72c1d261abde"
+  },
+  "127924": {
+   "name": "Artichoke",
+   "last_armory_at": "2026-08-07T16:02:05.501712+00:00",
+   "armory_hash": "8ddae624a12f1258a224aa91b20d02dcf00fdb459cc4a5d6d0dbad5349360145"
+  },
+  "128029": {
+   "name": "Heypal",
+   "last_armory_at": "2026-08-07T16:02:09.299598+00:00",
+   "armory_hash": "6fc8c8da0b918946cb60b6bea1f415d83dbdb6f149419509669aad9b978b0e9e"
+  },
+  "10437": {
+   "name": "Dripzi",
+   "last_armory_at": "2026-08-07T16:02:12.833928+00:00",
+   "armory_hash": "e7552768f315be95ddf3529e7094f5a369ffa1cbd55d3a9233ed765ee1c5190f"
+  },
+  "47288": {
+   "name": "Mangobrr",
+   "last_armory_at": "2026-08-07T16:02:15.489430+00:00",
+   "armory_hash": "5bd0f2675413516a447fbcae5bd3da1411cc14d9e08efcba8f6236537afe7a4f"
+  },
+  "24767": {
+   "name": "Longpig",
+   "last_armory_at": "2026-08-07T16:02:18.236149+00:00",
+   "armory_hash": "836f3ce0b5fb6def5a202c4dbb841c5069c577956b48f025a55b64666ddd60ba"
+  },
+  "49402": {
+   "name": "Coachungus",
+   "last_armory_at": "2026-08-07T16:02:20.962365+00:00",
+   "armory_hash": "7d728d88ae62b27654a1b1886f685fb515e5fa9bf1ffff734a366d522933476b"
+  },
+  "48646": {
+   "name": "Donoso",
+   "last_armory_at": "2026-08-07T16:02:23.711190+00:00",
+   "armory_hash": "d3abbdc033c8c4bd8f768ce1898330229f2cb8a1759b3f800c6ea279b9e513e2"
+  },
+  "9978": {
+   "name": "Alcapwn",
+   "last_armory_at": "2026-08-07T16:02:26.372998+00:00",
+   "armory_hash": "a8edff3d0cb98b9a2f24ac06d8632963bbaa62b158c747fbd64f38701afdf594"
+  },
+  "14921": {
+   "name": "Feathersax",
+   "last_armory_at": "2026-08-07T16:02:29.031755+00:00",
+   "armory_hash": "d61176e90a19210ab409ab7bfa748532e8e019c1ce53865c486be0d6056746db"
+  },
+  "128122": {
+   "name": "Swifthealz",
+   "last_armory_at": "2026-08-07T16:02:31.755190+00:00",
+   "armory_hash": "9ba99af16087ed3233312679ca88b1dc49622b592e78a0ebab8bb4430b7c21ed"
+  },
+  "24523": {
+   "name": "Alyssium",
+   "last_armory_at": "2026-08-07T16:02:34.421458+00:00",
+   "armory_hash": "36e2df64a8719473cc63277d85bc725de66dabce5511b8b3e6e8f8d0e8ed92f3"
+  },
+  "43446": {
+   "name": "Shnubbs",
+   "last_armory_at": "2026-08-07T16:02:39.023761+00:00",
+   "armory_hash": "9d5cfeccbcfb69e90114c00e72c7868098ab3844a251b1a4efb0ec5ca542f6c0"
+  },
+  "5835": {
+   "name": "Darion",
+   "last_armory_at": "2026-08-07T16:02:50.724188+00:00",
+   "armory_hash": "792442bbbdc3ca7d84448260325b411a7d60a40dc6b7ea89b7bc72509b823160"
   }
  },
  "watchlist_ids": {

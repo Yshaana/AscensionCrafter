@@ -1,34 +1,34 @@
 {
- "generated_at": "2026-08-07T07:38:24.243936+00:00",
+ "generated_at": "2026-08-07T16:03:04.391775+00:00",
  "note": "Per-report reproducibility manifest for gitignored tier-2 data. Row counts are the durable audit for a re-fetch (crawl_ascensionlogs.py --recrawl-report <id>); payload_sha256 is exact only for the original capture. See this tool's docstring.",
  "files": {
   "abilities": {
    "files": [
     "abilities.jsonl.gz"
    ],
-   "records": 6,
-   "payload_rows": 2120
+   "records": 37,
+   "payload_rows": 11774
   },
   "avoidance": {
    "files": [
     "avoidance.jsonl.gz"
    ],
-   "records": 6,
-   "payload_rows": 1701
+   "records": 37,
+   "payload_rows": 38716
   },
   "damage_taken": {
    "files": [
     "damage_taken.jsonl.gz"
    ],
-   "records": 6,
-   "payload_rows": 497
+   "records": 37,
+   "payload_rows": 3551
   },
   "healing": {
    "files": [
     "healing.jsonl.gz"
    ],
-   "records": 6,
-   "payload_rows": 352
+   "records": 37,
+   "payload_rows": 1830
   }
  },
  "by_report": {
@@ -52,6 +52,116 @@
     "records": 6,
     "payload_rows": 352,
     "payload_sha256": "ceaff6196ecf5f2e57032235dd5e45df659d28d21cc5aa1d40ecac0cdc00f4a1"
+   }
+  },
+  "110": {
+   "abilities": {
+    "records": 1,
+    "payload_rows": 290,
+    "payload_sha256": "c6c3a9dbb12eb712be15bbbe756408d44b2dbee28348c9a66f093318fac125c7"
+   },
+   "avoidance": {
+    "records": 1,
+    "payload_rows": 37,
+    "payload_sha256": "a2375d55fef5260ccaa00ec8051f5558fa4debc0089900d4febf4aa917fddfa3"
+   },
+   "damage_taken": {
+    "records": 1,
+    "payload_rows": 0,
+    "payload_sha256": "ec4b3dde8fea16f1607b4d1e611c5af1388bb36f97ce6f2d4bc356a3d4726242"
+   },
+   "healing": {
+    "records": 1,
+    "payload_rows": 32,
+    "payload_sha256": "682b05c0da738ecba068b6409ffcc3ea4219db06955dfbd32d25e850322019ca"
+   }
+  },
+  "111": {
+   "abilities": {
+    "records": 1,
+    "payload_rows": 300,
+    "payload_sha256": "be90d7a8183cf3bc36805c444e048eb7894e0dda65865f4030d161f2de60e96b"
+   },
+   "avoidance": {
+    "records": 1,
+    "payload_rows": 39,
+    "payload_sha256": "9f013172591958caf8ffa45ad629825a4080845386c871db8f1766c87c979a46"
+   },
+   "damage_taken": {
+    "records": 1,
+    "payload_rows": 3,
+    "payload_sha256": "defc1a5c3f93a72fbf0fb57be91bf68b87d4dede2bad9482be5dfa3db5ff6666"
+   },
+   "healing": {
+    "records": 1,
+    "payload_rows": 42,
+    "payload_sha256": "5b73971b2f89388c2470360b58b659e9866e83d0183816180730c31be229dc8d"
+   }
+  },
+  "112": {
+   "abilities": {
+    "records": 3,
+    "payload_rows": 419,
+    "payload_sha256": "0d02146888e1f740da1118a7f29eb276670a9df99bf8b3da325685f7b90f9d51"
+   },
+   "avoidance": {
+    "records": 3,
+    "payload_rows": 1855,
+    "payload_sha256": "43f3c00117aa79a83740590ef078b64209ebad4dd54144dc1463bd7fe2db3148"
+   },
+   "damage_taken": {
+    "records": 3,
+    "payload_rows": 46,
+    "payload_sha256": "0f30cdba9fb717757fb49342a1a4272c2cdddcd39c474bdee9035d96c4d28734"
+   },
+   "healing": {
+    "records": 3,
+    "payload_rows": 72,
+    "payload_sha256": "3e195278b6d2c8288c46afbdd1bbbbce06e80f8a6228851145d9bc7aff7c87f7"
+   }
+  },
+  "113": {
+   "abilities": {
+    "records": 12,
+    "payload_rows": 3318,
+    "payload_sha256": "ec8c64cde006d5d139aa9eb57cf8a2214f286275d34dd9a42c6c48373540146b"
+   },
+   "avoidance": {
+    "records": 12,
+    "payload_rows": 11583,
+    "payload_sha256": "f90a88a2b6b9d2ac6a8df4196b33cd02887323e5f3f593f43dc4895d1c299d7e"
+   },
+   "damage_taken": {
+    "records": 12,
+    "payload_rows": 1189,
+    "payload_sha256": "1ad4677ff8bffff1642cdcadf3fcd64e330e113b0bb5dac66aca374acc2ed92a"
+   },
+   "healing": {
+    "records": 12,
+    "payload_rows": 573,
+    "payload_sha256": "179efa53d629ddc81392063539c7c5099574f2aced5509b28f7565009cba1de7"
+   }
+  },
+  "114": {
+   "abilities": {
+    "records": 14,
+    "payload_rows": 5327,
+    "payload_sha256": "61983ea19baef23c898d52df954ec6880d6dbd6e38f4224f02d9cd0c44f4ea18"
+   },
+   "avoidance": {
+    "records": 14,
+    "payload_rows": 23501,
+    "payload_sha256": "0bbe21bda02f02c3c399ba344268e5bb1339ff9f0001d13887214b8782f33c9b"
+   },
+   "damage_taken": {
+    "records": 14,
+    "payload_rows": 1816,
+    "payload_sha256": "e38218b6957b070ab20112476ffb92ce2eec766a0bf84fa61d29971b24741fb7"
+   },
+   "healing": {
+    "records": 14,
+    "payload_rows": 759,
+    "payload_sha256": "d65421f13ccb9cf58c8452acc0b60044933677e1f56ad55fa6798c58df017d3b"
    }
   }
  }
