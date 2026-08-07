@@ -2,6 +2,79 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-07 — SESSION `3i` IS DONE.** Record:
+> `primer/Session_2026-08-07_3i_gate_repair.md`. Work order it ran:
+> `primer/SESSION_3I_PRIMER.md` (now `SUPERSEDED`).
+>
+> 🛑 **THE GATE MOVED TWICE, EACH TIME FOR ONE PRE-REGISTERED REASON:
+> `1 / 1 / 20.5%` → `1 / 1 / 26.3%` (E15 fixed) → `0 / 0 / 26.3%` (admissibility
+> applied).** Fifteen commits; every gate-moving one preceded by its own
+> pre-registration, reported in the session record's §0 table. Holdout not
+> read (carried forward from `3g`'s reading).
+>
+> * ✅ **E15 FIXED, at ingest and at `dps`** (`core/builds/corpus.py`): the
+>   endpoint's per-pet restatement no longer double-enters
+>   `ability_performance` — it lands in a new `pet_ability_damage` side table.
+>   Measured pair **1/1/20.5% → 1/1/26.3%**. 🛑 **The pre-registered P1 was
+>   FALSE**: slice moved UP, not toward the known 19.8% consumer-dedupe
+>   anchor — that anchor was an internally inconsistent intermediate (coverage
+>   corrected, `dps` not). The 1,208 owner<pet groups are located (0 in any
+>   `boss_single` scope) but not explained — registered.
+> * ✅ **`per_ability_accuracy.py` REPAIRED** (C1–C7): one dedupe policy, the
+>   100±ε invariant asserted (raises, doesn't warn), nondeterminism removed,
+>   the phantom-production cell reported (58.4% of cohort sim damage lands on
+>   abilities the log never saw), paired medians added, a committed summary
+>   artifact (`predictions/per_ability_summary.json`). Re-run, prereg
+>   CONFIRMED: absent share moved **UP** (62.2% → **63.9%**), producing-ratio
+>   median moved little (0.253 → **0.273**).
+> * ✅ **THE ADMISSIBILITY RULE APPLIED.** Predicates 4/5 now computed (not
+>   printed as prose); the comparator tightened (fixed a bug silently dropping
+>   legitimate 0.0 APM comparators). 🚨 **Tightening moved the blind roster
+>   from the stamped 5-of-41 to 3-of-41** (Nodding, Boomcat, Deyindra) —
+>   Robottikyrpa and Frediib lost their confident APM ratio. The full-rule
+>   falsifiability bar still holds via Nodding; under the narrower predicate
+>   `3h` P9 actually registered, the count is now 0, not 2. Applied anyway
+>   (owner decision, Q4 default) — a correctness fix, not a fit. Measured pair
+>   **1/1/26.3% → 0/0/26.3%**, exactly as pre-registered.
+> * ✅ **Six checks repaired** (E1–E6): two genuinely-tautological arms
+>   replaced with cross-checks that discriminate (verified via real source-edit
+>   mutations, not just named); the auto-key hole in the named zero list
+>   closed; two fail-open censuses closed; `--allow-dirty` now requires and
+>   records a reason.
+> * ✅ **Phase boundary checked live before any gear tier read**: flip had NOT
+>   happened (checked 2026-08-07T09:31Z, ~14.5h before the boundary).
+>
+> 🛑 **STOP-POINT F INVOKED.** Blocks A–E consumed the session; Block F
+> (modelling) hands whole to the next session, per the work order's own "that
+> is a good outcome, not a failure."
+>
+> **Next session, in this order:** **(1)** re-confirm the modelling levers
+> against the REPAIRED distribution (`predictions/per_ability_summary.json`)
+> before picking a target — Elemental Blast (0.02–0.06 on characters at
+> 63–72% of logged damage), the starved-allocation mass (11.3%), the
+> absent-key majority (63.9%); **(2)** the gate now has **zero** passers — a
+> modelling session should expect to build a pass, not defend one.
+>
+> 🚨 **Time-critical: the phase boundary arms `2026-08-08T00:00:00Z`**, hours
+> after this session closed. Check `/api/phases` live before any gear tier is
+> read; `EXPECTED_PHASE_NAME` bump + corpus re-derivation if it flipped.
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 36) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **26.3% (n=23)** |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried forward from `3g` (not re-read) | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
+>
+> ⚠ **The admissibility rule removed the cohort's only passer.** This is the
+> intended direction of a rule stamped before its effect was known — not a
+> regression to chase.
+
+<details><summary>Superseded: the <code>3h</code> top block</summary>
+
 > ✅ **2026-08-07 — SESSION `3h` IS DONE.** Record:
 > `primer/Session_2026-08-07_3h_measurement.md`. Work order it ran:
 > `primer/SESSION_3H_PRIMER.md` (now `SUPERSEDED`); `PRIMER_PATCH_3h.md` deleted per its
@@ -73,6 +146,8 @@
 > | holdout, read once at `3g` close-out | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
 >
 > ⚠ **The holdout is WORSE than the tuning set, so 20.5% is the optimistic end.**
+
+</details>
 
 ---
 

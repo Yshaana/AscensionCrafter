@@ -1,8 +1,9 @@
 # SESSION `3i` — fix the log side, then move the gate for reasons you can name
 
-> **`LIVE`** — the work order for session `3i`. **Must be true today, and is citable as
-> current truth.** Reclassify **`SUPERSEDED BY primer/Session_<date>_3i_*.md`** at
-> close-out. *(Born with a status line and an expiry condition, per `3f` F8c.)*
+> **`SUPERSEDED BY primer/Session_2026-08-07_3i_gate_repair.md`** — the work order for
+> session `3i`, now run. The session record holds what actually happened, including
+> the departures (the P1 diagnosis in Block B, the comparator-tightening finding in
+> Block D). *(Reclassified at `3i` close-out, per its own expiry condition.)*
 
 Predecessors: `primer/Session_2026-08-07_3h_measurement.md` (the session record),
 `primer/AUDIT_3H_ADVERSARIAL.md` (the audit this order implements),
