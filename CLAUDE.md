@@ -196,6 +196,11 @@ Schema in `INDEX_GUIDE.md`.
   a character that currently FAILS.** A rule that only ever removes passers is a fitting
   device, and the asymmetry proves it. Verdict is **NOT ADMISSIBLE (`None`)**, never
   `False` — the same treatment the coverage floor gives a below-floor character.
+  ✅ **STAMPED `3h` D4 (owner decision 2026-08-07), NOT applied** — the predicates,
+  the blind cohort effect and the falsifiability result live in
+  `predictions/CALIBRATION_TOLERANCE.md` (stamped successor #3); implementation
+  `tools/audit/parse_admissibility.py`. A later session applies it with its own
+  before/after pair.
 - 🆕 **A magnitude never appears in a markdown file except as generated output, pasted with
   its provenance.** Every numeric error the `3e` audit found in a document was
   hand-transcribed — **four for four, and zero errors in numbers a tool emitted**. If a

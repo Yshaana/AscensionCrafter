@@ -279,6 +279,61 @@ which is what the auditor flagged. The property that matters survives either
 reading: the value was fixed **before** it was applied to a criterion, and it is
 strictly harsher than what it replaced.
 
+### 🛑 Stamped successor #3: parse admissibility (stamped `3h` D4, NOT applied)
+
+**Owner decision 2026-08-07, effective at a LATER session's gate run with its
+own before/after pair — nothing in `3h` applies it, and the `3h` gate reads
+`1 / 1 / 20.5%` unmoved.** Same discipline as successor #2: stamp first, apply
+in a commit that owns its pair.
+
+**The rule: a character may be excluded for what its PARSE is, never for what
+its DELTA is.** Every predicate is a property of the parse, computable blind
+over the whole cohort — tuning set and holdout identically — before any delta
+is read. Verdict is **NOT ADMISSIBLE (`None`)**, never `False`.
+Implementation: `tools/audit/parse_admissibility.py` (`3h` D1).
+
+**The predicates:**
+
+1. **APM ratio ≤ 0.5** — this scope's casts/min at or below half the median of
+   the character's own other scopes. 🛑 **Valid only on instant-heavy boards
+   (≤ 2 cast-time combat entries, resolved via `casting_time_index` →
+   `dbc_spellcasttimes`); outside that regime the ratio is `None`, never a
+   number** — `ability_performance.casts` under-counts cast-time casters, and
+   22 of the 41 cohort boards are cast-time casters.
+2. **deaths > 0** — inert until data exists: the `3h` D2 re-fetch verified the
+   API exposes **no per-player death or active-time field**, so this arms only
+   if a future source carries it.
+3. **Parse window < 60 s** — the analyze-capture provisional-data floor.
+4. **The capture resolves to no phase** (G0's post-boundary state).
+5. **Snapshot lag > 0 h** — already enforced at selection; removes nobody by
+   construction, stated so the list is complete.
+
+**Measured blind effect on all 41, computed before any verdict was consulted
+(pasted from `parse_admissibility.py`, run 2026-08-07 at `7fc5bc0`):**
+
+```
+[blind] cohort effect: 5 of 41 members flagged NOT ADMISSIBLE (None, never False):
+        Nodding (window 52s), Robottikyrpa (0.24), Boomcat (0.27),
+        Deyindra (0.22), Frediib (0.14)
+[falsifiability]
+  removes FAILING characters: 3 (Nodding, Robottikyrpa, Frediib)
+  removes PASSING characters: 1 (Boomcat)
+  removes NOT-SCOREABLE characters: 1 (Deyindra)
+```
+
+🔬 **The falsifiability bar is met and is the reason this was stampable at
+all**: the rule removes three characters that currently FAIL. A rule that only
+ever removes passers is a fitting device, and the asymmetry proves it — that
+check ran before stamping, per the rule's own text in `CLAUDE.md`.
+
+⚠ **What applying it will do is already known in outline and must be recorded
+by the applying session as its own before/after pair**: `Boomcat` — the only
+passing row — is flagged at APM ratio 0.27 (the implemented confirmation of
+`3c`'s chat-side 0.24), so applying the rule takes the gate's `within ±20%`
+count from 1 to 0 with `Boomcat` NOT ADMISSIBLE rather than failed.
+Pre-registered direction and interpretation: `predictions/prereg_3h_boomcat.md`
+(P7 supported; P8's it-survives branch did not arise).
+
 ### The ~80% coverage figure, and why it is NOT a floor
 
 The decomposition is algebraically exact:
