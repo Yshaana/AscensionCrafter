@@ -689,7 +689,10 @@ def _decomposition_section(results):
         f"- **Buffs.** The derived layer moves sim DPS by a median of "
         f"**{_median([r['buff_gain_pct'] for r in results]):+.1f}%** "
         f"(max {max((r['buff_gain_pct'] for r in results), default=0):+.1f}%).",
-        f"- **Magnitude coverage.** The sim produces damage for a median of "
+        # 3i A5 — "has a key for", not "produces damage for": the phrasing 3h
+        # B1 retired everywhere else in this file survived here (a rendered
+        # line in the cohort summary).
+        f"- **Magnitude coverage.** The sim has a key for a median of "
         f"**{_median(modelled):.0f}%** of what these characters actually dealt"
         + (f" (n={len(modelled)} with per-ability rows)." if modelled else "."),
         "",
@@ -1448,6 +1451,12 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "within_tolerance_zero_coverage": "reports None, never False (3e A3)",
             "successor_coverage_floor_pct": SUCCESSOR_COVERAGE_FLOOR_PCT,
             "successor_floor_effective_from": SUCCESSOR_FLOOR_EFFECTIVE_FROM,
+            # 🛑 3i A2 — the stamped sentence quoted "~62.6%" beside a result
+            # block whose own bands read 20.45/16.86/16.86: the stability
+            # figure was measured on E13-inflated autos (see the ~62% note at
+            # the successor-floor site below) and shipped as if current. The
+            # stamped text is kept verbatim (it is an owner decision) and the
+            # annotation carries the live bands, GENERATED from this run.
             "successor_floor_justification":
                 "slice accuracy is stable at ~62.6% across the >=20/>=30/>=50 "
                 "coverage bands and unstable below 20%, so 20% is where the "
@@ -1455,6 +1464,15 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                 "a level chosen to admit a wanted number. Owner decision "
                 "2026-08-06, stamped before this run's result; STRICTER than "
                 "what is in force, which is the direction a criterion may move",
+            "successor_floor_justification_annotation":
+                "3i A2: the ~62.6% in the stamped justification was measured "
+                "on E13-inflated autos (pre-3g). This run's bands: "
+                + ", ".join(f">={b:g}: {v:.1f}%"
+                            for b, v in sorted(slice_bands.items())
+                            if v is not None)
+                + ". The floor's justification SHAPE (stable above 20%, "
+                  "denominator-dominated below) survives; the stable level "
+                  "does not. Stamped text kept verbatim above.",
         },
         "result": {
             # 🆕 3g G8 — `scored` IS GONE FROM THIS BLOCK. It shipped here as
@@ -1501,12 +1519,17 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                 f">={b:g}": {"median_pct": v, "n": band_n.get(b, 0),
                              "readable": b >= SLICE_COVERAGE_FLOOR_PCT}
                 for b, v in sorted(slice_bands.items())},
+            # 3i A2 — this note hardcoded "~164%", the PRE-E13 >=0 band, while
+            # the artifact beside it read 40.25. The number is now read from
+            # this run's own bands; the caveat's logic is unchanged.
             "slice_accuracy_band_note":
                 f"Only bands at or above the {SLICE_COVERAGE_FLOOR_PCT:g}% "
                 f"floor are readable as accuracy. Below it the ratio is "
-                f"dominated by its own denominator — the >=0 band reads ~164% "
-                f"and is the artifact 3e retracted, not a finding that the sim "
-                f"over-produces.",
+                f"dominated by its own denominator — this run's >=0 band reads "
+                + (f"{slice_bands.get(0.0):.1f}%"
+                   if slice_bands.get(0.0) is not None else "EMPTY")
+                + f" (the same artifact class 3e retracted at ~164%), not a "
+                f"finding about over- or under-production.",
             # 🆕 3h B3 — the SAME median over PRODUCING coverage only, BESIDE
             # the existing key, never replacing it (Q2: which number is the
             # headline is a criterion question and belongs in a stamped

@@ -1,6 +1,6 @@
 # Engine bugs — defects in OUR code, found by the regression harness
 
-> **`LIVE`** — the defect registry, ENFORCED in both directions by check_sim_engine.py. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
+> **`LIVE`** — the defect registry, ENFORCED in both directions by check_sim_engine.py: `resolve_generality()` enforces `EXPECTED_FAILURES` against the checks that ran, and `check_engine_bugs_doc_sync()` (`3i` A3) parses THIS FILE and asserts set equality between the check names its open entries claim and the registry's keys — until `3i` the document side was a human promise, broken twice (`AUDIT_3H` §8). **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
 **Not game bugs.** `bugs/` is for Ascension's bugs, staged for submission, and its
 README says so explicitly: *"These are **game** bugs, not this repo's bugs.
@@ -103,6 +103,7 @@ broken while everything reports green* — applied to the registry itself.
 | M28 🆕 | `contaminate()` also nulls `gear_stats_json` — i.e. changes more than `source` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
 | M29 🆕 | `contaminate()` also hits a NON-cohort character, perturbing `outside` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
 | M30 🆕 | delete the status line from any file in `primer/` | 1 | ✅ restore it — which IS the fix, because an unlabelled document cannot be cited at all (`3g` G9) | — |
+| M31 🆕 | delete E16's Checks row from this file (leaves the two frost-mage keys unclaimed) | 1 | ✅ restore the row — the fix IS the doc naming its checks (`3i` A3, `check_engine_bugs_doc_sync`) | — |
 
 ⚠ **M30's FIRST DRAFT WAS TOO WEAK, and it is M17's lesson a second time.**
 Mutating `` `LIVE` `` → `LIVE-ish` still matches the marker regex (`-` is a word
@@ -944,6 +945,29 @@ to a commit that owns that pair. ⚠ The candidate keeps the owner copy; the
 fixing session should first run D2's discriminator and fix at the **ingest**
 layer if that is where the duplication lives, with the consumer dedupe as the
 fallback seam.
+
+---
+
+## E16 — the ordinary under-production: the sim reproduces ~a third of a measured character and ~a fifth of the cohort slice, held by the two F9 ground-truth checks 🆕
+
+| | |
+|---|---|
+| **Checks** | `[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the measured capture` and `[frost_mage] every well-sampled ability's modelled per-cast mean is within ±25% of its measured non-crit mean` — both in `EXPECTED_FAILURES` |
+| **Where** | no single site — the modelling residual left after E13/E14: whole-character −66.9% (457 vs 1,382 measured), per-ability −33% to −60% with Icicle (830445) absent |
+| **Found by** | `3f` F9 (the first assertions comparing a modelled magnitude to a measured one); orphaned as registry entries when E13 and E14 closed; written down as an entry at `3i` A3 (`AUDIT_3H` §8) |
+
+**This is not a defect with a mechanism — it is the project's open problem**
+(open question `engine_fixes_did_not_move_the_holdout`), and M27 in the
+mutation table has said so since `3g`: these two checks *"close when the sim
+stops under-producing by ~5×. That is the project's open problem, not a defect
+with a fix."* The entry exists because the registry is enforced against this
+document in both directions (`3i` A3): every `EXPECTED_FAILURES` key must be
+claimed by an **open** entry here, and these two were owned only by E13 and
+E14 — both ✅ FIXED — plus one whose string appeared in no document at all.
+
+**Green path: M27's** — the modelling programme (`3i` Block F and successors),
+not a repair. When the two checks pass, this entry closes with the gate pair
+that closed it.
 
 ---
 

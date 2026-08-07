@@ -130,6 +130,8 @@ EXPECTED_FAILURES = {
     # 🛑 DO NOT WIDEN THE TOLERANCE TO CLOSE THESE. They are the instrument.
     "[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the "
     "measured capture":
+        "ENGINE_BUGS.md E16 (3i A3 — this value cited only E13/E14, both "
+        "closed, so the entry was orphaned; AUDIT_3H §8). "
         "🆕 3g — E13 AND E14 ARE BOTH FIXED, AND THIS IS STILL RED. It has "
         "moved 90,202 -> 83,610 (G1, E13) -> 457 modelled DPS against a "
         "measured 1,382: +6,427% -> +5,950% -> -66.9%. The tolerance is "
@@ -192,6 +194,8 @@ EXPECTED_FAILURES = {
     # for the same reason as E13's.
     "[frost_mage] every well-sampled ability's modelled per-cast mean is "
     "within ±25% of its measured non-crit mean":
+        "ENGINE_BUGS.md E16 (3i A3 — this string appeared in no document and "
+        "named no E-number until the doc-sync parser landed; AUDIT_3H §8). "
         "The ordinary under-production, now MEASURED per ability against a "
         "real capture for the first time: Frostbolt -34%, Ray of Frost -33%, "
         "Ice Lance -60%, Frozen Orb within, Icicle (830445) not modelled at "
@@ -283,7 +287,79 @@ def resolve_generality():
         FAILURES.append(f"EXPECTED_FAILURES entry with no matching check: {n}")
 
 
+def check_engine_bugs_doc_sync():
+    """3i A3 — ENGINE_BUGS.md's "enforced in both directions" claim, made true.
+
+    Until 3i, `resolve_generality()` enforced EXPECTED_FAILURES against the
+    check names that RAN, and nothing anywhere parsed ENGINE_BUGS.md — so the
+    document's half of the promise was human-kept, and the 3h audit found it
+    broken twice (a registered check whose string appeared in no document, and
+    one owned only by two ✅ FIXED entries). This parses the document and
+    asserts SET EQUALITY between the check names its OPEN entries claim and
+    EXPECTED_FAILURES' keys.
+
+    Parsing rules, matching the document's own stated conventions:
+      * an entry is a section whose heading starts `## E<n>`;
+      * a heading containing "✅ FIXED" or "NAMED, NOT MODELLED" is closed —
+        its checks left the registry by the registry's own rule, and any Check
+        rows below it (including historical ones kept in <details>) are record,
+        not claim;
+      * a `| **Check(s)** |` row containing "NONE" is the header invariant's
+        stated exemption (E8): the entry explicitly discloses it has no check
+        and claims nothing;
+      * backticked names starting `[` are check names; the compressed
+        `[a] / [b] / [c] tail` form expands to one name per bracket tag.
+
+    Registered mutation M31 (RUN 2026-08-07): delete E16's Checks row — the
+    two frost-mage keys become unclaimed and this goes RED. Green path:
+    restore the row; the fix IS the document naming its checks.
+    """
+    import re
+    path = config.PRIMER_DIR / "ENGINE_BUGS.md"
+    text = path.read_text(encoding="utf-8")
+
+    claimed = set()
+    for section in re.split(r"(?m)^## ", text)[1:]:
+        heading = section.splitlines()[0]
+        if not re.match(r"E\d+", heading):
+            continue
+        if "✅ FIXED" in heading or "NAMED, NOT MODELLED" in heading:
+            continue
+        for m in re.finditer(r"(?m)^\|\s*\*\*Checks?\*\*\s*\|(.*)\|\s*$",
+                             section):
+            cell = m.group(1)
+            if "NONE" in cell:
+                continue        # the stated exemption — discloses, claims nothing
+            for name in re.findall(r"`([^`]+)`", cell):
+                name = " ".join(name.split())
+                if not name.startswith("["):
+                    continue    # a file path or symbol, not a check name
+                comp = re.match(r"((?:\[\w+\]\s*/\s*)+\[\w+\])\s+(.*)", name)
+                if comp:
+                    tail = comp.group(2)
+                    for tag in re.findall(r"\[\w+\]", comp.group(1)):
+                        claimed.add(f"{tag} {tail}")
+                else:
+                    claimed.add(name)
+
+    registered = {" ".join(k.split()) for k in EXPECTED_FAILURES}
+    doc_only = sorted(claimed - registered)
+    code_only = sorted(registered - claimed)
+    check("ENGINE_BUGS.md open entries and EXPECTED_FAILURES claim the SAME "
+          "check set — the document side of 'enforced in both directions' "
+          "is parsed, not promised",
+          not doc_only and not code_only,
+          f"claimed={len(claimed)}, registered={len(registered)}"
+          + (f"; DOC-ONLY {doc_only}" if doc_only else "")
+          + (f"; CODE-ONLY {code_only}" if code_only else ""))
+
+
 def main():
+    # 🆕 3i A3 — the doc-sync check runs FIRST, before the db refusal below,
+    # because it needs only the committed tree: a clean clone can verify the
+    # registry↔document agreement even when it cannot run the engine checks.
+    check_engine_bugs_doc_sync()
+
     # 🆕 3g G7 — A GUARD THAT CANNOT RUN MUST SAY SO. This used to die on a raw
     # `sqlite3.OperationalError` traceback when `data/derived/ascension.db` was
     # absent, where its sibling `check_gate_exclusion.py:97-100` refuses with a

@@ -9,7 +9,10 @@ db.ascension.gg, for the spells our own data says we are missing.
 
 ## Why this exists
 
-The sim produces damage for a median 37% of what real characters deal, and the
+The sim has a key for a median 37% of what real characters deal (as measured
+2026-08-06, pre-E13 — kept as this tool's historical motivation; the phrasing
+"produces damage for" was retired at 3h B1 because a key is not production, and
+the current figures live in predictions/gate_manifest_3e.json), and the
 miss splits almost evenly between spells absent from our DBC extract (~43%) and
 spells where we hold a magnitude but **no coefficient** (~41%). The client
 cannot fix the second: Ascension keeps applied coefficients in **tooltip
