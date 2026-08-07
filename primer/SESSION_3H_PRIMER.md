@@ -1,8 +1,8 @@
 # SESSION `3h` — measure the residual instead of inferring it
 
-> **`LIVE`** — the work order for session `3h`. **Must be true today, and is citable as
-> current truth.** Reclassify **`SUPERSEDED BY primer/Session_2026-08-07_3h_*.md`** at
-> close-out. *(Born with a status line and an expiry condition, per `3f` F8c.)*
+> **`SUPERSEDED BY primer/Session_2026-08-07_3h_measurement.md`** — the work order for
+> session `3h`, now run. The session record holds what actually happened, including the
+> departures. *(Reclassified at `3h` close-out, per its own expiry condition.)*
 
 Predecessors: `primer/Session_2026-08-07_3g_explosions.md` (the session record),
 `primer/AUDIT_3G_ADVERSARIAL.md` (the audit this order implements),

@@ -2,12 +2,67 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
-> ✅ **2026-08-07 — `3g` IS AUDITED. Next session is `3h`, and it is an INSTRUMENT session.**
-> Audit: `primer/AUDIT_3G_ADVERSARIAL.md` (`FINDING 2026-08-07`).
-> Work order: `primer/SESSION_3H_PRIMER.md`. Its Block A document edits are pre-drafted in
-> `primer/PRIMER_PATCH_3h.md` (scaffolding — **delete it when Block A closes**).
+> ✅ **2026-08-07 — SESSION `3h` IS DONE.** Record:
+> `primer/Session_2026-08-07_3h_measurement.md`. Work order it ran:
+> `primer/SESSION_3H_PRIMER.md` (now `SUPERSEDED`); `PRIMER_PATCH_3h.md` deleted per its
+> own expiry condition.
 >
-> **The gate, unchanged and unmoved by anything in this pointer:**
+> 🛑 **THE GATE READ `1 / 1 / 20.5% (n=23)` AT EVERY ONE OF THE SESSION'S TEN COMMITS.**
+> No engine defect was fixed; the holdout was **not** read. `3h` was an instrument
+> session, and the instruments replaced the last inferred headline with a measurement:
+>
+> * **The per-ability distribution exists** (`tools/audit/per_ability_accuracy.py`,
+>   pre-registered at `1dd464e` before its first run): producing paired abilities
+>   median ratio **0.253**, only **11%** inside [0.8, 1.25]; **25%** of paired keyed
+>   abilities at exactly 0; **absent keys carry 62.2% of cohort logged damage**. The
+>   sim is not uniformly ~5× under — it is absent for most damage, zero for a tenth,
+>   wrong in both directions on the rest, and the aggregates cancel.
+> * **Coverage is split** (`modelled_and_producing_pct` + `keyed_but_zero_pct`, summing
+>   to the unchanged headline): producing-only slice median **30.7% (n=20)** beside
+>   20.5% (n=23). **All 90 keyed-but-zero entries are GCD starvation**
+>   (`zero-casts-allocated`, the E6/E7 family) — **zero** come from E14's refusals, so
+>   the `3g` audit's §4 worry measures as absent.
+> * 🚨 **E15 REGISTERED (fixed in no `3h` commit): pet damage is stored TWICE in
+>   `ability_performance`** — the endpoint owner-merges pets into `rows[]` AND restates
+>   them in `pet_spell_damage_by_owner`; the ingester takes both (15,551 byte-identical
+>   pairs; discriminated by the D2 re-fetch of report 79). One layer up,
+>   `corpus.py` adds `pet_damage` to a total that already contains it, so **every
+>   pet-owner's logged DPS is inflated**. Green path RUN and reverted: the consumer
+>   dedupe alone moves the gate to 1 / 1 / **19.8%** — the fix belongs to a commit that
+>   owns that pair, ideally fixing ingest + `dps` together.
+> * **`Boomcat` is reconciled**: the APM ratio has an implementation
+>   (`tools/audit/parse_admissibility.py`), reads **0.27** for `Boomcat` (the chat-side
+>   0.24 confirmed; regime valid, n_others=8), and its +0.8% pass is per-ability
+>   compensation (top logged ability starved to 0 against two at 2–3.5× over — `Ari`'s
+>   shape on the passing side; prereg `cd54716`, P3/P6/P7 confirmed).
+> * ✅ **The parse-admissibility rule is STAMPED (owner decision 2026-08-07), applied by
+>   nobody**: successor #3 in `predictions/CALIBRATION_TOLERANCE.md`. Blind effect
+>   5 of 41; falsifiability met (removes 3 FAILING characters). Applying it takes
+>   `within ±20%` **1 → 0** (`Boomcat` NOT ADMISSIBLE) — the applying session records
+>   that pair.
+> * ❌ **`deaths` CANNOT be populated from this API** (D2, fresh re-fetch): no
+>   per-player death or active-time field on any payload. Fallback signal: the
+>   implemented APM ratio, valid-regime only. The declared column stays empty with this
+>   as its recorded reason.
+> * P4 (a third sim-side unit error) came back **false as stated** — the round-number
+>   scan surfaced E15's exactly-×2 on the log side instead. Full prereg outcomes in the
+>   session record §2.
+>
+> **Next session (modelling, first gate-moving commits since `3g`), in this order:**
+> **(1)** fix E15 at ingest + `encounter_performance.dps`, one commit, its own pair
+> (consumer-dedupe-only pair already known: slice 20.5 → 19.8); **(2)** apply the
+> stamped admissibility rule, one commit, its own pair (1 → 0 expected); **(3)** pick
+> modelling targets FROM THE DISTRIBUTION — the visible levers are Elemental Blast
+> (0.02–0.19 on three characters at 56–69% of their logged damage), the starved
+> allocation mass (10.9% of logged damage), and the 62.2% absent-key majority.
+> E9/E11/E12 remain ready with run green paths.
+>
+> 🚨 **Time-critical: the phase boundary armed tonight** (`2026-08-08T00:00:00Z`).
+> Check on the 8th that G0 fired correctly — `phase_label` NULL rather than
+> mis-stamped, `EXPECTED_PHASE_NAME` bumped before any gear tier is read
+> (`AUDIT_3G_ADVERSARIAL.md` §9).
+>
+> **The gate, closing state:**
 >
 > | | |
 > |---|---:|
@@ -18,50 +73,28 @@
 > | holdout, read once at `3g` close-out | **0 of 5, −79% to −98%**, median slice **9.8%** |
 >
 > ⚠ **The holdout is WORSE than the tuning set, so 20.5% is the optimistic end.**
->
-> **The audit confirmed the engine work and failed the documents.** E13 and E14 are correctly
-> fixed at file:line, every consumer accounted for tree-wide, and the `EXPECTED_FAILURES`
-> registry is exemplary. **Three `LIVE` documents were still describing the pre-`3g` world** —
-> including `ENGINE_BUGS.md`, which carries both defects as unfixed with *"it is the first
-> thing that session should do"*, while the `3g` record states the correction landed there.
-> 🛑 **Code discipline and document discipline are now failing separately, and the documents
-> are the weaker half.** `3h` Block A closes all three.
->
-> 🚨 **AND ONE MEASUREMENT PROBLEM IS STRUCTURAL.** `sim_spell_ids = set(res.per_ability.keys())`
-> (`calibrate_crawled.py:745`), but `core/sim/tiers.py:496` writes a `per_ability` entry
-> **unconditionally** — including for abilities whose every event was REFUSED
-> (`ability_model.py:918-924`) or never resolved (`:735-742`).
-> `modelled_damage_share`'s docstring says *"spells the sim produced any damage for"*; **that
-> is false.** Since `slice = (100 + delta) / coverage`, a keyed-but-zero ability raises the
-> denominator and lowers the numerator — **it pushes slice accuracy down twice.** ⚠ **`3g`
-> G2's E14 fix ADDED refusals into that bucket.**
->
-> **So `20.5%` conflates magnitude error with zero production**, and those are two defect
-> families with two different fixes. `3h` Block B splits them. **Block C replaces the derived
-> ratio with the direct per-ability measurement** — `res.per_ability[sid]["damage"]` against
-> `ability_performance.damage_total`, both already joined on spell id inside
-> `modelled_damage_share`. Slice accuracy is the last headline number in this project that is
-> **inferred rather than measured**, and everything this project has retracted was derived.
->
-> 🛑 **`Boomcat` (16501) IS THE ONLY PASSING ROW AND IS NOT YET TRUSTWORTHY.** `3c` retracted
-> it on a suspected death-deflated parse (APM ratio 0.24 vs Elric's known death case 0.38);
-> `3e` preflight ruled out the cast-time explanation, so the hypothesis stands. `corpus.py:614`
-> computes `dps = total_damage / SUM(encounter duration)` — **wall-clock, not active time** —
-> so a death deflates the denominator and *flatters* the delta against a sim that
-> under-produces. **That is `Ari`'s shape one layer over, on the log side.** ⚠ `deaths` appears
-> **exactly ONCE** in the Python tree (`core/builds/corpus.py:137`, the `CREATE TABLE`):
-> declared, never written, never read — **E11's shape in the corpus layer.** The APM ratio the
-> retraction rests on has **no implementation at all** (`grep -rn "apm"` returns nothing).
-> `3h` Block D reconciles it and **stamps** a parse-admissibility rule without applying it.
->
-> ⚠ **NO ENGINE DEFECT IS FIXED IN `3h`.** E9/E11/E12 keep their run green paths and stay
-> registered. **The gate must read `1 / 1 / 20.5%` at EVERY commit; a commit that moves it is
-> a defect in that commit.** The holdout is **not** read.
->
-> 🚨 **Still time-critical:** `season_config.NEXT_PHASE_BOUNDARY` is `2026-08-08T00:00:00Z`.
-> `3g` G0's three defences are in place and **nobody has seen any of them fire.**
 
 ---
+
+<details><summary>Superseded: the <code>3h</code> work-order pointer</summary>
+
+> ✅ **2026-08-07 — `3g` IS AUDITED. Next session is `3h`, and it is an INSTRUMENT session.**
+> Audit: `primer/AUDIT_3G_ADVERSARIAL.md` (`FINDING 2026-08-07`).
+> Work order: `primer/SESSION_3H_PRIMER.md` (now run — see the `3h` block above; the
+> pre-drafted Block A edits landed and the scaffolding was deleted).
+>
+> **The audit confirmed the engine work and failed the documents** — three `LIVE`
+> documents still described the pre-`3g` world; `3h` Block A closed all three. **One
+> measurement problem was structural**: coverage counted keyed-but-zero abilities as
+> covered (`modelled_damage_share`'s docstring was false), so 20.5% conflated magnitude
+> error with zero production; `3h` Block B split them and Block C replaced the derived
+> ratio with the direct per-ability measurement. **`Boomcat` was the only passing row
+> and not yet trustworthy** (chat-side APM ratio 0.24, no implementation; `deaths`
+> declared and never written); `3h` Block D implemented the ratio, reconciled it, and
+> stamped the admissibility rule without applying it. No engine defect was fixed; the
+> holdout was not read.
+
+</details>
 
 <details><summary>Superseded: the <code>3g</code> top block</summary>
 
