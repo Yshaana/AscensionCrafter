@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-07T09:57:48+00:00",
- "git_sha": "9d84e027a66ccc971de97f662d7bfdf00c9e71ad",
+ "generated_at": "2026-08-07T10:17:18+00:00",
+ "git_sha": "b356cea506185d809a00f12140063f664c5b7b33",
  "git_working_tree_dirty": false,
  "dirty_tree_write_allowed_by_flag": false,
  "realm": "Darkmoon",
@@ -61,6 +61,11 @@
   "slice_accuracy_band_note": "Only bands at or above the 20% floor are readable as accuracy. Below it the ratio is dominated by its own denominator \u2014 this run's >=0 band reads 40.3% (the same artifact class 3e retracted at ~164%), not a finding about over- or under-production.",
   "median_slice_accuracy_pct_producing_only_at_coverage_ge_20": 37.64561386507469,
   "producing_only_n": 19,
+  "paired_medians_same_members_at_headline_floor": {
+   "n": 23,
+   "headline_pct": 26.31,
+   "producing_only_pct": 37.65
+  },
   "keyed_but_zero_pct_median": 0.15,
   "keyed_but_zero_pct_max": 45.4,
   "per_character_slice_accuracy_policy": "ANNOTATED IN PLACE, NOT FLOORED (3f F7). A per-character value below the coverage floor keeps its raw number and carries a sibling `slice_accuracy_caveat` saying it is not a measurement. Flooring would delete the evidence for 3e's own retraction \u2014 Mutaforma's 1,859,400% at 0.2% coverage IS what 'this ratio explodes as coverage -> 0' looks like.",
