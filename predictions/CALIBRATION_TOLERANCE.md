@@ -1,5 +1,12 @@
 # Calibration tolerance — written BEFORE any 2c calibration run
 
+> **`LIVE`** — the stamped tolerance and calibration reference. **Must be true today, and
+> is citable as current truth.** Tolerances in this file are stamped and may not be edited
+> to fit a result; **measured tables in it are generated output and MUST be regenerated
+> whenever the run they describe is superseded.** If you find a claim here that the tree
+> contradicts, that is a defect in this file. *(Classified `3h` A2; `3f` F8c's lifecycle
+> applied to `predictions/`, which it had not reached.)*
+
 **Stamped 2026-08-05, session `2c`, as the first act of T8** (PHASE_2 addendum §8.1).
 
 PHASE_2 T8's exit criterion says the sim "reproduces ≥3 real characters within
@@ -152,41 +159,62 @@ Implemented in `3d` (`tools/audit/calibrate_crawled.py`, F3) as pure
 instrumentation: it changes no verdict, and the gate was byte-identical with it
 in place.
 
-🚨 **CORRECTED IN `3e` A2 — the first reading was backwards, and the correction
-inverts the instruction it gave.** `3d`'s figure was *"cohort median 160% — the
-modelled slice is over-produced by about 60%"*. That median is a **low-coverage
-artifact**: slice accuracy has **coverage in its denominator**, so it explodes as
-coverage → 0. Mutaforma, at **0.2%** coverage, reports **1,859,400%** — and that
-value is in the committed `3d` manifest. A median taken across a cohort spanning
-0.2% to 82% coverage is not a measurement of anything.
+🚨 **CORRECTED TWICE. Read both corrections — the second is larger than the first.**
 
-Restricted to characters the sim actually models, the number is stable and it
-points the other way:
+**Correction 1 (`3e` A2): the sign.** `3d`'s figure was *"cohort median 160% — the modelled
+slice is over-produced by about 60%"*. That median is a **low-coverage artifact**: slice
+accuracy has **coverage in its denominator**, so it explodes as coverage → 0. Mutaforma, at
+**0.2%** coverage, reports **1,859,400%** — and that value is in the committed `3d`
+manifest. A median across a cohort spanning 0.2% to 82% coverage is not a measurement of
+anything. **The sim under-produces on what it models.**
 
-| coverage floor | n (3e tuning set) | median slice accuracy | readable? |
+🚨 **Correction 2 (`3g` G1): the size, and it is four times worse than correction 1 left
+it.** The `64.3%` this section carried until `3h` was **never true** — it was measured on a
+sim in which `AttackTable.probabilities()` returned percentages that `expected_swing`
+multiplied as fractions, making every white swing **exactly 100× over** (`ENGINE_BUGS.md`
+E13). The auto was **89–96% of total sim damage for fourteen of 36 characters and 41–95%
+for all five passers.** Slice accuracy did not *drift* from 64.3% to 20.5%; the earlier
+figure was measuring a defect.
+
+| coverage floor | n | median slice accuracy | readable? |
 |---:|---:|---:|:--|
-| ≥0% | 33 | 163.7% | **no** - below the floor |
-| ≥10% | 26 | 141.2% | **no** - below the floor |
-| ≥20% | **23** | **64.3%** | yes |
-| ≥30% | 20 | 63.4% | yes |
-| ≥50% | 8 | 63.4% | yes |
+| ≥0% | 33 | 40.3% | **no** — below the floor |
+| ≥10% | 26 | 23.4% | **no** — below the floor |
+| ≥20% | **23** | **20.5%** | yes |
+| ≥30% | 20 | 16.9% | yes |
+| ≥50% | 8 | 16.9% | yes |
 
-⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** The version committed by `3e` was headed *"n (3e tuning set)"* and carried `3d`'s medians with an `n` column matching neither run - 3 of its 5 sample sizes were wrong (27/21/10 against the true 26/20/8) and ≥0% and ≥10% were off by 1.0 and 2.8 points. Nothing material changed, and that is the point: the project's reference table for its own largest retraction did not describe the run it named. Regenerate with `py tools/audit/calibrate_crawled.py` and copy `result.slice_accuracy_by_coverage_band_pct` out of `predictions/gate_manifest_3e.json`, which now carries `n` and a `readable` flag per band for exactly this reason.
+⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8), and regenerated at `3h` A2 from
+`predictions/gate_manifest_3e.json`** (generated `2026-08-07T01:37:21Z`, `80a66e9`),
+`result.slice_accuracy_by_coverage_band_pct`. 🛑 **The version that stood here through `3g`
+was `3f`'s, and it survived a session that regenerated the manifest five times** — the same
+failure this warning was written to prevent, one session later, on the same table. Whoever
+moves this number next: regenerate, do not retype, and check this table in the same commit
+that moves the gate.
 
-*(Computed independently from the committed `3d` manifest over its own 38-member
-population, the bands read 159.8 / 85.4 / 62.6 / 62.6 / 62.6 — the same shape and
-the same landing place, on a different cohort split. The stability is the
-finding, not the third digit.)*
+**The sim reproduces roughly ONE FIFTH of the damage of the abilities it has a key for.**
+⚠ *"has a key for"* is deliberate and is not the same as *"models"* — see
+`AUDIT_3G_ADVERSARIAL.md` §4 and `3h` Block B. Until that split is measured, this figure
+conflates magnitude error with zero production.
 
-**The sim UNDER-produces on the slice it does model, by about a third.** It does
-not over-produce by 60%.
+*(Corroboration, independent of coverage: `3f` F9's frost-mage assertion compares modelled
+DPS to a measured capture with a same-session verified stat block and no coverage term. It
+reads **457 against 1,382 — −66.9%**, i.e. the sim produces ~33% of one real character's
+total output. That it is not ~20% is itself informative and is a `3h` Block C question.)*
 
-🛑 **Why this matters more than a sign error.** At slice accuracy ~62–64%,
-**coverage work alone can never reach ±20%**: landing `delta = 0` needs
-`slice × coverage = 1.0`, which at 0.63 requires **coverage above 100%**. Both
-levers have to roughly double. Under the discarded 160% reading the conclusion
-inverts — it says coverage work will *overshoot*, and would have sent `3e` to
-throttle exactly the work it needs.
+🛑 **Why this matters more than a bigger number.** At slice accuracy ~62–64% the previous
+text said *"both levers have to roughly double"*, which reads as a hard but ordinary
+programme. **At 20.5% the coverage lever is arithmetically dead.** Landing `delta = 0`
+requires `slice × coverage = 1.0`:
+
+* at the **ceiling** of 100% coverage, slice must reach **100%** — a **4.9×** rise;
+* at the **best coverage in the cohort** (`Boomcat`, 82.2%), slice must reach **121.7%**;
+* no attainable coverage substitutes for **any** of it.
+
+**The magnitude lever has to carry essentially all of the gap.** Coverage work is now
+support work, not the programme. Under the discarded 160% reading the conclusion inverted
+entirely — it said coverage work would *overshoot* — and under the 64.3% reading it said
+the two levers could share the load. Neither is true.
 
 **Reporting rule, in force from `3e`:** the cohort median is reported **only
 above a stated coverage floor, with the floor printed beside it** and the band

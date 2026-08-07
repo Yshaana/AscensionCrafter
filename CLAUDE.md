@@ -171,6 +171,12 @@ Schema in `INDEX_GUIDE.md`.
   [census] primer/ status lines: 59 files — 14 LIVE / 35 HISTORICAL / 2 SUPERSEDED / 8 FINDING
   ```
 
+  🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it
+  prints**, so "generated" no longer means "generated once and pasted". The census moved
+  **twice inside `3g` itself** (55 → 56 files) — G9 regenerated it, and Block D's own
+  commits changed it again eight commits later. That is the proof that generation was the
+  right call and that pasting output without an assertion only buys one more day.
+
   ⚠ This line previously read `13 / 32 / 0 / 6`, typed by hand, and was **wrong within a day
   of being written** — two documents landed and nothing recounted. It is the standing rule's
   own failure mode sitting in the file every session reads first. Two files are still flagged
@@ -179,6 +185,17 @@ Schema in `INDEX_GUIDE.md`.
   creates it. Status acquired
   in a later cleanup is status nobody trusted in between. Full rule in
   `primer/START_HERE_FOR_CODE.md`.
+- 🆕 **A character may be excluded from the gate for what its PARSE is, never for what its
+  DELTA is** (`3h` D4). Exclusion on **input validity** — a death-deflated window, a
+  truncated parse, a NULL phase label, a snapshot too stale — is a data-quality gate and is
+  legitimate. Exclusion on **output disagreement** is fitting wearing a gate's clothes.
+  **The test: can the rule be stated and applied blind, to the whole cohort, before any
+  delta is read?** If it needs the delta, it is not a rule. Three further requirements:
+  it is **pre-registered with its measured cohort effect** before the gate is re-read; it
+  applies **identically to tuning set and holdout**; and 🔬 **it must be capable of removing
+  a character that currently FAILS.** A rule that only ever removes passers is a fitting
+  device, and the asymmetry proves it. Verdict is **NOT ADMISSIBLE (`None`)**, never
+  `False` — the same treatment the coverage floor gives a below-floor character.
 - 🆕 **A magnitude never appears in a markdown file except as generated output, pasted with
   its provenance.** Every numeric error the `3e` audit found in a document was
   hand-transcribed — **four for four, and zero errors in numbers a tool emitted**. If a

@@ -1,5 +1,10 @@
 # Calibration — 2026-08-06 `3c`, against FULLY VERIFIED inputs
 
+> **`FINDING 2026-08-06`** — a calibration record, true as of its date and **not
+> maintained**. Its numbers describe the `3c` sim and inputs; later engine fixes
+> (E13/E14, `3g`) do not retro-edit this file. *(Status line added `3h` A5, when
+> `3f` F8c's lifecycle was extended to `predictions/`.)*
+
 Run after the db.ascension.gg coefficient ingest, against
 `2026-08-05-22.42.20` — the unbuffed Path-of-Intelligence dummy baseline whose
 site-side capture ([report 106](https://darkmoon.ascensionlogs.gg/reports/106/encounters))

@@ -1,5 +1,10 @@
 # Cohort cast-time profile — the 41 pinned gate characters
 
+> **`FINDING 2026-08-06`** — a measurement over the frozen cohort, true as of its
+> date and **not maintained**. Re-derive from the corpus rather than citing it as
+> current. *(Status line added `3h` A5, when `3f` F8c's lifecycle was extended to
+> `predictions/`.)*
+
 **Measured 2026-08-06 from committed artifacts at `91d8f92`.** Method and
 interpretation: `primer/FINDINGS_3e_preflight_2026-08-06.md` §1–2.
 

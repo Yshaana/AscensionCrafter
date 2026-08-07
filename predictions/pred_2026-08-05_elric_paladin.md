@@ -1,5 +1,9 @@
 # Pre-registered prediction — Elric (Paladin Hammerdin), 2026-08-05
 
+> **`FINDING 2026-08-05`** — a prediction and its same-day reconciliation, true as
+> of its date and **not maintained**. *(Status line added `3h` A5, when `3f` F8c's
+> lifecycle was extended to `predictions/`.)*
+
 > ## ✅ OUTCOME — reconciled same day against a real parse
 >
 > Source: `2026-08-04-20.07.21 WoWCombatLog.txt` (Elric, 60,427 events,

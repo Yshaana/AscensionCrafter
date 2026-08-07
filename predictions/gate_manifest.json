@@ -1,4 +1,6 @@
 {
+ "status": "FROZEN 3d RECORD (2026-08-06) — an immutable historical artifact; its numbers are NOT current. Its cohort_median_slice_accuracy_pct (159.79) is FORMALLY RETRACTED (3e A2: a low-coverage artifact — coverage is in the denominator, so the median across 0.2%-82% coverage measures nothing) and its criterion_met=true / within_tolerance=5 predate the E13/E14 fixes (3g). Current gate numbers live in the successor.",
+ "superseded_by": "predictions/gate_manifest_3e.json",
  "generated_at": "2026-08-06T18:37:53+00:00",
  "git_sha": "69f21929eae28fbc60d4af644de09aee18157ab4",
  "git_working_tree_dirty": true,
