@@ -131,6 +131,37 @@ SLICE_BANDS = (0.0, 10.0, 20.0, 30.0, 50.0)
 SUCCESSOR_COVERAGE_FLOOR_PCT = 20.0
 SUCCESSOR_FLOOR_EFFECTIVE_FROM = "the gate run AFTER 3e (stamped 2026-08-06)"
 
+# ✅ 3g G4 — THAT GATE IS THIS ONE. The floor is APPLIED, in its own commit with
+# its own before/after pair, per owner decision 2026-08-07 (SESSION_3G_PRIMER
+# §0.8.2). It is NOT re-tuned here: 20.0 is the value stamped on 2026-08-06 and
+# changing it after seeing G1's result would be moving a gate after seeing its
+# number, in either direction.
+SUCCESSOR_FLOOR_APPLIED_FROM = "3g (2026-08-07)"
+
+# 🛑 THE ATTRIBUTION, settled from git rather than from memory (3g G4; the
+# AUDIT_3E §6 / AUDIT_3F question, raised because the floor is credited to the
+# owner three times in 3e's record while being numerically identical to a
+# constant Code chose and justified in its own voice).
+#
+# `git log -S` puts BOTH constants in ONE commit, 68779e7 ("3e Block A"):
+# `SLICE_COVERAGE_FLOOR_PCT = 20.0` at +119 and `SUCCESSOR_COVERAGE_FLOOR_PCT =
+# 20.0` at +137. So:
+#
+#   * The OWNER decided the POLICY — that a coverage floor should apply to
+#     `within_tolerance`, that it takes effect at the NEXT gate and not the one
+#     being run, and that 3e's before/after pairs therefore stay comparable.
+#     That is a decision only the owner can take, and it is his.
+#   * CODE chose the VALUE, in A2 of the same commit, from the band table:
+#     slice accuracy is flat across >=20/>=30/>=50 and unstable below, so 20 is
+#     where the metric stops being noise. It was chosen for slice REPORTING
+#     first and reused for the criterion second.
+#
+# Neither claim was ever false; a reader could reasonably take "owner decision"
+# to cover the number as well, which is what the auditor flagged. ✅ And the
+# property that matters survives either reading: the value was fixed BEFORE it
+# was applied to a criterion, it is strictly HARSHER (2 of 36 against 5 on the
+# run that stamped it), and it was not chosen to admit a wanted result.
+
 # 3e A4 — the pre-registered validation subset (seed_predictions.py's
 # `holdout_3e_crawled_gate_validation_set`). Registered in `3d`, but
 # `calibrate_crawled.py` had never heard of it, so all five were counted in
@@ -740,8 +771,16 @@ def main():
             # 🛑 A floor ABOVE zero changes the criterion and is an owner
             # decision — taken 2026-08-06 and stamped for the NEXT gate, not
             # this one. See SUCCESSOR_COVERAGE_FLOOR_PCT.
+            # ✅ 3g G4 — THE STAMPED FLOOR IS NOW APPLIED. Below it the verdict
+            # is None (NOT SCOREABLE), not False, for the same reason zero
+            # coverage returns None: the sim has too little of this character
+            # modelled for `abs(delta) <= tol` to mean anything, and "we have no
+            # opinion" is a different statement from "it failed". A character at
+            # 4.6% coverage landing inside ±20% is arithmetic about 4.6% of a
+            # kit, not a calibration.
             "within_tolerance": (
-                None if not (modelled or {}).get("modelled_damage_pct")
+                None if ((modelled or {}).get("modelled_damage_pct") or 0.0)
+                < SUCCESSOR_COVERAGE_FLOOR_PCT
                 else abs(delta) <= AGGREGATE_TOLERANCE_PCT),
             "gear_coverage_pct": cov["coverage_pct"],
             "gear_unresolved_pieces": len(cov["missing"]),
@@ -810,11 +849,29 @@ def main():
           f"≥{QUALIFIED_COVERAGE_PCT:g}% of their real damage modelled "
           f"(rider: ≥{MIN_QUALIFIED}) -> {'PASS' if rider_met else 'NOT MET'}")
     if unscoreable:
-        print(f"[gate] {len(unscoreable)} character(s) are NOT SCOREABLE — the "
-              f"sim modelled 0% of their damage, so within_tolerance is None "
-              f"rather than False: "
-              + ", ".join(f"{r['name']} ({r['delta_pct']:+.0f}%)"
-                          for r in unscoreable))
+        # 3g G4 — the two reasons are separated, because "the sim modelled
+        # nothing" and "the sim modelled too little to judge" are different
+        # amounts of information, and the second is a criterion change this
+        # session made deliberately.
+        zero = [r for r in unscoreable
+                if not (r["modelled"] or {}).get("modelled_damage_pct")]
+        under = [r for r in unscoreable if r not in zero]
+        if zero:
+            print(f"[gate] {len(zero)} character(s) are NOT SCOREABLE — the "
+                  f"sim modelled 0% of their damage, so within_tolerance is "
+                  f"None rather than False: "
+                  + ", ".join(f"{r['name']} ({r['delta_pct']:+.0f}%)"
+                              for r in zero))
+        if under:
+            print(f"[gate] {len(under)} character(s) are NOT SCOREABLE under "
+                  f"the {SUCCESSOR_COVERAGE_FLOOR_PCT:g}% COVERAGE FLOOR "
+                  f"applied from {SUCCESSOR_FLOOR_APPLIED_FROM} — too little "
+                  f"of their kit is modelled for ±{AGGREGATE_TOLERANCE_PCT:g}% "
+                  f"to mean anything: "
+                  + ", ".join(
+                      f"{r['name']} ({r['delta_pct']:+.0f}% on "
+                      f"{(r['modelled'] or {}).get('modelled_damage_pct', 0):.1f}% "
+                      f"coverage)" for r in under))
     # A character can clear ±20% on 4.6% coverage. The criterion cannot see
     # that; printing the passers' coverage is what makes it visible.
     if passing:
@@ -836,11 +893,11 @@ def main():
     print("[slice] bands: " + "  ".join(
         f"≥{b:g}%: {'n/a' if v is None else f'{v:.1f}%'}"
         for b, v in sorted(slice_bands.items())))
-    print(f"[next] a {SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
-          f"within_tolerance is STAMPED for {SUCCESSOR_FLOOR_EFFECTIVE_FROM}; "
-          f"under it this run would read "
-          f"{sum(1 for r in passing if (r['modelled'] or {}).get('modelled_damage_pct', 0) >= SUCCESSOR_COVERAGE_FLOOR_PCT)}"
-          f" of {len(tuning)}")
+    print(f"[floor] the {SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
+          f"within_tolerance — stamped {SUCCESSOR_FLOOR_EFFECTIVE_FROM}, "
+          f"APPLIED from {SUCCESSOR_FLOOR_APPLIED_FROM} — is IN FORCE in the "
+          f"numbers above. Not re-tuned this session: changing it after seeing "
+          f"a result is moving a gate after seeing its number")
     if args.read_holdout:
         h_pass = [r for r in holdout if r["within_tolerance"] is True]
         print(f"[HOLDOUT] READ — {HOLDOUT_SLUG}. {len(h_pass)} of "
@@ -982,18 +1039,29 @@ def main():
         "Under the discarded reading the conclusion was the opposite — throttle "
         "coverage work to avoid overshooting.",
         "",
-        f"🛑 **Stamped for the next gate:** a "
+        f"✅ **APPLIED, from {SUCCESSOR_FLOOR_APPLIED_FROM}:** a "
         f"**{SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
-        f"`within_tolerance` itself**, effective "
-        f"{SUCCESSOR_FLOOR_EFFECTIVE_FROM}. Owner decision 2026-08-06, taken "
-        f"after seeing the passers' coverage distribution and stamped before "
-        f"this run's result. Justification is a property of the measurement, "
-        f"not a level chosen to admit a wanted number: slice accuracy is stable "
-        f"across the ≥20 / ≥30 / ≥50 bands and unstable below 20%, so 20% is "
-        f"where the metric stops being noise. It is a **stricter** bar — under "
-        f"it this run reads "
-        f"{sum(1 for r in passing if (r['modelled'] or {}).get('modelled_damage_pct', 0) >= SUCCESSOR_COVERAGE_FLOOR_PCT)}"
-        f" of {len(tuning)} rather than {len(passing)}.",
+        f"`within_tolerance` itself**, stamped "
+        f"{SUCCESSOR_FLOOR_EFFECTIVE_FROM} and in force in every number in this "
+        f"report. Below the floor the verdict is **NOT SCOREABLE** (None), not "
+        f"False — the same treatment zero coverage already had, for the same "
+        f"reason: *\"we have no opinion\"* is a different statement from "
+        f"*\"it failed\"*.",
+        "",
+        f"**Attribution, settled from git in `3g` G4** rather than from memory, "
+        f"because the floor is credited to the owner three times in `3e`'s "
+        f"record while being numerically identical to a constant Code chose in "
+        f"its own voice. `git log -S` puts both in ONE commit (`68779e7`): the "
+        f"**owner decided the policy** — that a floor applies, at the NEXT gate "
+        f"and not the one being run — and **Code chose the value**, in A2 of "
+        f"the same commit, from the band table. Neither claim was false; a "
+        f"reader could take *\"owner decision\"* to cover the number too. The "
+        f"property that matters survives either reading: the value was fixed "
+        f"**before** it was applied to a criterion, and it is strictly harsher.",
+        "",
+        f"🛑 **Not re-tuned in `3g`.** Changing 20.0 after seeing this "
+        f"session's result would be moving a gate after seeing its number, in "
+        f"either direction.",
         "",
         "Buffs are DERIVED from the group in the same capture scope — a buff "
         "applies only when a participant's linked board holds the granting "

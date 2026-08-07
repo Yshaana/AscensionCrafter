@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-07T01:08:24+00:00",
- "git_sha": "5872b5350987d33a48171dd36111e2d951a9558f",
+ "generated_at": "2026-08-07T01:12:09+00:00",
+ "git_sha": "6c62309314d7e521b52fb79927ae9babe10846ce",
  "git_working_tree_dirty": true,
  "realm": "Darkmoon",
  "season": "S10",
@@ -20,7 +20,7 @@
   "scored": 36,
   "tuning_set_size": 36,
   "within_tolerance": 1,
-  "not_scoreable_zero_coverage": 3,
+  "not_scoreable_zero_coverage": 13,
   "qualified": 1,
   "criterion_met": false,
   "rider_met": false,
@@ -225,7 +225,7 @@
    "modelled_damage_pct": 17.7,
    "slice_accuracy_pct": 14.71,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 17.7%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 7674,
@@ -258,7 +258,7 @@
    "modelled_damage_pct": 3.8,
    "slice_accuracy_pct": 297.21,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 3.8%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 10547,
@@ -280,7 +280,7 @@
    "modelled_damage_pct": 9.9,
    "slice_accuracy_pct": 42.21,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 9.9%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 11431,
@@ -313,7 +313,7 @@
    "modelled_damage_pct": 4.6,
    "slice_accuracy_pct": 1400.05,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 4.6%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 16501,
@@ -357,7 +357,7 @@
    "modelled_damage_pct": 10.2,
    "slice_accuracy_pct": 201.06,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 10.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 20491,
@@ -368,7 +368,7 @@
    "modelled_damage_pct": 5.6,
    "slice_accuracy_pct": 108.4,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 5.6%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 22640,
@@ -379,7 +379,7 @@
    "modelled_damage_pct": 4.2,
    "slice_accuracy_pct": 169.35,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 4.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 22833,
@@ -423,7 +423,7 @@
    "modelled_damage_pct": 3.0,
    "slice_accuracy_pct": 755.8,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 3.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 32037,
@@ -467,7 +467,7 @@
    "modelled_damage_pct": 0.2,
    "slice_accuracy_pct": 5833.46,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.2%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 33686,
@@ -522,7 +522,7 @@
    "modelled_damage_pct": 13.3,
    "slice_accuracy_pct": 41.01,
    "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 13.3%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": false
+   "within_tolerance": null
   },
   {
    "character_id": 40568,

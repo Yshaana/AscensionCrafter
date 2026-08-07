@@ -217,6 +217,40 @@ from **5 passing to 2**, i.e. it fails on the run that stamped it.
 0.0% coverage with a non-null delta, and the sim has no opinion about them.
 Slice accuracy already refused to report there; the criterion now does too.
 
+---
+
+#### ✅ APPLIED 2026-08-07 (`3g` G4) — and it cost nothing, for a reason worth reading
+
+**That gate is `3g`.** The floor is in force, in its own commit with its own
+before/after pair (owner decision 2026-08-07). Below it the verdict is
+**NOT SCOREABLE** (`None`), not `False` — the same treatment zero coverage
+already had, because *"we have no opinion"* is a different statement from
+*"it failed"*. **The value was not re-tuned**: 20.0 is what was stamped on
+2026-08-06, and changing it after seeing `3g`'s result would be moving a gate
+after seeing its number, in either direction.
+
+🔬 **It removed nobody, and the reason is the session's best corroboration of
+its own justification.** When this was stamped it would have cut the gate from
+**5 passing to 2**. By the time it was applied, `3g` G1 had fixed **E13** — a
+percent-vs-fraction unit error making every white swing exactly 100× over — and
+the only surviving passer sits at **82.2%** coverage, far above the floor. The
+four low-coverage passes the floor was designed to catch (4.6%, 5.6%, 13.3% and
+one at 57.6%) were **the same characters E13 was inflating**: their passes were
+compensating error, and two independent instruments — a coverage floor stamped
+on the shape of the metric, and a unit fix in the engine — identified the same
+rows from opposite directions. Ten characters are now NOT SCOREABLE under the
+floor; none of them was passing.
+
+**Attribution, settled from git** (`3g` G4, answering `AUDIT_3E` §6): `git log
+-S` puts `SLICE_COVERAGE_FLOOR_PCT` and `SUCCESSOR_COVERAGE_FLOOR_PCT` in **one
+commit**, `68779e7`. The **owner decided the policy** — that a floor applies,
+at the next gate and not the one being run. **Code chose the value**, in A2 of
+that same commit, from the band table. Neither claim was ever false, and a
+reader could reasonably take *"owner decision"* to cover the number as well —
+which is what the auditor flagged. The property that matters survives either
+reading: the value was fixed **before** it was applied to a criterion, and it is
+strictly harsher than what it replaced.
+
 ### The ~80% coverage figure, and why it is NOT a floor
 
 The decomposition is algebraically exact:
