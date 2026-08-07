@@ -354,6 +354,32 @@ count from 1 to 0 with `Boomcat` NOT ADMISSIBLE rather than failed.
 Pre-registered direction and interpretation: `predictions/prereg_3h_boomcat.md`
 (P7 supported; P8's it-survives branch did not arise).
 
+> ✅ **CORRECTION (`3i` D7): the "3" above is the FULL-RULE falsifiability
+> count, not the count `prereg_3h_boomcat.md` P9 actually registered.** P9
+> registered *"the death-deflation predicate (an APM ratio ≤ 0.5 within the
+> valid regime, or deaths > 0)"* — two predicates, not five. Of the three
+> names in "removes FAILING characters: 3", `Nodding` was flagged by
+> predicate 3 (the 52s window), not by APM ratio or deaths. **On the
+> predicate P9 actually registered, the count is 2** (Robottikyrpa, Frediib).
+> The bar (≥1) was met either way and the stop-rule did not trigger — the
+> DECISION does not change, only the number attached to it. Pasted block
+> above kept verbatim, per this project's rule against rewriting stamped
+> text.
+>
+> ⚠ **FURTHER CORRECTION (`3i` D5, applying session): the tightened
+> comparator moves the roster, not just this count.** D5 fixed three
+> fail-open comparator flaws (a comparator scope could overlap the scope
+> under test, be shorter than the parse-validity floor, or contain trash) —
+> real correctness fixes, found in `AUDIT_3H_ADVERSARIAL.md` §5.2/§5.3, not
+> a fit to any wanted result. Re-run: **`Robottikyrpa` and `Frediib` no
+> longer carry a confident APM ratio at all** — their comparator sets shrank
+> below 2 qualifying scopes once self-overlapping/short/trash-tainted
+> comparators were excluded, so `ratio` is `None` (refused), not `≤ 0.5`.
+> **Under the P9-registered predicate alone, the count is now 0.** The
+> FULL rule's falsifiability bar is still met, because `Nodding` (predicate
+> 3, untouched by D5) is unaffected — see `predictions/prereg_3i_admissibility.md`
+> for the full account and why this does not change the decision to apply.
+
 ### The ~80% coverage figure, and why it is NOT a floor
 
 The decomposition is algebraically exact:

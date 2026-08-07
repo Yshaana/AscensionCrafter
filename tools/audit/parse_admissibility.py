@@ -20,14 +20,26 @@ kind of number this project retracts.
 character table is computed and printed before any delta or verdict is read.
 The falsifiability comparison at the end reads the committed manifest's
 verdicts — AFTER the blind table — because "does the rule remove a FAILING
-character" cannot be answered without them. Nothing here writes anything:
-this tool stamps nothing and applies nothing (D4 is an owner decision).
+character" cannot be answered without them.
 
-⚠ E15 interplay: casts are summed over `is_pet = 0` rows only. Pet rows
-duplicate owner rows for 15,551 groups (ENGINE_BUGS E15), and a pet's casts
-are not the player's actions in any case.
+⚠ E15 interplay: casts are summed over `is_pet = 0` rows only. Pet rows no
+longer duplicate owner rows post-3i-B (the restatement lives in
+pet_ability_damage), and a pet's casts are not the player's actions in any
+case.
+
+🆕 3i D — the rule is APPLIED (owner decision, Q4: yes, taking the known hit).
+`admissibility_for()` is the single implementation both this tool's own
+`main()` and `calibrate_crawled.py`'s gate loop call, so the two can never
+drift. Predicates 4 and 5 are now COMPUTED, not printed as inert prose (D1,
+D2); `resolved_entries` and the comparator context print beside every ratio
+(D3); the fail-open regime is counted and "N of 41" is reported as a LOWER
+BOUND with its composition (D4); the comparator excludes trash-tainted,
+short, and self-overlapping scopes, and no longer silently drops a
+legitimate 0.0 APM comparator (D5); the stamped thresholds are asserted
+against this module's constants (D6).
 """
 import json
+import re
 import sqlite3
 import statistics
 import sys
@@ -40,7 +52,9 @@ import config  # noqa: E402
 from config import BUILDS_DB_PATH, DB_PATH  # noqa: E402
 
 import calibrate_crawled as cc  # noqa: E402
+from core.builds.phases import resolve_phase  # noqa: E402
 from core.db.connection import connect  # noqa: E402
+from ingest.logs_gg.build_builds_db import latest_phase_context  # noqa: E402
 
 config.ensure_utf8_stdout()
 
@@ -55,14 +69,57 @@ MAX_CAST_TIME_ENTRIES = 2
 # character's own typical rate.
 APM_RATIO_BOUND = 0.5
 
-# Parse-window floor: the analyze-capture rule flags conclusions from under
-# ~60s of data as provisional; a scored parse below it is a data-quality
-# exclusion candidate, not a modelling input.
+# 🆕 3i D8 — provenance stated, not invented alongside its result: this is
+# CLAUDE.md's own capture-validity rule ("flag any conclusion drawn from
+# under ~60 s of data as provisional"), applied here as an admissibility
+# predicate rather than a footnote. The constant predates this tool.
 MIN_PARSE_SECONDS = 60.0
 
 # Effect types excluded from the cast-time count (mechanical, not name-based):
 # 28 = SPELL_EFFECT_SUMMON, 24 = SPELL_EFFECT_CREATE_ITEM (conjures).
 _NON_COMBAT_EFFECTS = {24, 28}
+
+# 🆕 3i D6 — the stamped thresholds this module's constants must equal.
+# predictions/CALIBRATION_TOLERANCE.md successor #3's predicate list, as text
+# fragments to locate and the constant each must match.
+_STAMP_PATH = (Path(__file__).resolve().parents[2] / "predictions"
+              / "CALIBRATION_TOLERANCE.md")
+_STAMP_CHECKS = [
+    ("APM ratio", r"APM ratio\s*[≤<=]+\s*([\d.]+)", APM_RATIO_BOUND),
+    ("cast-time entries", r"[≤<=]+\s*(\d+)\s*cast-time combat entries",
+     MAX_CAST_TIME_ENTRIES),
+    ("parse window", r"Parse window\s*<\s*(\d+)\s*s", MIN_PARSE_SECONDS),
+]
+
+
+def assert_stamped_thresholds():
+    """3i D6 — this module's constants must equal the stamped predicate text.
+
+    Registered mutation M33 (RUN 2026-08-07): set APM_RATIO_BOUND = 0.4 —
+    goes RED, reporting stamped 0.5 vs module 0.4. Green path: the constants
+    above, matched by construction (this IS the fix; a mismatch means either
+    the stamp or the code drifted and both must be reconciled by hand, never
+    silently reconciled by the assertion).
+    """
+    if not _STAMP_PATH.exists():
+        print(f"🛑 [D6] cannot verify — {_STAMP_PATH} does not exist")
+        return False
+    text = _STAMP_PATH.read_text(encoding="utf-8")
+    ok = True
+    for label, pattern, module_value in _STAMP_CHECKS:
+        m = re.search(pattern, text)
+        if not m:
+            print(f"🛑 [D6] FAIL — stamped text for {label!r} not found by "
+                  f"pattern {pattern!r}; cannot verify")
+            ok = False
+            continue
+        stamped_value = float(m.group(1))
+        match = abs(stamped_value - float(module_value)) < 1e-9
+        tag = "PASS" if match else "FAIL"
+        print(f"{tag}  [D6] {label}: stamped {stamped_value:g} == "
+              f"module {float(module_value):g}")
+        ok = ok and match
+    return ok
 
 
 def cast_time_entries(asc, bdb, snapshot_id):
@@ -71,6 +128,17 @@ def cast_time_entries(asc, bdb, snapshot_id):
     Resolution: snapshot_cards.spell_id -> spell_dbc_raw.casting_time_index ->
     dbc_spellcasttimes.base (ms). base > 0 = cast-time. Summons and conjures
     are excluded by effect type, never by name.
+
+    ⚠ 3i D4 — FAIL-OPEN, by construction, in four places (unchanged from 3h;
+    documented here rather than fixed, because the regime test's job is to
+    ANSWER "is this instant-heavy", and every one of these treats an
+    UNKNOWN card as instant): an unresolved snapshot_cards row never reaches
+    this query; a card absent from spell_dbc_raw increments neither counter;
+    a NULL/0 casting_time_index is not counted as cast-time; a card whose
+    casting_time_index has no dbc_spellcasttimes row is not counted either.
+    `resolved_entries` is returned so a caller can see WHEN this matters —
+    resolved_entries << the card count on the snapshot means the regime
+    verdict below is unverified, not confirmed instant.
     """
     rows = bdb.execute(
         "SELECT DISTINCT spell_id FROM snapshot_cards "
@@ -100,6 +168,7 @@ def cast_time_entries(asc, bdb, snapshot_id):
             continue
         n_cast += 1
     return {"cast_time_entries": n_cast, "resolved_entries": n_resolved,
+            "card_count": len(rows),
             "fraction": (n_cast / n_resolved) if n_resolved else None}
 
 
@@ -126,6 +195,36 @@ def scope_duration_seconds(bdb, scope_id):
     return tot
 
 
+def _scope_encounter_ids(bdb, scope_id):
+    row = bdb.execute(
+        "SELECT encounter_id, encounter_ids_json FROM capture_scopes "
+        "WHERE scope_id = ?", (scope_id,)).fetchone()
+    if row is None:
+        return set()
+    enc_id, ids_json = row
+    ids = {enc_id} if enc_id is not None else set()
+    if not ids and ids_json:
+        try:
+            ids |= set(json.loads(ids_json) or [])
+        except ValueError:
+            pass
+    return ids
+
+
+def _scope_is_trash_free(bdb, encounter_ids):
+    """3i D5 — a comparator scope is admissible only if NONE of its
+    encounters are trash. Checked mechanically via `encounters.is_trash`,
+    never by matching the `scope` string (the same discipline as everywhere
+    else in this project: a structured flag, not a name)."""
+    if not encounter_ids:
+        return False
+    q = ",".join("?" * len(encounter_ids))
+    row = bdb.execute(
+        f"SELECT SUM(COALESCE(is_trash, 0)) FROM encounters "
+        f"WHERE encounter_id IN ({q})", list(encounter_ids)).fetchone()
+    return bool(row and (row[0] or 0) == 0)
+
+
 def scope_apm(bdb, character_id, scope_id):
     """This character's casts per minute over one scope. is_pet = 0 only."""
     dur = scope_duration_seconds(bdb, scope_id)
@@ -146,11 +245,26 @@ def apm_ratio(bdb, character_id, scope_id, *, n_cast_time_entries):
     Returns a dict whose `ratio` is None — never a number — when the kit is
     outside the instant-heavy regime or fewer than 2 other scopes exist to
     define "typical".
+
+    🆕 3i D5 — the comparator set is TIGHTENED, four ways:
+      * excludes any scope with a trash encounter in it (`is_trash`, checked
+        mechanically);
+      * excludes any scope shorter than MIN_PARSE_SECONDS — a comparator
+        drawn from noisy data is not "typical";
+      * excludes any scope whose encounter set OVERLAPS the scope under
+        test — a `boss_group` comparator that CONTAINS the tested
+        `boss_single` encounter would compare a scope against itself;
+      * no longer drops a comparator scope whose APM is legitimately 0.0 —
+        the previous `if (a := scope_apm(...))` treated 0.0 as falsy and
+        silently excluded it, which is exactly the death-deflation signal
+        this predicate exists to detect. Fixed to `is not None`.
     """
     out = {"scope_apm": scope_apm(bdb, character_id, scope_id),
            "n_cast_time_entries": n_cast_time_entries,
            "in_regime": n_cast_time_entries <= MAX_CAST_TIME_ENTRIES,
-           "other_scope_apms": [], "ratio": None, "reason": None}
+           "other_scope_apms": [], "comparator_median": None,
+           "n_comparator_scopes_seen": 0, "n_comparator_scopes_excluded": 0,
+           "ratio": None, "reason": None}
     if not out["in_regime"]:
         out["reason"] = (f"{n_cast_time_entries} cast-time combat entries > "
                          f"{MAX_CAST_TIME_ENTRIES} — casts under-counts this "
@@ -159,18 +273,105 @@ def apm_ratio(bdb, character_id, scope_id, *, n_cast_time_entries):
     if out["scope_apm"] is None:
         out["reason"] = "no casts or no duration for this scope"
         return out
+    target_encs = _scope_encounter_ids(bdb, scope_id)
     others = [s for (s,) in bdb.execute(
         "SELECT DISTINCT scope_id FROM ability_performance "
         "WHERE character_id = ? AND scope_id != ? AND is_pet = 0",
         (character_id, scope_id)).fetchall()]
-    apms = [a for s in others if (a := scope_apm(bdb, character_id, s))]
+    out["n_comparator_scopes_seen"] = len(others)
+    apms = []
+    for s in others:
+        encs = _scope_encounter_ids(bdb, s)
+        dur = scope_duration_seconds(bdb, s)
+        if encs & target_encs:
+            continue                        # self-overlap
+        if not dur or dur < MIN_PARSE_SECONDS:
+            continue                        # too short to be "typical"
+        if not _scope_is_trash_free(bdb, encs):
+            continue                        # trash-tainted
+        a = scope_apm(bdb, character_id, s)
+        if a is not None:                   # 🛑 NOT `if a:` — 0.0 is data
+            apms.append(a)
+    out["n_comparator_scopes_excluded"] = len(others) - len(apms)
     out["other_scope_apms"] = sorted(round(a, 1) for a in apms)
     if len(apms) < 2:
-        out["reason"] = (f"only {len(apms)} other scope(s) with an APM — no "
-                         f"'typical rate' to compare against, ratio refused")
+        out["reason"] = (f"only {len(apms)} qualifying other scope(s) (of "
+                         f"{len(others)} seen) — no 'typical rate' to "
+                         f"compare against, ratio refused")
         return out
-    out["ratio"] = out["scope_apm"] / statistics.median(apms)
+    out["comparator_median"] = statistics.median(apms)
+    out["ratio"] = out["scope_apm"] / out["comparator_median"]
     return out
+
+
+def admissibility_for(bdb, asc, phase_ctx, *, character_id, character_name,
+                      snapshot_id, scope_id, window_s, snapshot_lag_hours):
+    """3i — the single admissibility computation. Called by THIS tool's own
+    `main()` and by `calibrate_crawled.py`'s gate loop, so the two can never
+    disagree about which characters are flagged.
+
+    `phase_ctx` is `(windows, horizon, refuse_reason, boundary)` from
+    `ingest.logs_gg.build_builds_db.latest_phase_context()` — computed ONCE
+    by the caller and passed in, so a per-character loop does not re-read
+    the crawl files per row.
+
+    Returns a dict with `not_admissible: bool`, `flags: [str]` (empty if
+    admissible) and every diagnostic field D3 asks to be printed.
+    """
+    windows, horizon, refuse_reason, boundary = phase_ctx
+    ct = cast_time_entries(asc, bdb, snapshot_id)
+    ar = apm_ratio(bdb, character_id, scope_id,
+                   n_cast_time_entries=ct["cast_time_entries"])
+    deaths = bdb.execute(
+        "SELECT MAX(deaths) FROM encounter_performance "
+        "WHERE character_id = ? AND scope_id = ?",
+        (character_id, scope_id)).fetchone()[0]
+
+    # 🆕 3i D1 — predicate 4, COMPUTED via core.builds.phases.resolve_phase,
+    # not printed as a sentence that becomes false at the 2026-08-08
+    # boundary. Uses the snapshot's own captured_at.
+    captured_at = bdb.execute(
+        "SELECT captured_at FROM character_snapshots WHERE snapshot_id = ?",
+        (snapshot_id,)).fetchone()
+    captured_at = captured_at[0] if captured_at else None
+    phase_label, phase_reason = resolve_phase(
+        captured_at, windows, horizon,
+        refuse_reason=refuse_reason, boundary=boundary)
+
+    flags = []
+    if ar["ratio"] is not None and ar["ratio"] <= APM_RATIO_BOUND:
+        flags.append(f"apm_ratio {ar['ratio']:.2f} <= {APM_RATIO_BOUND:g}")
+    if deaths and deaths > 0:
+        flags.append(f"deaths {deaths}")
+    if window_s is not None and window_s < MIN_PARSE_SECONDS:
+        flags.append(f"window {window_s:.0f}s < {MIN_PARSE_SECONDS:g}s")
+    # 🆕 3i D1 — predicate 4, now live.
+    if phase_label is None:
+        flags.append(f"unresolved phase: {phase_reason}")
+    # 🆕 3i D2 — predicate 5, TESTED rather than asserted inert. Stated as
+    # inert-by-construction in the stamp (lag 0 is enforced at selection);
+    # this makes that a checked fact, not an assumption, so a future
+    # candidates() change that loosens --max-lag-hours cannot silently
+    # smuggle a stale build past this predicate.
+    if snapshot_lag_hours is not None and snapshot_lag_hours > 0:
+        flags.append(f"snapshot lag {snapshot_lag_hours:.1f}h > 0h")
+
+    return {
+        "character_id": character_id, "name": character_name,
+        "window_s": window_s, "snapshot_lag_h": snapshot_lag_hours,
+        "cast_time_entries": ct["cast_time_entries"],
+        "resolved_entries": ct["resolved_entries"],
+        "card_count": ct["card_count"],
+        "apm": ar["scope_apm"], "apm_ratio": ar["ratio"],
+        "apm_reason": ar["reason"], "in_regime": ar["in_regime"],
+        "comparator_median": ar["comparator_median"],
+        "other_scope_apms": ar["other_scope_apms"],
+        "n_comparator_scopes_seen": ar["n_comparator_scopes_seen"],
+        "n_comparator_scopes_excluded": ar["n_comparator_scopes_excluded"],
+        "deaths": deaths,
+        "phase_label": phase_label, "phase_reason": phase_reason,
+        "not_admissible": bool(flags), "flags": flags,
+    }
 
 
 def main():
@@ -180,11 +381,24 @@ def main():
     bdb = sqlite3.connect(BUILDS_DB_PATH)
     asc = connect(DB_PATH)
 
+    if not assert_stamped_thresholds():
+        print("\n🛑 REFUSING to compute admissibility — this module's "
+              "constants disagree with the stamped predicate text in "
+              f"{_STAMP_PATH}. Reconcile before trusting any number below.")
+        return 1
+    print()
+
     cohort_ids, _spec = cc.load_frozen_cohort(cc.COHORT_PATH)
     cands, dropped, _outside = cc.candidates(bdb, cohort_ids, 0.0)
+    phase_ctx = latest_phase_context()
+    windows, horizon, refuse_reason, boundary = phase_ctx
+    print(f"[phase] {len(windows)} window(s), horizon "
+          f"{horizon.isoformat() if horizon else 'UNKNOWN'}, "
+          f"guard reason: {refuse_reason or '(none — payload consistent)'}, "
+          f"boundary armed: {boundary.isoformat() if boundary else 'no'}")
 
     # ---- the BLIND table: parse properties only, no delta touched ---------
-    print(f"[blind] predicates over all {len(cohort_ids)} frozen members "
+    print(f"\n[blind] predicates over all {len(cohort_ids)} frozen members "
           f"(tuning AND holdout — the rule must apply identically), computed "
           f"before any delta or verdict is read:")
     print(f"[blind] predicate 1: APM ratio <= {APM_RATIO_BOUND:g} inside the "
@@ -193,13 +407,14 @@ def main():
     print(f"[blind] predicate 2: deaths > 0 — encounter_performance.deaths is "
           f"ALL NULL today (declared, never written), so this predicate "
           f"removes nobody until D2 lands data")
-    print(f"[blind] predicate 3: parse window < {MIN_PARSE_SECONDS:g}s")
-    print(f"[blind] predicate 4: capture resolves to no phase — every corpus "
-          f"capture predates the 2026-08-08 boundary, so this removes nobody "
-          f"today (G0 arms at the boundary)")
-    print(f"[blind] predicate 5: snapshot lag > 0h — the gate already "
-          f"enforces lag 0 at selection, so this removes nobody by "
-          f"construction\n")
+    print(f"[blind] predicate 3: parse window < {MIN_PARSE_SECONDS:g}s "
+          f"(CLAUDE.md's provisional-data floor)")
+    print(f"[blind] predicate 4: capture resolves to no phase — COMPUTED via "
+          f"core.builds.phases.resolve_phase (3i D1)")
+    print(f"[blind] predicate 5: snapshot lag > 0h — TESTED, not assumed "
+          f"(3i D2); the gate already enforces lag 0 at selection, so this "
+          f"is expected to remove nobody by construction, and now checks "
+          f"that rather than asserting it\n")
 
     seen = set()
     table = []
@@ -209,46 +424,53 @@ def main():
         if cid in seen:
             continue
         seen.add(cid)
-        ct = cast_time_entries(asc, bdb, snapshot_id)
-        ar = apm_ratio(bdb, cid, scope_id,
-                       n_cast_time_entries=ct["cast_time_entries"])
-        deaths = bdb.execute(
-            "SELECT MAX(deaths) FROM encounter_performance "
-            "WHERE character_id = ? AND scope_id = ?",
-            (cid, scope_id)).fetchone()[0]
-        flags = []
-        if ar["ratio"] is not None and ar["ratio"] <= APM_RATIO_BOUND:
-            flags.append(f"apm_ratio {ar['ratio']:.2f} <= {APM_RATIO_BOUND:g}")
-        if deaths and deaths > 0:
-            flags.append(f"deaths {deaths}")
-        if dur is not None and dur < MIN_PARSE_SECONDS:
-            flags.append(f"window {dur:.0f}s < {MIN_PARSE_SECONDS:g}s")
-        table.append({
-            "character_id": cid, "name": cname,
-            "holdout": cid in cc.HOLDOUT_IDS,
-            "window_s": dur, "snapshot_lag_h": lag,
-            "cast_time_entries": ct["cast_time_entries"],
-            "resolved_entries": ct["resolved_entries"],
-            "apm": ar["scope_apm"], "apm_ratio": ar["ratio"],
-            "apm_reason": ar["reason"],
-            "n_other_scopes": len(ar["other_scope_apms"]),
-            "deaths": deaths,
-            "not_admissible": bool(flags), "flags": flags,
-        })
-        rat = f"{ar['ratio']:.2f}" if ar["ratio"] is not None else "None"
+        t = admissibility_for(bdb, asc, phase_ctx, character_id=cid,
+                              character_name=cname, snapshot_id=snapshot_id,
+                              scope_id=scope_id, window_s=dur,
+                              snapshot_lag_hours=lag)
+        t["holdout"] = cid in cc.HOLDOUT_IDS
+        table.append(t)
+        rat = f"{t['apm_ratio']:.2f}" if t["apm_ratio"] is not None else "None"
+        cm = (f"{t['comparator_median']:.1f}"
+              if t["comparator_median"] is not None else "n/a")
         print(f"  {cname:>14} ({cid}): window {dur:6.1f}s, "
-              f"cast-time entries {ct['cast_time_entries']:2d}, "
-              f"APM {ar['scope_apm'] and round(ar['scope_apm'], 1)!s:>6}, "
-              f"ratio {rat:>5} "
-              f"({'REGIME' if ar['in_regime'] else 'refused'}"
-              + (f", n_others={len(ar['other_scope_apms'])}" if ar["in_regime"] else "")
-              + ")"
-              + (f"  🛑 NOT ADMISSIBLE: {'; '.join(flags)}" if flags else ""))
+              f"cast-time {t['cast_time_entries']:2d}/"
+              f"{t['resolved_entries']:2d} resolved, "
+              f"APM {t['apm'] and round(t['apm'], 1)!s:>6}, "
+              f"comparator_median {cm:>6}, ratio {rat:>5} "
+              f"({'REGIME' if t['in_regime'] else 'refused'}"
+              + (f", n_others={len(t['other_scope_apms'])} "
+                 f"(of {t['n_comparator_scopes_seen']} seen, "
+                 f"{t['n_comparator_scopes_excluded']} excluded)"
+                 if t["in_regime"] else "")
+              + f", other_apms={t['other_scope_apms']})"
+              + (f"  🛑 NOT ADMISSIBLE: {'; '.join(t['flags'])}"
+                 if t["flags"] else ""))
 
+    # ---- 3i D4 — the fail-open regime, counted and reported as a lower
+    # bound rather than left implicit -----------------------------------
+    out_of_regime = [t for t in table if not t["in_regime"]]
+    escape_hatch = [t for t in table
+                   if t["in_regime"] and t["apm_ratio"] is None
+                   and t["apm_reason"] and "qualifying other scope" in t["apm_reason"]]
+    unresolved_regime = [t for t in table
+                         if t["resolved_entries"] < max(1, t["card_count"] // 2)]
     flagged = [t for t in table if t["not_admissible"]]
-    print(f"\n[blind] cohort effect: {len(flagged)} of {len(table)} members "
+    print(f"\n[regime] {len(out_of_regime)} of {len(table)} boards are "
+          f"OUT-OF-REGIME (predicate 1 structurally cannot flag them); "
+          f"{len(escape_hatch)} are in-regime but hit the "
+          f"< 2-comparator-scopes escape hatch (not in the stamped text); "
+          f"{len(unresolved_regime)} have fewer than half their cards "
+          f"resolved to a cast-time verdict (regime unverified, not "
+          f"confirmed instant)")
+    print(f"[blind] cohort effect: {len(flagged)} of {len(table)} members "
           f"flagged NOT ADMISSIBLE (None, never False): "
           + (", ".join(t["name"] for t in flagged) if flagged else "none"))
+    print(f"🛑 [blind] {len(flagged)} of {len(table)} is a LOWER BOUND on "
+          f"what the rule would flag with perfect information — it is a "
+          f"measurement of how much the corpus is inadmissible ONLY where "
+          f"predicate 1 can see the kit at all "
+          f"({len(table) - len(out_of_regime)} of {len(table)} boards).")
 
     # ---- falsifiability — reads the committed manifest's verdicts, AFTER --
     print("\n[falsifiability] comparing against the committed manifest's "
@@ -277,8 +499,9 @@ def main():
               "the fitting asymmetry: DO NOT STAMP; report and stop.")
     else:
         print("  -> the rule removes nobody at all on today's corpus.")
-    print("\n[stamp] NOTHING STAMPED, NOTHING APPLIED — D4 is an owner "
-          "decision; this tool only measures.")
+    print("\n[stamp] measurement only from this tool — APPLYING the rule to "
+          "the gate itself happens in calibrate_crawled.py (3i D), which "
+          "calls admissibility_for() directly.")
     return 0
 
 
