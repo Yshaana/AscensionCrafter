@@ -448,8 +448,15 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
     character's gear and buffs but only knows magnitudes for 15% of what they
     actually pressed, the miss is per-ability coverage, not stats.
 
-    Pet rows are counted in the denominator — the character's logged DPS
-    includes them, so excluding them here would flatter the coverage number.
+    🛑 3i B2 (E15) — `is_pet = 0` ONLY. This docstring used to argue the
+    opposite ("logged DPS includes them, so excluding them would flatter
+    coverage") and that rationale inverted with E15: the `is_pet = 1` rows
+    were a RESTATEMENT of damage already owner-merged into the is_pet = 0
+    rows, so counting them double-counted every pet owner's denominator —
+    measured at 3h C4, slice 20.5 → 19.8 on the dedupe alone. On a corpus
+    rebuilt after the ingest fix the filter is a no-op (the restatement now
+    lands in pet_ability_damage); against a legacy builds.db it is the
+    rows[]-canonical policy applied at read time.
     """
     sim_spell_ids = set(per_ability.keys())
     producing_ids = {sid for sid, v in per_ability.items()
@@ -457,7 +464,8 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
     rows = conn.execute(
         "SELECT spell_id, spell_name, damage_total, is_pet, spell_school "
         "FROM ability_performance "
-        "WHERE scope_id = ? AND character_id = ? AND damage_total > 0",
+        "WHERE scope_id = ? AND character_id = ? AND damage_total > 0 "
+        "AND is_pet = 0",
         (scope_id, character_id)).fetchall()
     total = sum(r[2] for r in rows)
     if not total:

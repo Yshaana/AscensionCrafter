@@ -885,7 +885,58 @@ fix. See the closure box at the top of this entry.
 
 ---
 
-## E15 — pet-attributable damage is stored TWICE in `ability_performance`, so every SUM over the table double-counts it 🆕🚨
+## E15 — pet-attributable damage is stored TWICE in `ability_performance`, so every SUM over the table double-counts it — ✅ FIXED (`3i` B)
+
+> ### ✅ Closed 2026-08-07, session `3i` Block B. The record below is what was found; this box is what happened.
+>
+> **Fixed at the layer where it lives — ingest — plus the `dps` consumer, one
+> commit, pre-registered** (`predictions/prereg_3i_e15.md`, committed first).
+> The decision (Q2 default, stated as a decision): **`rows[]` is canonical.**
+> `ability_performance` now holds `rows[]` only; the endpoint's per-pet
+> restatement lands in a new **`pet_ability_damage`** side table — the
+> attribution layer E3's resolution route needs, structurally unsummable into
+> the canonical totals. `encounter_performance.dps` is `total_damage / dur`
+> (the `+ pet_damage` term was adding the restatement);
+> `pet_damage` stays populated from the side table as the informational
+> "of the total, this much was pet-delivered" figure.
+> `modelled_damage_share` reads `is_pet = 0` only — a no-op on the rebuilt
+> corpus, the rows[]-canonical policy at read time against a legacy db. The
+> `is_pet` column and PK are untouched (Q3: the schema commit is its own
+> later change). Corpus re-derived: **0 `is_pet=1` rows remain; 22,427 rows /
+> 530.5M damage in `pet_ability_damage`.**
+>
+> **Gate pair (measured, this commit): `1 / 1 / 20.5% (n=23)` →
+> `1 / 1 / 26.3% (n=23)`.** Counts unchanged (P2 ✓); the biggest `delta_pct`
+> movers are exactly the pre-registered pet-exposure list, all UP, none down
+> (P3 ✓ — Chastie −35.6→−4.3, Malo −87.2→−76.3, Frediib −57.4→−47.1, David,
+> Ikkura, Onur); coverage net +0.44 mean (P4 ✓, marginal).
+> 🛑 **P1 was FALSE: slice moved UP, not down toward the 19.8 anchor.** The
+> anchor came from `3h`'s consumer-dedupe-only candidate, which corrected the
+> coverage side while leaving `dps` (hence `delta_pct`) uncorrected — an
+> internally inconsistent intermediate. In the full fix the logged-total
+> correction cancels inside `slice = (100+delta)/coverage`, and what remains
+> is the **matched**-mass dedupe (the halved pet-class autos), which raises
+> slice per pet owner (Malo 20.4→36.8, Ikkura 5.3→8.6, Frediib 85.3→114.5).
+> The prereg's stop-rule fired and the investigation is in the session
+> record. ⚠ Chastie at −4.3% would now pass ±20%; the 20% coverage floor
+> (6.8% coverage) correctly holds it NOT SCOREABLE — the floor preventing a
+> compensating-error pass from re-entering, as designed.
+>
+> 🆕 **The 1,208 owner < pet groups are LOCATED, not explained — registered:**
+> **0 of them occur in any `boss_single` scope**; they concentrate in
+> `trash_bundle` and aggregated `boss_group` scopes with pet/owner ratios of
+> 5–1800× and pet casts ≫ owner casts (Firebolt (Wild Imp): 4,067 pet casts
+> vs 143 owner-merged). Consistent with **scope drift between the payload's
+> two blocks on aggregated scopes**; unprovable from our side without
+> re-fetching trash bundles. Under the rows[]-canonical rule their excess
+> (69.7M) plus the 1,642 pet-only groups (19.6M) — ~3.2% of corpus owner-side
+> damage — is **excluded from canonical totals** and preserved in the side
+> table with this caveat in its DDL.
+>
+> **The check** (`check_e15_pet_row_double_count`) left `EXPECTED_FAILURES`
+> per the registry's rule and runs as a hard regression guard; its mutation
+> (drop the `is_pet = 0` filter) is unchanged and was the literal pre-fix
+> state.
 
 | | |
 |---|---|

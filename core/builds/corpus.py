@@ -155,6 +155,32 @@ CREATE TABLE IF NOT EXISTS ability_performance (
     PRIMARY KEY (scope_id, character_id, spell_id, spell_name, is_pet)
 );
 
+-- 🆕 3i B2 (E15) — the endpoint's per-pet RESTATEMENT, kept out of the table
+-- it used to double-count. `rows[]` is owner-MERGED (3h D2, report 79): it
+-- already contains pet damage, and `pet_spell_damage_by_owner` restates it.
+-- Ingesting both into ability_performance stored pet damage twice (E15), so:
+-- ability_performance holds rows[] ONLY (is_pet is now constant 0 there; the
+-- column and PK stay until the deferred schema commit, 3i Q3), and the pet
+-- block lands here — the attribution layer E3's resolution route needs
+-- (pet_damage_not_derivable), structurally unsummable into the canonical
+-- totals by accident.
+-- 🛑 NEVER add this table's damage to ability_performance sums: it is a
+-- restatement ("of the owner's total, this much was pet-delivered"), not an
+-- addition. ⚠ On aggregated trash_bundle/boss_group scopes the two payload
+-- blocks DISAGREE (pet up to 1800× the owner-merged copy, 0 such cases in any
+-- boss_single scope — scope drift between the blocks, registered in
+-- ENGINE_BUGS E15's closure, unresolvable from our side), so per-pet figures
+-- from aggregated scopes carry that caveat.
+CREATE TABLE IF NOT EXISTS pet_ability_damage (
+    scope_id INTEGER NOT NULL REFERENCES capture_scopes(scope_id),
+    encounter_id INTEGER,
+    character_id INTEGER NOT NULL,   -- the OWNER, as ability_performance keys it
+    spell_id INTEGER, spell_name TEXT, spell_school TEXT,
+    casts INTEGER, hits INTEGER, crits INTEGER,
+    damage_total REAL,
+    PRIMARY KEY (scope_id, character_id, spell_id, spell_name)
+);
+
 -- Avoidance ground truth: how often each PLAYER ability was avoided by each enemy.
 -- Keyed by the enemy target; the endpoint carries NO attacker id (Phase 0).
 CREATE TABLE IF NOT EXISTS ability_avoidance (
@@ -422,23 +448,32 @@ def ingest_abilities_record(conn, rec):
             0, r.get("casts"), r.get("hits"), r.get("crits"),
             r.get("total_damage"), None, None, None,
         ))
-    # pet damage, attributed to the owner and flagged is_pet
+    # 🛑 3i B2 (E15) — the pet block is a RESTATEMENT of damage already merged
+    # into rows[] (3h D2), so it must not land in ability_performance, where
+    # every SUM was counting it twice. rows[] is canonical there; the per-pet
+    # attribution goes to its own table (see the pet_ability_damage DDL).
+    pets = []
     for owner_id, pet_rows in (payload.get("pet_spell_damage_by_owner") or {}).items():
         for r in pet_rows or []:
             if not r.get("is_pet"):
                 continue
-            out.append((
+            pets.append((
                 scope_id, enc_id, _int_or_none(owner_id),
                 _int_or_none(r.get("spell_id")), r.get("spell_name"), r.get("spell_school"),
-                1, r.get("casts"), r.get("hits"), r.get("crits"),
-                r.get("total_damage"), None, None, None,
+                r.get("casts"), r.get("hits"), r.get("crits"),
+                r.get("total_damage"),
             ))
     conn.executemany(
         """INSERT OR REPLACE INTO ability_performance
              (scope_id, encounter_id, character_id, spell_id, spell_name, spell_school,
               is_pet, casts, hits, crits, damage_total, healing_total, overhealing, absorbs)
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", out)
-    return "ingested" if out else "skipped:no_player_rows"
+    conn.executemany(
+        """INSERT OR REPLACE INTO pet_ability_damage
+             (scope_id, encounter_id, character_id, spell_id, spell_name, spell_school,
+              casts, hits, crits, damage_total)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""", pets)
+    return "ingested" if out or pets else "skipped:no_player_rows"
 
 
 def ingest_healing_record(conn, rec):
@@ -590,13 +625,21 @@ def compute_encounter_performance(conn):
     endpoint ever offered for them).
     """
     conn.execute("DELETE FROM encounter_performance")
+    # 🛑 3i B3 (E15) — total_damage is the whole logged total: rows[] is
+    # owner-MERGED, so it already contains pet damage. `pet_damage` is the
+    # restatement from pet_ability_damage — "of the total, this much was
+    # pet-delivered" — kept for attribution and NEVER added back. dps used to
+    # read (total_damage + pet_damage) / dur, which counted every pet's
+    # damage twice in the gate's own logged denominator.
     conn.execute("""
         INSERT INTO encounter_performance
           (scope_id, encounter_id, character_id, total_damage, pet_damage,
            total_healing, effective_healing, dps, hps, damage_taken, path)
         SELECT ap.scope_id, cs.encounter_id, ap.character_id,
                SUM(CASE WHEN ap.is_pet = 0 THEN COALESCE(ap.damage_total, 0) ELSE 0 END),
-               SUM(CASE WHEN ap.is_pet = 1 THEN COALESCE(ap.damage_total, 0) ELSE 0 END),
+               (SELECT SUM(COALESCE(p.damage_total, 0)) FROM pet_ability_damage p
+                 WHERE p.scope_id = ap.scope_id
+                   AND p.character_id = ap.character_id),
                SUM(COALESCE(ap.healing_total, 0)),
                SUM(COALESCE(ap.healing_total, 0) - COALESCE(ap.overhealing, 0)),
                NULL, NULL,
@@ -611,7 +654,7 @@ def compute_encounter_performance(conn):
     # duration per scope = sum of its encounters' durations
     conn.execute("""
         UPDATE encounter_performance AS ep
-        SET dps = CASE WHEN d.dur > 0 THEN (ep.total_damage + COALESCE(ep.pet_damage,0)) / d.dur END,
+        SET dps = CASE WHEN d.dur > 0 THEN ep.total_damage / d.dur END,
             hps = CASE WHEN d.dur > 0 THEN ep.effective_healing / d.dur END
         FROM (SELECT cs.scope_id,
                      (SELECT SUM(e.duration_seconds) FROM encounters e
