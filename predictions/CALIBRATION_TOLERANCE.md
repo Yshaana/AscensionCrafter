@@ -179,50 +179,81 @@ figure was measuring a defect.
 | coverage floor | n | median slice accuracy | readable? |
 |---:|---:|---:|:--|
 | ≥0% | 33 | 40.3% | **no** — below the floor |
-| ≥10% | 26 | 23.4% | **no** — below the floor |
-| ≥20% | **23** | **20.5%** | yes |
-| ≥30% | 20 | 16.9% | yes |
-| ≥50% | 8 | 16.9% | yes |
+| ≥10% | 27 | 35.0% | **no** — below the floor |
+| ≥20% | **23** | **26.3%** | yes |
+| ≥30% | 20 | 17.5% | yes |
+| ≥50% | 9 | 15.6% | yes |
 
-⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8), and regenerated at `3h` A2 from
-`predictions/gate_manifest_3e.json`** (generated `2026-08-07T01:37:21Z`, `80a66e9`),
-`result.slice_accuracy_by_coverage_band_pct`. 🛑 **The version that stood here through `3g`
-was `3f`'s, and it survived a session that regenerated the manifest five times** — the same
-failure this warning was written to prevent, one session later, on the same table. Whoever
-moves this number next: regenerate, do not retype, and check this table in the same commit
-that moves the gate.
+⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
+GENERATED AND ASSERTED, because the warning alone failed twice.**
+`py tools/audit/render_band_table.py` renders it from
+`predictions/gate_manifest_3e.json`'s `result.slice_accuracy_by_coverage_band_pct`, and
+`check_refusals.py` asserts the paste matches — the same treatment `3h` A4 gave
+`CLAUDE.md`'s census line, for the same reason: *generation only helps if something
+asserts the paste.*
 
-**The sim reproduces roughly ONE FIFTH of the damage of the abilities it has a key for.**
+🛑 **The two failures, because they are the argument for the assertion.** `3f`'s table
+survived `3g`, a session that regenerated the manifest **five times**; `3h` A2 regenerated
+it and wrote the standing warning above. Then `3i` **moved the gate twice** (E15, then
+admissibility) and did not touch this table — the warning was ignored by the session that
+had just written it. `AUDIT_3I` §9.3 measured the drift: doc `≥10% 23.4% (n=26)` against
+manifest `34.96% (n=27)`, doc `≥20% 20.5%` against manifest `26.31%`.
+
+**The sim reproduces roughly ONE QUARTER of the damage of the abilities it has a key for.**
+⚠ *(`3j` C3: this sentence read "ONE FIFTH", true of the pre-E15 20.5% and stale at 26.3%.
+`AUDIT_3I` §9.6 flagged the same wording on `ENGINE_BUGS` E16.)*
 ⚠ *"has a key for"* is deliberate and is not the same as *"models"* — see
 `AUDIT_3G_ADVERSARIAL.md` §4 and `3h` Block B. Until that split is measured, this figure
 conflates magnitude error with zero production.
 
-> ✅ **ANNOTATION (`3i` A5): the split IS measured now** (`3h` Block B, committed in
-> `gate_manifest_3e.json`): producing-only slice median **30.7% (n=20)** beside the
-> headline 20.5% (n=23). ⚠ The two medians are over **different populations** — the
-> producing-only figure is upward-biased by selection (the three dropped members are
-> the worst cases); the paired median over the same members is a `3i` C5 output. The
+> ✅ **ANNOTATION (`3i` A5, ⚠ CORRECTED `3j` C3): the split IS measured now** (`3h`
+> Block B, committed in `gate_manifest_3e.json`): producing-only slice median
+> **37.6% (n=19)** beside the headline **26.3% (n=23)**. ⚠ The two medians are over
+> **different populations** — the producing-only figure is upward-biased by selection
+> (the dropped members are the worst cases); the paired median over the same members
+> is a `3i` C5 output and reads **26.3% headline / 37.6% producing-only**. The
 > paragraph above is kept as stamped.
+>
+> 🛑 **This annotation was stale inside its own session.** `3i` wrote it in Block A
+> citing *"30.7% (n=20), committed in `gate_manifest_3e.json`"*, and `3i` Block D then
+> re-ran the gate — so by the session's own close the manifest read **37.65 (n=19)**
+> and the annotation cited a number the file it named no longer contained. Figures
+> above re-read from the manifest (`result.median_slice_accuracy_pct_producing_only_
+> at_coverage_ge_20`, `result.producing_only_n`), not retyped. The lesson is the one
+> the band table above now enforces mechanically: **an annotation written in Block A
+> and a gate re-run in Block D belong to the same session and must be reconciled
+> before it closes.**
 
 *(Corroboration, independent of coverage: `3f` F9's frost-mage assertion compares modelled
 DPS to a measured capture with a same-session verified stat block and no coverage term. It
 reads **457 against 1,382 — −66.9%**, i.e. the sim produces ~33% of one real character's
 total output. That it is not ~20% is itself informative and is a `3h` Block C question.)*
 
-> ✅ **ANNOTATION (`3i` A5): the `3h` Block C question is answered** — `3h` P5
-> reconciled F9's 33.1% against the producing-only figure (30.7%, 2.4 points apart);
-> the gap to the 20.5% headline is the keyed-but-zero mass plus composition. ⚠ The
-> reconciliation inherits the selection bias noted above (`AUDIT_3H` §7.1); the
-> paired-median restatement is `3i` C5.
+> ✅ **ANNOTATION (`3i` A5, ⚠ CORRECTED `3j` C3): the `3h` Block C question is
+> answered** — `3h` P5 reconciled F9's 33.1% against the producing-only figure; the
+> gap to the headline is the keyed-but-zero mass plus composition. ⚠ **The `3h`
+> reconciliation was computed on the PRE-E15 corpus** (producing-only 30.7%,
+> headline 20.5%), where the two figures sat 2.4 points apart. Post-E15 the
+> producing-only figure is **37.6%** against F9's 33.1% — still close, now with F9
+> the *lower* of the two, and F9 itself is a single character on a same-session stat
+> block with no coverage term, so it did not move with the corpus fix. The
+> reconciliation stands in kind; its arithmetic is restated here rather than left
+> reading as current. It also inherits the selection bias noted above
+> (`AUDIT_3H` §7.1).
 
 🛑 **Why this matters more than a bigger number.** At slice accuracy ~62–64% the previous
 text said *"both levers have to roughly double"*, which reads as a hard but ordinary
-programme. **At 20.5% the coverage lever is arithmetically dead.** Landing `delta = 0`
+programme. **At 26.3% the coverage lever is arithmetically dead.** Landing `delta = 0`
 requires `slice × coverage = 1.0`:
 
-* at the **ceiling** of 100% coverage, slice must reach **100%** — a **4.9×** rise;
+* at the **ceiling** of 100% coverage, slice must reach **100%** — a **3.8×** rise;
 * at the **best coverage in the cohort** (`Boomcat`, 82.2%), slice must reach **121.7%**;
 * no attainable coverage substitutes for **any** of it.
+
+⚠ *(`3j` C3: this passage read "At 20.5%" and "a **4.9×** rise". E15 moved the headline
+to 26.3%, so the multiple is now 3.8×. **The conclusion is unchanged and the correction
+makes it no easier** — 3.8× is still far beyond what any coverage work can substitute
+for, and `Boomcat`'s 121.7% is unmoved because it exceeds 100% by construction.)*
 
 **The magnitude lever has to carry essentially all of the gap.** Coverage work is now
 support work, not the programme. Under the discarded 160% reading the conclusion inverted
@@ -299,12 +330,20 @@ which is what the auditor flagged. The property that matters survives either
 reading: the value was fixed **before** it was applied to a criterion, and it is
 strictly harsher than what it replaced.
 
-### 🛑 Stamped successor #3: parse admissibility (stamped `3h` D4, NOT applied)
+### 🛑 Stamped successor #3: parse admissibility (stamped `3h` D4, APPLIED `3i` D)
 
 **Owner decision 2026-08-07, effective at a LATER session's gate run with its
 own before/after pair — nothing in `3h` applies it, and the `3h` gate reads
 `1 / 1 / 20.5%` unmoved.** Same discipline as successor #2: stamp first, apply
 in a commit that owns its pair.
+
+> ✅ **APPLIED, `3i` D (`0fbffd5`), with its pair: `1 / 1 / 26.3%` → `0 / 0 / 26.3%
+> (n=23)`.** `Boomcat` — the cohort's only passer — became NOT ADMISSIBLE at APM ratio
+> 0.24, exactly as this stamp predicted. *(Heading corrected `3j` C3: it read
+> *"NOT applied"* while the body four paragraphs down already narrated the applying
+> session — heading and body disagreeing inside one section, `AUDIT_3I` §9.3. The
+> paragraph above is kept verbatim as stamped text; it describes `3h`, and `3h` is
+> when it was true.)*
 
 **The rule: a character may be excluded for what its PARSE is, never for what
 its DELTA is.** Every predicate is a property of the parse, computable blind

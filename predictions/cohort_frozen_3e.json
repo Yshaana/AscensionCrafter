@@ -1,4 +1,6 @@
 {
+ "status": "LIVE",
+ "_status_note": "LIVE - the frozen gate population, in force. 3j C5 added this label only; the id set, and every other field, is untouched. `immutable: true` governs the CONTENT of the cohort, not whether the file may say what it is - an artifact nobody can classify is invisible rather than merely unlabelled (3f F8c).",
  "slug": "cohort_frozen_3e",
  "immutable": true,
  "frozen_at": "2026-08-06",

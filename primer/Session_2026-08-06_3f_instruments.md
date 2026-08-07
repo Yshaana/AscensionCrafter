@@ -282,12 +282,31 @@ numbers a tool emitted.
 | 7 | E9–E12 registered with failing checks, **not fixed** | ✅ and E13/E14 besides |
 | 8 | A log lands in `builds.db` and `prediction_outcomes` — **or Block C declared spilled, whole, with its reason** | ⬜ **SPILLED WHOLE** |
 | 9 | One `RETRACTIONS` row for the slice-accuracy sign reversal | ✅ |
-| 10 | `phase_label` derived, exclusions counted, `gear.py:409`'s caveat gone | ✅ |
+| 10 | `phase_label` derived, exclusions counted, `gear.py:409`'s caveat gone | 🟡 **PARTIAL — corrected `3j` C1** (see below) |
 | 11 | `PLAN_V2` amended, dated, says 32, rescope seeded | ✅ |
 | 12 | Every file in `primer/` carries a status line; nothing deleted or moved; unclear files in the blocked table; born-with-a-status rule in `START_HERE_FOR_CODE.md` + `CLAUDE.md` | ✅ **53 files: 13 LIVE / 32 HISTORICAL / 6 FINDING / 2 flagged** |
 | 13 | `PHASE_4`'s *"`api/` already exists"* premise corrected | ✅ and **sized** — 5 thin functions + 5 CLI re-points |
 
 **12 of 13. The one outstanding is Block C, spilled whole and deliberately.**
+
+> 🟡 **CORRECTION (`3j` C1, 2026-08-07, owner decision) — condition 10's ✅ was
+> false, and had been for four sessions.** `gear_tier_stats(phase=…)` exists
+> (`core/builds/gear.py:403`) and **has no production caller** — that def is the
+> only occurrence in the tree. `AUDIT_3G`, `AUDIT_3H` and `AUDIT_3I` each
+> recorded it as still-open while this ✅ stayed put; `AUDIT_3I` §9 called it
+> *"**Fourth** consecutive session; `3f` exit condition 10 still reads ✅"*.
+>
+> **Correct status: function exists, no production caller, scheduled `3k`.**
+>
+> The owner's ruling (2026-08-07) is that the checkmark is a `3j`-class defect
+> **independent of the scheduling question** — a document asserting a condition
+> is met when it is not is exactly what this session exists to fix, and fixing
+> it does not wait on the work being done. The deliverable itself is scheduled
+> into `3k` as a named item; see the `3j` session record's handover.
+>
+> ⚠ This is not a licence to edit a HISTORICAL record's account of what it did.
+> The condition's *result* is being corrected, in place, with its date and
+> reason — the same treatment `3i` D7 gave a stamped falsifiability count.
 
 ⚠ Exit conditions 12 and 13 were **added to the work order by the owner at
 00:30 on 2026-08-07** (`b4eea78`), mid-session, along with two new standing

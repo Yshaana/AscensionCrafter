@@ -104,6 +104,24 @@ broken while everything reports green* — applied to the registry itself.
 | M29 🆕 | `contaminate()` also hits a NON-cohort character, perturbing `outside` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
 | M30 🆕 | delete the status line from any file in `primer/` | 1 | ✅ restore it — which IS the fix, because an unlabelled document cannot be cited at all (`3g` G9) | — |
 | M31 🆕 | delete E16's Checks row from this file (leaves the two frost-mage keys unclaimed) | 1 | ✅ restore the row — the fix IS the doc naming its checks (`3i` A3, `check_engine_bugs_doc_sync`) | — |
+| M32 🆕 | `per_ability_accuracy.py` — drop the 100±ε share invariant's `raise` | 1 | ✅ the assertion as written (`3i` C2). Registered in code at `3i` and landed here at `3j` C4 | **`builds.db`** |
+| M33 🆕 | `parse_admissibility.py` — set `APM_RATIO_BOUND = 0.4` | 1 | ✅ the stamped constant, 0.5 (`3i` D6). RUN `3j`: also makes the **gate** refuse to write a manifest (`3j` A1) | — |
+| M34 🆕 | delete the stamped successor-#3 section from `predictions/CALIBRATION_TOLERANCE.md` | all `[D6]` | ✅ the section present. **Pre-`3j` this was GREEN** — the file-wide regex matched D7's *quotation* of the same numbers 36 lines below (`AUDIT_3I` §5). Now anchored to the heading (`3j` A3) | — |
+| M35 🆕 | revert predicate 1's wording to *"the character's own other scopes"* | 1 | ✅ the amended stamp naming the three filters (`3j` A2, owner decision stamp-follows-code) | — |
+| M36 🆕 | `flags_on_ratio` — `<=` → `<` | 1 | ✅ `<=`, the stamped direction. ⚠ The arm was FIRST written as `APM_RATIO_BOUND <= APM_RATIO_BOUND` — a tautology, green under this very mutation; caught before commit (`3j` A3) | — |
+| M37 🆕 | **E3's repair** — `if has_autos and not autos_producing:` → `if False:` (a full revert) | 3 | ✅ the line as written. **Pre-`3j` this full revert left the suite at 0 FAILURES** — the E1 fixture had no auto rows (`AUDIT_3I` §8). Auto rows added (`3j` A4) | — |
+| M38 🆕 | restore `3i`'s ` and auto_rows_logged` guard on the combined auto entry | 1 | ✅ no guard: a zero-producing auto key with **no** logged auto row is still named, at 0.0%. `3i` E3 dropped it entirely, against its own *"full list, no caps"* comment (`3j` A4) | — |
+| M39 🆕 | re-inline a second copy of the auto predicate into `is_modelled` | 1 | ✅ one `is_auto_row`, delegated to. The comment claiming they were one predicate described two byte-identical copies 30 lines apart (`3j` A4) | — |
+| M40 🆕 | **E2's own registered mutation** — `is_producing` → `return True` | 5 | ✅ the predicate as written. **`3i`'s E2 arm PASSED under this**, printing `producing=60.0, zero=0.0` — byte-identical to the output `AUDIT_3H` §6.2 condemned. Fixture widened so the correct answer is not the maximal-producing answer (`3j` A5) | — |
+| M41 🆕 | `autos_producing = False` | 2 | ✅ the real expression — the other side of M40, so E2 is two-sided (`3j` A5) | — |
+| M42 🆕 | delete the `raise` in `corpus.assert_schema_current` | 1 | ✅ the raise, plus `migrate_schema()` as the repair path. A v0 (pre-E15) `builds.db` otherwise reads clean through all three unguarded consumers (`3j` B1) | — |
+| M43 🆕 | `corpus._spell_key` → `_int_or_none` (restore the NULL `spell_id`) | 2 | ✅ `UNRESOLVED_SPELL_ID`. Reproduces the auditor's measurement exactly: 3 ingests of one record → **3 rows / 3000 damage** instead of 1 / 1000 (`3j` B3) | — |
+| M44 🆕 | disable the `parse_admissibility_rule_applied` assertion in `write_gate_manifest` | 1 | ✅ the assertion. ⚠ **A NAMED MUTATION THAT DID NOT GO RED, kept in the record:** the first one registered was *"restore the hardcoded literal `True`"*, which was RUN and left both arms PASS — the assertion re-derives the fact from the rows, so it catches a literal too. The assertion is the fix, not the parameter (`3j` A1) | — |
+| M45 🆕 | delete either `raise` in `parse_admissibility.assert_publishable` | 3 | ✅ the raises. A refused `/api/phases` payload otherwise flags all 41 members *"unresolved phase"* and the gate publishes `0 of 36` as a measurement (`3j` Block 0) | — |
+| M46 🆕 | restore the `refuse_reason` passthrough into `resolve_phase` | 1 | ✅ `refuse_reason=None` + predicate 4 suppressed under a payload refusal. This is the chain that would have fired on the first crawl on or after 2026-08-08 with **zero code changes** (`3j` Block 0) | — |
+| M47 🆕 | remove the `MIN_PARSE_SECONDS` comparator filter | 2 | ✅ the filter. Demonstrates the comparator set can move a character **INTO** a flag — `AUDIT_3I` §4's *"no arm of the change can add a flag"* is false of the median: 0.762 admissible unfiltered, **0.421 flagged** filtered (`3j` A2) | — |
+| M48 🆕 | change one digit of the band table in `predictions/CALIBRATION_TOLERANCE.md` | 1 | ✅ `py tools/audit/render_band_table.py` and paste. The table's standing *"regenerate, do not retype"* warning was ignored **twice**, once by the session that wrote it (`3j` C3) | — |
+| M49 🆕 | delete the `status` key from any `predictions/*.json` | 1 | ✅ restore it. `3h` A5's check said *"EVERY file in predictions/"* and walked `*.md` only, so all four JSONs were outside it (`3j` C5) | — |
 
 ⚠ **M30's FIRST DRAFT WAS TOO WEAK, and it is M17's lesson a second time.**
 Mutating `` `LIVE` `` → `LIVE-ish` still matches the marker regex (`-` is a word
@@ -1012,12 +1030,12 @@ fallback seam.
 
 ---
 
-## E16 — the ordinary under-production: the sim reproduces ~a third of a measured character and ~a fifth of the cohort slice, held by the two F9 ground-truth checks 🆕
+## E16 — the ordinary under-production: the sim reproduces ~a third of a measured character and ~a quarter of the cohort slice, held by the two F9 ground-truth checks 🆕
 
 | | |
 |---|---|
 | **Checks** | `[frost_mage] modelled DPS is within the PRE-REGISTERED ±25% of the measured capture` and `[frost_mage] every well-sampled ability's modelled per-cast mean is within ±25% of its measured non-crit mean` — both in `EXPECTED_FAILURES` |
-| **Where** | no single site — the modelling residual left after E13/E14: whole-character −66.9% (457 vs 1,382 measured), per-ability −33% to −60% with Icicle (830445) absent |
+| **Where** | no single site — the modelling residual left after E13/E14: whole-character −66.9% (457 vs 1,382 measured), per-ability −33% to −60% with Icicle (830445) absent. Cohort slice **26.3% (n=23)** *(⚠ `3j` C3: the heading read "~a fifth", true of the pre-E15 20.5% — `AUDIT_3I` §9.6. The −66.9% whole-character figure beside it is unaffected: it comes from a same-session stat block with no corpus term.)* |
 | **Found by** | `3f` F9 (the first assertions comparing a modelled magnitude to a measured one); orphaned as registry entries when E13 and E14 closed; written down as an entry at `3i` A3 (`AUDIT_3H` §8) |
 
 **This is not a defect with a mechanism — it is the project's open problem**

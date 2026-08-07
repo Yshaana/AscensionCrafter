@@ -67,7 +67,18 @@
 > | qualified (≥50% coverage) | **0** |
 > | slice accuracy at ≥20% coverage | **26.3% (n=23)** |
 > | criterion (≥3 within ±20%) | **NOT MET** |
-> | holdout, carried forward from `3g` (not re-read) | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
+> | holdout, carried forward from `3g` (not re-read, **PRE-E15**) | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
+>
+> 🛑 **The holdout row is NOT like-for-like with the four rows above it, and the
+> direction is known** (`3j` C6, owner decision 2026-08-07: annotate, do not spend a
+> re-read). It was read at a `3g` commit, **before E15 was fixed** — the logged
+> denominator those deltas were measured against double-counted pet damage. Fixing
+> that alone moved the *tuning* slice **20.5% → 26.3%** with no modelling change.
+> So **9.8% understates the holdout**; its true post-E15 value is somewhat better,
+> by the same mechanism. **Do not read 9.8% as a current floor, and do not compute a
+> tuning-vs-holdout gap from this table.** The only route to a comparable number
+> spends the holdout, and it stays unspent until a modelling session has something
+> worth validating.
 >
 > ⚠ **The admissibility rule removed the cohort's only passer.** This is the
 > intended direction of a rule stamped before its effect was known — not a
@@ -718,6 +729,8 @@ manifest, stamped `c7d2892`.
 
 ---
 
+<details><summary>Superseded: the <code>3b</code> critical-path position — contains an untagged <code>FIRST ACTIONS NEXT SESSION</code> (3j C8)</summary>
+
 ## Superseded: the `3b` critical-path position
 
 **✅ 3B's CRITICAL PATH IS DONE (2026-08-06).** `PLAN_3B_UPDATE.md` §5's
@@ -862,7 +875,7 @@ routing layer. Open question
 🛑 **Do not close it by matching ids on name or by numeric proximity** — 287860
 vs 287865 is exactly the shape rule 5 forbids. The join has to be mechanical.
 
-### 🔴 FIRST ACTIONS NEXT SESSION
+### 🔴 FIRST ACTIONS NEXT SESSION (written by `3b`, for `3c` — tagged `3j` C8; it carried no session tag at all, which is how an archived instruction reads as a live one)
 
 2. **Implement damage-CONVERSION mechanics** (Righteous Vengeance's
    30%-of-crit-damage class, 9 characters in the gate). We already hold the
@@ -900,6 +913,10 @@ vs 287865 is exactly the shape rule 5 forbids. The join has to be mechanical.
 | The site's 329 trigger edges | **All 329 were already carried by the client's `EffectTriggerSpell`; 0 new.** Not a failure — two independent sources agreeing on the whole trigger graph. The client wins any collision by insert order. |
 
 ---
+
+</details>
+
+<details><summary>Superseded: the 3b pre-flight position — contains <code>FIRST ACTIONS NEXT SESSION (3b)</code> (3j C8)</summary>
 
 ## Superseded: the 3b pre-flight position
 
@@ -1024,6 +1041,10 @@ hardcoded 60 and simmed a level-49 parse against level-60 magnitudes, which is
 
 ---
 
+</details>
+
+<details><summary>Superseded: <code>2e</code>'s position — contains <code>FIRST ACTIONS NEXT SESSION</code> (3j C8)</summary>
+
 ## Superseded: `2e`'s position
 
 **✅ SESSION `2e` IS DONE (2026-08-05, late night).** T1–T4 and T6–T11 complete;
@@ -1035,7 +1056,7 @@ fixed N).
 
 **Next session: post-restart re-tests, then `3a`.**
 
-### 🔴 FIRST ACTIONS NEXT SESSION
+### 🔴 FIRST ACTIONS NEXT SESSION (written by `2e`, for `3a` — tagged `3j` C8)
 
 1. **Re-test tracker #200295 after the server restart** — it was FIXED hours
    after submission (`[Pending Restart]`, owner will test 2026-08-06). Run BOTH:
@@ -1081,6 +1102,8 @@ fixed N).
 | *(optional)* bug-DB read access via the owner's browser session (`2e` T5, deferred) | Repeatable bug-database lookups |
 
 ---
+
+</details>
 
 ## Superseded: `2e`'s original position
 

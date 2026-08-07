@@ -343,6 +343,61 @@ def check_engine_bugs_doc_sync():
           + (f"; DOC-ONLY {doc_only}" if doc_only else "")
           + (f"; CODE-ONLY {code_only}" if code_only else ""))
 
+    # 🆕 3j C4 (`AUDIT_3I_ADVERSARIAL` §9.5) — THE MUTATION TABLE, which this
+    # parser did not touch. `3i` registered M32 and M33 in code comments,
+    # called them *"Registered"*, and neither reached this document; the E1–E6
+    # repair mutations carried no M number at all. That is precisely the drift
+    # class this check was built for, arriving in the half it did not read.
+    #
+    # Two assertions, because the table can drift in both directions:
+    #   * every `M<n>` cited as "registered" in a tool's source must appear as
+    #     a row here;
+    #   * the M numbers must be a contiguous run with no duplicates — the
+    #     failure mode of hand-numbered rows is two M41s, or a jump that hides
+    #     a dropped row.
+    # ⚠ `M11a` / `M11b` are a real convention here — one defect whose mutation
+    # splits into two arms. The suffix is captured and the *number* deduped
+    # across it, so a split row is one entry in the run, not a gap and not a
+    # duplicate. (Found by this check's own first run, which reported
+    # `MISSING [11]` against a table that has M11a and M11b.)
+    m_rows = re.findall(r"(?m)^\|\s*M(\d+)([a-z]?)\s*🆕?\s*\|", text)
+    nums = sorted({int(n) for n, _suffix in m_rows})
+    seen_keys = [n + s for n, s in m_rows]
+    dupes = sorted({k for k in seen_keys if seen_keys.count(k) > 1})
+    gaps = ([n for n in range(min(nums), max(nums) + 1) if n not in nums]
+            if nums else [])
+    check("ENGINE_BUGS.md's MUTATION table is contiguous and duplicate-free — "
+          "hand-numbered rows drift by repeating a number or skipping one, and "
+          "3i's M32/M33 lived only in code comments (AUDIT_3I §9.5)",
+          bool(nums) and not dupes and not gaps,
+          f"{len(nums)} rows, M{min(nums) if nums else '?'}..M"
+          f"{max(nums) if nums else '?'}"
+          + (f"; DUPLICATED {dupes}" if dupes else "")
+          + (f"; MISSING {gaps}" if gaps else ""))
+
+    # The code -> document direction: an M number a tool claims is registered
+    # must be a row here. Scanned over the tools that register mutations.
+    src_root = Path(__file__).resolve().parents[2]
+    cited = set()
+    for rel in ("tools/audit/check_refusals.py", "tools/audit/check_sim_engine.py",
+                "tools/audit/parse_admissibility.py",
+                "tools/audit/calibrate_crawled.py",
+                "tools/audit/per_ability_accuracy.py",
+                "core/builds/corpus.py"):
+        p = src_root / rel
+        if not p.exists():
+            continue
+        body = p.read_text(encoding="utf-8", errors="replace")
+        cited |= {int(n) for n in
+                  re.findall(r"\b(?:mutation\s+)?M(\d{1,3})\b(?=[\s,.:)])", body)}
+    unregistered = sorted(n for n in cited if n not in set(nums))
+    check("every M<n> a tool's source calls registered IS a row in "
+          "ENGINE_BUGS.md's mutation table — 3i registered M32 and M33 in code "
+          "and neither reached the document",
+          not unregistered,
+          f"{len(cited)} cited in source, {len(nums)} rows in the table"
+          + (f"; CITED BUT UNREGISTERED {unregistered}" if unregistered else ""))
+
 
 def main():
     # 🆕 3i A3 — the doc-sync check runs FIRST, before the db refusal below,

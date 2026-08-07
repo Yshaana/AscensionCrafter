@@ -1460,6 +1460,89 @@ def check_corpus_schema_gate():
           f"{passed_after}; {note}")
 
 
+def check_band_table_matches_manifest():
+    """`3j` C3 — `CALIBRATION_TOLERANCE.md`'s band table EQUALS the one
+    generated from the committed manifest.
+
+    The table carries its own standing warning — *"regenerate, do not retype,
+    and check this table in the same commit that moves the gate"* — and it has
+    gone stale **twice**, the second time in the very session that wrote the
+    warning. `3i` moved the gate twice and did not touch it; `AUDIT_3I` §9.3
+    measured `≥10% 23.4% (n=26)` in the doc against `34.96% (n=27)` in the
+    manifest.
+
+    `3h` A4 already established the principle on `CLAUDE.md`'s census line:
+    **generation only helps if something asserts the paste.** This is that
+    assertion, for the other generated table.
+
+    MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-07): change one digit of
+    the band table in `predictions/CALIBRATION_TOLERANCE.md`. GREEN PATH:
+    `py tools/audit/render_band_table.py` and paste — which IS the fix.
+    """
+    import render_band_table as rbt
+
+    try:
+        table, m = rbt.render()
+    except (OSError, ValueError, KeyError) as e:
+        check("[3j-C3] CALIBRATION_TOLERANCE.md's band table EQUALS the one "
+              "generated from gate_manifest_3e.json", False,
+              f"could not render from the manifest: {e}")
+        return
+    doc = rbt.extract_from_doc()
+    check("[3j-C3] CALIBRATION_TOLERANCE.md's band table EQUALS the one "
+          "generated from gate_manifest_3e.json — the paste is ASSERTED, not "
+          "merely warned about; the warning alone was ignored twice",
+          doc is not None and rbt._norm(doc) == rbt._norm(table),
+          f"manifest generated {m['generated_at']}, git {m['git_sha'][:7]}"
+          + ("" if doc is not None and rbt._norm(doc) == rbt._norm(table)
+             else f"\n--- document ---\n{doc}\n--- manifest ---\n{table}"))
+
+
+def check_predictions_json_status():
+    """`3j` C5 (`AUDIT_3I_ADVERSARIAL` §9, table) — the `predictions/` status
+    rule reaches the JSON, not only the markdown.
+
+    `3h` A5's check message reads *"EVERY file in predictions/ carries a status
+    line"*, and it walks `*.md` only — so all four JSONs sat outside it.
+    `gate_manifest_3e.json` was the one live artifact in the directory with no
+    `status`/`_status_note` key at all, while the *frozen* `gate_manifest.json`
+    had one and the brand-new `per_ability_summary.json` had one. The file most
+    likely to be cited was the one with no label saying whether it is current.
+
+    JSON has no comment syntax, so the convention is a top-level `status` (or
+    `_status_note`) key — the same four-word vocabulary as the markdown status
+    lines, in the shape JSON allows.
+
+    MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-07): delete the `status`
+    key from any `predictions/*.json`. GREEN PATH: add it back.
+    """
+    root = Path(__file__).resolve().parents[2] / "predictions"
+    files = sorted(root.glob("*.json"))
+    missing = []
+    labelled = {}
+    for p in files:
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            missing.append(f"{p.name} (unreadable)")
+            continue
+        val = None
+        if isinstance(d, dict):
+            val = d.get("status") or d.get("_status") or d.get("_status_note")
+        if val:
+            labelled[p.name] = str(val).split(" ")[0].strip("`*")
+        else:
+            missing.append(p.name)
+    print(f"[census] predictions/ JSON status keys: {len(files)} files — "
+          + (", ".join(f"{k}={v}" for k, v in sorted(labelled.items()))
+             or "none"))
+    check("[3j-C5] EVERY file in predictions/ carries a status — extended from "
+          "*.md to *.json, where gate_manifest_3e.json (the artifact most "
+          "likely to be cited) had no label at all",
+          not missing, f"{len(files)} files, {len(labelled)} labelled"
+          + (f"; UNLABELLED: {missing}" if missing else ""))
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -1521,6 +1604,8 @@ def main():
     check_corpus_schema_gate()
     print()
     check_primer_status_census()
+    check_predictions_json_status()
+    check_band_table_matches_manifest()
     check_blocked_question_count()
     print()
     check_coverage_split_producing_vs_zero()

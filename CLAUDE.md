@@ -196,11 +196,20 @@ Schema in `INDEX_GUIDE.md`.
   a character that currently FAILS.** A rule that only ever removes passers is a fitting
   device, and the asymmetry proves it. Verdict is **NOT ADMISSIBLE (`None`)**, never
   `False` — the same treatment the coverage floor gives a below-floor character.
-  ✅ **STAMPED `3h` D4 (owner decision 2026-08-07), NOT applied** — the predicates,
+  ✅ **STAMPED `3h` D4 and APPLIED `3i` D (owner decision 2026-08-07)** — the predicates,
   the blind cohort effect and the falsifiability result live in
   `predictions/CALIBRATION_TOLERANCE.md` (stamped successor #3); implementation
-  `tools/audit/parse_admissibility.py`. A later session applies it with its own
-  before/after pair.
+  `tools/audit/parse_admissibility.py`. Applied with its own pre-registered pair:
+  **`1 / 1 / 26.3%` → `0 / 0 / 26.3%` (n=23)** — it removed the cohort's only passer
+  (`Boomcat`, NOT ADMISSIBLE at APM ratio 0.24), which is the intended direction of a
+  rule stamped before its effect was known. Currently flags 3 of 41: `Nodding`
+  (window 52 s), `Boomcat` (0.24), `Deyindra` (0.22).
+  ⚠ **This line read "NOT applied" for a full session after `3i` applied it** — in the
+  file every session loads before anything else. `3i`'s only `CLAUDE.md` edit in its
+  whole range was the census line. Corrected `3j` C1.
+  🆕 **Predicate 1's comparator definition was amended `3j` A2** (owner decision,
+  stamp-follows-code): "other scopes" → other **qualifying** scopes — no encounter
+  shared with the scope under test, ≥ 60 s, no trash, and a legitimate 0.0 admitted.
 - 🆕 **A magnitude never appears in a markdown file except as generated output, pasted with
   its provenance.** Every numeric error the `3e` audit found in a document was
   hand-transcribed — **four for four, and zero errors in numbers a tool emitted**. If a
