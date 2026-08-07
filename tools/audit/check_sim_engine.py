@@ -363,6 +363,22 @@ def main():
               f"   Build it first:  py cli/rebuild.py\n"
               f"   (data/derived/ is gitignored by design — the db is always "
               f"rebuildable from committed source.)")
+        # 🛑 3j A6 (`AUDIT_3I_ADVERSARIAL` §8) — CONSULT `FAILURES` BEFORE
+        # RETURNING. The doc-sync check above runs first precisely so that a
+        # clean clone — which is the environment it was written for, since it
+        # needs only the committed tree — can verify it. But its verdict could
+        # not reach the exit code: this `return 2` fired unconditionally, and
+        # `FAILURES` was read only at the bottom of `main()`, past the refusal.
+        # Measured by the auditor: baseline exit 2, and with M31 applied
+        # (doc-sync FAIL) exit **2** — identical. A check whose result cannot
+        # change any observable is not a check.
+        #
+        # 2 still means "the engine checks did not run". 1 wins when something
+        # that DID run failed, because a real failure outranks a skip.
+        if FAILURES:
+            print(f"\n{len(FAILURES)} FAILURE(S) from the checks that COULD "
+                  f"run without the database: {FAILURES}")
+            return 1
         return 2
     conn = connect(config.DB_PATH)
 
