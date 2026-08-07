@@ -713,6 +713,16 @@ def main():
                      if res0.primary_value else 0.0)
         modelled = modelled_damage_share(bdb, scope_id, cid,
                                          set(res.per_ability.keys()))
+        # 🆕 3g G1 — the auto-attack's share of SIM damage, so E13's before/after
+        # attribution is printed rather than reasoned about. `3f` found that 24
+        # of 36 scored characters carry a melee auto in their top 5 and that one
+        # of the gate's two qualified passes (`Ari`) has it as its LARGEST
+        # modelled source — with every white swing ~78x over. A per-character
+        # exposure number is the only way to say which deltas that touches.
+        sim_by_ability = {k: v["damage"] for k, v in (res.per_ability or {}).items()}
+        sim_total = sum(sim_by_ability.values())
+        auto_dmg = sum(v for k, v in sim_by_ability.items()
+                       if k in ("auto_mh", "auto_oh"))
         results.append({
             "character_id": cid, "name": cname, "path": token, "boss": boss,
             "content_type": ctype, "sim_preset": preset,
@@ -747,6 +757,8 @@ def main():
             "top_sim_abilities": [
                 r["name"] for _sid, r in
                 sorted(res.per_ability.items(), key=lambda kv: -kv[1]["damage"])[:5]],
+            "auto_share_of_sim_pct": (round(100.0 * auto_dmg / sim_total, 1)
+                                      if sim_total else None),
             "warnings": sorted({w for w in res.warnings})[:8],
         })
 
