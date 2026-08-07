@@ -588,12 +588,46 @@ a nice-to-have check.
   blind to that and was **not** redefined after the result was seen; whether it
   should carry a magnitude-coverage floor is open
   (`crawled_gate_passes_by_compensating_error`) and is an owner decision.
+
+  🛑 **CORRECTION appended `3k` A2, 2026-08-07 — the status line above is THREE
+  GATE REPAIRS STALE AND READS THE OPPOSITE OF THE TRUTH.** It is corrected by
+  appending, never by rewriting in place (the D7 rule), because a reader who
+  cites the stale line needs to find it and its correction together.
+  **Current truth: `0 of 35` within ±20%, `0` qualified, slice `26.3%` at the
+  ≥20% coverage floor (n=23) — the criterion is NOT MET.** The "4 of 41" was
+  overtaken by three separate repairs, each pre-registered and each moving the
+  number *down*: the E15 pet double-count fix (`3i`), the parse-admissibility
+  rule being applied (`3i` D, which removed the cohort's only passer), and the
+  20% coverage floor being enforced (`3g`). The open question that line names —
+  *whether the criterion should carry a magnitude-coverage floor* — was
+  **answered yes** and the floor is in force; the rider (`≥3` also modelling
+  ≥50% of their real damage) is stamped and reads 0.
+  Source: `predictions/gate_manifest_3e.json` at `git_sha 9d29028`, clean tree.
 - Every crawled record resolves via the crosswalk; zero string matching remains
 - Inference proposes crit-table verdicts with sample sizes for the top ~50 most-played abilities
 - At least one default uncertainty range replaced by a measured confidence interval
 - `find_builds()` answers the multi-ability queries previously done by hand
 - Every parse and snapshot is patch/realm/season stamped
 - `ContentProfile` presets are derived from real encounter data, not invented
+
+🆕 **Per-criterion audited status (`3k` A3, 2026-08-07 — 2 of 7 met).** The list
+above had no status against any item, so "how close is Phase 3 to exiting" was
+a question nobody could answer without re-deriving it. Derived from
+`AUDIT_3J_ADVERSARIAL.md` §5 and this session's own runs:
+
+| # | criterion | status |
+|---:|---|---|
+| 1 | sim reproduces ≥3 real characters within tolerance | ❌ **NOT MET** — 0 of 35, 0 qualified (see the correction above) |
+| 2 | every crawled record resolves via the crosswalk; zero string matching | ❌ **NOT MET** — string matching remains |
+| 3 | inference proposes crit-table verdicts with sample sizes, top ~50 abilities | 🟡 **PARTIAL** — `inference_findings` stages proposals; the top-50 sweep is blocked on T5 per-parse stats |
+| 4 | ≥1 default uncertainty range replaced by a measured CI | ❌ **NOT MET** — blocked on T5 per-parse stats |
+| 5 | `find_builds()` answers the multi-ability queries | ✅ **MET** |
+| 6 | every parse and snapshot is patch/realm/season stamped | ✅ **MET** |
+| 7 | `ContentProfile` presets derived from real encounter data | ❌ **NOT MET** — 2 of the presets are measured; the rest are invented. Scheduled `3k` C2 |
+
+⚠ This table is a **dated audit, not a live tally** — it is `FINDING`-tier text
+inside a `LIVE` document. Re-derive it rather than citing it after the gate
+moves again.
 
 ## Out of scope
 

@@ -58,11 +58,38 @@
 > (measurement, not re-verification — and load-bearing, since presets feed the
 > sim side).
 >
-> 🚨 **Time-critical, still: the phase boundary arms `2026-08-08T00:00:00Z`.**
-> `3j` made the outage path fail closed, so a post-flip crawl now makes the gate
-> **refuse** rather than publish `0 of 36` — but the `EXPECTED_PHASE_NAME` bump
-> and the corpus re-derivation are still owed. Check `/api/phases` live before
-> any gear tier is read.
+> ✅ **RESOLVED `3k` B0, 2026-08-07 — the boundary line above is retired. THE
+> FLIP HAS HAPPENED, and it landed in a shape nobody had a protocol for.**
+> `Phase 2 - Molten Core / Onyxia` opened **top-level** at
+> `2026-08-07T18:00:00Z` (`/api/phases` id=4, `progression_parent_phase_id`
+> null) — **and `Phase 1 - Zul'Gurub` stayed `is_active` with a NULL
+> `end_date`.** Two active top-level phases. The old `len(tops) != 1` predicate
+> read that as *"a transition in progress or a schema change"* and refused
+> **every** `phase_label`, permanently, since Zul'Gurub never stops being
+> active — it would have NULLed the corpus from the first Molten Core crawl on.
+>
+> 🆕 **Owner decision 2026-08-07: TRANSITIONS ON THIS SERVER ARE ADDITIVE** —
+> raids get added, none removed, so actives accumulate every phase and a count
+> can never mean "transition in progress". `is_active` means *this content is
+> live*, not *this is the current phase*. The current phase is now the
+> **latest-STARTING active top-level** (`current_top_level()` /
+> `current_top_level_phase()`, both sides — `assert_phase` died on the same arm,
+> so a `core/`-only fix would have left the crawler unable to capture at all).
+> The ambiguity protection **moved rather than vanished**: two top-level phases
+> claiming the same `start_date` still refuse. Mutations **M50/M51**, both run.
+> `EXPECTED_PHASE_NAME` bumped; `NEXT_PHASE_BOUNDARY` **self-retired** exactly
+> as designed; a fresh `/api/phases` capture appended to
+> `data/source/crawl/2026-08-07/`, because `latest_phase_context()` reads the
+> newest *committed* payload and the 15:49Z one no longer describes this server.
+>
+> **Gate impact: none.** Isolated pair, both sides derived from the same source
+> tree — `0 of 35 · 0 · 26.3% (n=23)` → `0 of 35 · 0 · 26.3% (n=23)`, same
+> NOT ADMISSIBLE roster. **Zero corpus captures fall on the new side of the
+> boundary** (latest is `16:02:50Z`), so no gear tier is affected yet.
+> 🛑 The `3k` B0 pre-registration predicted `0 of 36` and is **FALSIFIED as
+> written** — its baseline came from a `builds.db` built at 14:34 while the
+> daily crawl commit landed at 17:03, so the before-number was read off a stale
+> database. **Derive the corpus first, THEN read the before.**
 >
 > **The gate, closing state — unchanged from `3i`:**
 >
