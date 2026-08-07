@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-07T13:57:28+00:00",
- "git_sha": "ed00608810e12c9712b011d2cef32396a5cad7e1",
+ "generated_at": "2026-08-07T19:52:02+00:00",
+ "git_sha": "9d29028e6141c173edb8beae61919c0162a1e3f4",
  "git_working_tree_dirty": false,
  "dirty_tree_write_allowed_by_flag": false,
  "dirty_tree_write_allowed_reason": null,
@@ -22,12 +22,12 @@
   "successor_coverage_floor_pct": 20.0,
   "successor_floor_effective_from": "the gate run AFTER 3e (stamped 2026-08-06)",
   "successor_floor_justification": "slice accuracy is stable at ~62.6% across the >=20/>=30/>=50 coverage bands and unstable below 20%, so 20% is where the metric stops being noise \u2014 a property of the measurement, not a level chosen to admit a wanted number. Owner decision 2026-08-06, stamped before this run's result; STRICTER than what is in force, which is the direction a criterion may move",
-  "successor_floor_justification_annotation": "3i A2: the ~62.6% in the stamped justification was measured on E13-inflated autos (pre-3g). This run's bands: >=0: 40.3%, >=10: 35.0%, >=20: 26.3%, >=30: 17.5%, >=50: 15.6%. The floor's justification SHAPE (stable above 20%, denominator-dominated below) survives; the stable level does not. Stamped text kept verbatim above."
+  "successor_floor_justification_annotation": "3i A2: the ~62.6% in the stamped justification was measured on E13-inflated autos (pre-3g). This run's bands: >=0: 40.3%, >=10: 35.0%, >=20: 26.3%, >=30: 19.2%, >=50: 14.0%. The floor's justification SHAPE (stable above 20%, denominator-dominated below) survives; the stable level does not. Stamped text kept verbatim above."
  },
  "result": {
-  "tuning_set_size": 36,
+  "tuning_set_size": 35,
   "within_tolerance": 0,
-  "not_scoreable_zero_coverage": 3,
+  "not_scoreable_zero_coverage": 2,
   "not_scoreable_below_coverage_floor": 12,
   "coverage_floor_pct_applied": 20.0,
   "qualified": 0,
@@ -53,38 +53,38 @@
     "readable": true
    },
    ">=30": {
-    "median_pct": 17.527012649916788,
+    "median_pct": 19.24816089824092,
     "n": 20,
     "readable": true
    },
    ">=50": {
-    "median_pct": 15.612009267320422,
-    "n": 9,
+    "median_pct": 14.027218183682988,
+    "n": 8,
     "readable": true
    }
   },
   "slice_accuracy_band_note": "Only bands at or above the 20% floor are readable as accuracy. Below it the ratio is dominated by its own denominator \u2014 this run's >=0 band reads 40.3% (the same artifact class 3e retracted at ~164%), not a finding about over- or under-production.",
-  "median_slice_accuracy_pct_producing_only_at_coverage_ge_20": 37.64561386507469,
-  "producing_only_n": 19,
+  "median_slice_accuracy_pct_producing_only_at_coverage_ge_20": 38.69353344841319,
+  "producing_only_n": 18,
   "paired_medians_same_members_at_headline_floor": {
    "n": 23,
    "headline_pct": 26.31,
-   "producing_only_pct": 37.65
+   "producing_only_pct": 39.74
   },
-  "keyed_but_zero_pct_median": 0.15,
+  "keyed_but_zero_pct_median": 1.6,
   "keyed_but_zero_pct_max": 45.4,
   "per_character_slice_accuracy_policy": "ANNOTATED IN PLACE, NOT FLOORED (3f F7). A per-character value below the coverage floor keeps its raw number and carries a sibling `slice_accuracy_caveat` saying it is not a measurement. Flooring would delete the evidence for 3e's own retraction \u2014 Mutaforma's 1,859,400% at 0.2% coverage IS what 'this ratio explodes as coverage -> 0' looks like.",
   "passer_coverage_pct": {}
  },
  "corpus_row_counts": {
-  "characters": 4164,
-  "character_snapshots": 436,
-  "snapshot_cards": 21271,
-  "snapshot_gear": 7308,
-  "encounters": 5573,
-  "capture_scopes": 1560,
-  "encounter_performance": 19307,
-  "ability_performance": 291320
+  "characters": 4251,
+  "character_snapshots": 472,
+  "snapshot_cards": 23251,
+  "snapshot_gear": 7924,
+  "encounters": 5715,
+  "capture_scopes": 1591,
+  "encounter_performance": 19788,
+  "ability_performance": 300157
  },
  "cohort_definition": {
   "source_file": "predictions/cohort_frozen_3e.json",
@@ -92,10 +92,16 @@
   "frozen_at": "2026-08-06",
   "frozen_size": 41,
   "still_qualifying": 41,
-  "scored": 41,
+  "scored": 40,
   "dropped": [],
-  "excluded_after_selection": [],
-  "qualifying_but_not_frozen_in": 139,
+  "excluded_after_selection": [
+   {
+    "character_id": 24695,
+    "name": "Qtgamora",
+    "reason": "content_type 'unknown' has no matching sim preset \u2014 simming it against a raid profile would compare two different fights"
+   }
+  ],
+  "qualifying_but_not_frozen_in": 155,
   "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat. TWO exits: `dropped` is the completeness filter, `excluded_after_selection` is the scoring loop. frozen_size == still_qualifying + len(dropped), and still_qualifying == scored + len(excluded_after_selection)."
  },
  "holdout": {
@@ -470,18 +476,18 @@
    "character_id": 20419,
    "name": "Huskeer",
    "path": "Intelligence",
-   "boss": "Snowgrave",
-   "delta_pct": -98.82,
-   "modelled_damage_pct": 0.0,
-   "modelled_and_producing_pct": 0.0,
-   "keyed_but_zero_pct": 0.0,
-   "slice_accuracy_pct": null,
-   "slice_accuracy_producing_pct": null,
-   "slice_accuracy_caveat": "NOT A MEASUREMENT \u2014 coverage is 0.0%, below the 20% floor. slice_accuracy = (100 + delta) / coverage has coverage in its denominator, so it explodes as coverage -> 0. This value is a diagnostic of low coverage, not of accuracy, and must never enter an aggregate.",
-   "within_tolerance": null,
+   "boss": "Hakkar",
+   "delta_pct": -93.69,
+   "modelled_damage_pct": 33.1,
+   "modelled_and_producing_pct": 15.8,
+   "keyed_but_zero_pct": 17.3,
+   "slice_accuracy_pct": 19.05,
+   "slice_accuracy_producing_pct": 39.92,
+   "slice_accuracy_caveat": null,
+   "within_tolerance": false,
    "not_admissible": false,
    "not_admissible_flags": [],
-   "within_tolerance_before_admissibility": null
+   "within_tolerance_before_admissibility": false
   },
   {
    "character_id": 20461,
@@ -564,23 +570,6 @@
    "keyed_but_zero_pct": 15.6,
    "slice_accuracy_pct": 8.61,
    "slice_accuracy_producing_pct": 11.58,
-   "slice_accuracy_caveat": null,
-   "within_tolerance": false,
-   "not_admissible": false,
-   "not_admissible_flags": [],
-   "within_tolerance_before_admissibility": false
-  },
-  {
-   "character_id": 24695,
-   "name": "Qtgamora",
-   "path": "Intelligence",
-   "boss": "Bloodlord Mandokir",
-   "delta_pct": -88.81,
-   "modelled_damage_pct": 71.7,
-   "modelled_and_producing_pct": 71.7,
-   "keyed_but_zero_pct": 0.0,
-   "slice_accuracy_pct": 15.61,
-   "slice_accuracy_producing_pct": 15.61,
    "slice_accuracy_caveat": null,
    "within_tolerance": false,
    "not_admissible": false,

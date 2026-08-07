@@ -108,3 +108,46 @@ None of them can move the gate — all three are pure functions over the existin
 * **Whether Zul'Gurub ever goes `is_active: false`.** It may; the model above
   does not depend on it either way, which is the point of reading `start_date`
   instead of the flag.
+
+---
+
+## OUTCOME — appended 2026-08-07 after the run (P1 FALSIFIED AS WRITTEN)
+
+**P1 named `0 of 36`. Both sides read `0 of 35`. The prediction is falsified
+as written, and the fault is in the baseline, not in the change.**
+
+The "before" reading P1 quoted was taken against a `builds.db` built at
+**14:34 local**, and the daily crawl commit `c23b822` landed at **17:03
+local**. So the baseline corpus was missing already-committed source: it held
+**436** snapshots where a fresh derivation from the same tree holds **472**.
+`0 of 36` was a number from a stale database, and P1 inherited it.
+
+**The pair was re-measured properly**, by checking `season_config.py`,
+`core/builds/phases.py` and `data/source/crawl/2026-08-07/phases.jsonl.gz`
+back out at `b2ad6c1`, re-deriving, and re-running the gate — so both sides
+see the same source tree and differ only in the Block 0 change:
+
+| | tuning set | qualified | slice @≥20% | NOT ADMISSIBLE |
+|---|---:|---:|---:|---|
+| **before** (`b2ad6c1` code, 472-snapshot corpus) | 0 of 35 | 0 | 26.3% (n=23) | Nodding, Boomcat, Deyindra |
+| **after** (`9d29028` code, same corpus) | 0 of 35 | 0 | 26.3% (n=23) | Nodding, Boomcat, Deyindra |
+
+**The Block 0 change moved the gate by exactly nothing** — which is what P1
+meant, on numbers P1 got wrong. The 36 → 35 is entirely corpus growth from
+`c23b822`; two members changed status inside it (Huskeer left the
+zero-modelled bucket and now scores at −93.7% on 33% coverage, and one member
+left the simmed set), and **none of it is attributable to phase labelling**:
+the admissibility roster is identical, `assert_publishable` did not raise, and
+no gate predicate reads `phase_label`.
+
+⚠ **The lesson is the one already in `MEMORY.md` as "the gate cohort slides
+with the corpus", arriving from the other direction.** That entry warns against
+comparing two gate results across a corpus rebuild. Here the *baseline itself*
+was pre-rebuild — a stale `builds.db` is a sliding window with no
+`ORDER BY` to blame. **A gate reading is only a baseline if the corpus under it
+was derived from the tree you are about to change.** Derive first, then read
+the before.
+
+Bands moved with the corpus, not with the change: `≥30%` 17.5% → 19.2%,
+`≥50%` (n=9) 15.6% → (n=8) 14.0%. `predictions/CALIBRATION_TOLERANCE.md`'s
+table regenerated with `render_band_table.py`, not retyped.

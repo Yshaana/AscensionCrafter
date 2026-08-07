@@ -181,8 +181,8 @@ figure was measuring a defect.
 | ≥0% | 33 | 40.3% | **no** — below the floor |
 | ≥10% | 27 | 35.0% | **no** — below the floor |
 | ≥20% | **23** | **26.3%** | yes |
-| ≥30% | 20 | 17.5% | yes |
-| ≥50% | 9 | 15.6% | yes |
+| ≥30% | 20 | 19.2% | yes |
+| ≥50% | 8 | 14.0% | yes |
 
 ⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
 GENERATED AND ASSERTED, because the warning alone failed twice.**
