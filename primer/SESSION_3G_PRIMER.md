@@ -355,6 +355,30 @@ Repair the two arms; do not rewrite the file again.
 * **`calibrate_crawled.py:1015`** truncates the exclusion list at `excluded[:40]` and prints
   "none" only when empty. **No silent caps** — print what was dropped.
 
+### G9 — the two hand-typed counts, and make them self-printing
+
+**Both are already wrong, within a day of being written, and neither is anyone's mistake — it
+is what happens to a number typed into prose.** This is the standing rule's own failure mode,
+sitting in the two documents a new session reads first.
+
+* **`CLAUDE.md:166` says the `primer/` census is `13 / 32 / 0 / 6`.** Measured at `a87a140`
+  it is **`14 LIVE / 34 HISTORICAL / 0 SUPERSEDED / 7 FINDING`** across **55** files, all of
+  which carry a status line. Two documents landed — the `3f` audit and this work order — and
+  the count went stale the same day.
+* **`PROGRESS.md:77` says SIX questions are waiting**, the blocked table has **seven** new `3f`
+  rows, and `3f`'s closing statement said **eight**. (Also named in §0.9 and Block D; fix it
+  once, here.)
+
+🛑 **Do not just retype them correctly — that buys one day.** `check_refusals.py` already walks
+`primer/` for the F8c test, so it is the natural place to **emit the census**, and the blocked
+table is countable from its own rows. Have a tool print both, paste the output, and say in each
+document that the figure is generated. Where a count cannot be generated, **drop the numeral
+and name the source** — *"the questions in the blocked table below"* is true forever.
+
+⚠ **Then check for the third.** `grep` `CLAUDE.md`, `PROGRESS.md` and
+`START_HERE_FOR_CODE.md` for any other bare count of something the tree contains. A number
+whose only owner is a sentence is a number nobody is watching.
+
 ---
 
 ## Block D — close-out
@@ -423,7 +447,9 @@ close-out (0 of 5, −45% to −98%, three carrying 27–69% coverage).
 9. **The manifest ships one `scored`**, F6's assertions are described as what they are, and no
    list truncates silently.
 10. **The holdout is read once, at close-out, against a prediction written beforehand.**
-11. `PROGRESS.md`'s question count agrees with its own table.
+11. **Both hand-typed counts are generated rather than retyped** — `CLAUDE.md`'s `primer/`
+    census and `PROGRESS.md`'s question count — each pasted from a tool with its provenance, or
+    replaced by a phrase that cannot go stale. Any third one found by grep is listed.
 12. Every new document carries a status line and an expiry condition at birth.
 
 ---
@@ -459,8 +485,10 @@ close-out (0 of 5, −45% to −98%, three carrying 27–69% coverage).
   (`3f`) 🆕 **Now extended by G5: it must also name the change that turns it green, and that
   change must be the fix.**
 * **A magnitude never appears in a markdown file except as generated output, pasted with its
-  provenance.** (`3f`) ⚠ `3f` broke this twice in its own session — 44.2% vs 38.6%, and the
-  six/seven/eight question count. Have the tool print it.
+  provenance.** (`3f`) ⚠ `3f` broke this **three** times — 44.2% vs 38.6%, the
+  six/seven/eight question count, and `CLAUDE.md`'s `primer/` census, which was stale within a
+  day of being typed. **Every instance so far has been a count or a percentage a tool could
+  have printed.** G9.
 * **Every file in `primer/` carries a status line, and only `LIVE` documents are citable as
   current truth. A new document is born with one, and with its expiry condition stated.** (`3f`
   F8c, now in `CLAUDE.md`)
