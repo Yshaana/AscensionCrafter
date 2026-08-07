@@ -70,7 +70,7 @@
 > | qualified (≥50% coverage) | **1** |
 > | slice accuracy at ≥20% coverage | **20.5% (n=23)** |
 > | criterion (≥3 within ±20%) | **NOT MET** |
-> | holdout, read once at `3g` close-out | **0 of 5, −79% to −98%**, median slice **9.8%** |
+> | holdout, read once at `3g` close-out | **0 of 5, −79% to −98%**, median slice **9.8% (n=4)** |
 >
 > ⚠ **The holdout is WORSE than the tuning set, so 20.5% is the optimistic end.**
 
@@ -524,6 +524,8 @@ detail belongs in `Session_*.md` handoffs, not here.
 
 </details>
 
+<details><summary>Superseded: the <code>3e</code> current position and <code>3g</code> first actions (archived <code>3i</code> A1 — it stood un-collapsed for two sessions after E13/E14 were fixed, instructing work already done; the <code>3h</code> audit's highest-severity finding)</summary>
+
 ## Current position
 
 **✅ `3e` IS DONE (2026-08-06) — modelling, on a frozen cohort.**
@@ -578,6 +580,8 @@ manifest, stamped `c7d2892`.
    derivation deliberately returns NULL past the last payload's fetch time, so
    until a post-flip crawl lands, post-flip snapshots resolve to no phase —
    which is correct, and visible in `gear_tier_stats`' `phase_scoping` block.
+
+</details>
 
 <details><summary>Superseded: the <code>3f</code> first actions</summary>
 

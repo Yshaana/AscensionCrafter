@@ -33,6 +33,13 @@ And `3e`'s preflight audit found a fifth: `within_tolerance` at
 `calibrate_crawled.py:494` has **no coverage floor**, so a character the sim models
 nothing for can score a pass.
 
+> ✅ **ANNOTATION (`3i` A5): the fifth specimen is CLOSED.** The 20% coverage floor
+> was applied at `3g` G4 (`389c735`; `calibrate_crawled.py`, grep
+> `SUCCESSOR_COVERAGE_FLOOR_PCT`) and removed nobody — the four low-coverage passes
+> it was designed to catch were the same characters E13 was inflating. The four
+> specimens above it remain live examples of the class. The line above is kept as
+> written because this plan's argument was built on it.
+
 **Every one of these is the same shape: a measurement returning a confident number
 outside the regime where it means anything.** That is a class, and a class deserves a
 mechanism rather than five separate fixes.

@@ -14,8 +14,13 @@ handoff, not here."*
 > actually submits from. If the owner prefers them in `bugs/`, moving them is a
 > `git mv` and a README edit.
 
-**Every entry here is a FAILING CHECK in `tools/audit/check_sim_engine.py`.**
-They are registered in that file's `EXPECTED_FAILURES` map, so they do not break
+**Every entry here is a FAILING CHECK in `tools/audit/check_sim_engine.py` —
+with one stated exemption** (`3i` A4, writing down what `:534` and the
+"Also recorded, without checks" list already self-disclosed): an entry MAY stand
+without a check **only if its Check row says so explicitly** ("NONE", with the
+reason) or it sits in the explicitly-labelled without-checks list. An entry that
+neither carries a check nor discloses its absence is a defect in this file.
+Registered entries live in `EXPECTED_FAILURES`, so they do not break
 the build — but the registry is enforced in both directions:
 
 * an **unregistered** failure fails the harness (a new regression);
@@ -129,11 +134,9 @@ different constant `True` three functions later in the same commit. Only
 `decays` is falsifiable (M8), so only `decays` is asserted. `named` is still
 computed and printed — a reader wants to see the disclosure is present — but the
 detail string now labels it unconditional so it cannot be read as a result.
-| M15 🆕 | drop the `expected_phase_name` branch in `phase_guard()` | 2 |
-| M16 🆕 | drop the declared-boundary branch in `resolve_phase()` | 1 |
-| M17 🆕 | restore the fail-**open** horizon (`horizon is not None and ts > horizon`) | 1 |
-| M18 🆕 | revert `describe_horizon()` to a bare f-string (F5's crash class) | 1 |
-| M19 🆕 | drop the boundary's self-retirement, so it never disarms | 2 |
+
+*(A duplicate five-row fragment of M15–M19 stood here — an editing artifact,
+removed `3i` A5; the rows live in the main table above.)*
 
 **M15–M19 are `3g` G0's**, all in `core/builds/phases.py`, all red-counted by
 running `tools/audit/check_refusals.py` under each mutation and restoring —
@@ -492,7 +495,7 @@ it carries that caveat in its own failure text.
 
 | | |
 |---|---|
-| **Check** | ✅ **THREE registered failing checks** — `[cp_melee] / [dot_caster] / [frost_mage] fast_sim allocates GCDs to more than one filler`, all in `EXPECTED_FAILURES` (`check_sim_engine.py:78-102`). Also surfaced per ability as a `warnings` entry from `core/sim/tiers.py :: _mixed_damage_warning`. ⚠ The row read *"none yet"* until `3f` F8, contradicting this file's own line-15 invariant that every entry here IS a failing check |
+| **Check** | ✅ **THREE registered failing checks** — `[cp_melee] / [dot_caster] / [frost_mage] fast_sim allocates GCDs to more than one filler`, all in `EXPECTED_FAILURES` (`grep -n "more than one filler" tools/audit/check_sim_engine.py` — a line range stood here and drifted, `3i` A5). Also surfaced per ability as a `warnings` entry from `core/sim/tiers.py :: _mixed_damage_warning`. ⚠ The row read *"none yet"* until `3f` F8, contradicting this file's own every-entry-is-a-failing-check invariant (the header block above the registry; it read "line-15" here and that line number drifted too) |
 | **Where** | `core/sim/ability_model.py :: expected_cast` returns ONE mean for an ability whose events are part direct, part periodic |
 | **Found by** | `3e` B3, while fixing E5 |
 
@@ -531,7 +534,7 @@ channel, see E8), Hydricles and Ice Lance.
 
 | | |
 |---|---|
-| **Check** | 🛑 **STILL NONE — and unlike E7 that is accurate.** `grep -n channel tools/audit/check_sim_engine.py` returns comments only, so E8 is held by prose alone and breaches this file's line-15 invariant. It is NOT registered in `EXPECTED_FAILURES`, because a registry line is a claim that a check exists. **What would close it:** assert that a build containing a channelled ability (Blizzard, 10187 — the Frost Mage fixture already carries it) charges more than one GCD of occupancy for it, or that some warning names the channel. Both fail today. Deliberately not written in `3f`, which fixes no engine defects — see E9–E12, registered on the same terms |
+| **Check** | 🛑 **STILL NONE — and unlike E7 that is accurate.** `grep -n channel tools/audit/check_sim_engine.py` returns comments only, so E8 is held by prose alone under the header invariant's stated exemption (it read "breaches this file's line-15 invariant" until `3i` A4 wrote the exemption down; the breach was real and self-disclosed, which is exactly what the exemption now requires). It is NOT registered in `EXPECTED_FAILURES`, because a registry line is a claim that a check exists. **What would close it:** assert that a build containing a channelled ability (Blizzard, 10187 — the Frost Mage fixture already carries it) charges more than one GCD of occupancy for it, or that some warning names the channel. Both fail today. Deliberately not written in `3f`, which fixes no engine defects — see E9–E12, registered on the same terms |
 | **Where** | resolved into the DB at `core/spells/mechanics.py:275` (column at `core/db/schema.py:340`); `grep -rn is_channeled core/sim/` returns **nothing** |
 | **Found by** | `3e` C2, verified 2026-08-06 rather than inherited |
 

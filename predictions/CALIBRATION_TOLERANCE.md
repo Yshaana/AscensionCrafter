@@ -197,10 +197,23 @@ that moves the gate.
 `AUDIT_3G_ADVERSARIAL.md` §4 and `3h` Block B. Until that split is measured, this figure
 conflates magnitude error with zero production.
 
+> ✅ **ANNOTATION (`3i` A5): the split IS measured now** (`3h` Block B, committed in
+> `gate_manifest_3e.json`): producing-only slice median **30.7% (n=20)** beside the
+> headline 20.5% (n=23). ⚠ The two medians are over **different populations** — the
+> producing-only figure is upward-biased by selection (the three dropped members are
+> the worst cases); the paired median over the same members is a `3i` C5 output. The
+> paragraph above is kept as stamped.
+
 *(Corroboration, independent of coverage: `3f` F9's frost-mage assertion compares modelled
 DPS to a measured capture with a same-session verified stat block and no coverage term. It
 reads **457 against 1,382 — −66.9%**, i.e. the sim produces ~33% of one real character's
 total output. That it is not ~20% is itself informative and is a `3h` Block C question.)*
+
+> ✅ **ANNOTATION (`3i` A5): the `3h` Block C question is answered** — `3h` P5
+> reconciled F9's 33.1% against the producing-only figure (30.7%, 2.4 points apart);
+> the gap to the 20.5% headline is the keyed-but-zero mass plus composition. ⚠ The
+> reconciliation inherits the selection bias noted above (`AUDIT_3H` §7.1); the
+> paired-median restatement is `3i` C5.
 
 🛑 **Why this matters more than a bigger number.** At slice accuracy ~62–64% the previous
 text said *"both levers have to roughly double"*, which reads as a hard but ordinary
@@ -239,6 +252,13 @@ accuracy is stable at ~63% across the ≥20 / ≥30 / ≥50 bands and unstable b
 20% (144% at ≥10%, 165% at ≥0%). 20% is where the metric stops being noise — a
 property of the measurement itself. At today's numbers the floor takes the gate
 from **5 passing to 2**, i.e. it fails on the run that stamped it.
+
+> ⚠ **ANNOTATION (`3i` A5): every band figure in the stamped paragraph above was
+> measured on E13-inflated autos** (the same caveat `calibrate_crawled.py` carries at
+> its `~62%` reference). Post-E13 the bands read 20.5 / 16.9 / 16.9 at ≥20/≥30/≥50 and
+> 23.4 / 40.3 at ≥10/≥0 — see the regenerated table above. The floor's *justification
+> shape* (stable above 20%, denominator-dominated below) survives; the stable level
+> does not. Stamped text left as written, per the standing rule.
 
 **What lands in `3e` instead:** `within_tolerance` returns **`None`, not
 `False`, at zero coverage** — three cohort members (Huskeer, Jamppa, Xizek) have
