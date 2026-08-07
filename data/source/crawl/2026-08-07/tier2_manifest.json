@@ -1,0 +1,58 @@
+{
+ "generated_at": "2026-08-07T07:38:24.243936+00:00",
+ "note": "Per-report reproducibility manifest for gitignored tier-2 data. Row counts are the durable audit for a re-fetch (crawl_ascensionlogs.py --recrawl-report <id>); payload_sha256 is exact only for the original capture. See this tool's docstring.",
+ "files": {
+  "abilities": {
+   "files": [
+    "abilities.jsonl.gz"
+   ],
+   "records": 6,
+   "payload_rows": 2120
+  },
+  "avoidance": {
+   "files": [
+    "avoidance.jsonl.gz"
+   ],
+   "records": 6,
+   "payload_rows": 1701
+  },
+  "damage_taken": {
+   "files": [
+    "damage_taken.jsonl.gz"
+   ],
+   "records": 6,
+   "payload_rows": 497
+  },
+  "healing": {
+   "files": [
+    "healing.jsonl.gz"
+   ],
+   "records": 6,
+   "payload_rows": 352
+  }
+ },
+ "by_report": {
+  "79": {
+   "abilities": {
+    "records": 6,
+    "payload_rows": 2120,
+    "payload_sha256": "3944fa9b001a22f4ea1689c8344c34afacfb1408ba897c1b6ea566a15085103b"
+   },
+   "avoidance": {
+    "records": 6,
+    "payload_rows": 1701,
+    "payload_sha256": "fef2e9753d27e58e9a1dd68e293d4beef239808c90439d8a0de79f005d26b44c"
+   },
+   "damage_taken": {
+    "records": 6,
+    "payload_rows": 497,
+    "payload_sha256": "b777df5e52a13d76e377a23bdbe80739860e45bc26d91166511cadc7c80522be"
+   },
+   "healing": {
+    "records": 6,
+    "payload_rows": 352,
+    "payload_sha256": "ceaff6196ecf5f2e57032235dd5e45df659d28d21cc5aa1d40ecac0cdc00f4a1"
+   }
+  }
+ }
+}

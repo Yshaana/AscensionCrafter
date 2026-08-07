@@ -1,0 +1,55 @@
+{
+ "date": "2026-08-07",
+ "captured_at": "2026-08-07T07:38:24.203833+00:00",
+ "realm": "darkmoon",
+ "season": 10,
+ "patch_date": "2026-08-05",
+ "new_report_ids": [
+  79
+ ],
+ "reports_known": 84,
+ "characters_known": 414,
+ "tier2_note": "tier-2 files are gitignored; re-fetchable from darkmoon.ascensionlogs.gg by report id \u2014 see tools/scrapers/README.md",
+ "files": [
+  {
+   "file": "abilities.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 6,
+   "bytes_gz": 90492,
+   "sha256": "a5ab788c0408236e7b16de3d7928d7481ee176d825231ec7415a2022e763dd77"
+  },
+  {
+   "file": "avoidance.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 6,
+   "bytes_gz": 65894,
+   "sha256": "8830e2d57f62ccf5f1bdcdd19eada3775643a06afb851bd7023f8f4af591a8a1"
+  },
+  {
+   "file": "damage_taken.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 6,
+   "bytes_gz": 14250,
+   "sha256": "c8e5705368de1e658424b1d0a5521c69672a500d10de005741ec38bd6075adf5"
+  },
+  {
+   "file": "healing.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 6,
+   "bytes_gz": 52387,
+   "sha256": "a4796970c7529e6f6cc0b230f805c2286aba5efe148bd6a4274f75c50f5f2ea6"
+  },
+  {
+   "file": "reports.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 1,
+   "bytes_gz": 1399,
+   "sha256": "d4557abc30b0ff1281b2af4a05e12998231705276fa6272888d50884000bef4b"
+  }
+ ]
+}

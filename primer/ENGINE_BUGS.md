@@ -899,13 +899,26 @@ fix. See the closure box at the top of this entry.
   pet-only ..................  1,642   (e.g. Firebolt (Wild Imp))
 ```
 
-The 1,208 owner < pet groups rule out the "owner row is a merged rollup"
-reading — the two rows are **independently ingested copies of the same
-endpoint data**, and the identical pairs are one quantity stored twice.
-🔬 **Whether the duplication is ingest-side (`build_builds_db.py`'s
-abilities+pets merge) or endpoint-side is discriminated by the `3h` D2
-re-fetch** — compare one report's tier-2 payload rows against the ingested
-rows for one duplicated (scope, character, spell).
+✅ **DISCRIMINATED at `3h` D2 (report 79 re-fetched 2026-08-07): the
+duplication is ENDPOINT-SIDE SEMANTICS, faithfully double-ingested.** The
+`character_spell_damage` payload states pet damage **twice**: merged into the
+owner inside `rows[]` (`character_id` = the owner, `character_type:
+"player"` — the Wild Imp's Firebolt 33,035 appears there under character
+2310) **and** restated per-pet in `pet_spell_damage_by_owner` (same 33,035,
+`is_pet: true`). `corpus.py :: ingest_abilities_record` ingests `rows[]` as
+`is_pet=0` and the by-owner block as `is_pet=1`, both at face value — so
+**`rows[]` is owner-MERGED, not owner-only, and the pet block is a
+restatement, not an addition.** ⚠ Caught by a string/int trap on the way: the
+payload's `spell_id` is a STRING, so an int-compare scan of `rows[]` reports
+the pet spell absent — check with `str()` or `_int_or_none` when auditing
+payloads. ⚠ The 1,208 owner < pet groups are NOT explained by this and need
+their own look in the fixing session (partial windows or scope drift are the
+candidates). 🚨 **Consequence one layer up:** `corpus.py:598-614` computes
+`dps = (total_damage + pet_damage) / duration` where `total_damage` sums
+`is_pet=0` rows — which already CONTAIN the pet damage — so **every
+pet-owning character's logged DPS denominator is inflated by its pet's
+damage counted twice.** That is the gate's own `logged_dps`, so the fix
+moves deltas as well as coverage.
 
 **Direction of bite, stated from the measurement rather than derived:** the
 duplicated damage sits in both the matched and unmatched parts of the
