@@ -168,7 +168,7 @@ Schema in `INDEX_GUIDE.md`.
   as generated 2026-08-07:
 
   ```
-  [census] primer/ status lines: 65 files — 13 LIVE / 38 HISTORICAL / 5 SUPERSEDED / 9 FINDING
+  [census] primer/ status lines: 67 files — 14 LIVE / 38 HISTORICAL / 5 SUPERSEDED / 10 FINDING
   ```
 
   🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it
