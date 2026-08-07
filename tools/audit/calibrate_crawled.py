@@ -473,20 +473,28 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
     has_autos = any(k in sim_spell_ids for k in ("auto_mh", "auto_oh"))
     autos_producing = any(k in producing_ids for k in ("auto_mh", "auto_oh"))
 
-    def is_modelled(r):
-        if r[0] in sim_spell_ids:
-            return True
-        # The log renders auto-attacks as NEGATIVE ids the sim never uses — it
-        # keys its swing layer 'auto_mh'/'auto_oh'. Matching on id alone
-        # therefore scored every character's white damage as unmodelled and
-        # understated coverage by ~9 points.
-        #
-        # ⚠ Not every negative id is an ordinary swing: extra-attack procs from
-        # trinkets and weapons log the same way ('Auto Attack [Hand of
-        # Justice]'), and the sim does NOT model those. The discriminator is
-        # taken from the row itself rather than from the id's magnitude — a
-        # bracket tag that equals the row's own school is a school-flavoured
-        # swing, anything else names an item.
+    def is_auto_row(r):
+        """Is this logged row one of the sim's OWN auto-attack swings?
+
+        🛑 `3j` A4 (`AUDIT_3I_ADVERSARIAL` §8) — ONE definition. There were two
+        byte-identical inline copies of this, 30 lines apart, under a comment
+        at the second site claiming auto rows were matched *"through the SAME
+        `is_auto_row` predicate"* the coverage sums use. They were not: the
+        sums inlined their own copy. Nothing asserted the two agreed, and the
+        one check that would have noticed had no auto rows in its fixture.
+
+        The log renders auto-attacks as NEGATIVE ids the sim never uses — it
+        keys its swing layer 'auto_mh'/'auto_oh'. Matching on id alone
+        therefore scored every character's white damage as unmodelled and
+        understated coverage by ~9 points.
+
+        ⚠ Not every negative id is an ordinary swing: extra-attack procs from
+        trinkets and weapons log the same way ('Auto Attack [Hand of
+        Justice]'), and the sim does NOT model those. The discriminator is
+        taken from the row itself rather than from the id's magnitude — a
+        bracket tag that equals the row's own school is a school-flavoured
+        swing, anything else names an item.
+        """
         if r[0] >= 0 or not has_autos:
             return False
         name = r[1] or ""
@@ -494,6 +502,9 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
             return True                       # plain 'Auto Attack'
         tag = name[name.index("[") + 1:].rstrip("]").strip()
         return tag.lower() == (r[4] or "").lower()
+
+    def is_modelled(r):
+        return r[0] in sim_spell_ids or is_auto_row(r)
 
     def is_producing(r):
         """A matched row's key produced sim damage. Negative-id auto rows are
@@ -520,16 +531,9 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
     # of exactly the mass it had just called "keyed-but-zero". Fixed: auto
     # rows are matched through the SAME `is_auto_row` predicate the modelled/
     # producing sums use, and reported as ONE combined entry with their real
-    # logged share.
-    def is_auto_row(r):
-        if r[0] >= 0 or not has_autos:
-            return False
-        name = r[1] or ""
-        if "[" not in name:
-            return True
-        tag = name[name.index("[") + 1:].rstrip("]").strip()
-        return tag.lower() == (r[4] or "").lower()
-
+    # logged share. ✅ `3j` A4 — that claim is now TRUE: the second inline copy
+    # that used to sit here is deleted and `is_auto_row` above is the only
+    # definition.
     logged_by_sid = {r[0]: r for r in rows}
     auto_rows_logged = sum(r[2] for r in rows if is_auto_row(r))
     zero_list = []
@@ -545,7 +549,20 @@ def modelled_damage_share(conn, scope_id, character_id, per_ability):
                                  if lr else 0.0),
             "why": _keyed_zero_reason(entry),
         })
-    if has_autos and not autos_producing and auto_rows_logged:
+    # 🛑 3j A4 (`AUDIT_3I_ADVERSARIAL` §8) — the `and auto_rows_logged` guard
+    # is GONE. `3i` E3 added it, and it REGRESSED the very list it was fixing:
+    # the loop above `continue`s past 'auto_mh'/'auto_oh', so a zero-producing
+    # auto key whose log carried NO auto row was dropped from the named zero
+    # list entirely. Verified against both trees by the auditor —
+    # `eaa7604` reported `[{'spell_id': 'auto_mh', …, 'why':
+    # 'refused-sentinel'}]`, HEAD reported `[]`.
+    #
+    # The comment 40 lines above reads "Full list, no caps — a renderer may
+    # truncate but must say what it dropped", and a silent drop is precisely
+    # what it forbids. A logged share of 0.0% is a fact about the entry, not a
+    # reason to omit it: "the sim keys autos, produces nothing on them, and the
+    # log never saw one" is different information from saying nothing.
+    if has_autos and not autos_producing:
         auto_entry = per_ability.get("auto_mh") or per_ability.get("auto_oh")
         zero_list.append({
             "spell_id": "auto", "name": "Auto attacks (MH+OH)",

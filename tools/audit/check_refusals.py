@@ -979,22 +979,138 @@ def check_coverage_split_producing_vs_zero():
         "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
         "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
         "spell_school TEXT)")
+    # 🆕 3j A5 (`AUDIT_3I_ADVERSARIAL` §8) — THE FIXTURE IS WIDENED so the
+    # maximal-producing answer is no longer the correct answer. `3i` E2 fixed
+    # the §6.2 defect (a positive-id row can only restate `producing_ids`) by
+    # switching to a negative-id auto row, but left a fixture whose ONLY keyed
+    # ability produced damage — so `producing` was already at its ceiling and
+    # an over-permissive `is_producing` had nowhere to move it. Verified by the
+    # auditor: under the 3h-registered mutation `is_producing -> return True`,
+    # this arm printed `producing=60.0, zero=0.0` and PASSED, byte-identical to
+    # the output AUDIT_3H §6.2 condemned.
+    #
+    # The added row (333, 2000 damage logged, 0.0 sim damage) is a KEYED
+    # ability an over-permissive `is_producing` misclassifies: it belongs in
+    # keyed-but-zero, and only a correct predicate puts it there.
+    #
+    #   correct:              producing 6000/12000 = 50.0%, zero 2000 = 16.7%
+    #   is_producing -> True: producing 8000/12000 = 66.7%, zero 0.0%   RED
+    #   autos_producing False: producing 0.0%, zero 66.7%               RED
     conn2.executemany(
         "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
         [(1, 7, -1, "Auto Attack", 6000.0, 0, "physical"),
-         (1, 7, 222, "Other", 4000.0, 0, "shadow")])
-    per_ability_auto = {"auto_mh": {
-        "name": "Auto attacks", "casts": 3.0, "damage": 6000.0,
-        "mean_per_cast": 2000.0, "events": [{"kind": "swing"}],
-        "attributed": True, "unresolved_events": []}}
+         (1, 7, 222, "Other", 4000.0, 0, "shadow"),
+         (1, 7, 333, "Keyed But Zero", 2000.0, 0, "fire")])
+    per_ability_auto = {
+        "auto_mh": {
+            "name": "Auto attacks", "casts": 3.0, "damage": 6000.0,
+            "mean_per_cast": 2000.0, "events": [{"kind": "swing"}],
+            "attributed": True, "unresolved_events": []},
+        333: {
+            "name": "Keyed But Zero", "casts": 0.0, "damage": 0.0,
+            "mean_per_cast": 0.0, "events": [], "unresolved_events": []},
+    }
     out2 = cc.modelled_damage_share(conn2, 1, 7, per_ability_auto)
     check("[E2] a real-damage AUTO row reads as producing via "
           "autos_producing — the branch a positive-id row cannot exercise, "
           "unlike the ORIGINAL fixture (AUDIT_3H §6.2)",
-          out2 is not None and out2["modelled_and_producing_pct"] == 60.0
-          and out2["keyed_but_zero_pct"] == 0.0,
+          out2 is not None and out2["modelled_and_producing_pct"] == 50.0,
           f"producing={out2 and out2['modelled_and_producing_pct']}, "
           f"zero={out2 and out2['keyed_but_zero_pct']}")
+    check("[3j-A5] ...and the SAME fixture carries a keyed-but-zero ability, "
+          "so the correct answer is NOT the maximal-producing answer — an "
+          "over-permissive is_producing now has somewhere wrong to go "
+          "(AUDIT_3I §8: the 3i arm was green under its own named mutation)",
+          out2 is not None
+          and abs(out2["keyed_but_zero_pct"] - 16.7) < 0.05
+          and out2["modelled_damage_pct"] == round(
+              out2["modelled_and_producing_pct"]
+              + out2["keyed_but_zero_pct"], 1),
+          f"producing={out2 and out2['modelled_and_producing_pct']}, "
+          f"zero={out2 and out2['keyed_but_zero_pct']}, "
+          f"modelled={out2 and out2['modelled_damage_pct']}")
+
+    # 🆕 3j A4 (`AUDIT_3I_ADVERSARIAL` §8) — THE AUTO ROWS THE E1 FIXTURE
+    # NEVER HAD. `3i` E3 repaired the auto-key hole in the named zero list and
+    # the auditor showed the repair had NO CHECK: mutating the repaired line to
+    # `if False:` — a full revert — left `check_refusals.py` at 0 FAILURES,
+    # because the E1 fixture above contains only positive ids (92557, 111) and
+    # no auto row, so it never reaches the repaired path.
+    #
+    # Case 1: the sim keys autos, produces ZERO on them, and the log DID carry
+    # an auto row. The combined 'auto' entry must appear with its REAL logged
+    # share — the AUDIT_3H §6.3 defect was reporting 0.0% of exactly the mass
+    # it had just counted as keyed-but-zero.
+    conn3 = sqlite3.connect(":memory:")
+    conn3.execute(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
+        "spell_school TEXT)")
+    conn3.executemany(
+        "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
+        [(1, 7, -1, "Auto Attack", 3000.0, 0, "physical"),
+         (1, 7, 222, "Other", 7000.0, 0, "shadow")])
+    per_ability_zero_auto = {"auto_mh": {
+        "name": "Auto attacks", "casts": 0.0, "damage": 0.0,
+        "mean_per_cast": 0.0, "events": [], "unresolved_events": []}}
+    out3 = cc.modelled_damage_share(conn3, 1, 7, per_ability_zero_auto)
+    auto_entries = [z for z in (out3 or {}).get("keyed_but_zero") or []
+                    if str(z["spell_id"]).startswith("auto")]
+    check("[3j-A4] a zero-producing AUTO key WITH a logged auto row appears "
+          "in the named zero list carrying its REAL logged share (30.0%), not "
+          "0.0% of the mass it was just counted in",
+          len(auto_entries) == 1
+          and abs(auto_entries[0]["logged_share_pct"] - 30.0) < 0.05,
+          f"auto entries={auto_entries}")
+    zero_sum3 = round(sum(z["logged_share_pct"]
+                          for z in (out3 or {}).get("keyed_but_zero") or []), 1)
+    check("[3j-A4] ...and the E1 cross-check still closes over an AUTO row — "
+          "the zero list's own sum equals keyed_but_zero_pct on the negative-id "
+          "path too, not just the positive-id one",
+          out3 is not None
+          and abs(zero_sum3 - out3["keyed_but_zero_pct"]) < 0.5,
+          f"zero_list sum={zero_sum3} vs keyed_but_zero_pct="
+          f"{out3 and out3['keyed_but_zero_pct']}")
+
+    # Case 2: THE REGRESSION `3i` E3 introduced. Sim keys autos, produces zero,
+    # and the log carried NO auto row at all. `3i` guarded the combined entry
+    # on `auto_rows_logged` being truthy, so this entry vanished — verified by
+    # the auditor across both trees (`eaa7604` -> one entry, HEAD -> `[]`).
+    # A 0.0% logged share is a FACT about the entry, not grounds for silence.
+    conn4 = sqlite3.connect(":memory:")
+    conn4.execute(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
+        "spell_school TEXT)")
+    conn4.executemany(
+        "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
+        [(1, 7, 222, "Other", 10000.0, 0, "shadow")])
+    out4 = cc.modelled_damage_share(conn4, 1, 7, per_ability_zero_auto)
+    auto_entries4 = [z for z in (out4 or {}).get("keyed_but_zero") or []
+                     if str(z["spell_id"]).startswith("auto")]
+    check("[3j-A4] a zero-producing AUTO key with NO logged auto row is STILL "
+          "named, at 0.0% — the 3i E3 repair dropped it entirely, against its "
+          "own 'full list, no caps' comment 40 lines above",
+          len(auto_entries4) == 1
+          and auto_entries4[0]["logged_share_pct"] == 0.0,
+          f"auto entries={auto_entries4}")
+
+    # 🆕 3j A4 — the two inline copies of the auto predicate are now ONE.
+    # `AUDIT_3I` §8: `is_modelled` inlined its own copy while `is_auto_row`
+    # was a second implementation 30 lines later, under a comment asserting
+    # they were the same object. Asserted structurally: the source of
+    # `modelled_damage_share` must define `is_auto_row` exactly once.
+    import inspect
+    src = inspect.getsource(cc.modelled_damage_share)
+    check("[3j-A4] `is_auto_row` is defined ONCE in modelled_damage_share — "
+          "the comment claiming the coverage sums and the zero list share one "
+          "predicate is now true, rather than describing two byte-identical "
+          "copies 30 lines apart",
+          src.count("def is_auto_row(") == 1
+          and "is_auto_row(r)" in src.split("def is_modelled(")[1][:200],
+          f"definitions={src.count('def is_auto_row(')}, "
+          f"is_modelled delegates="
+          f"{'is_auto_row(r)' in src.split('def is_modelled(')[1][:200]}")
 
 
 def check_admissibility_outage_refuses():
