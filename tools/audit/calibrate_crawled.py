@@ -1092,7 +1092,11 @@ def main():
     lines += _decomposition_section(report_results)
 
     lines += ["", "## Excluded, and why", ""]
-    for cid, cname, why in excluded[:40]:
+    # 🆕 3g G8 — NO SILENT CAP. This truncated at `excluded[:40]` and printed
+    # "none" only when the list was empty, so 41 losses would have printed 40
+    # and said nothing about the 41st. The manifest always carried them all;
+    # the report is what a person reads.
+    for cid, cname, why in excluded:
         lines.append(f"- {cname} ({cid}): {why}")
     if not excluded:
         lines.append("- none")
@@ -1288,11 +1292,32 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                 "what is in force, which is the direction a criterion may move",
         },
         "result": {
-            "scored": len(tuning),
+            # 🆕 3g G8 — `scored` IS GONE FROM THIS BLOCK. It shipped here as
+            # len(tuning) (36) while `cohort_definition.scored` shipped as
+            # len(tuning)+len(holdout) (41), both in the same file, neither
+            # noting the other — so an auditor reading `"scored": 36` and
+            # `"scored": 41` got exactly the self-contradiction F6 exists to
+            # remove, in a different coat. ONE `scored` ships now, in
+            # `cohort_definition`, and it means what F6's assertions reconcile:
+            # every member the cohort selected, holdout included. This block
+            # keeps `tuning_set_size`, which is unambiguous and was always the
+            # number this key actually held.
             "tuning_set_size": len(tuning),
             "within_tolerance": len(passing),
+            # 🆕 3g G4/G8 — SPLIT. This was one key named
+            # `not_scoreable_zero_coverage` counting every `within_tolerance is
+            # None`. Once G4's floor landed, that key silently started counting
+            # below-floor characters too, and its NAME would have been a lie in
+            # the same file that just removed a duplicate `scored`. Two reasons,
+            # two keys, and the old name keeps its old meaning.
             "not_scoreable_zero_coverage": sum(
-                1 for r in tuning if r["within_tolerance"] is None),
+                1 for r in tuning
+                if not (r["modelled"] or {}).get("modelled_damage_pct")),
+            "not_scoreable_below_coverage_floor": sum(
+                1 for r in tuning
+                if r["within_tolerance"] is None
+                and (r["modelled"] or {}).get("modelled_damage_pct")),
+            "coverage_floor_pct_applied": SUCCESSOR_COVERAGE_FLOOR_PCT,
             "qualified": len(qualified),
             "criterion_met": crit_met,
             "rider_met": rider_met,
@@ -1431,6 +1456,24 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
     #
     # RAISES rather than warns: a manifest is a committed record, and one that
     # is wrong is worse than one that is missing.
+    #
+    # ⚠ 3g G8 — WHAT THESE TWO ASSERTIONS ACTUALLY ARE, corrected. `3f`'s record
+    # and ENGINE_BUGS described them as *"two assertions REFUSE to write a
+    # manifest whose members do not add up"*, which claims a RUNTIME invariant
+    # over the data. They are not that. Given `still_qualifying = len(rows)` and
+    # `dropped = [cid for cid in cohort_ids if cid not in present]`, the first
+    # reduces to `len(rows) + (len(cohort_ids) - len(rows)) == len(cohort_ids)`;
+    # and `_completeness_sql` ends `GROUP BY ep.character_id`, so `rows` is one
+    # row per character and every row lands in exactly one of `results` /
+    # `excluded`, making the second `len(results) + len(excluded) == len(rows)`.
+    # **No data condition can trip either.**
+    #
+    # They ARE real REGRESSION GUARDS ON THE CALLER'S WIRING, which is worth
+    # having and is why they stay: reverting `:1087` to `len(tuning)+len(holdout)`
+    # turns them red, and `check_refusals.py:310,326` fires both by passing
+    # hand-forged counts. The claim is corrected, not the code — describing a
+    # wiring guard as a data invariant is the kind of overstatement that makes a
+    # later auditor distrust the things that ARE true.
     cd = manifest["cohort_definition"]
     if cd["still_qualifying"] + len(cd["dropped"]) != cd["frozen_size"]:
         raise SystemExit(

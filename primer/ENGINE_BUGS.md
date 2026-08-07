@@ -44,24 +44,82 @@ green), a test case that exercised only one of two assertions (left the other's
 mutation green), and an in-process `io.StringIO` stderr that accepts any
 codepoint (made an encoding assertion unfalsifiable).
 
-| # | mutation | red |
-|---|---|---:|
-| M1 | revert `session_mismatch`'s log side to `return None` | 1 |
-| M2 | drop `config.ensure_utf8_stdout()` from `baseline_phase1.py` | 1 |
-| M3 | remove `baseline_phase1`'s `RealmSeasonMismatch` handler | 3 |
-| M4 | remove the `ValueError` guard in `_log_started_at` | 1 |
-| M5 | point `closing_note` back at `args.*` instead of the resolved stats | 1 |
-| M6 | remove `baseline_phase1`'s pre-flight phase assert | 1 |
-| M7 | `EXCLUDED_SNAPSHOT_SOURCES = ()` | 3 |
-| M8 | make `_decay_target_health` a no-op (pin target health at 100) | 1 |
-| M9 | `detect_summons` returns `[]` | 3 |
-| M9b | `detect_summons` returns rows with **wrong** spell ids (non-empty) | 3 |
-| M10 | `_useful_cast_interval` returns a positive interval for everything | 3 |
-| M11a | drop the manifest's frozen-arithmetic assertion | 2 |
-| M11b | drop the manifest's scoring-loop assertion | 1 |
-| M12 | drop the holdout carry-forward | 2 |
-| M13 | treat CHILD phases as top-level in `phase_windows` | 2 |
-| M14 | drop the horizon rule in `resolve_phase` | 2 |
+🆕 **`3g` G5 — AND THE RULE HAD ONLY HALF A RIGOUR.** The `3f` audit found
+**three registered checks that could never turn GREEN from their own fix** —
+permanently red, closable only by a lie. A check that cannot go green carries no
+information either, and it will eventually be silenced rather than satisfied. So
+**every row now names the change that turns it green as well, and that change
+must be the FIX**. Where a defect is registered but unfixed, the **seam** the fix
+lands in is created first so the green path is reachable before it is taken.
+
+🛑 **Run the green path too, not just the red one.** `3g` named E12's as *"thread
+`combo_points` through `roll_hit`/`roll_cast`"*, applied exactly that, and the
+check **stayed red**: the parameter has to reach `_components`, not just the
+signatures. A green path that has only been named is a guess about your own code.
+
+⚠ **PRECONDITION column, `3g` G7.** *"Every row below was executed against the
+tree"* was unreproducible for a third of the registry from a clean clone —
+`data/derived/*.db` is gitignored. Each row now states what it needs, so an
+auditor knows whether a row they cannot run is stale or merely gated. This is the
+primer's own standing practice — *a code path only a gated run exercises can stay
+broken while everything reports green* — applied to the registry itself.
+
+| # | mutation (turns it RED) | red | GREEN PATH — the change that closes it | needs |
+|---|---|---:|---|---|
+| M1 | revert `session_mismatch`'s log side to `return None` | 1 | ✅ already green — F4 is fixed | — |
+| M2 | drop `config.ensure_utf8_stdout()` from `baseline_phase1.py` | 1 **[Windows only]** | ✅ already green | **Windows** |
+| M3 | remove **BOTH** the pre-flight `api_get`+`assert_phase` block **and** the `RealmSeasonMismatch` handler | **4** | ✅ already green | — |
+| M4 | remove the `ValueError` guard in `_log_started_at` | 1 | ✅ already green | — |
+| M5 | point `closing_note` back at `args.*` instead of the resolved stats | 1 | ✅ already green | — |
+| M6 | remove `baseline_phase1`'s pre-flight phase assert | 1 | ✅ already green | — |
+| M7 | `EXCLUDED_SNAPSHOT_SOURCES = ()` | 3 | ✅ already green | **`builds.db`** |
+| M8 | make `_decay_target_health` a no-op (pin target health at 100) | 1 | ✅ already green | **`ascension.db`** |
+| M9 | `detect_summons` returns `[]` | 3 | ✅ already green | **`ascension.db`** |
+| M9b | `detect_summons` returns rows with **wrong** spell ids (non-empty) | 3 | ✅ already green | **`ascension.db`** |
+| M10 | `_useful_cast_interval` returns a positive interval for everything | 3 | ✅ already green | **`ascension.db`** |
+| M11a | drop the manifest's frozen-arithmetic assertion | 2 | ✅ already green | — |
+| M11b | drop the manifest's scoring-loop assertion | 1 | ✅ already green | — |
+| M12 | drop the holdout carry-forward | 2 | ✅ already green | — |
+| M13 | treat CHILD phases as top-level in `phase_windows` | 2 | ✅ already green | — |
+| M14 | drop the horizon rule in `resolve_phase` | 2 | ✅ already green | — |
+| M15 🆕 | drop the `expected_phase_name` branch in `phase_guard()` | 2 | ✅ green at `646884a` (G0) | — |
+| M16 🆕 | drop the declared-boundary branch in `resolve_phase()` | 1 | ✅ green at `646884a` (G0) | — |
+| M17 🆕 | restore the fail-**open** horizon (`horizon is not None and ts > horizon`) | 1 | ✅ green at `646884a` (G0) | — |
+| M18 🆕 | revert `describe_horizon()` to a bare f-string | 1 | ✅ green at `646884a` (G0) | — |
+| M19 🆕 | drop the boundary's self-retirement, so it never disarms | 2 | ✅ green at `646884a` (G0) | — |
+| M20 🆕 | **E13** — make `AttackTable.probabilities()` return percent again | 3 | ✅ green at `7af0195` (G1): return fractions at the boundary and drop the consumer's `/100.0` | **`ascension.db`** |
+| M21 🆕 | **E14** — drop the component's own duration, or the sanity limit, in `occurrences_per_cast` | 3 | ✅ green at `6c62309` (G2): read `duration_index` → `dbc_spellduration` per component | **`ascension.db`** |
+| M22 🆕 | **E9** — n/a, it is still red | — | 🛑 **`tiers._routes_as_debuff` returns `_is_pure_periodic(ability)`.** RUN 2026-08-07: turns it green. Seam created in G5 so the check imports the real predicate instead of re-implementing it | **`ascension.db`** |
+| M23 🆕 | **E11** — n/a, it is still red | — | 🛑 **decay `self_health_pct` inside `tiers._decay_health`.** RUN 2026-08-07 (with a 100→40 non-linear track): turns it green. ⚠ Not a mirror of the target's linear 100→0 — the player is healed as well as damaged | **`ascension.db`** |
+| M24 🆕 | **E12** — n/a, it is still red | — | 🛑 **thread `combo_points` through `roll_cast` → `roll_hit` → `_components`.** RUN 2026-08-07. ⚠ **Signatures alone left it RED** — the value must reach `_components`. Three edits, not two | **`ascension.db`** |
+| M25 🆕 | **E10** — n/a, it is still red | — | 🟡 **no green path named.** `_decay_target_health` divides by `st.fight_duration` while the timeline is bounded by `fight_duration × (1 − movement_pct)`; whether the fix is to divide by the effective time or to extend the timeline **changes what a fight IS**, and picking one is a modelling decision, not a repair. Stated rather than left blank | **`ascension.db`** |
+| M26 🆕 | **E5 / E7 / E8** — n/a, still red | — | 🟡 **no green path named**, same discipline: each is a rotation-model change whose correct shape is not settled (E7's filler budget, E8's channel model, E5's mixed direct+periodic entries) | **`ascension.db`** |
+| M27 🆕 | **F9's two ground-truth entries** — n/a, still red | — | 🟡 **no green path named, and this one is the point.** They close when the sim stops under-producing by ~5×. That is the project's open problem, not a defect with a fix | **`ascension.db`** |
+| M28 🆕 | `contaminate()` also nulls `gear_stats_json` — i.e. changes more than `source` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
+| M29 🆕 | `contaminate()` also hits a NON-cohort character, perturbing `outside` | 1 | ✅ already green (`3g` G6) | **`builds.db`** |
+
+🆕 **M28/M29 replace two arms of `check_gate_exclusion.py` that were
+TAUTOLOGICAL** (`3g` G6, confirming the `3f` audit §2.3). `victim in cohort_ids
+and n_snaps > 0` and `victim not in after_outside` were each true for every value
+of `EXCLUDED_SNAPSHOT_SOURCES`, every `source` and every mutation — `victim` is
+drawn from the cohort and `outside = qualifying − cohort_ids`. ⚠ **The second was
+made unfalsifiable by the F1 rewrite that moved the victim inside the cohort:
+the fix and the vacuity have the same cause.** The replacements assert what the
+arms were *for* — that `contaminate()` changes `source` and nothing else, and
+that excluding a member leaves the outside set untouched — and both turn red
+under a mutation, run 2026-08-07. 🛑 **The rest of that file is sound and was not
+rewritten**; the exclusion, drop-reason and control arms are genuinely
+falsifiable and the auditor verified them by running them.
+
+🆕 **A third tautology was REMOVED rather than replaced** —
+`check_sim_engine.py`'s `named = any("TargetAuraState" in w …)`.
+`EXECUTE_GATING_UNAVAILABLE` is appended **unconditionally**, so it is the
+literal constant `True`; `F3` diagnosed the previous form
+(`any("health" in w.lower() …)`) as a constant `True` and replaced it with a
+different constant `True` three functions later in the same commit. Only
+`decays` is falsifiable (M8), so only `decays` is asserted. `named` is still
+computed and printed — a reader wants to see the disclosure is present — but the
+detail string now labels it unconditional so it cannot be read as a result.
 | M15 🆕 | drop the `expected_phase_name` branch in `phase_guard()` | 2 |
 | M16 🆕 | drop the declared-boundary branch in `resolve_phase()` | 1 |
 | M17 🆕 | restore the fail-**open** horizon (`horizon is not None and ts > horizon`) | 1 |
@@ -78,6 +136,28 @@ harness counting FAIL lines would have scored as *vacuous*. The mutation has to
 restore the real prior code (one branch guarded by `horizon is not None`), not
 merely disable the new one. **A mutation that changes the failure MODE is not
 the mutation you meant to run.**
+
+🛑 **M3 WAS STALE, AND IT WAS INVALIDATED BY A FIX IN ITS OWN SESSION** (`3g` G7,
+confirming the `3f` audit §2.5). The row read *"delete the `except
+RealmSeasonMismatch` handler around `crawl_phases()` … all three assertions go
+red. (Verified 3f.)"* The auditor applied exactly that and **all four F0 checks
+stayed PASS**: the pre-flight `api_get` + `assert_phase` block added in the *same
+commit* (`baseline_phase1.py:106-113`) refuses at exit 2 before `crawl_phases()`
+is reached. Only removing **both** turns anything red, and it turns **four** red,
+not three. The measurement was taken before the pre-flight existed and never
+re-run. **The guard is right; the row was wrong** — corrected above. A registered
+mutation is a claim about the tree and ages exactly like any other claim.
+
+⚠ **M2 IS PLATFORM-CONDITIONAL and is now labelled.** Deleting
+`config.ensure_utf8_stdout()` turns **nothing** red on Linux — CPython selects
+UTF-8 for a pipe on POSIX regardless (PEP 538/540) — so the assertion is
+unfalsifiable there and in any Linux CI. The code comment scopes it to Windows
+honestly, so *(Verified 3f.)* is plausible where it was run. The monitoring chat
+audits on Linux and would see it pass unconditionally.
+
+⚠ **M7–M10 and M20–M27 cannot be run from a clean clone**, because
+`data/derived/*.db` is gitignored. That is not a defect in them; it is a fact an
+auditor needs, and it is now in the table.
 
 Checks live in `tools/audit/check_sim_engine.py` (the engine harness),
 `tools/audit/check_gate_exclusion.py` (cohort integrity) and

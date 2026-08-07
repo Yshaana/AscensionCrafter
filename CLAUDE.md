@@ -176,6 +176,22 @@ Schema in `INDEX_GUIDE.md`.
 - 🆕 **Every check carries a registered test that makes it fail** — name the mutation, and
   **run it**. `3f` found four of its own checks vacuous only by running the mutation.
   Registry: `primer/ENGINE_BUGS.md`. If you cannot name one, it is not a check.
+- 🆕 **A defect check names BOTH mutations: the one that turns it RED, and the change that
+  turns it GREEN — and the green one must be the FIX, not a stub** (`3g` G5, 2026-08-07).
+  The red half alone is half a rule. The `3f` audit found **three registered checks that
+  could never turn green from their own fix**: one gated on `hasattr(T,
+  "_roll_uses_combo_points")` for a function that exists nowhere in the tree, so the only
+  way to close it was to add a stub with that name; one asserted on `self_health_pct` after
+  calling a function that touches only `target_health_pct`; one re-implemented the
+  discriminator it was testing instead of importing it, so it could only go green on a
+  *regression*. **A check that cannot go green is not a check — it is a permanent alarm, and
+  it will be silenced rather than satisfied.** Where a defect is registered but not yet
+  fixed, create the **seam** the fix lands in and point the check at it, so the green path is
+  reachable before it is taken.
+  🛑 **Run the green path too.** `3g` named E12's as *"thread `combo_points` through
+  `roll_hit`/`roll_cast`"*, applied exactly that, and the check **stayed red** — the
+  parameter has to reach `_components`, not just the signatures. A green path that has only
+  been named is a guess about your own code.
 - **Layout** (Phase 1 T1, 2026-08-04): `core/` is pure logic — no `print()`, no
   `argparse`, no paths, takes a connection as a parameter. Only `config.py` knows
   where files live, and `core/` may not import it. `tools/audit/check_core_purity.py`

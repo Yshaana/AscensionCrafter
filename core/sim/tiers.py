@@ -173,6 +173,67 @@ def _decay_target_health(st):
             0.0, 100.0 * (1.0 - st.now / st.fight_duration))
 
 
+def _routes_as_debuff(ability):
+    """Does `medium_sim` file this ability's duration on the TARGET? 🆕 `3g` G5.
+
+    🛑 **A seam, like `_decay_health` above, and for the same reason.** E9 is a
+    THIRD DoT discriminator: `apl_gen` and `_useful_cast_interval` both call
+    `_is_pure_periodic`, while `medium_sim`'s cast path tested `dur and
+    tick_interval_seconds` INLINE — and `check_sim_engine.py` tested E9 by
+    **re-implementing that inline test in the check**, against a hand-built fake
+    whose `tick_interval_seconds` is `None`, so the comparison was against the
+    literal constant `False`. It could only ever go green on a REGRESSION in
+    `_is_pure_periodic`, which is exactly the drift `F3`'s own `_filler_ids`
+    repair condemns.
+
+    Extracting it changes nothing today — this is byte-equivalent to the inline
+    test — but it gives the check something real to import, and it gives E9 a
+    green path: **the fix is to make this return `_is_pure_periodic(ability)`**,
+    so all three layers share one discriminator.
+
+    ⚠ Why that is not done here: it is a behaviour change that moves cast
+    counts, and `3g` reports one cause per gate move. It belongs in the commit
+    that owns its pair.
+
+    The disagreement is real and reachable: an ability with a periodic aura at
+    `EffectAmplitude 0` has a duration and no tick interval, so
+    `_is_pure_periodic` calls it a DoT (and `apl_gen` files it in the MAINTAINED
+    tier at the top of the APL, gated on `debuff_remaining_below`) while this
+    routes it to `st.buffs` — where `debuff_remaining()` returns 0.0 forever,
+    `0.0 < 1.5` is always true, and the entry wins EVERY priority scan. That is
+    the Seal of Command 47-of-47-GCDs failure re-created at the top of the list.
+    """
+    return bool(ability.fields.get("tick_interval_seconds"))
+
+
+def _decay_health(st):
+    """Advance every health track the timeline models. 🆕 `3g` G5.
+
+    🛑 **This exists so E11 has a GREEN PATH, and it is deliberately a seam
+    rather than a fix.** `check_sim_engine.py` used to call
+    `_decay_target_health(st)` and then assert `st.self_health_pct < 100.0` —
+    but that function touches only `target_health_pct` (the string
+    `self_health` does not appear in it), so **no correct fix could ever turn
+    that assertion green.** It was a permanent alarm, closable only by a lie.
+
+    Today this decays the target only, so the check is still red and E11 is
+    still open — nothing about the sim's behaviour changes by introducing it.
+    **The fix is to decay `self_health_pct` here**, next to its sibling, and
+    that single change turns the check green. `self_health_pct` is declared on
+    `TimelineState` and READ by `apl.py`'s `health_pct_below` branch while being
+    written nowhere in the tree, so `apl_gen`'s heals under a
+    `self_sustain_required` preset can never fire in `medium_sim` while
+    `fast_sim` casts them at full rate.
+
+    ⚠ What the fix must NOT be: a plain mirror of the target's linear decay.
+    The player is being healed as well as damaged, and a monotonic 100 -> 0 on
+    the player would make every self-sustain heal fire in the last N% of the
+    fight and never before, which is a different wrong answer. That is why this
+    is left as a seam and not guessed at — see ENGINE_BUGS E11.
+    """
+    _decay_target_health(st)
+
+
 def _cp_gate(apl, spell_id):
     """Combo points this entry is HELD TO by its own APL gate, else 0.
 
@@ -632,11 +693,8 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             if cd:
                 st.cooldowns[entry.spell_id] = st.now + cd
             dur = ab.fields.get("duration_seconds")
-            if dur and ab.fields.get("tick_interval_seconds"):
-                # 3e B2 — a periodic damage effect lands on the TARGET. The
-                # discriminator is mechanical and is the same one
-                # `_useful_cast_interval` uses: a duration plus a tick interval
-                # is a DoT, a duration alone is a self-buff (a seal, an armor).
+            if dur and _routes_as_debuff(ab):
+                # 3e B2 — a periodic damage effect lands on the TARGET.
                 # Everything with a duration used to be filed under st.buffs
                 # regardless, so `debuff_missing` would have read the player.
                 st.debuffs[entry.spell_id] = st.now + dur
@@ -658,7 +716,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
                 gcd_used += step
                 _regen(st, char_state, step)
                 st.now += step
-                _decay_target_health(st)
+                _decay_health(st)
                 acted = True
                 break
             # off-GCD entries cost no time; keep scanning the priority list
@@ -667,7 +725,7 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
             idle += 0.1
             _regen(st, char_state, 0.1)
             st.now += 0.1
-            _decay_target_health(st)
+            _decay_health(st)
 
     # ------------------------------------------------------- 2e: the swing layer
     # Auto-attacks, seal riders and Righteous Vengeance are rate-driven by the

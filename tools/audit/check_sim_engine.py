@@ -265,6 +265,20 @@ def resolve_generality():
 
 
 def main():
+    # 🆕 3g G7 — A GUARD THAT CANNOT RUN MUST SAY SO. This used to die on a raw
+    # `sqlite3.OperationalError` traceback when `data/derived/ascension.db` was
+    # absent, where its sibling `check_gate_exclusion.py:97-100` refuses with a
+    # message. `data/derived/` is gitignored, so a clean clone hits this every
+    # time, and a traceback reads as "this tool is broken" rather than "this
+    # tool needs a rebuild first".
+    if not config.DB_PATH.exists():
+        print(f"🛑 REFUSING TO RUN — {config.DB_PATH} does not exist.\n"
+              f"   Every check below reads it, so running would prove nothing "
+              f"about the engine.\n"
+              f"   Build it first:  py cli/rebuild.py\n"
+              f"   (data/derived/ is gitignored by design — the db is always "
+              f"rebuildable from committed source.)")
+        return 2
     conn = connect(config.DB_PATH)
 
     # 1 -- rating conversions
@@ -711,8 +725,16 @@ def check_registered_defects(conn, kind, spec, apl, f, m):
 
     ab = _FakeAb()
     pure = T._is_pure_periodic(ab)
-    routed_as_debuff = bool(ab.fields.get("duration_seconds")
-                            and ab.fields.get("tick_interval_seconds"))
+    # 🆕 3g G5 — GREEN PATH. This used to RE-IMPLEMENT the discriminator it is
+    # testing (`bool(fields["duration_seconds"] and
+    # fields["tick_interval_seconds"])`) against a fake whose tick interval is
+    # None, so it was the literal constant False and could only go green on a
+    # REGRESSION in `_is_pure_periodic`. It now IMPORTS the real routing
+    # predicate that `medium_sim` calls (`tiers._routes_as_debuff`, extracted in
+    # 3g G5 as a behaviour-preserving seam), so the GREEN PATH IS THE FIX:
+    # make `_routes_as_debuff` return `_is_pure_periodic(ability)` and all three
+    # layers share one discriminator.
+    routed_as_debuff = T._routes_as_debuff(ab)
     gcheck("[engine] E9: medium_sim routes a DoT by the SAME discriminator "
           "apl_gen and _useful_cast_interval use",
           pure == routed_as_debuff,
@@ -752,9 +774,18 @@ def check_registered_defects(conn, kind, spec, apl, f, m):
           f"profile, and the two tiers disagree by up to 1.8x")
 
     # ---- E11: self_health_pct is declared, read, and written nowhere -------
+    # 🆕 3g G5 — GREEN PATH. This used to call `_decay_target_health(st2)` and
+    # then assert `st2.self_health_pct < 100.0`. That function touches only
+    # `target_health_pct` — the string `self_health` does not appear in it — so
+    # NO CORRECT FIX COULD EVER TURN THIS GREEN. It was a permanent alarm.
+    # It now calls `tiers._decay_health`, the seam `medium_sim` actually invokes
+    # (3g G5, currently delegating to `_decay_target_health` and nothing else),
+    # so THE GREEN PATH IS THE FIX: decay `self_health_pct` there, beside its
+    # sibling. ⚠ And not as a mirror of the target's linear 100 -> 0 — the
+    # player is healed as well as damaged; see tiers._decay_health's docstring.
     st2 = T.TimelineState(fight_duration=100.0)
     st2.now = 50.0
-    T._decay_target_health(st2)
+    T._decay_health(st2)
     gcheck("[engine] E11: the PLAYER's health moves, so a self-sustain heal "
           "gated on health_pct_below can fire",
           st2.self_health_pct < 100.0,
@@ -780,7 +811,30 @@ def check_registered_defects(conn, kind, spec, apl, f, m):
         at0 = ab2.expected_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], combo_points=0)
         at5 = ab2.expected_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], combo_points=5)
         differs = abs(at5.mean - at0.mean) > 0.01
-        rolled = T._roll_uses_combo_points() if hasattr(T, "_roll_uses_combo_points") else False
+        # 🆕 3g G5 — GREEN PATH. This used to read
+        # `T._roll_uses_combo_points() if hasattr(T, ...) else False`, and
+        # `grep -rn "_roll_uses_combo_points"` returned THAT LINE ONLY — the
+        # function exists nowhere in the tree. So `rolled` was permanently
+        # False, the assertion reduced to "the finisher's damage does not vary
+        # with combo points" (which it does, by design), and THE ONLY WAY TO
+        # TURN IT GREEN WAS TO ADD A STUB WITH THAT NAME. Threading combo_points
+        # through roll_hit/roll_cast — the actual fix — left it red.
+        #
+        # It now exercises the RNG path directly: same seed, 0 CP vs 5 CP. Today
+        # `roll_cast` takes no `combo_points` argument at all, so this raises
+        # TypeError and `rolled` is False for a REAL reason. The fix — accepting
+        # it and passing it down to `_components` — makes the two rolls differ
+        # and the check green. No stub can satisfy it: it compares damage, not
+        # the presence of a name.
+        from random import Random
+        try:
+            r5 = ab2.roll_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], Random(1),
+                               combo_points=5)
+            r0 = ab2.roll_cast(_CS_FOR_E12[0], _CS_FOR_E12[1], Random(1),
+                               combo_points=0)
+            rolled = abs(r5.damage - r0.damage) > 0.01
+        except TypeError:
+            rolled = False
         gcheck("[engine] E12: slow_sim rolls a finisher at the combo points "
               "medium_sim spent on it",
               rolled or not differs,
@@ -1117,14 +1171,28 @@ def check_nonpaladin_fixtures(conn, ct, conv):
                         if any(c.get("type") == "target_health_pct_below"
                                for c in (e.conditions or []))}
             hw_casts = m.per_ability.get(24239, {}).get("casts", 0)
+            # 🆕 3g G6 — `named` IS A CONSTANT AND IS NO LONGER ASSERTED ON.
+            # EXECUTE_GATING_UNAVAILABLE (whose text contains "TargetAuraState")
+            # is `warnings.append`-ed UNCONDITIONALLY at tiers.py:468 and :687,
+            # so `any("TargetAuraState" in w ...)` is the literal constant True.
+            # F3 correctly diagnosed the OLD form — `any("health" in w.lower())`
+            # — as a constant True and replaced it with a different constant
+            # True, three functions after condemning exactly this drift.
+            #
+            # Only `decays` is falsifiable (M8 turns it red), so only `decays`
+            # is asserted. `named` is still COMPUTED and still PRINTED, because
+            # a reader wants to see the disclosure is there — but it is labelled
+            # as unconditional so nobody reads it as an independent result.
             named = any("TargetAuraState" in (w or "")
                         for w in (m.warnings or []) + (f.warnings or []))
             gcheck("[cp_melee] the execute window is modelled, or the sim says "
                   "it cannot model it",
-                  decays and named,
+                  decays,
                   f"target health at mid-fight = {_probe.target_health_pct:.0f}% "
-                  f"(decays: {decays}); the residual gap is named by "
-                  f"TargetAuraState: {named}; Hammer of Wrath (24239) is "
+                  f"(decays: {decays} — THE ONLY FALSIFIABLE ARM). The "
+                  f"TargetAuraState disclosure is present: {named}, but that "
+                  f"warning is appended UNCONDITIONALLY, so it is reported and "
+                  f"NOT asserted on (3g G6). Hammer of Wrath (24239) is "
                   f"execute-gated in game and the sim cast it {hw_casts}x with "
                   f"{len(hp_gated)} target-health-gated APL entries — which is "
                   f"the part that is NOT fixed and is not claimed to be: "

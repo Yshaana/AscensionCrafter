@@ -68,6 +68,31 @@ def check(name, ok, detail=""):
         FAILURES.append(name)
 
 
+def snapshot_fingerprint(conn, character_id):
+    """Every column of this character's qualifying snapshots that could plausibly
+    affect completeness, as one comparable dict. 🆕 `3g` G6.
+
+    Exists so *"`source` is the only variable"* is a MEASURED claim rather than a
+    docstring. `contaminate()`'s own docstring says nothing else changes; this
+    is what checks it.
+    """
+    rows = conn.execute(
+        "SELECT cs.snapshot_id, cs.source, cs.captured_at, cs.path, "
+        "       cs.spec_role, cs.gear_stats_json IS NOT NULL, "
+        "       (SELECT COUNT(*) FROM snapshot_gear g "
+        "          WHERE g.snapshot_id = cs.snapshot_id), "
+        "       (SELECT COUNT(*) FROM snapshot_cards c "
+        "          WHERE c.snapshot_id = cs.snapshot_id) "
+        "FROM character_snapshots cs "
+        "WHERE cs.snapshot_id IN ("
+        "  SELECT DISTINCT ep.snapshot_id FROM encounter_performance ep "
+        "  WHERE ep.character_id = ? AND ep.snapshot_id IS NOT NULL) "
+        "ORDER BY cs.snapshot_id", (character_id,)).fetchall()
+    keys = ("snapshot_id", "source", "captured_at", "path", "spec_role",
+            "has_gear_stats", "gear_rows", "card_rows")
+    return {k: tuple(r[i] for r in rows) for i, k in enumerate(keys)}
+
+
 def contaminate(conn, character_id):
     """Make EVERY qualifying snapshot of a frozen cohort member look like an
     owner capture — the shape Elric's ALC-derived snapshot has.
@@ -126,12 +151,28 @@ def main():
 
         victim = base_ids[0]
         vname = next(r[1] for r in rows if r[0] == victim)
+        # 🆕 3g G6 — DE-TAUTOLOGISED. This asserted `victim in cohort_ids and
+        # n_snaps > 0`, and BOTH conjuncts are guaranteed by construction:
+        # `victim` is `base_ids[0]` which is drawn from the cohort, and
+        # `n_snaps > 0` because `victim` was selected from
+        # `encounter_performance` in the first place. It was true for every
+        # value of EXCLUDED_SNAPSHOT_SOURCES, every source, every mutation.
+        #
+        # The real property — the one that makes `source` the ONLY variable —
+        # is that `contaminate()` changed the source and changed NOTHING ELSE.
+        # That is falsifiable: a contaminate() that also nulled a stat block, or
+        # moved a timestamp, would make the exclusion arm below pass for the
+        # wrong reason, which is precisely the confound this arm is for.
+        before_row = snapshot_fingerprint(conn, victim)
         n_snaps = contaminate(conn, victim)
-        check("the victim is INSIDE the frozen cohort, so membership is not "
-              "what is being tested — source is the only variable",
-              victim in cohort_ids and n_snaps > 0,
-              f"character_id {victim} ({vname}), {n_snaps} snapshot(s) "
-              f"-> source='own_capture'")
+        after_row = snapshot_fingerprint(conn, victim)
+        changed = {k for k in before_row
+                   if before_row[k] != after_row.get(k)}
+        check("contaminate() changed the SOURCE and nothing else — so `source` "
+              "is genuinely the only variable in the arms below",
+              changed == {"source"} and n_snaps > 0,
+              f"character_id {victim} ({vname}), {n_snaps} snapshot(s); "
+              f"fields that changed: {sorted(changed) or 'NONE'}")
 
         after, after_dropped, after_outside = cc.candidates(
             conn, cohort_ids, max_lag_hours=0)
@@ -157,14 +198,26 @@ def main():
               f"unexpectedly lost "
               f"{sorted(set(base_ids) - set(after_ids) - {victim})}")
 
-        # An excluded member must not resurface in `outside` either. `outside`
-        # is printed as "qualifies but was not scored", which would read as a
-        # deliberate omission rather than an exclusion.
-        check("the excluded member is not re-reported as 'qualifying but "
-              "unscored' — an exclusion is not an omission",
-              victim not in after_outside,
-              f"outside grew by "
-              f"{sorted(set(after_outside) - set(outside))}")
+        # 🆕 3g G6 — DE-TAUTOLOGISED. This asserted `victim not in
+        # after_outside`, which is true for every value of
+        # EXCLUDED_SNAPSHOT_SOURCES, every source and every mutation:
+        # `outside = qualifying - cohort_ids` (calibrate_crawled.py:280) and
+        # `victim in cohort_ids` by construction. ⚠ It was made unfalsifiable by
+        # the F1 rewrite that moved the victim INSIDE the cohort — the fix and
+        # the vacuity have the same cause, which is worth knowing about a
+        # rewrite that was otherwise correct.
+        #
+        # The falsifiable property is that excluding a cohort member does not
+        # DISTURB the outside set at all. A `candidates()` that computed
+        # `outside` from the post-exclusion population, or that let an excluded
+        # member fall through to it, would move this.
+        check("excluding a cohort member leaves the 'qualifying but unscored' "
+              "set untouched — an exclusion is not an omission, and it is not "
+              "a reshuffle either",
+              set(after_outside) == set(outside),
+              f"outside {len(outside)} -> {len(after_outside)}; "
+              f"gained {sorted(set(after_outside) - set(outside))}, "
+              f"lost {sorted(set(outside) - set(after_outside))}")
 
         # The converse arm. Without the filter the SAME character comes back —
         # otherwise this test could be passing because the contamination broke

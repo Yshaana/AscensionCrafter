@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-07T01:12:09+00:00",
- "git_sha": "6c62309314d7e521b52fb79927ae9babe10846ce",
+ "generated_at": "2026-08-07T01:26:21+00:00",
+ "git_sha": "389c7353bc3f49a23c5adc402f3c9ea5040dfebe",
  "git_working_tree_dirty": true,
  "realm": "Darkmoon",
  "season": "S10",
@@ -17,10 +17,11 @@
   "successor_floor_justification": "slice accuracy is stable at ~62.6% across the >=20/>=30/>=50 coverage bands and unstable below 20%, so 20% is where the metric stops being noise \u2014 a property of the measurement, not a level chosen to admit a wanted number. Owner decision 2026-08-06, stamped before this run's result; STRICTER than what is in force, which is the direction a criterion may move"
  },
  "result": {
-  "scored": 36,
   "tuning_set_size": 36,
   "within_tolerance": 1,
-  "not_scoreable_zero_coverage": 13,
+  "not_scoreable_zero_coverage": 3,
+  "not_scoreable_below_coverage_floor": 10,
+  "coverage_floor_pct_applied": 20.0,
   "qualified": 1,
   "criterion_met": false,
   "rider_met": false,
