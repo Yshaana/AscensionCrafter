@@ -160,6 +160,42 @@ EXPECTED_FAILURES = {
         "at 0 CP and 328 at 5 CP, a 1.7x difference, so the Monte-Carlo mean "
         "and 95% band are centred BELOW the answer they claim to be the "
         "variance of",
+    # 🆕 3g G3 — E13 and E14 SPLIT OUT of the shared frost_mage DPS assertion.
+    # Until now both were registered against that one aggregate, so neither
+    # could be closed individually and the registry's "registered + now
+    # PASSING -> hard failure" rule could not tell which of the two had moved.
+    # These are UNIT invariants: true of any build, any content, any weapon.
+    "[engine] E13: AttackTable.probabilities() returns FRACTIONS summing to "
+    "1.0, which is what every consumer multiplies by":
+        "ENGINE_BUGS.md E13 — probabilities() returns percent by its own "
+        "docstring and expected_swing multiplies by it as fractions, so every "
+        "white swing is ~78x over. Split from the frost_mage aggregate in 3g "
+        "G3 so it can be closed on its own",
+    "[engine] E13: one white swing's EXPECTED damage never exceeds one "
+    "critical strike on the weapon's maximum roll":
+        "ENGINE_BUGS.md E13 — the arithmetic consequence, stated so it holds "
+        "however the representation question is answered. A mean above the "
+        "single-crit ceiling is impossible from a probability-weighted sum",
+    "[engine] E13: SwingOutcome's *_fraction fields actually hold fractions, "
+    "as their names say":
+        "ENGINE_BUGS.md E13 — crit_fraction and landed_fraction are filled "
+        "with PERCENTS. 🆕 3g: grepped tree-wide (core/, tools/, cli/, "
+        "ingest/) and they have ZERO readers, so the mis-unit has never "
+        "reached a number — but a write-only field whose name contradicts its "
+        "value is a trap armed for the first reader",
+    "[engine] E14: no periodic component scores more occurrences per cast "
+    "than the sanity limit its sibling branch already enforces":
+        "ENGINE_BUGS.md E14 — Absolute Zero scores 12,000 ticks per cast. The "
+        "periodic-trigger DELIVERY branch of occurrences_per_cast has enforced "
+        "PULSE_COUNT_SANITY_LIMIT since 2b; the plain periodic branch six "
+        "lines below it never did. The guard existed and was not applied to "
+        "its own sibling",
+    "[engine] E14: a refused tick count SAYS which two spells it refused to "
+    "mix, rather than returning a number":
+        "ENGINE_BUGS.md E14 — the CAUSE is mixed provenance: the duration "
+        "comes from the card (285148, 12.0s) and the tick from the triggered "
+        "spell (285149, 0.001s). A duration and a period from two different "
+        "spells describe no single aura, and the refusal must name both",
     "[frost_mage] every well-sampled ability's modelled per-cast mean is "
     "within ±25% of its measured non-crit mean":
         "The ordinary under-production, now MEASURED per ability against a "
@@ -781,6 +817,96 @@ def check_registered_defects(conn, kind, spec, apl, f, m):
               f"combo_points=0 and passes vacuously")
 
 
+def check_e13_e14_units(conn):
+    """`3g` G3 — E13 and E14, one assertion EACH.
+
+    🛑 They shared a single assertion until now (the frost_mage aggregate DPS
+    check), so neither could be closed individually and the registry's own
+    *"registered + now PASSING -> hard failure"* rule was blind between them:
+    fixing either would have turned the shared check green-ish for the wrong
+    reason, or left it red with no way to say which half moved. Splitting is a
+    precondition of fixing, not a tidy-up.
+
+    Both assertions are UNIT invariants, deliberately — they are true of any
+    build, any content, any weapon, so they cannot be satisfied by tuning a
+    fixture, and they stay meaningful after the fixture is replaced.
+    """
+    import core.sim.combat_engine as ce
+    from core.sim.ability_model import PULSE_COUNT_SANITY_LIMIT, resolve_ability
+    from core.sim.swings import expected_swing
+
+    # ---- E13: probabilities are FRACTIONS, and a swing cannot beat a crit ---
+    # RED: make AttackTable.probabilities() return percents again.
+    # GREEN: the fix — probabilities() returns 0..1 and every consumer agrees.
+    boss = ce.TargetProfile(level=63, armor=6200, dodge_pct=6.5, parry_pct=0.0)
+    tbl = ce.white_melee_table(60, 20.0, 8.0, 5, boss, dual_wield=False)
+    total = sum(tbl.probabilities().values())
+    gcheck("[engine] E13: AttackTable.probabilities() returns FRACTIONS "
+           "summing to 1.0, which is what every consumer multiplies by",
+           abs(total - 1.0) < 1e-6,
+           f"probabilities() sums to {total:.4f}; segments sum to "
+           f"{sum(p for _, p in tbl.segments):.1f} (percent, which is correct "
+           f"for segments — roll() draws uniform(0,100) from them). A function "
+           f"named `probabilities` returning percent is the whole defect: "
+           f"expected_swing multiplies by it as if it were 0..1")
+
+    # The consequence, stated as a physical invariant rather than a unit one,
+    # so it holds however the representation question is answered: the MEAN of
+    # one swing cannot exceed the largest single outcome one swing can produce.
+    class _CS:
+        level = 60
+        melee_crit_pct, melee_hit_pct, expertise_points = 20.0, 8.0, 5
+        armor_pen_pct, ability_crit_damage_bonus = 0.0, 0.0
+        main_hand = {"min": 100.0, "max": 200.0, "speed": 2.6}
+        off_hand = None
+        warnings = []
+
+    out = expected_swing(_CS(), _CS.main_hand, boss)
+    ceiling = _CS.main_hand["max"] * ce.crit_multiplier("melee", 0.0)
+    gcheck("[engine] E13: one white swing's EXPECTED damage never exceeds one "
+           "critical strike on the weapon's maximum roll",
+           out is not None and 0.0 <= out.mean <= ceiling,
+           f"mean {out.mean:.1f} vs a ceiling of {ceiling:.1f} "
+           f"({out.mean / ceiling:.1f}x) — armor mitigation and every "
+           f"non-crit outcome only push the mean DOWN, so a mean above the "
+           f"ceiling is arithmetically impossible and can only be a unit error")
+    gcheck("[engine] E13: SwingOutcome's *_fraction fields actually hold "
+           "fractions, as their names say",
+           out is not None and 0.0 <= out.landed_fraction <= 1.0
+           and 0.0 <= out.crit_fraction <= 1.0,
+           f"landed_fraction={out.landed_fraction:.4f}, "
+           f"crit_fraction={out.crit_fraction:.4f}. ⚠ Tree-wide grep: these "
+           f"two fields have ZERO readers anywhere — core/, tools/, cli/, "
+           f"ingest/. They have been write-only and mis-united since they were "
+           f"written, which is why nothing caught it")
+
+    # ---- E14: a tick count needs ONE spell's duration and ONE spell's tick --
+    # RED: drop the provenance refusal, or the count limit, in
+    # occurrences_per_cast's periodic branch.
+    # GREEN: the fix — both refusals present, both naming their reason.
+    ab = resolve_ability(conn, 285148, level=60)      # Absolute Zero
+    per = {ev.key: ab.occurrences_per_cast(ev) for ev in ab.events()}
+    bad = {k: n for k, (n, _) in per.items()
+           if n is not None and n > PULSE_COUNT_SANITY_LIMIT}
+    gcheck("[engine] E14: no periodic component scores more occurrences per "
+           "cast than the sanity limit its sibling branch already enforces",
+           not bad,
+           f"{ {k: n for k, (n, _) in per.items()} } against a limit of "
+           f"{PULSE_COUNT_SANITY_LIMIT}. Absolute Zero's periodic event takes "
+           f"its DURATION from the card (285148, 12.0s) and its TICK from the "
+           f"triggered spell (285149, 0.001s) -> 12,000 ticks for one cast. "
+           f"The periodic-trigger DELIVERY branch six lines above has enforced "
+           f"this same limit since 2b; the plain periodic branch never did")
+
+    ev_p = next((e for e in ab.events() if e.kind == "periodic"), None)
+    n_p, note_p = ab.occurrences_per_cast(ev_p) if ev_p else (None, None)
+    gcheck("[engine] E14: a refused tick count SAYS which two spells it "
+           "refused to mix, rather than returning a number",
+           ev_p is not None and n_p is None
+           and "285149" in (note_p or "") and "285148" in (note_p or ""),
+           f"n={n_p}, note={(note_p or '(none)')[:110]}")
+
+
 _CS_FOR_E12 = (None, None)      # filled by check_nonpaladin_fixtures
 
 
@@ -858,6 +984,10 @@ def check_nonpaladin_fixtures(conn, ct, conv):
 
     print("\n--- 3d D1: non-paladin fixtures — XFAIL = a known engine defect "
           "written up in primer/ENGINE_BUGS.md, scheduled for 3e ---")
+
+    # 3g G3 — run ONCE, not once per fixture: these are unit invariants of the
+    # engine, not properties of a board.
+    check_e13_e14_units(conn)
 
     # 3e C2 — the Frost Mage joins the two 3d fixtures rather than replacing
     # either: it is BURST, not DoT, and has no combo points, so it cannot
