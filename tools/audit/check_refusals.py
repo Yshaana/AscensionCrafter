@@ -767,6 +767,108 @@ def check_phase_guard():
           f"None->{none_desc!r}, real->{real_desc!r}")
 
 
+# The live payload shape at 2026-08-07T19:20Z, hours after the Molten Core
+# boundary — recorded verbatim from `/api/phases` (locations stripped, nothing
+# else changed). TWO active top-level phases, because Zul'Gurub is still open.
+_PHASES_MC = {"phases": _PHASES["phases"] + [
+    {"id": 4, "name": "Phase 2 - Molten Core / Onyxia", "phase_number": 3,
+     "is_active": True, "progression_parent_phase_id": None,
+     "start_date": "2026-08-07T18:00:00.000Z"},
+]}
+
+
+def check_phase_additive():
+    """`3k` B0 — ACTIVE TOP-LEVEL PHASES ACCUMULATE, and a count is not the
+    answer to "what phase is the server on".
+
+    This retires `3g` G0's `len(tops) != 1` predicate. That predicate read the
+    real Molten Core payload as *"a phase transition in progress or a schema
+    change"* and refused **every** label — permanently, because Zul'Gurub never
+    stops being active. Owner decision 2026-08-07: transitions on this server
+    are ADDITIVE (raids get added, none removed), so the current phase is the
+    latest-STARTING active top-level.
+
+    RED — M50: restore `len(tops) != 1` as a refusal arm in `phase_guard()`
+    (and/or in `season_config.assert_phase()`); arms 1, 2 and 4 go red.
+    RED — M51: delete the `clashes`/`_overlapping_windows` arm in
+    `phase_guard()`; arm 3 goes red. This is the half that proves the
+    protection MOVED rather than being deleted.
+
+    GREEN is the fix and only the fix: arm 2 asserts a post-boundary capture
+    takes the NEW label, so a guard that shrugged and refused nothing — or one
+    that refused everything — fails.
+    """
+    import season_config as _sc
+    from core.builds.phases import (current_top_level, phase_guard,
+                                    phase_windows, resolve_phase)
+
+    wins, horizon = phase_windows(_PHASES_MC, "2026-08-07T19:20:51+00:00")
+    n_tops = len([p for p in _PHASES_MC["phases"]
+                  if p["is_active"] and p["progression_parent_phase_id"] is None])
+    refuse, boundary = phase_guard(
+        _PHASES_MC, wins,
+        expected_phase_name="Phase 2 - Molten Core / Onyxia",
+        unmodelled_boundary="2026-08-07T18:00:00Z")
+
+    # --- 1. two actives is NORMAL, and the newest one is the current phase --
+    check("[3k-B0] a payload with TWO active top-level phases does NOT refuse "
+          "— transitions are additive on this server, so the count grows every "
+          "phase and can never mean 'transition in progress'",
+          refuse is None and n_tops == 2
+          and (current_top_level(_PHASES_MC) or {}).get("name")
+          == "Phase 2 - Molten Core / Onyxia",
+          f"active top-levels={n_tops}, refuse={refuse!r}, "
+          f"current={(current_top_level(_PHASES_MC) or {}).get('name')!r}")
+
+    # --- 2. the green path is the FIX: labels, not silence ------------------
+    before, _ = resolve_phase("2026-08-07T16:02:50+00:00", wins, horizon,
+                              refuse_reason=refuse, boundary=boundary)
+    after, why = resolve_phase("2026-08-07T18:30:00+00:00", wins, horizon,
+                               refuse_reason=refuse, boundary=boundary)
+    check("[3k-B0] …and the boundary is CROSSED, not straddled: a capture "
+          "before 18:00Z is still Zul'Gurub and one after it is Molten Core, "
+          "so neither refusing everything nor labelling everything passes",
+          before == "Phase 1 - Zul'Gurub"
+          and after == "Phase 2 - Molten Core / Onyxia" and boundary is None,
+          f"16:02Z->{before!r}, 18:30Z->{after!r} ({(why or '')[:40]}), "
+          f"declared boundary self-retired={boundary is None}")
+
+    # --- 3. the protection MOVED — genuine ambiguity still refuses ----------
+    # Two top-level phases claiming the SAME start_date. This is what
+    # "ambiguous" actually means, and it is the only shape `phase_windows`
+    # cannot normalise away.
+    tie = {"phases": _PHASES_MC["phases"] + [
+        {"id": 5, "name": "Phase 2 - Blackwing Lair", "phase_number": 4,
+         "is_active": True, "progression_parent_phase_id": None,
+         "start_date": "2026-08-07T18:00:00.000Z"}]}
+    tie_wins, _ = phase_windows(tie, "2026-08-07T19:20:51+00:00")
+    tie_refuse, _ = phase_guard(
+        tie, tie_wins, expected_phase_name="Phase 2 - Molten Core / Onyxia")
+    check("[3k-B0] two top-level phases claiming the SAME start_date STILL "
+          "refuse every label — the ambiguity protection moved out of the "
+          "count and onto the windows, where it can still fire",
+          tie_refuse is not None and "same window" in tie_refuse,
+          (tie_refuse or "(no refusal)")[:90])
+
+    # --- 4. the crawler-side twin agrees ------------------------------------
+    # `season_config.assert_phase` is the tripwire that halts a capture. It
+    # died on the SAME arm, so fixing only `core/` would leave the crawler
+    # unable to run at all.
+    try:
+        live_name = _sc.assert_phase(_PHASES_MC).get("name")
+        blew_up = None
+    except _sc.RealmSeasonMismatch as exc:
+        live_name, blew_up = None, str(exc)[:70]
+    check("[3k-B0] season_config.assert_phase accepts the same payload and "
+          "names Molten Core — the crawler halts on this function, so a fix "
+          "in core/ alone leaves the capture dead",
+          live_name == "Phase 2 - Molten Core / Onyxia"
+          and live_name == _sc.EXPECTED_PHASE_NAME,
+          f"assert_phase->{live_name!r}, EXPECTED_PHASE_NAME="
+          f"{_sc.EXPECTED_PHASE_NAME!r}" + (f", raised: {blew_up}" if blew_up
+                                            else ""))
+
+
 _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
@@ -1597,6 +1699,7 @@ def main():
     print()
     check_phase_resolution()
     check_phase_guard()
+    check_phase_additive()
     check_admissibility_outage_refuses()
     check_comparator_can_add_a_flag()
     print()

@@ -36,7 +36,9 @@ Three defences now, and they are ordered so the widest fires first:
 
 1. **`phase_guard()` — the payload's own phase set must agree with what this
    clone expects.** If the live active top-level phase is not the expected one
-   (or there is not exactly one), **every** label is NULL with that as the
+   (`3k` B0: the CURRENT one — the latest-starting active top-level, since
+   actives accumulate — or two windows genuinely overlap), **every** label is
+   NULL with that as the
    reason. Nothing compared the two before.
 2. **A DECLARED boundary that the payload has not caught up to.** The
    child-phase precedent is the reason this exists: the server published its
@@ -138,17 +140,71 @@ def describe_horizon(horizon):
 
 
 def _active_top_level(payload):
-    """Active phases with no progression parent — the real "what phase is the
-    server on" answer.
+    """Active phases with no progression parent.
 
     Deliberately a local re-implementation of `season_config`'s function of the
     same shape: `core/` may not import `season_config`, and this is two lines
     of field access rather than a rule that could drift. The rule that COULD
     drift — which name to expect — is a parameter.
+
+    🚨 **`3k` B0 — this is NOT "what phase is the server on" any more.** See
+    `current_top_level()`.
     """
     return [p for p in (payload or {}).get("phases", [])
             if p.get("is_active")
             and p.get("progression_parent_phase_id") in (None, 0)]
+
+
+def current_top_level(payload):
+    """The active top-level phase with the LATEST `start_date` — the server's
+    current phase — or `None` when the payload has no such record.
+
+    🚨 **`3k` B0, owner decision 2026-08-07: TRANSITIONS ON THIS SERVER ARE
+    ADDITIVE.** Content is added at a phase boundary and none is removed, so
+    the number of *active* top-level phases grows with every phase and will
+    keep growing. Measured on the live payload at `2026-08-07T19:20Z`, hours
+    after the Molten Core boundary:
+
+        id=2  "Phase 1 - Zul'Gurub"              parent=None  active=True
+        id=3  "Phase 1.1"                        parent=2     active=True
+        id=4  "Phase 2 - Molten Core / Onyxia"   parent=None  active=True
+
+    Two active top-level phases, and Zul'Gurub is still `is_active` with a NULL
+    `end_date` because Zul'Gurub is still open. **`is_active` means "this
+    content is live", not "this is the current phase."**
+
+    ⚠ This retires `3g` G0's `len(tops) != 1` predicate, which read exactly two
+    actives as *"a phase transition in progress or a schema change"* and
+    refused. That predicate was a **proxy** for the hazard, and the hazard is
+    ambiguous *labelling*, not a count. The server's own modelling has now
+    falsified the proxy: it would have NULLed every capture, permanently, from
+    the first Molten Core crawl onward. The protection is not deleted — it
+    moves to where it can still fire, on windows that genuinely overlap
+    (`_overlapping_windows()` below), which is what "ambiguous" actually means.
+    """
+    dated = [(s, p) for p in _active_top_level(payload)
+             if (s := _parse_ts(p.get("start_date"))) is not None]
+    if not dated:
+        return None
+    return max(dated, key=lambda sp: sp[0])[1]
+
+
+def _overlapping_windows(windows):
+    """Pairs of top-level windows that cannot both be true, as label strings.
+
+    This is where `len(tops) != 1` went. `phase_windows` closes each window at
+    its successor's start, so the only way two windows can overlap after that
+    normalisation is if two top-level phases claim the **same** `start_date` —
+    which leaves the ordering between them, and therefore every label on either
+    side, a guess. The `ends_at > next.starts_at` arm is belt-and-braces
+    against a future change to `phase_windows`.
+    """
+    bad = []
+    for a, b in zip(windows or [], (windows or [])[1:]):
+        if a["starts_at"] == b["starts_at"] or (
+                a["ends_at"] is not None and a["ends_at"] > b["starts_at"]):
+            bad.append(f"{a['label']!r} vs {b['label']!r}")
+    return bad
 
 
 def phase_guard(payload, windows, *, expected_phase_name=None,
@@ -182,17 +238,22 @@ def phase_guard(payload, windows, *, expected_phase_name=None,
     this the resolver would happily stretch Phase 1 across the flip.
     """
     if expected_phase_name is not None:
-        tops = _active_top_level(payload)
         if not (payload or {}).get("phases"):
             return ("the /api/phases payload carries no phases at all — "
                     "refusing to label any capture against it"), None
-        if len(tops) != 1:
-            names = [p.get("name") for p in tops]
-            return (f"expected exactly ONE active top-level phase, the payload "
-                    f"has {len(tops)}: {names}. Either a phase transition is "
-                    f"in progress or the schema changed; every phase_label is "
-                    f"NULL until it is resolved by hand"), None
-        live = tops[0].get("name")
+        clashes = _overlapping_windows(windows)
+        if clashes:
+            return (f"two top-level phases claim the same window "
+                    f"({'; '.join(clashes)}) — the order between them, and so "
+                    f"every label on either side, would be a guess. Every "
+                    f"phase_label is NULL until it is resolved by hand"), None
+        cur = current_top_level(payload)
+        if cur is None:
+            names = [p.get("name") for p in _active_top_level(payload)]
+            return (f"the payload has no active top-level phase with a "
+                    f"parseable start_date (active top-levels: {names}) — "
+                    f"there is nothing to check the expected phase against"), None
+        live = cur.get("name")
         if live != expected_phase_name:
             return (f"PHASE FLIP: the payload's active top-level phase is "
                     f"{live!r}, this clone expects "

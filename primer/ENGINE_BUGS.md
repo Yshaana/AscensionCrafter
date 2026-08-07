@@ -122,6 +122,8 @@ broken while everything reports green* — applied to the registry itself.
 | M47 🆕 | remove the `MIN_PARSE_SECONDS` comparator filter | 2 | ✅ the filter. Demonstrates the comparator set can move a character **INTO** a flag — `AUDIT_3I` §4's *"no arm of the change can add a flag"* is false of the median: 0.762 admissible unfiltered, **0.421 flagged** filtered (`3j` A2) | — |
 | M48 🆕 | change one digit of the band table in `predictions/CALIBRATION_TOLERANCE.md` | 1 | ✅ `py tools/audit/render_band_table.py` and paste. The table's standing *"regenerate, do not retype"* warning was ignored **twice**, once by the session that wrote it (`3j` C3) | — |
 | M49 🆕 | delete the `status` key from any `predictions/*.json` | 1 | ✅ restore it. `3h` A5's check said *"EVERY file in predictions/"* and walked `*.md` only, so all four JSONs were outside it (`3j` C5) | — |
+| M50 🆕 | restore `len(tops) != 1` as a refusal arm in `phase_guard()` **and** `season_config.assert_phase()` | 3 | ✅ `current_top_level()` / `current_top_level_phase()` — the latest-STARTING active top-level. The old arm read the REAL Molten Core payload as *"a transition in progress"* and would have NULLed every label permanently, because Zul'Gurub never stops being active (`3k` B0) | — |
+| M51 🆕 | delete the `_overlapping_windows` arm in `phase_guard()` | 1 | ✅ the arm. The half that proves the ambiguity protection **MOVED** out of the count and onto the windows rather than being deleted: two top-level phases claiming the same `start_date` still refuse (`3k` B0) | — |
 
 ⚠ **M30's FIRST DRAFT WAS TOO WEAK, and it is M17's lesson a second time.**
 Mutating `` `LIVE` `` → `LIVE-ish` still matches the marker regex (`-` is a word

@@ -46,6 +46,8 @@ which is false. Always read `name` + `progression_parent_phase_id`
 (START_HERE_FOR_CODE §Current state).
 """
 
+from datetime import datetime
+
 # --- realm -----------------------------------------------------------------
 REALM_SLUG = "darkmoon"      # subdomain / API form:  darkmoon.ascensionlogs.gg
 REALM = "Darkmoon"           # display + DB-stamp form (`patches.realm`, etc.)
@@ -62,11 +64,20 @@ SEASON = "S10"               # `seasons.label` / DB-stamp form
 # NULL, e.g. "Phase 1.1") are content patches within it and are allowed to come
 # and go without touching this.
 #
-# 🚨 Phase 2 is scheduled for 2026-08-08. When it lands, `assert_phase()` fails
-# loudly with the live name in the message. That is the intended behaviour:
-# update this constant and `SEASON`/`SEASON_NUMBER` if the season also rolled,
-# in ONE place, then re-run.
-EXPECTED_PHASE_NAME = "Phase 1 - Zul'Gurub"
+# 🚨 `3k` B0, 2026-08-07 — PHASE 2 HAS LANDED, and it landed additively.
+# Molten Core / Onyxia opened at 2026-08-07T18:00:00Z as a TOP-LEVEL phase
+# (id=4, parent=None) while `Phase 1 - Zul'Gurub` stayed `is_active` with a
+# NULL `end_date`, because Zul'Gurub is still open. `is_active` on this server
+# means "this content is live", NOT "this is the current phase" — see
+# `core.builds.phases.current_top_level`. Owner decision 2026-08-07:
+# transitions here are additive, raids get added and none removed, so the
+# count of active top-level phases will keep growing and must never be read as
+# a transition-in-progress signal.
+#
+# When the NEXT phase lands, `assert_phase()` still fails loudly with the live
+# name in the message. Update this constant — and `SEASON`/`SEASON_NUMBER` if
+# the season also rolled — in ONE place, then re-run.
+EXPECTED_PHASE_NAME = "Phase 2 - Molten Core / Onyxia"
 
 # The next content boundary the server has ANNOUNCED but `/api/phases` does not
 # yet carry a phase record for. ISO-8601 UTC, or None when there is no such
@@ -101,11 +112,33 @@ def active_phases(payload):
 
 
 def active_top_level_phases(payload):
-    """Active phases with no progression parent — the real 'what phase is the
-    server on' answer. Child phases (`progression_parent_phase_id` set) are
-    content patches inside their parent, not phases in this sense."""
+    """Active phases with no progression parent. Child phases
+    (`progression_parent_phase_id` set) are content patches inside their
+    parent, not phases in this sense.
+
+    ⚠ `3k` B0 — this is NOT 'what phase is the server on'; it returns a growing
+    list. Use `current_top_level_phase()`."""
     return [p for p in active_phases(payload)
             if p.get("progression_parent_phase_id") in (None, 0)]
+
+
+def current_top_level_phase(payload):
+    """The active top-level phase with the LATEST `start_date`, or None.
+
+    `3k` B0 — the crawler-side twin of `core.builds.phases.current_top_level`,
+    duplicated for the same reason the other pair is: `core/` may not import
+    this module. Both are three lines of field access over the same payload.
+    Owner decision 2026-08-07: transitions are ADDITIVE, so the current phase
+    is the newest active top-level, never 'the only one'.
+    """
+    dated = []
+    for p in active_top_level_phases(payload):
+        raw = str(p.get("start_date") or "").strip().replace("Z", "+00:00")
+        try:
+            dated.append((datetime.fromisoformat(raw), p))
+        except ValueError:
+            continue
+    return max(dated, key=lambda sp: sp[0])[1] if dated else None
 
 
 def describe_phases(payload):
@@ -138,11 +171,18 @@ def assert_realm(base_url):
 def assert_phase(payload):
     """The live server must still be on `EXPECTED_PHASE_NAME`.
 
-    Raises RealmSeasonMismatch on any of: no payload, no active top-level phase,
-    more than one, or a name mismatch. Returns the matched phase dict.
+    "Still on" means the CURRENT top-level phase — the active one with the
+    latest `start_date` (`3k` B0: actives accumulate, so a count is not the
+    answer). Raises RealmSeasonMismatch on any of: no payload, no active
+    top-level phase with a parseable start, or a name mismatch. Returns the
+    matched phase dict.
 
-    🚨 This is the 2026-08-08 tripwire. A phase flip is not an error in the
-    server — it is an error in THIS CLONE'S CONSTANTS, and the message says so.
+    🚨 This is the phase-flip tripwire. It fired for real on the Molten Core
+    boundary — though on the wrong arm: the old `len(tops) != 1` check caught
+    the flip as "a transition in progress" and would have gone on refusing
+    forever, because Zul'Gurub never stopped being active. A phase flip is not
+    an error in the server — it is an error in THIS CLONE'S CONSTANTS, and the
+    message says so.
     """
     if not payload or not payload.get("phases"):
         raise RealmSeasonMismatch(
@@ -150,16 +190,14 @@ def assert_phase(payload):
             "or the request failed — refusing to stamp records against an "
             "unverified phase."
         )
-    tops = active_top_level_phases(payload)
-    if len(tops) != 1:
-        names = [p.get("name") for p in tops]
+    live = current_top_level_phase(payload)
+    if live is None:
+        names = [p.get("name") for p in active_top_level_phases(payload)]
         raise RealmSeasonMismatch(
-            f"expected exactly ONE active top-level phase, found {len(tops)}: "
-            f"{names}. Live payload: {describe_phases(payload)}. This is either "
-            f"a phase transition in progress or a schema change; resolve it by "
-            f"hand before capturing."
+            f"no active top-level phase with a parseable start_date "
+            f"(active top-levels: {names}). Live payload: "
+            f"{describe_phases(payload)}. Resolve by hand before capturing."
         )
-    live = tops[0]
     if live.get("name") != EXPECTED_PHASE_NAME:
         raise RealmSeasonMismatch(
             f"PHASE FLIP DETECTED. season_config.EXPECTED_PHASE_NAME is "
