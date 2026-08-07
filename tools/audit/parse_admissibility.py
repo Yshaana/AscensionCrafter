@@ -122,6 +122,81 @@ def assert_stamped_thresholds():
     return ok
 
 
+class AdmissibilityOutage(RuntimeError):
+    """The admissibility computation cannot produce a PER-PARSE verdict.
+
+    🛑 `3j` Block 0 (`AUDIT_3I_ADVERSARIAL` §2). Raised — never returned as a
+    per-character flag — when the thing that failed is the **labelling
+    infrastructure** rather than any character's parse.
+
+    `CLAUDE.md`'s standing rule: *a character may be excluded from the gate for
+    what its PARSE is, never for what its DELTA is*, and exclusion must rest on
+    **input validity**. A `/api/phases` payload that no longer describes this
+    server is not a statement about anybody's parse — it is an outage. Routing
+    it through predicate 4 turned one infrastructure fault into 41 identical
+    parse verdicts and published `0 of 36` as though it were a measurement.
+
+    The correct response to an outage is to **decline to publish a number**.
+    A gate that reports `0 of 36` because it could not resolve a phase is
+    strictly worse than a gate that reports nothing, because the first is
+    quotable.
+    """
+
+
+def assert_publishable(phase_ctx, rows=None):
+    """Refuse to publish a gate number when the admissibility rule is blind.
+
+    Two refusals, checked in this order:
+
+    1. **Payload-level.** `phase_guard`'s `refuse_reason` is its verdict on the
+       `/api/phases` payload — not on any capture. If it is set, no per-parse
+       admissibility verdict is computable, so nothing may be published.
+       Checked BEFORE the sim loop by the gate, so an outage costs seconds
+       rather than a full cohort sim.
+    2. **Cohort-level.** If every scored member carries the *same* flag string,
+       that flag is describing the run, not the members. Same if every member is
+       flagged at all: a rule that removes 100% of the cohort has measured
+       nothing, and the number it leaves behind is an artifact of its own
+       refusal.
+
+    `rows` are `admissibility_for()` dicts; pass `None` to run check 1 only.
+    A cohort of fewer than 2 scored members is exempt from check 2 — "every
+    member shares a flag" is not evidence of anything at n=1.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete either `raise` below. The
+    check (`check_refusals.py :: check_admissibility_outage_refuses`) then
+    reports that a refused payload published a number. GREEN PATH: the raises
+    as written — which IS the fix, not a stub: the gate calls this at both
+    points and has no other route to a manifest.
+    """
+    _windows, _horizon, refuse_reason, _boundary = phase_ctx
+    if refuse_reason:
+        raise AdmissibilityOutage(
+            f"the /api/phases payload cannot label anything: {refuse_reason}\n"
+            f"This is an INFRASTRUCTURE refusal, not a parse verdict. The gate "
+            f"refuses to publish a number rather than flag every cohort member "
+            f"'unresolved phase' and report the residue as a measurement. Fix "
+            f"the payload (re-crawl /api/phases; bump "
+            f"season_config.EXPECTED_PHASE_NAME and re-derive the corpus if "
+            f"the server flipped), then re-run.")
+    if not rows or len(rows) < 2:
+        return
+    shared = set(rows[0].get("flags") or [])
+    for r in rows[1:]:
+        shared &= set(r.get("flags") or [])
+    if shared:
+        raise AdmissibilityOutage(
+            f"every one of the {len(rows)} scored members carries the "
+            f"identical admissibility flag(s) {sorted(shared)!r}. A flag that "
+            f"is true of the whole cohort is describing the RUN, not the "
+            f"parses — refusing to publish.")
+    if all(r.get("not_admissible") for r in rows):
+        raise AdmissibilityOutage(
+            f"all {len(rows)} scored members are NOT ADMISSIBLE. The rule has "
+            f"removed the entire cohort, so the gate would be reporting a "
+            f"number computed over nobody — refusing to publish.")
+
+
 def cast_time_entries(asc, bdb, snapshot_id):
     """How many of this board's resolved entries are cast-time combat spells.
 
@@ -330,13 +405,28 @@ def admissibility_for(bdb, asc, phase_ctx, *, character_id, character_name,
     # 🆕 3i D1 — predicate 4, COMPUTED via core.builds.phases.resolve_phase,
     # not printed as a sentence that becomes false at the 2026-08-08
     # boundary. Uses the snapshot's own captured_at.
+    #
+    # 🛑 3j Block 0 (`AUDIT_3I_ADVERSARIAL` §2) — `refuse_reason` is NO LONGER
+    # passed down here. It is `phase_guard`'s verdict on the /api/phases
+    # PAYLOAD ("this no longer describes the server we think we're pointed
+    # at"), and `resolve_phase` checks it first, so passing it in made a
+    # single infrastructure fault return NULL for every capture — every cohort
+    # member flagged "unresolved phase", `within_tolerance` None for all 41,
+    # and the gate publishing `0 of 36` as if it had measured something.
+    #
+    # A payload refusal is not a property of anybody's parse, so it is not a
+    # predicate-4 input. It is surfaced as `phase_payload_refusal` and enforced
+    # by `assert_publishable()`, which makes the RUN refuse. Predicate 4 keeps
+    # exactly the capture-level reasons it was stamped for: no parseable
+    # timestamp, past the declared boundary, past the payload's horizon,
+    # before the first phase, or ambiguous across overlapping windows.
     captured_at = bdb.execute(
         "SELECT captured_at FROM character_snapshots WHERE snapshot_id = ?",
         (snapshot_id,)).fetchone()
     captured_at = captured_at[0] if captured_at else None
     phase_label, phase_reason = resolve_phase(
         captured_at, windows, horizon,
-        refuse_reason=refuse_reason, boundary=boundary)
+        refuse_reason=None, boundary=boundary)
 
     flags = []
     if ar["ratio"] is not None and ar["ratio"] <= APM_RATIO_BOUND:
@@ -345,8 +435,11 @@ def admissibility_for(bdb, asc, phase_ctx, *, character_id, character_name,
         flags.append(f"deaths {deaths}")
     if window_s is not None and window_s < MIN_PARSE_SECONDS:
         flags.append(f"window {window_s:.0f}s < {MIN_PARSE_SECONDS:g}s")
-    # 🆕 3i D1 — predicate 4, now live.
-    if phase_label is None:
+    # 🆕 3i D1 — predicate 4, now live. 🛑 3j Block 0: suppressed entirely
+    # while the payload itself is refused — under an outage the honest per-
+    # character answer is "not computed", not "this parse is inadmissible".
+    # `assert_publishable()` stops the run before any of these rows is read.
+    if refuse_reason is None and phase_label is None:
         flags.append(f"unresolved phase: {phase_reason}")
     # 🆕 3i D2 — predicate 5, TESTED rather than asserted inert. Stated as
     # inert-by-construction in the stamp (lag 0 is enforced at selection);
@@ -370,6 +463,10 @@ def admissibility_for(bdb, asc, phase_ctx, *, character_id, character_name,
         "n_comparator_scopes_excluded": ar["n_comparator_scopes_excluded"],
         "deaths": deaths,
         "phase_label": phase_label, "phase_reason": phase_reason,
+        # 🆕 3j Block 0 — the payload-level refusal, reported ALONGSIDE the
+        # per-parse verdict and never folded into it. Non-None means no row in
+        # this table is a measurement; `assert_publishable()` raises on it.
+        "phase_payload_refusal": refuse_reason,
         "not_admissible": bool(flags), "flags": flags,
     }
 
@@ -396,6 +493,9 @@ def main():
           f"{horizon.isoformat() if horizon else 'UNKNOWN'}, "
           f"guard reason: {refuse_reason or '(none — payload consistent)'}, "
           f"boundary armed: {boundary.isoformat() if boundary else 'no'}")
+    # 🛑 3j Block 0 — the same refusal the gate takes, so this tool and the
+    # gate cannot disagree about whether the payload is fit to reason from.
+    assert_publishable(phase_ctx)
 
     # ---- the BLIND table: parse properties only, no delta touched ---------
     print(f"\n[blind] predicates over all {len(cohort_ids)} frozen members "
@@ -466,6 +566,7 @@ def main():
     print(f"[blind] cohort effect: {len(flagged)} of {len(table)} members "
           f"flagged NOT ADMISSIBLE (None, never False): "
           + (", ".join(t["name"] for t in flagged) if flagged else "none"))
+    assert_publishable(phase_ctx, table)     # 3j Block 0 — cohort-wide half
     print(f"🛑 [blind] {len(flagged)} of {len(table)} is a LOWER BOUND on "
           f"what the rule would flag with perfect information — it is a "
           f"measurement of how much the corpus is inadmissible ONLY where "

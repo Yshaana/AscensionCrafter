@@ -22,7 +22,7 @@ import json
 import re
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -932,6 +932,151 @@ def check_coverage_split_producing_vs_zero():
           f"zero={out2 and out2['keyed_but_zero_pct']}")
 
 
+def check_admissibility_outage_refuses():
+    """`3j` Block 0 (`AUDIT_3I_ADVERSARIAL` §2) — an INFRASTRUCTURE fault must
+    make the gate refuse to publish, not become 41 identical parse verdicts.
+
+    The chain the audit found, which would have fired on the first crawl on or
+    after 2026-08-08 with zero code changes: `phase_guard` refuses the
+    `/api/phases` payload → `admissibility_for` passed that straight into
+    `resolve_phase` → every member flagged `unresolved phase: …` →
+    `within_tolerance = None` for all of them → the gate publishes
+    **`0 of 36`**. `CLAUDE.md`'s own rule forbids exactly this: a character may
+    be excluded for what its PARSE is, and a payload refusal is not a property
+    of anybody's parse.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete either `raise
+    AdmissibilityOutage` in `parse_admissibility.assert_publishable`, or
+    restore the old passthrough (`refuse_reason=refuse_reason` in
+    `admissibility_for`'s `resolve_phase` call). GREEN PATH: the guard as
+    written — the gate calls `assert_publishable` before the sim loop and
+    again after it, and has no other route to a manifest.
+
+    🛑 The third and fourth arms are the ones that stop this being a guard
+    that refuses everything. A refuse-always `assert_publishable` would pass
+    arms 1 and 2 and fail 3 and 4, so the correct answer is not the maximally-
+    refusing answer — the defect `AUDIT_3H` §6.2 named on the E2 fixture.
+    """
+    import parse_admissibility as pa
+
+    # Windows/horizon are REAL aware datetimes, so arm 5 exercises
+    # `resolve_phase`'s ordinary path rather than tripping over the fixture.
+    _tz = timezone.utc
+    _windows = [{"label": "Phase 1 - Zul'Gurub",
+                 "phase_number": 1,
+                 "starts_at": datetime(2026, 7, 31, 18, tzinfo=_tz),
+                 "ends_at": None, "open_ended": True}]
+    ok_ctx = (_windows, datetime(2026, 8, 6, 6, 40, tzinfo=_tz), None, None)
+    bad_ctx = (ok_ctx[0], ok_ctx[1],
+               "PHASE FLIP: the payload's active top-level phase is "
+               "\"Phase 2 - Ruins of Ahn'Qiraj\", this clone expects "
+               "\"Phase 1 - Zul'Gurub\"", None)
+
+    # arm 1 — a refused payload refuses BEFORE any member is looked at
+    raised = None
+    try:
+        pa.assert_publishable(bad_ctx)
+    except pa.AdmissibilityOutage as e:
+        raised = str(e)
+    check("[3j-0] a payload-level phase refusal makes the gate REFUSE to "
+          "publish, rather than flagging every member 'unresolved phase' and "
+          "reporting the residue as a measurement",
+          raised is not None and "INFRASTRUCTURE refusal" in raised,
+          f"raised={(raised or 'NOTHING')[:60]!r}")
+
+    # arm 2 — a flag carried by EVERY member is describing the run
+    all_same = [{"name": "A", "flags": ["unresolved phase: x"],
+                 "not_admissible": True},
+                {"name": "B", "flags": ["unresolved phase: x"],
+                 "not_admissible": True},
+                {"name": "C", "flags": ["unresolved phase: x"],
+                 "not_admissible": True}]
+    raised2 = None
+    try:
+        pa.assert_publishable(ok_ctx, all_same)
+    except pa.AdmissibilityOutage as e:
+        raised2 = str(e)
+    check("[3j-0] a cohort in which EVERY member carries the identical "
+          "admissibility flag refuses too — the second door into the same "
+          "failure, reachable without a payload refusal",
+          raised2 is not None and "identical admissibility flag" in raised2,
+          f"raised={(raised2 or 'NOTHING')[:60]!r}")
+
+    # arm 3 — the real 3i roster must NOT refuse (3 flagged of 36, all for
+    # DIFFERENT reasons). This is the discriminator: a guard that always
+    # refuses passes arms 1-2 and fails here.
+    real_ish = ([{"name": "Nodding", "flags": ["window 52s < 60s"],
+                  "not_admissible": True},
+                 {"name": "Boomcat", "flags": ["apm_ratio 0.24 <= 0.5"],
+                  "not_admissible": True},
+                 {"name": "Deyindra", "flags": ["apm_ratio 0.22 <= 0.5"],
+                  "not_admissible": True}]
+                + [{"name": f"ok{i}", "flags": [], "not_admissible": False}
+                   for i in range(33)])
+    refused3 = False
+    try:
+        pa.assert_publishable(ok_ctx, real_ish)
+    except pa.AdmissibilityOutage:
+        refused3 = True
+    check("[3j-0] ...and the ACTUAL 3i roster (3 of 36 flagged, each for a "
+          "different reason) does NOT refuse — the guard discriminates an "
+          "outage from a rule doing its job",
+          not refused3, "published, as it must")
+
+    # arm 4 — every member flagged, but for DIFFERENT reasons, still refuses:
+    # a rule that removes 100% of the cohort has measured nothing.
+    all_flagged_differently = [
+        {"name": "A", "flags": ["window 52s < 60s"], "not_admissible": True},
+        {"name": "B", "flags": ["apm_ratio 0.24 <= 0.5"],
+         "not_admissible": True}]
+    raised4 = None
+    try:
+        pa.assert_publishable(ok_ctx, all_flagged_differently)
+    except pa.AdmissibilityOutage as e:
+        raised4 = str(e)
+    check("[3j-0] a cohort where every member is flagged for a DIFFERENT "
+          "reason still refuses — no shared flag, but the number would be "
+          "computed over nobody",
+          raised4 is not None and "removed the entire cohort" in raised4,
+          f"raised={(raised4 or 'NOTHING')[:60]!r}")
+
+    # arm 5 — predicate 4 is SUPPRESSED under a payload refusal, so the flag
+    # never reaches a member in the first place. Exercised through the real
+    # `admissibility_for` against synthetic tables (no corpus is opened).
+    import sqlite3
+    bdb = sqlite3.connect(":memory:")
+    bdb.executescript(
+        "CREATE TABLE snapshot_cards (snapshot_id INT, spell_id INT);"
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "  casts REAL, is_pet INT);"
+        "CREATE TABLE capture_scopes (scope_id INT, encounter_id INT, "
+        "  encounter_ids_json TEXT);"
+        "CREATE TABLE encounters (encounter_id INT, duration_seconds REAL, "
+        "  is_trash INT);"
+        "CREATE TABLE encounter_performance (character_id INT, scope_id INT, "
+        "  deaths INT);"
+        "CREATE TABLE character_snapshots (snapshot_id INT, captured_at TEXT);"
+        "INSERT INTO character_snapshots VALUES (1, '2026-08-05T00:00:00Z');"
+        "INSERT INTO capture_scopes VALUES (1, 10, NULL);"
+        "INSERT INTO encounters VALUES (10, 300.0, 0);")
+    asc = sqlite3.connect(":memory:")
+    asc.executescript(
+        "CREATE TABLE spell_dbc_raw (id INT, casting_time_index INT, "
+        "  effect_json TEXT);"
+        "CREATE TABLE dbc_spellcasttimes (id INT, base INT);")
+    row = pa.admissibility_for(
+        bdb, asc, bad_ctx, character_id=7, character_name="X",
+        snapshot_id=1, scope_id=1, window_s=300.0, snapshot_lag_hours=0.0)
+    check("[3j-0] under a refused payload, `admissibility_for` reports the "
+          "refusal as `phase_payload_refusal` and adds NO 'unresolved phase' "
+          "flag — the passthrough that turned one outage into 41 parse "
+          "verdicts is gone",
+          row["phase_payload_refusal"] is not None
+          and not any("unresolved phase" in f for f in row["flags"]),
+          f"payload_refusal set={row['phase_payload_refusal'] is not None}, "
+          f"flags={row['flags']}")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -986,6 +1131,7 @@ def main():
     print()
     check_phase_resolution()
     check_phase_guard()
+    check_admissibility_outage_refuses()
     print()
     check_primer_status_census()
     check_blocked_question_count()

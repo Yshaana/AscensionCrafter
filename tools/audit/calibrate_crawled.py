@@ -835,8 +835,15 @@ def main():
         pa = None
     else:
         phase_ctx = pa.latest_phase_context()
+        # 🛑 3j Block 0 (`AUDIT_3I_ADVERSARIAL` §2) — the PAYLOAD-level refusal,
+        # checked HERE, before a single character is simmed. `phase_guard`'s
+        # verdict is about the /api/phases payload, not about anybody's parse;
+        # until 3j it was passed into predicate 4, so one outage flagged every
+        # cohort member "unresolved phase" and the gate published `0 of 36`.
+        # Raising costs seconds; the alternative cost a quotable number.
+        pa.assert_publishable(phase_ctx)
 
-    results, excluded, seen_chars = [], [], set()
+    results, excluded, seen_chars, admiss_rows = [], [], set(), []
     for (cid, cname, snapshot_id, dps, path, boss, ctype, dur, enc_id,
          lag, level, scope_id, _longest) in rows:
         if cid in seen_chars:
@@ -912,6 +919,8 @@ def main():
                       character_name=cname, snapshot_id=snapshot_id,
                       scope_id=scope_id, window_s=dur, snapshot_lag_hours=lag)
                   if pa is not None else None)
+        if admiss is not None:
+            admiss_rows.append(admiss)      # 3j Block 0 — cohort-wide guard
 
         # 3e A3 / 3g G4 — computed first so admissibility can override it;
         # the pre-admissibility verdict is preserved below for auditability.
@@ -968,6 +977,14 @@ def main():
                                       if sim_total else None),
             "warnings": sorted({w for w in res.warnings})[:8],
         })
+
+    # 🛑 3j Block 0 — the COHORT-level half of the outage guard, run after the
+    # loop because it needs every member's flags. A flag carried by ALL of them
+    # is describing this run, not these parses; a rule that removes 100% of the
+    # cohort has measured nothing. Either way the gate declines to publish
+    # rather than emit a number computed over nobody.
+    if pa is not None:
+        pa.assert_publishable(phase_ctx, admiss_rows)
 
     # 3d F3 — SLICE ACCURACY, per character and as a cohort median.
     #
