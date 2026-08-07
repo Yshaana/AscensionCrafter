@@ -394,6 +394,71 @@ def check_manifest_cannot_contradict_itself():
                   f"result={written['result']['coverage_floor_pct_applied']}, "
                   f"floor_applied_from={written['criteria_in_force'].get('floor_applied_from')!r}")
 
+        # 🆕 3j A1 — the FOURTH assertion (`AUDIT_3I_ADVERSARIAL` §3): the
+        # manifest may not CLAIM the admissibility rule ran when the scoring
+        # loop did not run it. `parse_admissibility_rule_applied` was a
+        # hardcoded literal `True` with no parameter behind it, so a stamp↔code
+        # drift shipped a committed manifest asserting a rule that did not run,
+        # with every row silently `not_admissible: False` via `.get()`
+        # defaults. Two arms, because a one-way assertion is half a rule.
+        #
+        # RED MUTATION (RUN 2026-08-07): disable the assertion itself —
+        # `if ci["parse_admissibility_rule_applied"] != _rule_ran_on_every_row:`
+        # → `if False:`. Arm 1 then reports `refused=False`: the false claim is
+        # written. GREEN PATH: the assertion as it stands.
+        #
+        # 🛑 A NAMED MUTATION THAT DID NOT GO RED, recorded rather than quietly
+        # swapped (`3g` G5: *a green path that has only been named is a guess
+        # about your own code* — and so is a red one). The first mutation
+        # registered here was "restore `parse_admissibility_rule_applied: True`
+        # as a literal". It was RUN and both arms stayed **PASS**, because the
+        # assertion compares the criteria key against `_rule_ran_on_every_row`,
+        # which the writer re-derives from the rows — so it catches a hardcoded
+        # literal just as well as a wrong parameter. That is the guard working,
+        # and it means the literal is not the load-bearing part of the fix: the
+        # ASSERTION is. The `admissibility_applied` parameter remains because
+        # the caller stating its own belief is what gives the assertion two
+        # independent sides to compare, but it is not what makes this red.
+        rows_no_admiss = [_fake_result(1, "A", 60.0, 5.0)]
+        for r in rows_no_admiss:
+            r.pop("admissibility_computed", None)
+        try:
+            cc.write_gate_manifest(
+                rows_no_admiss, [], rows_no_admiss, rows_no_admiss, True, True,
+                n_qualifying=3,
+                excluded=[(2, "B", "sim error"), (3, "C", "no preset")],
+                admissibility_applied=True, **kw)
+            refused_claim = False
+        except SystemExit:
+            refused_claim = True
+        check("[3j-A1] a manifest CLAIMING parse_admissibility_rule_applied "
+              "while the scoring loop computed it for 0 rows is REFUSED — "
+              "`not_admissible: False` does not distinguish 'the rule cleared "
+              "this parse' from 'the rule never ran'",
+              refused_claim, f"refused={refused_claim}")
+
+        # ...and the honest pairing writes. This is the arm that stops the
+        # assertion being satisfiable by refusing everything.
+        rows_with_admiss = [_fake_result(1, "A", 60.0, 5.0)]
+        for r in rows_with_admiss:
+            r["admissibility_computed"] = True
+        try:
+            cc.write_gate_manifest(
+                rows_with_admiss, [], rows_with_admiss, rows_with_admiss,
+                True, True, n_qualifying=3,
+                excluded=[(2, "B", "sim error"), (3, "C", "no preset")],
+                admissibility_applied=True, **kw)
+            wrote_honest = tmp.exists()
+            claim = json.loads(tmp.read_text(encoding="utf-8"))[
+                "criteria_in_force"]["parse_admissibility_rule_applied"]
+        except SystemExit as e:
+            wrote_honest, claim = False, f"refused: {e}"
+        check("[3j-A1] ...and a run where the loop DID compute it writes, "
+              "with the key True — the assertion tests agreement, not the "
+              "claim, so it cannot be satisfied by refusing everything",
+              wrote_honest and claim is True,
+              f"written={wrote_honest}, key={claim!r}")
+
         # 🆕 3h A7 — a dirty tree REFUSES without --allow-dirty. This harness
         # itself runs from a dirty tree during development; when the tree is
         # actually clean the refusal cannot fire, so the case is skipped with

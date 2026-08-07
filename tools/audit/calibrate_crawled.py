@@ -827,21 +827,33 @@ def main():
     # per character, BLIND (parse properties only — window, APM ratio, phase
     # resolution, snapshot lag), before this loop's delta/verdict exists for
     # that row. Pre-registered: predictions/prereg_3i_admissibility.md.
+    # 🛑 3j A1 (`AUDIT_3I_ADVERSARIAL` §3) — THIS RAISES. It used to set
+    # `pa = None` and CONTINUE, so a stamp↔code drift produced a full gate run
+    # with the admissibility rule silently not applied — and then a committed
+    # manifest asserting `parse_admissibility_rule_applied: True` beside rows
+    # that all defaulted to `not_admissible: False`. A manifest claiming a rule
+    # ran when it did not is the worst failure available to this project: it is
+    # the only artifact a later session can cite without re-running anything.
+    #
+    # The standalone tool already returned 1 here; the thing with consequences
+    # did not. `parse_admissibility.py:main()` and this path now agree.
     import parse_admissibility as pa
     if not pa.assert_stamped_thresholds():
-        print("🛑 REFUSING to apply the admissibility rule — "
-              "parse_admissibility.py's constants disagree with the stamped "
-              "text. Gate runs WITHOUT the rule applied until reconciled.")
-        pa = None
-    else:
-        phase_ctx = pa.latest_phase_context()
-        # 🛑 3j Block 0 (`AUDIT_3I_ADVERSARIAL` §2) — the PAYLOAD-level refusal,
-        # checked HERE, before a single character is simmed. `phase_guard`'s
-        # verdict is about the /api/phases payload, not about anybody's parse;
-        # until 3j it was passed into predicate 4, so one outage flagged every
-        # cohort member "unresolved phase" and the gate published `0 of 36`.
-        # Raising costs seconds; the alternative cost a quotable number.
-        pa.assert_publishable(phase_ctx)
+        raise SystemExit(
+            "🛑 GATE REFUSED — parse_admissibility.py's constants disagree "
+            "with the stamped predicate text in "
+            "predictions/CALIBRATION_TOLERANCE.md (the [D6] FAIL above names "
+            "which). No manifest was written and no number was published. "
+            "Reconcile the stamp and the code BY HAND — an assertion that "
+            "silently reconciles them is not a check — then re-run.")
+    phase_ctx = pa.latest_phase_context()
+    # 🛑 3j Block 0 (`AUDIT_3I_ADVERSARIAL` §2) — the PAYLOAD-level refusal,
+    # checked HERE, before a single character is simmed. `phase_guard`'s
+    # verdict is about the /api/phases payload, not about anybody's parse;
+    # until 3j it was passed into predicate 4, so one outage flagged every
+    # cohort member "unresolved phase" and the gate published `0 of 36`.
+    # Raising costs seconds; the alternative cost a quotable number.
+    pa.assert_publishable(phase_ctx)
 
     results, excluded, seen_chars, admiss_rows = [], [], set(), []
     for (cid, cname, snapshot_id, dps, path, boss, ctype, dur, enc_id,
@@ -914,13 +926,16 @@ def main():
         # otherwise be — the rule excludes on what the PARSE is, never on
         # what the DELTA is, so this line runs before `delta` is consulted
         # by anything downstream.
-        admiss = (pa.admissibility_for(
-                      bdb, asc, phase_ctx, character_id=cid,
-                      character_name=cname, snapshot_id=snapshot_id,
-                      scope_id=scope_id, window_s=dur, snapshot_lag_hours=lag)
-                  if pa is not None else None)
-        if admiss is not None:
-            admiss_rows.append(admiss)      # 3j Block 0 — cohort-wide guard
+        # 🛑 3j A1 — UNCONDITIONAL. This was `... if pa is not None else None`,
+        # the other half of the fail-open: the stamp-drift branch above set
+        # `pa = None` and every row then scored with no rule applied. With that
+        # branch raising, `pa` is always live and the conditional was dead code
+        # holding the shape of the defect open for the next edit to fall into.
+        admiss = pa.admissibility_for(
+            bdb, asc, phase_ctx, character_id=cid,
+            character_name=cname, snapshot_id=snapshot_id,
+            scope_id=scope_id, window_s=dur, snapshot_lag_hours=lag)
+        admiss_rows.append(admiss)          # 3j Block 0 — cohort-wide guard
 
         # 3e A3 / 3g G4 — computed first so admissibility can override it;
         # the pre-admissibility verdict is preserved below for auditability.
@@ -959,6 +974,13 @@ def main():
             "within_tolerance_before_admissibility": wt_before_admissibility,
             "not_admissible": bool(admiss and admiss["not_admissible"]),
             "not_admissible_flags": (admiss or {}).get("flags") or [],
+            # 🆕 3j A1 — did the rule actually RUN for this row? `not_admissible:
+            # False` is ambiguous on its own: it means "the rule ran and cleared
+            # this parse" AND "the rule never ran". The manifest's
+            # `parse_admissibility_rule_applied` is cross-checked against this
+            # per-row fact, so the criteria block cannot claim a rule the rows
+            # did not see.
+            "admissibility_computed": admiss is not None,
             "gear_coverage_pct": cov["coverage_pct"],
             "gear_unresolved_pieces": len(cov["missing"]),
             "gear_name_matched_pieces": len(cov["name_matched"]),
@@ -983,8 +1005,7 @@ def main():
     # is describing this run, not these parses; a rule that removes 100% of the
     # cohort has measured nothing. Either way the gate declines to publish
     # rather than emit a number computed over nobody.
-    if pa is not None:
-        pa.assert_publishable(phase_ctx, admiss_rows)
+    pa.assert_publishable(phase_ctx, admiss_rows)
 
     # 3d F3 — SLICE ACCURACY, per character and as a cohort median.
     #
@@ -1449,7 +1470,12 @@ def main():
                         n_qualifying=len(rows), excluded=excluded,
                         band_n=slice_accuracy_band_n(tuning),
                         allow_dirty=bool(args.allow_dirty_reason),
-                        allow_dirty_reason=args.allow_dirty_reason)
+                        allow_dirty_reason=args.allow_dirty_reason,
+                        # 🆕 3j A1 — the caller STATES it; the writer VERIFIES
+                        # it against the rows. The defect this replaces was the
+                        # caller stating a literal `True` that nothing checked.
+                        admissibility_applied=bool(results) and all(
+                            r.get("admissibility_computed") for r in results))
     return 0
 
 
@@ -1475,7 +1501,8 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                         rider_met, slice_bands, corpus, cohort_ids, dropped,
                         outside, cohort_spec, read_holdout=False,
                         n_qualifying=None, excluded=(), band_n=None,
-                        allow_dirty=False, allow_dirty_reason=None):
+                        allow_dirty=False, allow_dirty_reason=None,
+                        admissibility_applied=None):
     """3d E2 — a small COMMITTED record of what a gate run actually measured.
 
     Until now the gate's headline numbers were reproducible only on the owner's
@@ -1498,6 +1525,19 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
     immutable record of the `3d` run the cohort was frozen from.
     """
     band_n = band_n or {}
+    # 🆕 3j A1 — the per-row ground truth for `parse_admissibility_rule_applied`.
+    # Derived here from the rows themselves so the assertion below compares two
+    # INDEPENDENT statements: what the caller claimed, and what the scoring loop
+    # actually did. A caller that hardcodes the claim (which is exactly the
+    # defect being fixed) now trips the assertion instead of shipping.
+    _scored_rows = list(tuning) + list(holdout)
+    _rule_ran_on_every_row = bool(_scored_rows) and all(
+        r.get("admissibility_computed") for r in _scored_rows)
+    if admissibility_applied is None:
+        # A caller building rows by hand (check_refusals.py's manifest-integrity
+        # fixture tests a different invariant) gets the derived answer rather
+        # than a false claim.
+        admissibility_applied = _rule_ran_on_every_row
 
     # 🛑 3f F7/Q1 — A RUN THAT DOES NOT READ THE HOLDOUT MUST NOT ERASE THE
     # RUN THAT DID. Before this, any gate run without --read-holdout rewrote
@@ -1595,7 +1635,12 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             # what the PARSE is, never what the DELTA is; verdict is None
             # (NOT ADMISSIBLE), never False. Implementation:
             # tools/audit/parse_admissibility.py :: admissibility_for().
-            "parse_admissibility_rule_applied": True,
+            # 🛑 3j A1 — DERIVED from the rows, not the literal `True` this
+            # used to be. `write_gate_manifest` took no parameter reflecting
+            # whether the rule ran, so a stamp↔code drift shipped a manifest
+            # asserting it had. The assertion in the F6 block below compares
+            # this key against every row's `admissibility_computed`.
+            "parse_admissibility_rule_applied": bool(admissibility_applied),
             "parse_admissibility_rule_source":
                 "predictions/CALIBRATION_TOLERANCE.md successor #3 "
                 "(stamped 3h D4, applied 3i D)",
@@ -1916,6 +1961,32 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             f"result.coverage_floor_pct_applied "
             f"{manifest['result']['coverage_floor_pct_applied']}. The criteria "
             f"block must describe the criteria that produced the result.")
+    # 🆕 3j A1 — the SAME assertion, extended to the key the 3h one did not
+    # cover (`AUDIT_3I_ADVERSARIAL` §3). `parse_admissibility_rule_applied` was
+    # a hardcoded `True` with no parameter behind it, so a stamp↔code drift
+    # would ship a manifest asserting a rule that did not run, with every row
+    # silently `not_admissible: False` via `.get()` defaults. The claim is now
+    # compared against the scoring loop's own per-row record.
+    #
+    # MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-07): edit the stamped
+    # `APM ratio ≤ 0.5` in predictions/CALIBRATION_TOLERANCE.md to 0.4. The
+    # [D6] arm fails, the gate raises at the A1 SystemExit above, and NO
+    # manifest is written — `git status` stays clean. Under the pre-3j code
+    # the same edit produced a full run and a committed manifest claiming
+    # `parse_admissibility_rule_applied: True`. GREEN PATH: restore the stamp
+    # (or reconcile the constant) — the gate then runs and writes normally.
+    if ci["parse_admissibility_rule_applied"] != _rule_ran_on_every_row:
+        n_missing = sum(1 for r in _scored_rows
+                        if not r.get("admissibility_computed"))
+        raise SystemExit(
+            f"🛑 GATE MANIFEST IS INTERNALLY INCONSISTENT and was NOT written: "
+            f"criteria_in_force.parse_admissibility_rule_applied "
+            f"{ci['parse_admissibility_rule_applied']} but the scoring loop "
+            f"computed admissibility for "
+            f"{len(_scored_rows) - n_missing} of {len(_scored_rows)} rows. A "
+            f"manifest claiming a rule ran when it did not is worse than no "
+            f"manifest — `not_admissible: False` does not distinguish 'the "
+            f"rule cleared this parse' from 'the rule never ran'.")
 
     GATE_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     GATE_MANIFEST_PATH.write_text(
