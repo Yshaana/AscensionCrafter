@@ -1142,6 +1142,82 @@ def check_admissibility_outage_refuses():
           f"flags={row['flags']}")
 
 
+def check_comparator_can_add_a_flag():
+    """`3j` A2 (`AUDIT_3I_ADVERSARIAL` §4) — the D5 comparator filters tested in
+    the direction nobody tested: can they move a character **INTO** a flag?
+
+    The audit's structural objection: *"each arm can only remove comparators,
+    moving a character toward `len(apms) < 2` → refused → admissible… No arm of
+    the change can add a flag. Nothing checked that."* The first half is true of
+    the escape hatch. **The claim is false of the median**, and this fixture is
+    the counterexample, worked out and registered in
+    `predictions/prereg_3j_comparator.md` P3 BEFORE it was run.
+
+    Removing **low-APM** comparators RAISES the comparator median, which LOWERS
+    the tested ratio `scope_apm / median`, which can push a character BELOW
+    `APM_RATIO_BOUND`. Registered numbers: tested scope 8 APM; qualifying
+    comparators 18 and 20 APM; two sub-60s comparators at 2 and 3 APM.
+
+        unfiltered  median([2, 3, 18, 20]) = 10.5  ->  8/10.5 = 0.76  admissible
+        filtered    median([18, 20])       = 19.0  ->  8/19.0 = 0.42  FLAGGED
+
+    So the filters are not one-way, and the gate's one-way structure was an
+    artifact of the cohort, not of the rule.
+
+    MUTATION THAT MAKES THIS FAIL (red): delete the `dur < MIN_PARSE_SECONDS`
+    filter from `apm_ratio()` — the two 30s comparators re-enter, the median
+    falls back to 10.5, the ratio returns to 0.76 and the "filtered" arm reads
+    admissible. GREEN PATH: the filter as written. Both run.
+
+    🛑 The second arm is the one that stops this being satisfiable by a filter
+    that removes everything: with the sub-60s scopes gone the character must
+    still have ≥ 2 qualifying comparators and a real ratio, not `None`.
+    """
+    import sqlite3
+    import parse_admissibility as pa
+
+    # scope 1 = under test (8 APM over 120s = 16 casts)
+    # scopes 2,3 = qualifying comparators, 120s, 18 and 20 APM
+    # scopes 4,5 = sub-60s comparators, 30s, 2 and 3 APM  <- the low-APM pair
+    bdb = sqlite3.connect(":memory:")
+    bdb.executescript(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "  casts REAL, is_pet INT);"
+        "CREATE TABLE capture_scopes (scope_id INT, encounter_id INT, "
+        "  encounter_ids_json TEXT);"
+        "CREATE TABLE encounters (encounter_id INT, duration_seconds REAL, "
+        "  is_trash INT);")
+    for scope, enc, dur, apm in ((1, 101, 120.0, 8.0), (2, 102, 120.0, 18.0),
+                                 (3, 103, 120.0, 20.0), (4, 104, 30.0, 2.0),
+                                 (5, 105, 30.0, 3.0)):
+        bdb.execute("INSERT INTO capture_scopes VALUES (?,?,NULL)", (scope, enc))
+        bdb.execute("INSERT INTO encounters VALUES (?,?,0)", (enc, dur))
+        bdb.execute("INSERT INTO ability_performance VALUES (?,?,?,0)",
+                    (scope, 7, apm * dur / 60.0))
+    bdb.commit()
+
+    filtered = pa.apm_ratio(bdb, 7, 1, n_cast_time_entries=0)
+    check("[3j-A2] the D5 comparator filters can move a character INTO a "
+          "flag, not only out — removing LOW-APM comparators raises the "
+          "median and lowers the tested ratio (AUDIT_3I §4's 'no arm of the "
+          "change can add a flag' is false of the median)",
+          filtered["ratio"] is not None
+          and abs(filtered["ratio"] - 8.0 / 19.0) < 0.01
+          and filtered["ratio"] <= pa.APM_RATIO_BOUND,
+          f"filtered ratio={filtered['ratio'] and round(filtered['ratio'], 3)} "
+          f"vs bound {pa.APM_RATIO_BOUND}, comparators="
+          f"{filtered['other_scope_apms']}")
+
+    check("[3j-A2] ...and it does so with a REAL ratio, not by refusing — the "
+          "filters left 2 qualifying comparators, so this is the median moving, "
+          "not the < 2-comparator escape hatch",
+          len(filtered["other_scope_apms"]) == 2
+          and filtered["comparator_median"] is not None,
+          f"n_qualifying={len(filtered['other_scope_apms'])}, "
+          f"median={filtered['comparator_median']}, "
+          f"excluded={filtered['n_comparator_scopes_excluded']}")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -1197,6 +1273,7 @@ def main():
     check_phase_resolution()
     check_phase_guard()
     check_admissibility_outage_refuses()
+    check_comparator_can_add_a_flag()
     print()
     check_primer_status_census()
     check_blocked_question_count()

@@ -328,6 +328,60 @@ Implementation: `tools/audit/parse_admissibility.py` (`3h` D1).
 5. **Snapshot lag > 0 h** — already enforced at selection; removes nobody by
    construction, stated so the list is complete.
 
+> 🆕 **AMENDMENT (`3j` A2, owner decision 2026-08-07) — predicate 1's
+> comparator definition, stated. Appended, never rewritten in place.**
+>
+> The stamped text above says *"the character's own other scopes"*. The
+> implementation (`3i` D5) restricts that to **qualifying** scopes, and the
+> `3i` audit correctly flagged the two as disagreeing under an unchanged
+> stamp. **Owner decision: stamp follows code.** Predicate 1 reads, in full:
+>
+> > **APM ratio ≤ 0.5** — this scope's casts/min at or below half the median of
+> > the character's own other **qualifying** scopes, where a qualifying
+> > comparator scope (a) shares no encounter with the scope under test,
+> > (b) is at least **60 s** long, and (c) contains no trash encounter. A
+> > comparator whose APM is legitimately **0.0 is admitted**, not dropped.
+> > Fewer than **2** qualifying comparators ⇒ ratio `None` (refused), never a
+> > number.
+>
+> **Why the code and not the stamp moved.** These are correctness properties of
+> the predicate, not a weakening chosen to move a number: (a) a `boss_group`
+> comparator that *contains* the `boss_single` scope under test compares a
+> parse against itself — measured under the `3j` P1 counterfactual, `Nodding`'s
+> unfiltered comparator set is **371 scopes** and `Robottikyrpa`'s contains
+> visible duplicate pairs (`41.3, 41.4, 42.3, 42.3, 47.0, 47.0 …`), the
+> self-overlap signature; (b) a sub-60 s comparator violates the same
+> capture-validity floor **predicate 3 already enforces on the tested scope**,
+> so admitting it as "typical" contradicts the neighbouring predicate; (c)
+> trash scopes are a different content type, not a different day.
+>
+> 🔬 **And the change set is NOT one-way, contrary to `AUDIT_3I` §4.** That the
+> filters can only *remove* comparators is true of the `< 2` escape hatch and
+> **false of the median**: removing LOW-APM comparators raises the median and
+> lowers the tested ratio, adding a flag. Registered in advance
+> (`predictions/prereg_3j_comparator.md` P3) and run —
+> `check_refusals.py :: check_comparator_can_add_a_flag`, tested 8 APM against
+> qualifying comparators 18/20 with sub-60 s comparators at 2/3: **0.762
+> admissible unfiltered, 0.421 flagged filtered.** On the live cohort the same
+> effect is visible small: D5 moved `Boomcat` 0.27 → **0.24**, *toward* the
+> bound.
+>
+> ⚠ **The counterfactual roster is measured, so this amendment is not a
+> free choice made in the dark** (`3j` P1/P2, both CONFIRMED). With all three
+> filters removed on today's corpus the roster is **5 of 41** — Nodding,
+> Robottikyrpa (0.24), Boomcat (0.27), Deyindra (0.22), Frediib (0.14) — and
+> the published gate is **identical either way: `0 / 0 / 26.3% (n=23)`**. So
+> the amendment changes who is named as inadmissible and changes **no headline
+> figure**. It is adopted on the correctness argument alone, which is the only
+> ground it could honestly be adopted on.
+>
+> 🛑 **What this does NOT re-open:** the `3h` P9 falsifiability question. Under
+> the narrow predicate P9 registered, the count of removed FAILING characters
+> is **0** with the filters and **2** without (Robottikyrpa, Frediib) — the D7
+> correction below states this already. The full rule's bar still holds via
+> `Nodding` (predicate 3). Choosing the definition that scores *worse* on the
+> narrow bar is the direction that rules out fitting.
+
 **Measured blind effect on all 41, computed before any verdict was consulted
 (pasted from `parse_admissibility.py`, run 2026-08-07 at `7fc5bc0`):**
 

@@ -84,27 +84,117 @@ _NON_COMBAT_EFFECTS = {24, 28}
 # fragments to locate and the constant each must match.
 _STAMP_PATH = (Path(__file__).resolve().parents[2] / "predictions"
               / "CALIBRATION_TOLERANCE.md")
+
+# 🛑 3j A3 (`AUDIT_3I_ADVERSARIAL` §5) — THE SECTION THE STAMP LIVES IN.
+# The `3i` check regex-matched three numbers ANYWHERE in the file, which the
+# audit demonstrated to be a false green: deleting the ENTIRE stamped
+# predicate-1 block (lines 317-322) left it PASSING, because the regex then
+# matched the D7 correction's own *quotation* of P9 thirty-six lines below and
+# still returned 0.5. An assertion that passes on a document which no longer
+# stamps the rule is not an assertion.
+#
+# The block is bounded by its own heading and the next `###`, so a stamp that
+# is deleted, renamed or moved out of successor #3 makes the check FAIL to
+# find its section rather than silently find a lookalike elsewhere.
+_STAMP_SECTION_HEADING = r"^###\s*🛑\s*Stamped successor #3: parse admissibility"
+
 _STAMP_CHECKS = [
     ("APM ratio", r"APM ratio\s*[≤<=]+\s*([\d.]+)", APM_RATIO_BOUND),
     ("cast-time entries", r"[≤<=]+\s*(\d+)\s*cast-time combat entries",
      MAX_CAST_TIME_ENTRIES),
     ("parse window", r"Parse window\s*<\s*(\d+)\s*s", MIN_PARSE_SECONDS),
+    # 🆕 3j A3 — the comparator FLOOR, which D5 changed under an unchanged
+    # stamp and the 3i check was structurally blind to. Amended into the stamp
+    # by owner decision 2026-08-07 (stamp-follows-code).
+    ("comparator floor", r"is at least\s*\*\*(\d+)\s*s\*\*\s*long",
+     MIN_PARSE_SECONDS),
+    ("min comparators", r"Fewer than\s*\*\*(\d+)\*\*\s*qualifying comparators",
+     2),
 ]
+
+# 🆕 3j A3 — the two things D5 changed that are NOT numbers, and so cannot be
+# caught by the numeric loop: the comparator DEFINITION and the comparison
+# DIRECTION. Each is a fragment that must be PRESENT in the stamped section.
+# `(label, pattern, why_it_matters)`.
+_STAMP_PROSE_CHECKS = [
+    ("comparator definition — qualifying, not all",
+     r"other\s+\*\*qualifying\*\*\s+scopes",
+     "D5 replaced 'the character's own other scopes' with a filtered subset "
+     "and left the stamp saying 'other scopes'"),
+    ("comparator definition — self-overlap excluded",
+     r"shares no encounter with the scope under test",
+     "a boss_group comparator containing the tested boss_single compares a "
+     "parse against itself"),
+    ("comparator definition — trash excluded",
+     r"contains no trash encounter",
+     "trash scopes are a different content type"),
+    ("comparator definition — 0.0 admitted",
+     r"0\.0 is admitted\*\*, not dropped",
+     "`if (a := scope_apm(...))` silently dropped a legitimate 0.0"),
+]
+
+def flags_on_ratio(ratio):
+    """The stamped predicate-1 comparison, in ONE place.
+
+    🆕 `3j` A3 — extracted from `admissibility_for` so the comparison DIRECTION
+    is testable. The stamp says **`≤`**, so a character sitting exactly on the
+    bound is flagged; `AUDIT_3I` §5 lists the `<=` → `<` change at `:342` among
+    the things the stamp assertion could not see, and a text match on the
+    character "≤" would not have caught it either — the stamp is the thing
+    being checked against, so it cannot also be the witness.
+    """
+    return ratio is not None and ratio <= APM_RATIO_BOUND
+
+
+# 🆕 3j A3 — the direction, asserted BEHAVIOURALLY against the real predicate
+# above rather than by re-reading the source or restating the operator. Writing
+# this as `APM_RATIO_BOUND <= APM_RATIO_BOUND` would be a tautology — true of
+# `<=`, `>=` and `==` alike, and green under the very mutation it names.
+def _direction_is_inclusive():
+    """Does a ratio EXACTLY equal to the bound flag? The stamp says it must."""
+    return flags_on_ratio(APM_RATIO_BOUND) and not flags_on_ratio(
+        APM_RATIO_BOUND + 1e-9)
 
 
 def assert_stamped_thresholds():
-    """3i D6 — this module's constants must equal the stamped predicate text.
+    """3i D6 / 3j A3 — this module must equal the stamped predicate text, and
+    the check must be ANCHORED to the section that stamps it.
 
     Registered mutation M33 (RUN 2026-08-07): set APM_RATIO_BOUND = 0.4 —
     goes RED, reporting stamped 0.5 vs module 0.4. Green path: the constants
     above, matched by construction (this IS the fix; a mismatch means either
     the stamp or the code drifted and both must be reconciled by hand, never
     silently reconciled by the assertion).
+
+    🆕 Registered mutation M34 (RUN 2026-08-07, `3j` A3): delete the stamped
+    successor-#3 section from `CALIBRATION_TOLERANCE.md`. Pre-3j this stayed
+    GREEN — the file-wide regex found the D7 correction's quotation of the
+    same numbers 36 lines further down. Now the section lookup fails first and
+    every arm reports it. Green path: the section present, which is the fix.
+
+    🆕 Registered mutation M35 (RUN 2026-08-07, `3j` A3): revert predicate 1's
+    comparator wording to the un-amended *"the character's own other scopes"*.
+    The four prose arms go RED — the two things D5 changed under an unchanged
+    stamp are now visible to the check.
     """
     if not _STAMP_PATH.exists():
         print(f"🛑 [D6] cannot verify — {_STAMP_PATH} does not exist")
         return False
-    text = _STAMP_PATH.read_text(encoding="utf-8")
+    whole = _STAMP_PATH.read_text(encoding="utf-8")
+
+    # --- 3j A3: cut the stamped SECTION out first -------------------------
+    m = re.search(_STAMP_SECTION_HEADING, whole, re.MULTILINE)
+    if not m:
+        print(f"🛑 [D6] FAIL — the stamped successor-#3 section was not found "
+              f"in {_STAMP_PATH.name}. The rule this module implements is not "
+              f"stamped anywhere; refusing to verify against the rest of the "
+              f"file, which is where the false green came from (AUDIT_3I §5).")
+        return False
+    nxt = re.search(r"^###\s", whole[m.end():], re.MULTILINE)
+    text = whole[m.start():m.end() + (nxt.start() if nxt else len(whole))]
+    print(f"PASS  [D6] stamped section located: {len(text)} chars, "
+          f"anchored to its own heading (not the whole file)")
+
     ok = True
     for label, pattern, module_value in _STAMP_CHECKS:
         m = re.search(pattern, text)
@@ -119,7 +209,17 @@ def assert_stamped_thresholds():
         print(f"{tag}  [D6] {label}: stamped {stamped_value:g} == "
               f"module {float(module_value):g}")
         ok = ok and match
-    return ok
+
+    for label, pattern, why in _STAMP_PROSE_CHECKS:
+        present = re.search(pattern, text) is not None
+        print(f"{'PASS' if present else 'FAIL'}  [D6] {label}"
+              + ("" if present else f" — MISSING from the stamped section. {why}"))
+        ok = ok and present
+
+    inclusive = _direction_is_inclusive()
+    print(f"{'PASS' if inclusive else 'FAIL'}  [D6] comparison direction: a "
+          f"ratio exactly equal to the bound flags (stamped '≤')")
+    return ok and inclusive
 
 
 class AdmissibilityOutage(RuntimeError):
@@ -331,8 +431,38 @@ def apm_ratio(bdb, character_id, scope_id, *, n_cast_time_entries):
         `boss_single` encounter would compare a scope against itself;
       * no longer drops a comparator scope whose APM is legitimately 0.0 —
         the previous `if (a := scope_apm(...))` treated 0.0 as falsy and
-        silently excluded it, which is exactly the death-deflation signal
-        this predicate exists to detect. Fixed to `is not None`.
+        silently excluded it. Fixed to `is not None`.
+
+    🛑 **3j A2 / P4 — the stated rationale for that last arm was INVERTED, and
+    is corrected here rather than quietly reworded.** `3i` wrote that admitting
+    a legitimately-0.0 comparator is *"exactly the death-deflation signal this
+    predicate exists to detect."* It is not. **The deflation signal lives on the
+    TESTED scope.** A 0.0 *comparator* drags the median toward zero, which
+    RAISES `scope_apm / comparator_median` and therefore **hides** deflation —
+    the opposite of what the sentence claimed.
+
+    The fix is still right, for a reason that has nothing to do with which way
+    it pushes the ratio: **a 0.0 APM comparator is DATA.** `if (a := ...)`
+    could not distinguish "this scope has no casts" from "this scope has no
+    duration", and silently dropping the first was a fail-open in the comparator
+    set. Whether admitting it raises or lowers a given character's ratio is a
+    property of that character, not an argument for the rule. Measured on the
+    live cohort while `3j` ran the P1 counterfactual: 0.0 comparators are
+    present and common (`Frediib`'s set contains `[0.0, 0.0, 0.1, 0.4, …]`,
+    `Boomcat`'s `[0.0, 4.1, …]`), so this arm is load-bearing in both
+    directions.
+
+    ⚠ **And the filters are NOT one-way.** `AUDIT_3I` §4 argued each arm can
+    only remove comparators and so can only remove flags. That holds for the
+    `len(apms) < 2` escape hatch; it is **false of the median**. Removing
+    LOW-APM comparators raises the median and lowers the tested ratio, which
+    can add a flag. Counterexample registered in advance
+    (`predictions/prereg_3j_comparator.md` P3) and RUN as
+    `check_refusals.py :: check_comparator_can_add_a_flag`: tested 8 APM,
+    qualifying comparators 18/20, sub-60s comparators 2/3 — 0.762 admissible
+    unfiltered, **0.421 flagged filtered**. The live cohort shows the same
+    thing at smaller scale: D5 moved `Boomcat`'s ratio 0.27 → 0.24, i.e.
+    *toward* the bound, not away from it.
     """
     out = {"scope_apm": scope_apm(bdb, character_id, scope_id),
            "n_cast_time_entries": n_cast_time_entries,
@@ -429,7 +559,9 @@ def admissibility_for(bdb, asc, phase_ctx, *, character_id, character_name,
         refuse_reason=None, boundary=boundary)
 
     flags = []
-    if ar["ratio"] is not None and ar["ratio"] <= APM_RATIO_BOUND:
+    # 3j A3 — through `flags_on_ratio`, the single home of the stamped
+    # comparison, so the direction is asserted rather than restated.
+    if flags_on_ratio(ar["ratio"]):
         flags.append(f"apm_ratio {ar['ratio']:.2f} <= {APM_RATIO_BOUND:g}")
     if deaths and deaths > 0:
         flags.append(f"deaths {deaths}")
