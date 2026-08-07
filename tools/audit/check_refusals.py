@@ -985,6 +985,96 @@ _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
 # --------------------------------------------------------------------------
+# 3l C1 — the gear-tier production caller must REFUSE an empty phase window
+# --------------------------------------------------------------------------
+def _gear_fixture_conn(n_snapshots, captured_at):
+    """In-memory builds.db subset: n snapshots, 12 stat-bearing pieces each."""
+    import sqlite3
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE character_snapshots (snapshot_id INTEGER, "
+                 "character_id INTEGER, path TEXT, spec_role TEXT, "
+                 "captured_at TEXT)")
+    conn.execute("CREATE TABLE snapshot_gear (snapshot_id INTEGER, "
+                 "item_id INTEGER, stats_json TEXT)")
+    for s in range(n_snapshots):
+        conn.execute("INSERT INTO character_snapshots VALUES (?,?,?,?,?)",
+                     (s, 1000 + s, "intellect", "dps", captured_at))
+        for i in range(12):
+            conn.execute(
+                "INSERT INTO snapshot_gear VALUES (?,?,?)",
+                (s, 10000 + i,
+                 json.dumps({"stamina": 10 + s, "spellPower": 20 + s})))
+    return conn
+
+
+def check_gear_tier_caller_refuses():
+    """[3l-C1] cli/gear_tiers.py refuses an empty phase window BY NAME.
+
+    The live case this exists for: `Phase 2 - Molten Core / Onyxia` opened
+    2026-08-07T18:00Z and the corpus is entirely pre-boundary, so the window
+    exists and holds zero snapshots. Reporting an empty tier dict as "the
+    Phase 2 BiS" would be a measurement fabricated from nothing.
+
+    MUTATION THAT MAKES THIS FAIL (red, M55): in `cli/gear_tiers.py run()`,
+    delete BOTH `REFUSED` arms (the `snapshots_kept == 0` empty-window arm and
+    the `insufficient_sample` arm), letting the report path fall through and
+    print `tiers: {}` with exit 0 — the pre-C1 failure mode, where whatever
+    came back was the answer. Both arms sit between `scoping = ...` and the
+    `as_json` branch; restore them there.
+    """
+    from cli.gear_tiers import run as gear_run
+    from core.builds.phases import phase_windows as build_windows
+
+    payload = {"phases": [
+        {"id": 2, "name": "Phase 1 - Zul'Gurub", "phase_number": 1,
+         "is_active": True, "progression_parent_phase_id": None,
+         "start_date": "2026-08-01T00:00:00.000Z"},
+        {"id": 4, "name": "Phase 2 - Molten Core / Onyxia", "phase_number": 2,
+         "is_active": True, "progression_parent_phase_id": None,
+         "start_date": "2026-08-07T18:00:00.000Z"},
+    ]}
+    windows, horizon = build_windows(payload, "2026-08-07T19:45:00Z")
+
+    def collect(conn, phase):
+        # An exception is converted into a failing (rc, text) pair rather than
+        # propagated: a caller that CRASHES on the refusal path must read as
+        # this check's own FAIL, not take the rest of the harness down with it.
+        lines = []
+        try:
+            rc = gear_run(conn, phase=phase, phase_windows=windows,
+                          phase_horizon=horizon, out=lines.append)
+        except Exception as e:                                # noqa: BLE001
+            return None, f"EXCEPTION {type(e).__name__}: {e} | " + "\n".join(lines)
+        return rc, "\n".join(lines)
+
+    conn2 = _gear_fixture_conn(2, "2026-08-05T12:00:00Z")
+    rc, text = collect(conn2, "Phase 2 - Molten Core / Onyxia")
+    check("[3l-C1] empty phase window REFUSES with the named reason and "
+          "exit 2, never an empty tier as a measurement",
+          rc == 2 and "phase window empty: 0 snapshots" in text
+          and "No tier is reported" in text,
+          f"rc={rc}, text={text[:90]!r}")
+    check("[3l-C1] ...and the refusal names where the population went "
+          "(excluded-by-reason, the 3f F8b discipline)",
+          "captured in" in text and "Zul'Gurub" in text,
+          f"text={text[:120]!r}")
+
+    rc, text = collect(conn2, "Phase 1 - Zul'Gurub")
+    check("[3l-C1] a thin (2 < 8) in-window population refuses as "
+          "insufficient_sample — a DIFFERENT named reason than empty",
+          rc == 2 and "insufficient sample: 2" in text
+          and "phase window empty" not in text,
+          f"rc={rc}, text={text[:90]!r}")
+
+    conn9 = _gear_fixture_conn(9, "2026-08-05T12:00:00Z")
+    rc, text = collect(conn9, "Phase 1 - Zul'Gurub")
+    check("[3l-C1] the green side: 9 in-window snapshots report real tiers "
+          "with exit 0 — the refusal arms do not swallow good data",
+          rc == 0 and "bis" in text and "REFUSED" not in text,
+          f"rc={rc}, text={text[:90]!r}")
+
+
+# --------------------------------------------------------------------------
 # 3l D2 — the SpellItemEnchantment parse must decode synthetic records exactly
 # --------------------------------------------------------------------------
 def _enchant_blob(field_count, records, string_block=b"\x00"):
@@ -1892,6 +1982,7 @@ def main():
     print()
     check_null_spell_id_cannot_escape_dedupe()
     check_corpus_schema_gate()
+    check_gear_tier_caller_refuses()
     check_enchant_record_parse()
     print()
     check_primer_status_census()
