@@ -881,6 +881,56 @@ fix. See the closure box at the top of this entry.
 
 ---
 
+## E15 — pet-attributable damage is stored TWICE in `ability_performance`, so every SUM over the table double-counts it 🆕🚨
+
+| | |
+|---|---|
+| **Check** | `[corpus] identical owner+pet rows in ability_performance are counted ONCE in the coverage denominator` (registered XFAIL, `check_sim_engine.py`) |
+| **Where** | the corpus layer: `ability_performance` holds, for a pet-attributable ability, an **owner row (`is_pet=0`) and a pet row (`is_pet=1`) with byte-identical damage**. Consumer bitten: `calibrate_crawled.py :: modelled_damage_share` sums every row, so both copies enter the coverage denominator (and the numerator when the spell is keyed) |
+| **Found by** | `3h` C4 — the per-ability comparison: pet-class auto ratios read 0.005–0.013 (Malo, Ikkura, Onur) and inspection of the logged side found each swing stream twice |
+
+**Measured, corpus-wide (2026-08-07):**
+
+```
+(scope, character, spell) groups with damage > 0:
+  owner-only ................ 140,854
+  owner + pet, IDENTICAL .... 15,551   <- the duplication (75% of owner+pet groups)
+  owner + pet, different ....  5,234   (owner >= pet in 4,026; owner < pet in 1,208)
+  pet-only ..................  1,642   (e.g. Firebolt (Wild Imp))
+```
+
+The 1,208 owner < pet groups rule out the "owner row is a merged rollup"
+reading — the two rows are **independently ingested copies of the same
+endpoint data**, and the identical pairs are one quantity stored twice.
+🔬 **Whether the duplication is ingest-side (`build_builds_db.py`'s
+abilities+pets merge) or endpoint-side is discriminated by the `3h` D2
+re-fetch** — compare one report's tier-2 payload rows against the ingested
+rows for one duplicated (scope, character, spell).
+
+**Direction of bite, stated from the measurement rather than derived:** the
+duplicated damage sits in both the matched and unmatched parts of the
+denominator, so the sign of the coverage error is per-character. Removing the
+duplicates **raised** cohort coverage on net (the dedupe run moved slice
+accuracy *down*, 20.5% → 19.8%, and slice has coverage in its denominator),
+i.e. the duplicated mass is mostly **unmatched pet spells** deflating
+coverage today. The per-ability auto ratios for pet classes are roughly
+**halved** by the duplication — and the rest of their deficit is E3 (pets
+unmodelled), a different, named gap.
+
+🛑 **DELIBERATELY NOT FIXED IN `3h`** (instrument session; Q3). **Green path
+RUN at `3h` C4 and REVERTED**: deduping rows whose
+`(spell_id, spell_name, damage_total)` appears with both `is_pet` values in
+the same scope+character turns the check green (50.0), the harness then
+correctly demands the registry entry leave `EXPECTED_FAILURES`, and the gate
+under the candidate reads **1 / 1 / slice 19.8%** (from 20.5%, n=23 both,
+counts unchanged) — the fix moves the gate, which is exactly why it belongs
+to a commit that owns that pair. ⚠ The candidate keeps the owner copy; the
+fixing session should first run D2's discriminator and fix at the **ingest**
+layer if that is where the duplication lives, with the consumer dedupe as the
+fallback seam.
+
+---
+
 ## E6 — `fast_sim`'s first filler consumes the entire GCD budget — ✅ FIXED (`3e` B1)
 
 > ### ✅ Closed 2026-08-06, session `3e` Block B1. The record below is what was found; this box is what happened.

@@ -107,6 +107,23 @@ EXPECTED_FAILURES = {
         "(25286, 275871, 276076, 998107) are the same one-spam-button-absorbs-"
         "the-budget shape as the other two fixtures",
 
+    # 🚨 3h C4 — E15: pet-attributable damage is stored TWICE in
+    # ability_performance (an owner row and a pet row with byte-identical
+    # damage — 15,551 of 20,785 owner+pet groups corpus-wide), so every SUM
+    # over the table double-counts it. Found by the per-ability comparison:
+    # pet-class auto ratios read 0.005-0.013 and the logged side carried both
+    # copies. Registered, NOT fixed in 3h (the fix moves coverage and
+    # therefore the gate — it belongs to a commit that owns its pair).
+    # Green path RUN at 3h C4 and REVERTED: dedupe identical
+    # (spell_id, spell_name, damage_total) owner/pet pairs inside
+    # modelled_damage_share turns this green. See ENGINE_BUGS.md E15.
+    "[corpus] identical owner+pet rows in ability_performance are counted "
+    "ONCE in the coverage denominator":
+        "ENGINE_BUGS.md E15 — modelled_damage_share sums all rows, so a "
+        "duplicated pet row inflates total (and modelled, when matched) for "
+        "every pet-owning character. Whether the duplication is ingest-side "
+        "or endpoint-side is discriminated by the 3h D2 re-fetch",
+
     # 🚨 3f F9 — THE FIRST ASSERTIONS IN THIS HARNESS THAT COMPARE A MODELLED
     # MAGNITUDE TO A MEASURED ONE. Both fail, both were EXPECTED to fail, and
     # the tolerance was committed one commit BEFORE they were run (eed2ec1).
@@ -633,6 +650,7 @@ def main():
     # state what the engine claims about itself in its own comments and
     # docstrings, and a failing one means the code does not do what it says.
     check_nonpaladin_fixtures(conn, ct, conv)
+    check_e15_pet_row_double_count()
     resolve_generality()
 
     print()
@@ -1041,6 +1059,49 @@ def check_ground_truth(kind, bd, f, m):
           bool(rows) and not miss and not absent,
           f"{len(hit)} within, {len(miss)} outside, {len(absent)} not modelled "
           f"at all. outside: {miss or '-'}; unmodelled: {absent or '-'}")
+
+
+def check_e15_pet_row_double_count():
+    """3h C4 / E15 — a pet-attributable row stored twice must be counted once.
+
+    RED (current state): `modelled_damage_share` sums every ability_performance
+    row, so an owner row and a byte-identical pet row for the same spell both
+    enter the coverage denominator (and the numerator, when the spell is
+    keyed). Measured corpus-wide at 3h C4: 15,551 of 20,785 owner+pet groups
+    are byte-identical.
+
+    GREEN PATH (run at 3h C4 and reverted — it moves coverage and therefore
+    the gate, so it belongs to a later session's own commit): dedupe rows
+    whose (spell_id, spell_name, damage_total) appears with both is_pet=0 and
+    is_pet=1 inside the same scope+character, keeping the owner copy.
+
+    Fixture: spell 555 logged 1000 twice (owner + identical pet row), spell
+    666 logged 1000 once, spell 555 keyed and producing. Counted once, the
+    share is 50.0%; the current double-count reads 66.7%.
+    """
+    import sqlite3 as _sq
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import calibrate_crawled as cc
+
+    conn = _sq.connect(":memory:")
+    conn.execute(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
+        "spell_school TEXT)")
+    conn.executemany(
+        "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
+        [(1, 7, 555, "Pet Spell", 1000.0, 0, "shadow"),
+         (1, 7, 555, "Pet Spell", 1000.0, 1, "shadow"),   # byte-identical dup
+         (1, 7, 666, "Own Spell", 1000.0, 0, "fire")])
+    per_ability = {555: {"name": "Pet Spell", "casts": 2.0, "damage": 500.0,
+                         "mean_per_cast": 250.0, "events": [{"kind": "direct"}],
+                         "attributed": True, "unresolved_events": []}}
+    out = cc.modelled_damage_share(conn, 1, 7, per_ability)
+    gcheck("[corpus] identical owner+pet rows in ability_performance are "
+           "counted ONCE in the coverage denominator",
+           out is not None and out["modelled_damage_pct"] == 50.0,
+           f"modelled_damage_pct={out and out['modelled_damage_pct']} "
+           f"(counted once it is 50.0; the double-count reads 66.7)")
 
 
 def check_nonpaladin_fixtures(conn, ct, conv):
