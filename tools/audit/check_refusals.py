@@ -770,6 +770,77 @@ def check_primer_status_census():
     return counts, len(files)
 
 
+def check_coverage_split_producing_vs_zero():
+    """3h B4 — a character whose EVERY sim-keyed ability refuses must report
+    `modelled_and_producing_pct == 0.0` and a NON-EMPTY named zero list, and
+    the two splits must SUM to `modelled_damage_pct`.
+
+    RED MUTATION (run at 3h B4): in `modelled_damage_share`, make
+    `is_producing` return True for every matched row (revert B1's split) —
+    the producing==0 case and the sum case both go red. GREEN PATH: the split
+    as landed. Both were run.
+
+    ⚠ The all-refused character is SYNTHETIC, stated per the work order:
+    measured at 3h B over the frozen cohort, all 90 keyed-but-zero entries are
+    `zero-casts-allocated` (GCD starvation) and NO cohort character has every
+    ability refused. The fixture's refused ability is REAL: 92557 (Void Zone)
+    is the corpus's live non-positive-duration sentinel refusal (E14 closure
+    box), and its reason string below is the refusal site's own wording.
+    """
+    import sqlite3
+    import calibrate_crawled as cc
+
+    conn = sqlite3.connect(":memory:")
+    conn.execute(
+        "CREATE TABLE ability_performance (scope_id INT, character_id INT, "
+        "spell_id INT, spell_name TEXT, damage_total REAL, is_pet INT, "
+        "spell_school TEXT)")
+    conn.executemany(
+        "INSERT INTO ability_performance VALUES (?,?,?,?,?,?,?)",
+        [(1, 7, 92557, "Void Zone", 6000.0, 0, "shadow"),
+         (1, 7, 111, "Unkeyed Filler", 4000.0, 0, "physical")])
+    per_ability = {92557: {
+        "name": "Void Zone", "casts": 3.0, "damage": 0.0,
+        "mean_per_cast": 0.0, "events": [],
+        "unresolved_events": [{
+            "event_key": "e0",
+            "reason": "Void Zone event e0: REFUSED — spell 92557 states a "
+                      "non-positive duration (-0.001s), which is the DBC's "
+                      "'no value' sentinel rather than a measurement"}],
+    }}
+    out = cc.modelled_damage_share(conn, 1, 7, per_ability)
+    check("[B4] every-ability-refused -> modelled_and_producing_pct == 0.0",
+          out is not None and out["modelled_and_producing_pct"] == 0.0,
+          f"producing={out and out['modelled_and_producing_pct']}")
+    check("[B4] ...with a NON-EMPTY named zero list carrying the refusal "
+          "reason from the refusal site's own wording",
+          bool(out and out["keyed_but_zero"]
+               and out["keyed_but_zero"][0]["why"] == "refused-sentinel"
+               and out["keyed_but_zero"][0]["spell_id"] == 92557),
+          f"zero list={out and out['keyed_but_zero']}")
+    check("[B4] ...and the split SUMS to modelled_damage_pct, so no verdict "
+          "that reads the old key can move",
+          out is not None and abs(out["modelled_and_producing_pct"]
+                                  + out["keyed_but_zero_pct"]
+                                  - out["modelled_damage_pct"]) < 0.2,
+          f"{out and out['modelled_and_producing_pct']} + "
+          f"{out and out['keyed_but_zero_pct']} vs "
+          f"{out and out['modelled_damage_pct']}")
+
+    # And the PRODUCING side of the same fixture: give the key damage and the
+    # shares flip — the split measures production, not key presence.
+    per_ability[92557] = {**per_ability[92557], "damage": 5000.0,
+                          "events": [{"attributed": True}],
+                          "unresolved_events": []}
+    out2 = cc.modelled_damage_share(conn, 1, 7, per_ability)
+    check("[B4] the SAME key with damage flips to producing (60/0 from 0/60) "
+          "— the split reads production, not key membership",
+          out2 is not None and out2["modelled_and_producing_pct"] == 60.0
+          and out2["keyed_but_zero_pct"] == 0.0,
+          f"producing={out2 and out2['modelled_and_producing_pct']}, "
+          f"zero={out2 and out2['keyed_but_zero_pct']}")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -827,6 +898,8 @@ def main():
     print()
     check_primer_status_census()
     check_blocked_question_count()
+    print()
+    check_coverage_split_producing_vs_zero()
 
     print()
     if FAILURES:

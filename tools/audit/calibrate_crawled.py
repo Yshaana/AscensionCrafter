@@ -397,9 +397,51 @@ def build_spec_for(conn, snapshot_id, path_token):
         gear=gear, source="crawled")
 
 
-def modelled_damage_share(conn, scope_id, character_id, sim_spell_ids):
+def _keyed_zero_reason(entry):
+    """3h B2 — WHY a sim-keyed ability produced zero damage, from the sim's own
+    per-ability record. The vocabulary matches the refusal messages in
+    `ability_model.py` so the reason traces to the exact refusal site."""
+    reasons = set()
+    for u in entry.get("unresolved_events") or []:
+        r = u.get("reason") or ""
+        if "states no duration of its own" in r:
+            reasons.add("refused-no-duration")
+        elif "non-positive duration" in r:
+            reasons.add("refused-sentinel")
+        elif "sanity limit" in r:
+            reasons.add("refused-sanity")
+        else:
+            reasons.add("refused-other")
+    if not (entry.get("events") or []) and not reasons:
+        # ability_model.py:735-742 — "0 because nothing is KNOWN"
+        reasons.add("no-damage-event-resolves")
+    if (entry.get("casts") or 0.0) <= 0.001 and (entry.get("mean_per_cast")
+                                                 or 0.0) > 0:
+        # tiers.py — the GCD budget starved it: a rotation problem, not a
+        # resolution one. Observed in the corpus, so named rather than folded
+        # into "refused" (a measured departure from the work order's taxonomy).
+        reasons.add("zero-casts-allocated")
+    return "+".join(sorted(reasons)) or "zero-mean-unexplained"
+
+
+def modelled_damage_share(conn, scope_id, character_id, per_ability):
     """Of the damage this character ACTUALLY dealt, what fraction came from
-    spells the sim produced any damage for?
+    spells the sim HAS A KEY FOR — split into the share from keys that
+    PRODUCED damage and the share from keys that produced ZERO.
+
+    🛑 3h B1 — this docstring used to claim *"spells the sim produced any
+    damage for"*, and that was FALSE: `core/sim/tiers.py` writes a
+    `per_ability` entry unconditionally, including when every event was
+    REFUSED or nothing resolved, so a key means *the sim iterated this
+    ability*. Since `slice = (100 + delta) / coverage`, a keyed-but-zero
+    ability raises the denominator and lowers the numerator — it pushes slice
+    accuracy down twice. The split below is what separates magnitude error
+    from zero production; `modelled_damage_pct` remains the SUM of the two so
+    no existing verdict moves.
+
+    `per_ability` is the sim result's per-ability mapping (3h B1 — this took a
+    bare id set before, which is exactly how the producing/zero distinction
+    was invisible).
 
     This is the third leg of the miss decomposition (PLAN_3B §5.2) and the one
     that tests the revised hypothesis directly: if the sim reproduces a
@@ -409,6 +451,9 @@ def modelled_damage_share(conn, scope_id, character_id, sim_spell_ids):
     Pet rows are counted in the denominator — the character's logged DPS
     includes them, so excluding them here would flatter the coverage number.
     """
+    sim_spell_ids = set(per_ability.keys())
+    producing_ids = {sid for sid, v in per_ability.items()
+                     if (v.get("damage") or 0.0) > 0.0}
     rows = conn.execute(
         "SELECT spell_id, spell_name, damage_total, is_pet, spell_school "
         "FROM ability_performance "
@@ -418,6 +463,7 @@ def modelled_damage_share(conn, scope_id, character_id, sim_spell_ids):
     if not total:
         return None
     has_autos = any(k in sim_spell_ids for k in ("auto_mh", "auto_oh"))
+    autos_producing = any(k in producing_ids for k in ("auto_mh", "auto_oh"))
 
     def is_modelled(r):
         if r[0] in sim_spell_ids:
@@ -441,13 +487,43 @@ def modelled_damage_share(conn, scope_id, character_id, sim_spell_ids):
         tag = name[name.index("[") + 1:].rstrip("]").strip()
         return tag.lower() == (r[4] or "").lower()
 
+    def is_producing(r):
+        """A matched row's key produced sim damage. Negative-id auto rows are
+        matched through the swing keys, so they take the autos' state."""
+        if r[0] in sim_spell_ids:
+            return r[0] in producing_ids
+        return autos_producing          # matched via the negative-id auto path
+
     modelled = sum(r[2] for r in rows if is_modelled(r))
+    producing = sum(r[2] for r in rows if is_modelled(r) and is_producing(r))
+    keyed_zero = modelled - producing
     unmodelled = sorted((r for r in rows if not is_modelled(r)),
                         key=lambda r: -r[2])
+    # 3h B2 — the NAMED zero list: every sim key with zero damage, its logged
+    # share (0.0 when the log never saw it), and why. Full list, no caps — a
+    # renderer may truncate but must say what it dropped.
+    logged_by_sid = {r[0]: r for r in rows}
+    zero_list = []
+    for sid, entry in per_ability.items():
+        if sid in producing_ids:
+            continue
+        lr = logged_by_sid.get(sid)
+        zero_list.append({
+            "spell_id": sid, "name": entry.get("name"),
+            "logged_share_pct": (round(100.0 * lr[2] / total, 1)
+                                 if lr else 0.0),
+            "why": _keyed_zero_reason(entry),
+        })
+    zero_list.sort(key=lambda z: -z["logged_share_pct"])
     return {
         "logged_abilities": len(rows),
         "modelled_abilities": sum(1 for r in rows if is_modelled(r)),
+        # UNCHANGED expression — the sum of the two splits below, so no
+        # existing verdict (floor, qualified, slice bands) moves. (3h B1)
         "modelled_damage_pct": round(100.0 * modelled / total, 1),
+        "modelled_and_producing_pct": round(100.0 * producing / total, 1),
+        "keyed_but_zero_pct": round(100.0 * keyed_zero / total, 1),
+        "keyed_but_zero": zero_list,
         "top_unmodelled": [
             {"spell_id": r[0], "name": r[1], "is_pet": bool(r[3]),
              "share_pct": round(100.0 * r[2] / total, 1)}
@@ -748,8 +824,9 @@ def main():
                                           slot_medians=slot_medians)
         buff_gain = (100 * (sim_dps / res0.primary_value - 1)
                      if res0.primary_value else 0.0)
-        modelled = modelled_damage_share(bdb, scope_id, cid,
-                                         set(res.per_ability.keys()))
+        # 3h B1 — passes the full per-ability mapping, not a bare key set, so
+        # the share can be split into producing vs keyed-but-zero.
+        modelled = modelled_damage_share(bdb, scope_id, cid, res.per_ability)
         # 🆕 3g G1 — the auto-attack's share of SIM damage, so E13's before/after
         # attribution is printed rather than reasoned about. `3f` found that 24
         # of 36 scored characters carry a melee auto in their top 5 and that one
@@ -831,6 +908,14 @@ def main():
         r["slice_accuracy_pct"] = (
             (100.0 + r["delta_pct"]) / cov_pct * 100.0
             if cov_pct and r["delta_pct"] is not None and cov_pct > 0 else None)
+        # 3h B3 — the same ratio over PRODUCING coverage only. Reported BESIDE
+        # the existing figure, never in place of it: the criterion's definition
+        # does not change in this session (SESSION_3H_PRIMER Q2).
+        prod_pct = (r["modelled"] or {}).get("modelled_and_producing_pct")
+        r["slice_accuracy_producing_pct"] = (
+            (100.0 + r["delta_pct"]) / prod_pct * 100.0
+            if prod_pct and r["delta_pct"] is not None and prod_pct > 0
+            else None)
 
     # 3e A4 — the holdout is SPLIT OUT OF THE HEADLINE. Everything the gate
     # reports is the tuning set unless --read-holdout is passed.
@@ -899,6 +984,31 @@ def main():
     print("[slice] bands: " + "  ".join(
         f"≥{b:g}%: {'n/a' if v is None else f'{v:.1f}%'}"
         for b, v in sorted(slice_bands.items())))
+    # 3h B3 — the SAME median over PRODUCING coverage only, beside the
+    # existing figure. Instrumentation: the headline and every verdict still
+    # read modelled_damage_pct (Q2 — changing the headline is a criterion
+    # change and belongs in a stamped successor).
+    prod_xs = [r.get("slice_accuracy_producing_pct") for r in tuning
+               if r.get("slice_accuracy_producing_pct") is not None
+               and (r["modelled"] or {}).get("modelled_and_producing_pct", 0)
+               >= SLICE_COVERAGE_FLOOR_PCT]
+    prod_median = statistics.median(prod_xs) if prod_xs else None
+    print(f"[slice] producing-only: median "
+          + (f"{prod_median:.1f}%" if prod_median is not None else "n/a")
+          + f" AT PRODUCING COVERAGE ≥{SLICE_COVERAGE_FLOOR_PCT:g}% "
+          f"(n={len(prod_xs)}) — same ratio with keyed-but-zero keys removed "
+          f"from the denominator (3h B)")
+    # 3h B — what coverage was actually counting: the cohort's keyed-but-zero
+    # exposure, so §4 of the 3g audit is a measured quantity from this line on.
+    kbz = [((r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0)
+           for r in tuning if r["modelled"]]
+    n_kbz = sum(1 for v in kbz if v > 0)
+    if kbz:
+        print(f"[coverage] keyed-but-zero share of logged damage: median "
+              f"{statistics.median(kbz):.1f}%, max {max(kbz):.1f}%")
+    print(f"[coverage] {n_kbz} of {len(kbz)} characters carry any "
+          f"keyed-but-zero logged damage; the per-character zero lists are in "
+          f"the JSON/markdown artifacts (full lists, uncapped)")
     print(f"[floor] the {SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
           f"within_tolerance — stamped {SUCCESSOR_FLOOR_EFFECTIVE_FROM}, "
           f"APPLIED from {SUCCESSOR_FLOOR_APPLIED_FROM} — is IN FORCE in the "
@@ -1020,9 +1130,9 @@ def main():
         "aggregated across a cohort spanning single-digit to 80%+ coverage. "
         "`3d`'s all-characters median of 159.8% read as *\"the sim "
         "over-produces the slice it models by 60%\"*. That is **backwards** — "
-        "it is a low-coverage artifact. Restricted to real coverage the median "
-        "is **~62%**, and it is stable across bands: **the sim UNDER-produces "
-        "on what it does model, by about a third.**",
+        "it is a low-coverage artifact. The readable bands are below; the "
+        "sim UNDER-produces on what it has a key for. ⚠ *\"has a key for\"*, "
+        "not *\"models\"* — see the producing/keyed-but-zero split (3h B).",
         "",
         "| coverage floor | n | median slice accuracy |", "|---:|---:|---:|",
     ]
@@ -1038,12 +1148,21 @@ def main():
         if slice_median is not None else
         f"**Headline figure: n/a at coverage ≥{SLICE_COVERAGE_FLOOR_PCT:g}%**",
         "",
-        "🚨 **Consequence, and it inverts the instruction the 159.8% reading "
-        "gave.** At slice accuracy ~62%, *coverage work alone can never reach "
-        "±20%*: landing `delta = 0` needs `slice × coverage = 1.0`, which at "
-        "0.62 requires coverage above 100%. Both levers have to roughly double. "
-        "Under the discarded reading the conclusion was the opposite — throttle "
-        "coverage work to avoid overshooting.",
+        # 3h B3 — beside, never instead (Q2).
+        f"**Producing-only companion (3h B): median "
+        + (f"{prod_median:.1f}%" if prod_median is not None else "n/a")
+        + f" at PRODUCING coverage ≥{SLICE_COVERAGE_FLOOR_PCT:g}% "
+        f"(n={len(prod_xs)})** — the same ratio with keyed-but-zero keys "
+        f"removed from the denominator. The headline and every verdict still "
+        f"read the has-a-key figure; changing that is a criterion change and "
+        f"belongs in a stamped successor.",
+        "",
+        "🚨 **Consequence, corrected at `3h` A2 (the ~62% this paragraph "
+        "cited until then was measured on E13's 100×-inflated autos).** "
+        "Landing `delta = 0` needs `slice × coverage = 1.0`, so at the "
+        "current slice accuracy the coverage lever is arithmetically dead — "
+        "no attainable coverage substitutes for magnitude. See "
+        "`predictions/CALIBRATION_TOLERANCE.md` for the lever arithmetic.",
         "",
         f"✅ **APPLIED, from {SUCCESSOR_FLOOR_APPLIED_FROM}:** a "
         f"**{SUCCESSOR_COVERAGE_FLOOR_PCT:g}% coverage floor on "
@@ -1128,11 +1247,23 @@ def main():
         ]
         if r["modelled"]:
             md = r["modelled"]
+            # 3h B1 — "has a key for", not "produces damage for": the old
+            # wording was the docstring's false claim, rendered.
             lines.append(
-                f"- magnitude coverage: sim produces damage for "
+                f"- magnitude coverage: sim has a key for "
                 f"**{md['modelled_damage_pct']:.0f}%** of this character's real "
                 f"damage ({md['modelled_abilities']}/{md['logged_abilities']} "
-                f"logged abilities)")
+                f"logged abilities) — "
+                f"**{md.get('modelled_and_producing_pct', 0):.0f}% producing / "
+                f"{md.get('keyed_but_zero_pct', 0):.0f}% keyed-but-zero**")
+            # 3h B2 — the FULL zero list, uncapped. A keyed-but-zero ability
+            # depresses slice accuracy twice (denominator up, numerator down),
+            # so every one is named with its reason.
+            for z in md.get("keyed_but_zero") or []:
+                lines.append(
+                    f"  - keyed-but-zero: {z['name']} ({z['spell_id']}) — "
+                    f"{z['logged_share_pct']:.1f}% of logged damage — "
+                    f"{z['why']}")
             if md["top_unmodelled"]:
                 lines.append("  - biggest unmodelled: " + ", ".join(
                     f"{u['name']} ({u['spell_id']}) {u['share_pct']:.0f}%"
@@ -1376,6 +1507,31 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
                 f"dominated by its own denominator — the >=0 band reads ~164% "
                 f"and is the artifact 3e retracted, not a finding that the sim "
                 f"over-produces.",
+            # 🆕 3h B3 — the SAME median over PRODUCING coverage only, BESIDE
+            # the existing key, never replacing it (Q2: which number is the
+            # headline is a criterion question and belongs in a stamped
+            # successor). And the cohort's keyed-but-zero exposure, so the 3g
+            # audit's §4 is a measured quantity in the committed artifact.
+            f"median_slice_accuracy_pct_producing_only_at_coverage_ge_{SLICE_COVERAGE_FLOOR_PCT:g}": (
+                statistics.median(xs) if (xs := [
+                    r.get("slice_accuracy_producing_pct") for r in tuning
+                    if r.get("slice_accuracy_producing_pct") is not None
+                    and (r["modelled"] or {}).get(
+                        "modelled_and_producing_pct", 0)
+                    >= SLICE_COVERAGE_FLOOR_PCT]) else None),
+            "producing_only_n": len([
+                r for r in tuning
+                if r.get("slice_accuracy_producing_pct") is not None
+                and (r["modelled"] or {}).get("modelled_and_producing_pct", 0)
+                >= SLICE_COVERAGE_FLOOR_PCT]),
+            "keyed_but_zero_pct_median": (
+                round(statistics.median(ys), 2) if (ys := [
+                    ((r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0)
+                    for r in tuning if r["modelled"]]) else None),
+            "keyed_but_zero_pct_max": (
+                round(max(ys), 2) if (ys := [
+                    ((r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0)
+                    for r in tuning if r["modelled"]]) else None),
             "per_character_slice_accuracy_policy":
                 "ANNOTATED IN PLACE, NOT FLOORED (3f F7). A per-character value "
                 "below the coverage floor keeps its raw number and carries a "
@@ -1472,8 +1628,19 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
               "delta_pct": round(r["delta_pct"], 2) if r["delta_pct"] is not None else None,
               "modelled_damage_pct": round(
                   (r["modelled"] or {}).get("modelled_damage_pct") or 0.0, 2),
+              # 3h B1 — the split, in the committed record. Sums to
+              # modelled_damage_pct (up to the two roundings).
+              "modelled_and_producing_pct": round(
+                  (r["modelled"] or {}).get("modelled_and_producing_pct")
+                  or 0.0, 2),
+              "keyed_but_zero_pct": round(
+                  (r["modelled"] or {}).get("keyed_but_zero_pct") or 0.0, 2),
               "slice_accuracy_pct": round(r["slice_accuracy_pct"], 2)
                                     if r["slice_accuracy_pct"] is not None else None,
+              "slice_accuracy_producing_pct": (
+                  round(r["slice_accuracy_producing_pct"], 2)
+                  if r.get("slice_accuracy_producing_pct") is not None
+                  else None),
               # 3f F7 — the annotation travels WITH the number, in the same
               # object, so it cannot be read without it.
               "slice_accuracy_caveat": slice_accuracy_caveat(
