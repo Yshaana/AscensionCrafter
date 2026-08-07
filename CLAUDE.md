@@ -168,7 +168,7 @@ Schema in `INDEX_GUIDE.md`.
   as generated 2026-08-07:
 
   ```
-  [census] primer/ status lines: 55 files — 14 LIVE / 34 HISTORICAL / 0 SUPERSEDED / 7 FINDING
+  [census] primer/ status lines: 56 files — 13 LIVE / 35 HISTORICAL / 2 SUPERSEDED / 6 FINDING
   ```
 
   ⚠ This line previously read `13 / 32 / 0 / 6`, typed by hand, and was **wrong within a day

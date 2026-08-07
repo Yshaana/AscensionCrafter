@@ -1,8 +1,12 @@
 # SESSION `3G` PRIMER — fix the explosions, and make the gate move on purpose
 
-> **`LIVE`** — the work order `3g` runs. **Must be true today, and is citable as current
-> truth.** **Superseded when `3g` closes** and its session record lands. *(Born with a status
-> line and an expiry condition, per `3f` F8c.)*
+> **`SUPERSEDED BY primer/Session_2026-08-07_3g_explosions.md`** — `3g` ran and closed on
+> 2026-08-07, so this work order's expiry condition has fired. **Do not run it again.** Kept
+> because the session record is written against its task numbering, and because three of its
+> premises turned out to be wrong in ways worth reading: coverage does **not** fall with E13
+> (§0), the E13 factor is **100 and not ~78** (Block A/G1), and `check_refusals.py` did
+> **not** already walk `primer/` (G9). *(Born with a status line and an expiry condition,
+> per `3f` F8c; retired by that condition.)*
 
 **Work order for Claude Code.** Written by the monitoring chat 2026-08-07 against a fresh clone
 at `227b033`, after `3f` closed and was audited. Read this first, then

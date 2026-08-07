@@ -53,7 +53,7 @@ absence of labels rather than the presence of files.
 a silent gap. As generated 2026-08-07:
 
 ```
-[census] primer/ status lines: 55 files — 14 LIVE / 34 HISTORICAL / 0 SUPERSEDED / 7 FINDING
+[census] primer/ status lines: 56 files — 13 LIVE / 35 HISTORICAL / 2 SUPERSEDED / 6 FINDING
 ```
 
 | status | meaning |
@@ -63,8 +63,10 @@ a silent gap. As generated 2026-08-07:
 | `SUPERSEDED BY <path>` | pointer only; read the successor |
 | `FINDING <date>` | point-in-time analysis, true as of its date and not maintained since |
 
-Today: **13 LIVE · 32 HISTORICAL · 6 FINDING · 2 flagged uncertain** (the uncertain two are
-in `PROGRESS.md`'s blocked table, deliberately not guessed at — rule 6).
+⚠ **`3g` G9 — a FOURTH hand-typed census sat here** (*"Today: 13 LIVE · 32 HISTORICAL ·
+6 FINDING"*) and was wrong in three of its four figures. Deleted rather than retyped: the
+generated line is eight lines above, and **two files are still flagged uncertain** in
+`PROGRESS.md`'s blocked table, deliberately not guessed at (rule 6).
 
 🛑 **Two rules that follow, and they are how the classification stays true:**
 

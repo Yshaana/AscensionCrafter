@@ -1,8 +1,11 @@
 # Adversarial audit — session `3f`
 
-> **`FINDING 2026-08-07`** — point-in-time analysis, true as of its date and **not maintained
-> since**. Not citable as current truth without re-checking against the tree. **Expires when
-> `3g` closes**, or earlier if any file it cites moves. *(Born with a status line, per `3f` F8c.)*
+> **`SUPERSEDED BY primer/Session_2026-08-07_3g_explosions.md`** — its stated expiry
+> condition (*"expires when `3g` closes"*) fired on 2026-08-07. **Every finding in §1–§4 was
+> acted on and is recorded as resolved in the `3g` record**; the files it cites by line have
+> since moved. Kept because the audit is the reason `3g` existed and because its §6 is the
+> fairest account of what `3f` got right. *(Born with a status line, per `3f` F8c; retired by
+> its own condition.)*
 
 > 🛑 **CORRECTION, 2026-08-07, made before the owner acted on this document.** The first issue
 > of this audit was written against `b4eea78`, which I took for the session HEAD. **It was

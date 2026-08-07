@@ -620,8 +620,17 @@ def check_primer_status_census():
         # `FINDING 2026-08-07`. ⚠ Matching on the bare word would hit any file
         # that merely mentions "live" in its opening prose, which is why the
         # delimiter is required.
-        hit = next((s for s in _STATUSES
-                    if re.search(rf"[`*]{s}\b", head)), None)
+        #
+        # 🛑 TAKE THE EARLIEST MATCH IN THE TEXT, not the first status in
+        # `_STATUSES` order. The status line is the FIRST thing in the file; a
+        # document's body routinely names other statuses ("`SESSION_3F_PRIMER.md`
+        # (`HISTORICAL`, do not run it again)"), and ordering by the list
+        # instead of by position mis-bucketed a `SUPERSEDED` work order as
+        # `HISTORICAL` the moment it was retired — caught by the census
+        # disagreeing with what I had just written.
+        found = [(m.start(), s) for s in _STATUSES
+                 for m in [re.search(rf"[`*]{s}\b", head)] if m]
+        hit = min(found)[1] if found else None
         if hit:
             counts[hit] += 1
         else:

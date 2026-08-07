@@ -2,6 +2,60 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-07 — SESSION `3g` IS DONE.**
+> Session record: `primer/Session_2026-08-07_3g_explosions.md`.
+> Work order it ran: `primer/SESSION_3G_PRIMER.md` (now `SUPERSEDED`).
+>
+> 🚨 **THE GATE GOT FIVE TIMES WORSE, ON PURPOSE, AND THAT IS THE RESULT.**
+>
+> | | before `3g` | after `3g` |
+> |---|---:|---:|
+> | within ±20% (tuning set of 36) | 5 | **1** |
+> | qualified (≥50% coverage) | 2 | **1** |
+> | slice accuracy at ≥20% coverage | 64.3% (n=23) | **20.5% (n=23)** |
+> | criterion (≥3 within ±20%) | PASS | **NOT MET** |
+> | **holdout, read once at close-out** | 0 of 5 | **0 of 5, −79% to −98%** |
+>
+> **Slice accuracy did not drift from 64.3% to 20.5% — 64.3% was never true.** The sim
+> reproduces about a **fifth** of the damage of the abilities it models, and the holdout
+> says a **tenth**. Both fixes remove *positive* error from a sim that already
+> under-produces, so the count had to fall; every move was pre-registered before the
+> number existed, and every commit names one cause.
+>
+> * 🆕 **E13 — every white swing was EXACTLY 100× over** (not ~78×; it is a unit error, so
+>   its size is invariant). `probabilities()` returned percent and `expected_swing`
+>   multiplied by it as fractions. **Measured: the auto was 89–96% of TOTAL sim damage for
+>   fourteen of 36 characters and 41–95% for ALL FIVE passers.** Fixed at the boundary.
+> * 🆕 **E14 — 12,000 ticks per cast**, from pairing the CARD's duration with the
+>   COMPONENT's tick. **Never a one-spell defect: 12 events are built that way and the two
+>   durations disagree in ELEVEN of them.** Fixed by reading each component's own duration,
+>   which was one join away. `Mutaforma` +3,618.8% → −88.3%; open question
+>   `sim_magnitude_explosion_absolute_zero` **resolved**.
+> * 🛑 **`3e`'s "the residual is not in the mechanisms" is RETRACTED — the inference, not
+>   the measurement.** Its six repairs really did leave the gate unmoved; what cannot be
+>   concluded from that is *where the residual lives*, because the metric was dominated by a
+>   defect none of the six touched. `retractions.residual_is_not_in_the_mechanisms`.
+> * ✅ **F9's ground truth: 90,202 → 83,610 → 457 DPS** against a measured 1,382
+>   (+6,427% → +5,950% → **−66.9%**), **tolerance untouched at ±25%** and still failing.
+> * ✅ **The 20% coverage floor is APPLIED and removed nobody** — the four low-coverage
+>   passes it was designed to catch were the same characters E13 was inflating. Two
+>   independent instruments found the same rows from opposite directions.
+> * ✅ **The phase flip is defended by a positive assertion**, not the fetch-time horizon.
+>   Checked live 2026-08-07T00:35Z: **the flip had NOT happened.**
+>
+> 🚨 **THE NEXT SESSION'S PROBLEM IS THE UNDER-PRODUCTION ITSELF.** It is no longer hidden
+> behind a 100× error, and it is bigger than anyone thought: slice accuracy ~20%, one-sided
+> negative, corroborated independently on the frost-mage capture (−66.9%) and by the
+> holdout (~10%). E9/E11/E12 have **run** green paths and are ready to fix, one commit per
+> defect; E10/E7/E8/E5 are registered and untouched.
+>
+> ⚠ **`gear_tier_stats(phase=…)` still has NO caller**, so `3f` exit condition 10 reads ✅
+> on a function nothing calls. Stated in the blocked table rather than fixed.
+
+---
+
+<details><summary>Superseded: the <code>3f</code> top block</summary>
+
 > ✅ **2026-08-07 — SESSION `3f` IS DONE. Next session is `3g`.**
 > Session record: `primer/Session_2026-08-06_3f_instruments.md`.
 > Work order it ran: `primer/SESSION_3F_PRIMER.md`.
@@ -105,6 +159,8 @@
 > **If you want the number, have the tool print it** —
 > `py tools/audit/check_refusals.py` emits `[census] PROGRESS.md 'Blocked on
 > the user': N open row(s)` by parsing the table itself.
+
+</details>
 
 ---
 
@@ -286,6 +342,8 @@
 >   the addon read `GetMeleeHaste` at 1.06% against the rating line and
 >   explicitly does not trust them (`.lua:197-209`). The addendum's §1 table is
 >   corrected in place. Anything written against the old names misses the fields.
+>
+> </details>
 >
 > ---
 >
