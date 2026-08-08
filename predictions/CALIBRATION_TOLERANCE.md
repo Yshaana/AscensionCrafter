@@ -216,7 +216,7 @@ reality"* is the sentence that used to live here in words:
 | …paired over the SAME members (no selection bias) | **30.15% headline / 36.27% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
 | …admissible-only slice median (≥20%) | **27.62% (n=21)** | `median_slice_accuracy_pct_admissible_only` |
 
-*(from `gate_manifest_3e.json`, generated 2026-08-08T12:26:27+00:00, git `1fba7f5`.)*
+*(from `gate_manifest_3e.json`, generated 2026-08-08T15:24:44+00:00, git `8a75a2e`.)*
 
 <!-- /GENERATED derived-figures -->
 
