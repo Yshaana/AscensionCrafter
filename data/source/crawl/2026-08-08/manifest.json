@@ -1,0 +1,77 @@
+{
+ "date": "2026-08-08",
+ "captured_at": "2026-08-08T07:08:42.529796+00:00",
+ "realm": "darkmoon",
+ "season": 10,
+ "patch_date": "2026-08-07",
+ "new_report_ids": [],
+ "reports_known": 94,
+ "characters_known": 467,
+ "tier2_note": "tier-2 files are gitignored; re-fetchable from darkmoon.ascensionlogs.gg by report id \u2014 see tools/scrapers/README.md",
+ "files": [
+  {
+   "file": "abilities.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 69,
+   "bytes_gz": 1541006,
+   "sha256": "2418eda72185b497ee1ad78b1e7aa3d8538aec544965a24a5d55c2e57af93874"
+  },
+  {
+   "file": "avoidance.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 69,
+   "bytes_gz": 2350470,
+   "sha256": "13d0f2396f51e2452562a51d6a45f55e398acbea671067571b8bf4636ace132c"
+  },
+  {
+   "file": "characters.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 45,
+   "bytes_gz": 606752,
+   "sha256": "5828e037c17c970d8844c49478e1b2d8842030db437702bc342921975d73e66c"
+  },
+  {
+   "file": "damage_taken.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 69,
+   "bytes_gz": 306902,
+   "sha256": "b451b73c784baaab3e0e53157fc228cae28afe335fa46870c7013738112787f3"
+  },
+  {
+   "file": "healing.jsonl.gz",
+   "tier": 2,
+   "committed": false,
+   "records": 69,
+   "bytes_gz": 1051221,
+   "sha256": "1816b12504d668dbbb51b6d0970c42959ea34c85d0a76efd42dc88a58ca353db"
+  },
+  {
+   "file": "leaderboards.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 4,
+   "bytes_gz": 1941,
+   "sha256": "18f5aa08d736e4f981a7247129ba4e2fae4cfebeb4415607ac5e6d620e3bb4a3"
+  },
+  {
+   "file": "phases.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 2,
+   "bytes_gz": 1693,
+   "sha256": "d46400af445ebbf303b58fbf6886eeac4ee7ef7350eddaf4ba8411c6de15fef6"
+  },
+  {
+   "file": "reports.jsonl.gz",
+   "tier": 1,
+   "committed": true,
+   "records": 5,
+   "bytes_gz": 17033,
+   "sha256": "fd0a802f4a1f613b4366da045ab3eae62c65b03603d040cd97b06e8890110cd2"
+  }
+ ]
+}

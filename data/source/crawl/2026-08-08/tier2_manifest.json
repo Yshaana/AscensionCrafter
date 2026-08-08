@@ -1,0 +1,146 @@
+{
+ "generated_at": "2026-08-08T06:18:25.462907+00:00",
+ "note": "Per-report reproducibility manifest for gitignored tier-2 data. Row counts are the durable audit for a re-fetch (crawl_ascensionlogs.py --recrawl-report <id>); payload_sha256 is exact only for the original capture. See this tool's docstring.",
+ "files": {
+  "abilities": {
+   "files": [
+    "abilities.jsonl.gz"
+   ],
+   "records": 69,
+   "payload_rows": 38723
+  },
+  "avoidance": {
+   "files": [
+    "avoidance.jsonl.gz"
+   ],
+   "records": 69,
+   "payload_rows": 65455
+  },
+  "damage_taken": {
+   "files": [
+    "damage_taken.jsonl.gz"
+   ],
+   "records": 69,
+   "payload_rows": 11829
+  },
+  "healing": {
+   "files": [
+    "healing.jsonl.gz"
+   ],
+   "records": 69,
+   "payload_rows": 5799
+  }
+ },
+ "by_report": {
+  "115": {
+   "abilities": {
+    "records": 23,
+    "payload_rows": 13942,
+    "payload_sha256": "f048b62f9a4cc242c174fe97cd421e4ba53a502a7ed879673a3d56896385f478"
+   },
+   "avoidance": {
+    "records": 23,
+    "payload_rows": 17665,
+    "payload_sha256": "e2c41bab5799d71b2db8364729d838bbb917d834502db19f06b987acd4275cae"
+   },
+   "damage_taken": {
+    "records": 23,
+    "payload_rows": 4137,
+    "payload_sha256": "37df7a23f2721c8cdb2e926a1aae8e525091de2bd82d3ee784fbb6ec52675007"
+   },
+   "healing": {
+    "records": 23,
+    "payload_rows": 1850,
+    "payload_sha256": "2d53d121550366a6271d1905fb672f79dd7d6c32f4ebcd9312aa028f1692d8ca"
+   }
+  },
+  "116": {
+   "abilities": {
+    "records": 6,
+    "payload_rows": 4055,
+    "payload_sha256": "1a9f05710d8afb8eed49f3511c119622da0a0016df49eb92229c9b3fe9f2eba3"
+   },
+   "avoidance": {
+    "records": 6,
+    "payload_rows": 11464,
+    "payload_sha256": "b45b15c6906ee69f21ed2a942fa1d611a62782f99793caac9a40b8edc42f9062"
+   },
+   "damage_taken": {
+    "records": 6,
+    "payload_rows": 1366,
+    "payload_sha256": "bbeedbf16cc3bc79e1e5d7fd07caa727de7ee191fbd096dcc73197f1afcd4ff4"
+   },
+   "healing": {
+    "records": 6,
+    "payload_rows": 661,
+    "payload_sha256": "4070d251e61a0297e7ec150ea641bc71d1691d08127e624121351c4da768a9b8"
+   }
+  },
+  "117": {
+   "abilities": {
+    "records": 9,
+    "payload_rows": 4711,
+    "payload_sha256": "09fb32b7febe1661e15d006ab268dd76bd2f6d045a5c9c156be29dad4717e438"
+   },
+   "avoidance": {
+    "records": 9,
+    "payload_rows": 6893,
+    "payload_sha256": "e95da56902d52d5ec187566c743ab038d93e3b023deedb953cfb7be612946c52"
+   },
+   "damage_taken": {
+    "records": 9,
+    "payload_rows": 1274,
+    "payload_sha256": "1351908e504e9dac63c1f461fa8413bda049a52391852c1331c00eb1e5f67dc0"
+   },
+   "healing": {
+    "records": 9,
+    "payload_rows": 837,
+    "payload_sha256": "0868cc30bd3ff5b4925804429e86e65fd740394bd6746b56e62cd7b0e86e8fbd"
+   }
+  },
+  "118": {
+   "abilities": {
+    "records": 18,
+    "payload_rows": 12502,
+    "payload_sha256": "e21485f165ce030df4d7c3fd5a3f48a20c198fc1824a0bed03e514d0a5ff6d7a"
+   },
+   "avoidance": {
+    "records": 18,
+    "payload_rows": 18904,
+    "payload_sha256": "024a430fece52575e1a72ac5f408a07f0cd967a22d5a1dc730e5c050a6672381"
+   },
+   "damage_taken": {
+    "records": 18,
+    "payload_rows": 4251,
+    "payload_sha256": "0e66dc6763190da15a478ccfa4fb92764e3ecbe225f24d2e2e3acb1dcacb90a0"
+   },
+   "healing": {
+    "records": 18,
+    "payload_rows": 2096,
+    "payload_sha256": "41361041191d945cd99ed8fe1d76adcf27d912d1d9d5a397380522aa649183e8"
+   }
+  },
+  "123": {
+   "abilities": {
+    "records": 13,
+    "payload_rows": 3513,
+    "payload_sha256": "11cfb7e9ea5da99e67d647df394d1959d0f6fd8aae99e020050aff2de1a91dd0"
+   },
+   "avoidance": {
+    "records": 13,
+    "payload_rows": 10529,
+    "payload_sha256": "071959df96908470d19e3098c54de65df0fa8a523bf9f6e2471949ecfd9622d0"
+   },
+   "damage_taken": {
+    "records": 13,
+    "payload_rows": 801,
+    "payload_sha256": "d3ae9c34f63c9b7305b4f5741e8aed51b7c9d3193a679978b751a80ce0c81559"
+   },
+   "healing": {
+    "records": 13,
+    "payload_rows": 355,
+    "payload_sha256": "741ec088c61cf91471230d550c20889c1dcc4c71bdfc0970b6790fb44c38533e"
+   }
+  }
+ }
+}
