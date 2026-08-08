@@ -2,6 +2,87 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-08 — SESSION `3l` IS DONE.** Record:
+> `primer/Session_2026-08-08_3l_tuning.md`. Work order it ran:
+> `primer/SESSION_3L_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3K_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
+> `26.3% (n=23) → 30.4% (n=24)`; absent `59.9% → 58.8%`** — coverage and
+> accuracy together, per the standing rule. Every move sits under a prereg
+> that is its commit-parent; **five predictions falsified, every one
+> diagnosed to a mechanism, none rescued** (the record's §0 table).
+>
+> * ✅ **BLOCK C LANDED — no third carry.** `cli/gear_tiers.py` refuses the
+>   live empty Molten Core window BY NAME (M55); the three gate-feeding
+>   `ContentProfile` presets carry corpus-measured durations (raid 78.1 s
+>   n=33, dungeon 39.9 s n=566) with the query in the provenance string. C2's
+>   gate prediction — *no move, to the digit* — **confirmed**; its instrument
+>   prediction falsified and diagnosed to `_keyed_zero_reason`'s absolute
+>   `casts <= 0.001` epsilon (budget-tail dust scales across it).
+> * 🚨 **FOUR SWING-LAYER MECHANISMS FOUND AND FIXED under the tuning prereg**
+>   (`a9dbd16` + addendum `4f1ba39`): the corpus stores weapons at slot 15
+>   (13 of 41 cohort members simmed WEAPONLESS; every double-2H swung the
+>   wrong single weapon); the corpus additionally MIXES two slot conventions
+>   (27 server-numbered vs 14 API-style — found by a falsified prediction,
+>   fixed by a per-snapshot detector; 41 of 41 now sim a main hand);
+>   `expected_swing` had NO attack-power term (Ryno: 122 sim vs 1,382 logged
+>   per swing; retail AP/14×speed added, warned as retail_hypothesis); the
+>   `mh<=0` early return killed Righteous Vengeance for weaponless sims —
+>   the `3k` P2 thread's real answer (`p_crit` was fine all along; both
+>   characters pool positive crit damage and now derive RV).
+> * 🚨 **P4b, the session's sharpest lesson, measured twice: a median over a
+>   population your fix changes is not a fixed target.** The slice fell
+>   33.5 → 30.4 while NO member's sim fell — the restored members joined the
+>   readable population below the sitting median. Same shape as C2's epsilon
+>   finding one level up.
+> * ✅ **THE OWNER'S GUIDED `--with-dbc` RUN LANDED `SpellItemEnchantment.dbc`**
+>   (18,035 rows, stock layout, M54-protected pure parse). The Consecrated
+>   Weapon chain decoded: enchants 23387–95 = ranks 1–9 → hidden spells
+>   200819–27, custom auras [DUMMY,345,344] — **rank 6's aura-345 decodes
+>   +86, exactly the 2e-measured "+86 raw Holy SP per weapon"** (seeded).
+>   Aura 344 (per-hit, speed-scaled) stays underived → `3m` delivery block.
+> * ⚠ **The standing 20424 refusal reason was STALE when written** (`3l`
+>   pre-flight, tree over docs): Seal of Command has decoded since `3b`'s
+>   observed-ids extract — its blocker is DELIVERY, not extraction. The
+>   two-refusal mass regenerates to **4.08 points** (the hand-typed 3.5
+>   matched nothing).
+> * ✅ **THE MC CAPTURE PASSED ITS INGEST GATE** (analyze-capture protocol,
+>   all steps printed): every probed instant ≤ the 19:45:34Z payload horizon
+>   resolves to `Phase 2 - Molten Core / Onyxia` — all four kills — and the
+>   post-horizon slice refuses with the correct named reason (retired by the
+>   next crawl). Gehennas verified ONE pull across the crash split from the
+>   bytes (same GUID, one `UNIT_DIED`, 59.8 s gap). 1.18M events parsed.
+> * **Owner decisions stamped at session start:** B5 trigger-delivery →
+>   deferred whole to `3m`; Block C first; guided extract run YES; predicate
+>   2 stays unarmed; holdout unspent (0 passers — nothing to validate).
+>
+> **Next session is `3m`, and DELIVERY MODELLING is the registered
+> load-bearing problem** — absent mass (58.8%) is dominated by
+> trigger-delivered damage, and the biggest producing gaps (Plague Swarm
+> 146×, seals, imbues/aura-344) are the same family. First item: **E2** —
+> `infer_coefficient` on the six Elric MC stat blocks under its own prereg,
+> on a phases payload whose horizon covers all six (the next crawler run).
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 35) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **30.4% (n=24)** |
+> | absent share of cohort logged damage | **58.8%** (was 59.9%) |
+> | producing median ratio | **0.3116 (n=118)** (was 0.2573, n=107) |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |
+>
+> 🛑 The holdout row is **not** like-for-like with the rows above it (read
+> before E15 and before every `3l` fix); do not compute a tuning-vs-holdout
+> gap from this table.
+
+<details><summary>Superseded: the <code>3k</code> top block</summary>
+
+
 > ✅ **2026-08-07 — SESSION `3k` IS DONE.** Record:
 > `primer/Session_2026-08-07_3k_coverage.md`. Work order it ran:
 > `primer/SESSION_3K_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
@@ -83,6 +164,8 @@
 > 🆕 **Phase 3 exit, audited honestly: 2 of 7 criteria met.** The per-criterion
 > table now lives in `primer/PHASE_3_builds_repo.md` — criterion 1's
 > *"MET as written (4 of 41)"* fossil is corrected there by appending.
+
+</details>
 
 <details><summary>Superseded: the <code>3j</code> top block</summary>
 

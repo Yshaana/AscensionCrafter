@@ -1,11 +1,10 @@
 # SESSION `3L` PRIMER — Block C first, then tuning. Pre-registered.
 
-> **`LIVE`** — the work order for session `3l`, drafted 2026-08-07 (late evening) from
-> `AUDIT_3K_ADVERSARIAL.md` (§5 is the source list; this file orders and scopes it).
-> **Expiry: superseded by the `3l` session record when `3l` closes** — mark it
-> `SUPERSEDED BY` that file, per the established pattern. *(Landing this file and the
-> audit in `primer/` stales `CLAUDE.md`'s pasted census by two; refresh the paste in
-> the same commit or `check_refusals.py` A4 fails at your own first commit.)*
+> **`SUPERSEDED BY primer/Session_2026-08-08_3l_tuning.md`** — the work order for
+> session `3l`, drafted 2026-08-07 (late evening) from `AUDIT_3K_ADVERSARIAL.md`
+> (§5 is the source list). `3l` closed 2026-08-08; the record carries what actually
+> happened, including the falsifications and the B3b addendum this order did not
+> foresee.
 
 **Audit implemented:** `AUDIT_3K_ADVERSARIAL.md` (⚠ delivered via the oversight chat,
 not yet in `primer/` — committing it is pre-flight).
