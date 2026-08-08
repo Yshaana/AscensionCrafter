@@ -1151,6 +1151,32 @@ def main():
             "top_sim_abilities": [
                 r["name"] for _sid, r in
                 sorted(res.per_ability.items(), key=lambda kv: -kv[1]["damage"])[:5]],
+            # 🆕 3m B3 — the sim's per-ability DAMAGE, not just the top five
+            # NAMES. `top_sim_abilities` has shipped names since 3e, so every
+            # per-ability question (this session's Improved Cleave split, and
+            # the delivery block after it) had to re-run the sim by hand to get
+            # a number the run already computed and threw away. Full list,
+            # uncapped, same discipline as the keyed-but-zero lists.
+            "sim_ability_damage": {
+                str(sid): {"name": r["name"], "damage": round(r["damage"], 2),
+                           "casts": r.get("casts"), "school": r.get("school"),
+                           # 3m B — the base split, summed over the ability's
+                           # events, so a modifier that reaches one half can be
+                           # reasoned about per ability.
+                           "base_weapon_avg": round(sum(
+                               (e.get("base_weapon_avg") or 0.0)
+                               * (e.get("occurrences") or 0)
+                               for e in (r.get("events") or ())), 2),
+                           "base_bonus_avg": round(sum(
+                               (e.get("base_bonus_avg") or 0.0)
+                               * (e.get("occurrences") or 0)
+                               for e in (r.get("events") or ())), 2),
+                           "applied_multipliers": {
+                               k: round(v, 4)
+                               for e in (r.get("events") or ())
+                               for k, v in (e.get("applied_multipliers") or {}).items()}}
+                for sid, r in sorted(res.per_ability.items(),
+                                     key=lambda kv: -kv[1]["damage"])},
             "auto_share_of_sim_pct": (round(100.0 * auto_dmg / sim_total, 1)
                                       if sim_total else None),
             "warnings": sorted({w for w in res.warnings})[:8],

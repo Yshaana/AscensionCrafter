@@ -793,6 +793,12 @@ class ResolvedAbility:
             bucket_mult *= m
 
         base_avg = (dmin + dmax) / 2.0
+        # The weapon-percent share of the base, kept separately because a
+        # talent modifier can reach one half and not the other (3m Block B).
+        # A "weapon" comp always carries min/max (the weapon roll x coefficient);
+        # every other kind carries a single `value` or a flat min/max pair.
+        base_weapon_avg = sum(((c["min"] + c["max"]) / 2.0)
+                              for c in comps if c.get("kind") == "weapon")
         scale = mitigation * bucket_mult
         e_crit_factor = 1.0 + p_crit * (mult - 1.0)
         mean = p_land * base_avg * scale * e_crit_factor
@@ -850,6 +856,16 @@ class ResolvedAbility:
                 "crit_multiplier": mult, "crit_damage_each": crit_damage_each,
                 "mitigation_factor": mitigation,
                 "base_min": dmin, "base_max": dmax,
+                # 🆕 3m B — the base split by COMPONENT KIND. A weapon-percent
+                # component and a flat/coefficient component are different
+                # quantities that a talent modifier may reach separately: the
+                # 2026-08-10 server fix makes Improved Cleave multiply the
+                # BONUS term only, leaving the weapon term alone. Carried in the
+                # breakdown so the split is auditable per event rather than
+                # re-derived, and so the delta can be predicted before the
+                # change lands.
+                "base_weapon_avg": base_weapon_avg,
+                "base_bonus_avg": base_avg - base_weapon_avg,
             },
             per_metric={Metric.DAMAGE_DONE: mean,
                         Metric.HEALING_DONE: heal * p_land},
@@ -940,6 +956,16 @@ class ResolvedAbility:
                 "mean_total": res.mean * n,
                 "p_land": res.breakdown.get("p_land"),
                 "p_crit": res.breakdown.get("p_crit_given_land"),
+                # 3m B — the weapon/bonus base split, carried per event.
+                "base_weapon_avg": res.breakdown.get("base_weapon_avg"),
+                "base_bonus_avg": res.breakdown.get("base_bonus_avg"),
+                # ...and WHICH multipliers were applied to it. This was only
+                # ever reachable through `res.warnings`, which the gate artifact
+                # truncates to 8 entries ALPHABETICALLY — so "Bladestorm event
+                # ..." survived and "Lightbound Cleave event ..." did not, and
+                # the question "is Improved Cleave actually reaching this
+                # ability" could not be answered from the committed artifact.
+                "applied_multipliers": dict(res.applied_multipliers or {}),
                 # 🚨 `3k` B3 — THE KEY `tiers.py` HAS ALWAYS READ AND NOTHING
                 # HAS EVER WRITTEN. `_add_swing_sources` derives Righteous
                 # Vengeance as 30% of the rotation's crit damage via
