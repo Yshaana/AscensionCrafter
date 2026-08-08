@@ -28,6 +28,7 @@ from .swings import (
     SEAL_PROC_PER_MELEE_EVENT, SEAL_PROC_RATE_EVIDENCE,
     RIGHTEOUS_VENGEANCE_SPELL_ID, RIGHTEOUS_VENGEANCE_FRACTION,
     RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS,
+    RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD,
 )
 
 # retail_hypothesis: 1.5s base GCD, floored at 1.0s, reduced by spell haste for
@@ -876,28 +877,73 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
     # A derived source: 30% of the rotation's own crit damage as an 8 s Holy DoT.
     # It has no magnitude of its own in the DBC (aura 3, periodic, value supplied
     # by the caster), so this is the only way it can ever be modelled.
-    # 3l B3 F3 — the pool now includes the WHITE-SWING crit component
-    # (`auto_crit_damage`): ability rows carry per-event crit damage, auto rows
-    # carry none (events=[]), so the old sum structurally excluded every white
-    # crit and RV inherited the rotation-only share.
-    crit_damage = auto_crit_damage
+    # ❌ 3m C2 (AUDIT_3L F4) — THE WHITE-SWING CRIT POOL IS RETRACTED.
+    #
+    # 3l added `auto_crit_damage` to the pool on the reasoning that auto rows
+    # carry no per-event crit damage, so the sum "structurally excluded every
+    # white crit". The structural observation was right; the conclusion was not.
+    #
+    # Righteous Vengeance's own client text reads "**Direct** critical strikes
+    # with **spells and abilities**", and `core/builds/stats.py :: _weapon_clause`
+    # asserts that exact wording EXCLUDES auto-attacks — three files away, for
+    # the path weapon clauses, since 2e. The tree already held the answer.
+    #
+    # Measured two independent ways, both against the widening:
+    #   * AUDIT_3L F4, on the committed logs (68 player-rows logging 61840,
+    #     periodic crits excluded): widening is worse in 49 of 49 rows carrying
+    #     white crit; OLS through the origin gives the white-crit coefficient
+    #     -1.25, not +0.30.
+    #   * 3m C2, independently over the whole crawl corpus (1,852 player-rows
+    #     carrying white crit): widening is worse in 1,416 of 1,852 (76.5%), and
+    #     the implied fraction lands on 0.2004 ability-only against 0.1789 with
+    #     white included — ability-only sits on rank 2's 20% almost exactly,
+    #     which is corroboration of C1's rank ladder from the other direction.
+    #
+    # `auto_crit_damage` is still COMPUTED above (the autos need it) and is
+    # deliberately left out of this sum. It entered the gate silently in 3l; it
+    # leaves the same way it should have arrived — named.
+    crit_damage = 0.0
     for sid, rec in list(per_ability.items()):
         for ev in rec.get("events") or ():
             if ev.get("crit_damage"):
                 crit_damage += ev["crit_damage"] * rec["casts"]
+    if auto_crit_damage > 0:
+        # NAMED, not silent. The 3l widening entered the gate with no warning at
+        # all, which is how an unwarranted assumption survives a session.
+        warnings.append(
+            f"Righteous Vengeance pool EXCLUDES {auto_crit_damage:,.0f} of "
+            f"white-swing crit damage, on the card's own wording ('Direct "
+            f"critical strikes with spells and abilities' — the same phrasing "
+            f"core/builds/stats.py reads as excluding autos). 3l included it; "
+            f"3m C2 retracted that (AUDIT_3L F4: worse in 49/49 committed-log "
+            f"rows; 3m: worse in 1,416/1,852 corpus rows). If this is ever "
+            f"re-widened it needs an open_questions slug, not a code comment")
 
     # `3k` B3 — does this character actually HOLD Righteous Vengeance? The
     # talent card resolves to one of three rank ids. A build_spec of None means
     # the caller could not say, and that is warned rather than assumed.
     holds_rv = None
+    # 🚨 3m C1 (AUDIT_3L F3) — READ THE RANK THE CARD ID ENCODES, don't just test
+    # membership. 3l used the three ids as a set and applied a flat 0.30, so a
+    # rank-1 holder (10%) was credited 3x. `snapshot_cards.rank` is NOT read
+    # either: the card ID already states the rank unambiguously, and the id is
+    # the lossless key (the same reason gear keys on item_id, not name).
+    rv_fraction = RIGHTEOUS_VENGEANCE_FRACTION      # upper bound; warned below
+    rv_card = None
     if build_spec is not None:
-        holds_rv = any(c.spell_id in RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS
-                       for c in (build_spec.talents or ()))
+        for c in (build_spec.talents or ()):
+            if c.spell_id in RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS:
+                rv_card = c.spell_id
+                break
+        holds_rv = rv_card is not None
+        if rv_card is not None:
+            rv_fraction = RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD[rv_card]
     if crit_damage > 0 and holds_rv is False:
         warnings.append(
             f"Righteous Vengeance NOT modelled — this build does not slot the "
             f"card ({crit_damage:,.0f} crit damage would otherwise have "
-            f"derived {righteous_vengeance_damage(crit_damage):,.0f}). "
+            f"derived up to {righteous_vengeance_damage(crit_damage):,.0f} at "
+            f"the top rank). "
             "Deriving it from crit damage alone would credit every critting "
             "build with a talent it does not have")
     elif crit_damage > 0 and holds_rv is None:
@@ -906,21 +952,26 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
             "caller passed no build_spec, so whether this build slots the "
             "talent is unknown. Treat the RV row as an upper bound")
     if crit_damage > 0 and holds_rv is not False:
-        rv = righteous_vengeance_damage(crit_damage)
+        rv = righteous_vengeance_damage(crit_damage, fraction=rv_fraction)
         added += rv
         per_ability[RIGHTEOUS_VENGEANCE_SPELL_ID] = {
             "name": "Righteous Vengeance", "casts": 0, "damage": rv,
             "mean_per_cast": 0.0, "school": "Holy",
             "events": [], "unresolved_events": [], "attributed": True}
         warnings.append(
-            f"Righteous Vengeance is DERIVED: {RIGHTEOUS_VENGEANCE_FRACTION:.0%} "
-            f"of {crit_damage:,.0f} crit damage = {rv:,.0f}. It pools on refresh "
+            f"Righteous Vengeance is DERIVED: {rv_fraction:.0%} "
+            + (f"(card {rv_card}, rank-correct) " if rv_card else
+               f"(⚠ UPPER BOUND — the card rank is unknown, so the TOP rank's "
+               f"{RIGHTEOUS_VENGEANCE_FRACTION:.0%} is used; ranks 1/2/3 are "
+               f"10%/20%/30%) ")
+            + f"of {crit_damage:,.0f} crit damage = {rv:,.0f}. It pools on refresh "
             "(92-101% uptime over four parses) so the total is conserved; a "
             "per-tick figure would be meaningless. Cannot crit (0/130 ticks in 2e)")
     else:
         warnings.append(
             "Righteous Vengeance NOT modelled — no per-event crit damage was "
-            "reported by the ability model, so its 30% cannot be derived. It "
+            "reported by the ability model, so its 10-30% (by card rank) "
+            "cannot be derived. It "
             "measured 6.7-9.9% of damage in the 2e captures")
     return added, seal_note
 

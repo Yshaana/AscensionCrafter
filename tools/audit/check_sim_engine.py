@@ -787,6 +787,7 @@ def main():
     # state what the engine claims about itself in its own comments and
     # docstrings, and a failing one means the code does not do what it says.
     check_nonpaladin_fixtures(conn, ct, conv)
+    check_3l_swing_mechanisms()
     check_improved_cleave_bonus_only()
     check_e15_pet_row_double_count()
     resolve_generality()
@@ -1048,10 +1049,22 @@ def check_e13_e14_units(conn):
         armor_pen_pct, ability_crit_damage_bonus = 0.0, 0.0
         main_hand = {"min": 100.0, "max": 200.0, "speed": 2.6}
         off_hand = None
+        # 🚨 3m C5 (AUDIT_3L F2) — THE FIXTURE HAD NO `attack_power`, so
+        # `getattr(char_state, "attack_power", 0.0)` ran 3l's AP branch OFF and
+        # E13 tested a code path the sim no longer takes for any real character.
+        # A realistic level-60 value (the owner's own sheet reads 134 unbuffed;
+        # cohort members run several hundred) turns the branch ON.
+        attack_power = 600.0
         warnings = []
 
     out = expected_swing(_CS(), _CS.main_hand, boss)
-    ceiling = _CS.main_hand["max"] * ce.crit_multiplier("melee", 0.0)
+    # ...and the CEILING has to include the AP term, or it is not a ceiling.
+    # With the branch on, a swing is (weapon roll + AP/14 x speed), so bounding
+    # it by the naked weapon max reports a unit error that does not exist —
+    # measured at ~3,342 (1H) / ~4,828 (2H) in the audit. This is the arithmetic
+    # the check claims to be doing, now written down.
+    _ap_term = _CS.attack_power / 14.0 * _CS.main_hand["speed"]
+    ceiling = (_CS.main_hand["max"] + _ap_term) * ce.crit_multiplier("melee", 0.0)
     gcheck("[engine] E13: one white swing's EXPECTED damage never exceeds one "
            "critical strike on the weapon's maximum roll",
            out is not None and 0.0 <= out.mean <= ceiling,
@@ -1197,6 +1210,191 @@ def check_ground_truth(kind, bd, f, m):
           bool(rows) and not miss and not absent,
           f"{len(hit)} within, {len(miss)} outside, {len(absent)} not modelled "
           f"at all. outside: {miss or '-'}; unmodelled: {absent or '-'}")
+
+
+def check_3l_swing_mechanisms():
+    """`3m` C5 (`AUDIT_3L` F2) — `3l`'s four headline mechanisms, each with a
+    registered mutation. **`3l` shipped all four with none.**
+
+    `git log --name-only a97b849..642f531` touches no test file and
+    `check_sim_engine.py` is untouched across the whole `3l` range, so reverting
+    `WEAPON_SLOTS`, deleting the AP term or restoring `if mh <= 0: return` all
+    left the harness GREEN. These are the four checks that would have caught F2,
+    F3, F4 and F10 before the close-out.
+
+    RED — M63: `WEAPON_SLOTS = {16: "main_hand", 17: "off_hand"}` (the pre-3l
+    value). Arm 1 goes red: slot 15 stops being the server-convention main hand.
+    RED — M64: delete the `base += ap / 14.0 * float(speed)` term in
+    `expected_swing`. Arm 2 goes red — a 600-AP character swings the naked
+    weapon roll.
+    RED — M65: restore `if mh <= 0: return` at the top of
+    `_add_swing_sources`. Arm 3 goes red: a weaponless build derives no
+    Righteous Vengeance despite holding the card and pooling crit damage.
+    RED — M66: force the convention detector to one branch (drop the
+    `15 in weapon_slot_ids` test). Arm 4 goes red on one half or the other.
+
+    GREEN is the fix in every case, and each arm asserts a NUMBER rather than a
+    name, so a stub cannot satisfy it.
+    """
+    from core.sim.swings import (RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD,
+                                 expected_swing, swing_events)
+    from core.sim import tiers as _t
+
+    # --- 1. the slot map: 15 is the server-convention main hand -------------
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import calibrate_crawled as _cc
+    check("[3m-C5] WEAPON_SLOTS maps slot 15 to main_hand and 16 to off_hand — "
+          "the corpus stores weapons at 15 and the pre-3l {16,17} map simmed "
+          "13 of 41 cohort members WEAPONLESS",
+          _cc.WEAPON_SLOTS.get(15) == "main_hand"
+          and _cc.WEAPON_SLOTS.get(16) == "off_hand",
+          f"WEAPON_SLOTS={_cc.WEAPON_SLOTS}")
+
+    # ⚠ THE THIRD CONVENTION, named rather than silently tolerated. The work
+    # order carries "WEAPON_SLOTS exists in three conventions across three
+    # tools" as an open item; this arm makes the divergence VISIBLE instead of
+    # something a reader has to grep for. It asserts only that the gate-feeding
+    # copy is right and that any other copy is REPORTED — fixing
+    # verify_scraped_coefficients is a separate change with its own blast
+    # radius, and silently aligning it here would be an unmeasured edit.
+    try:
+        import verify_scraped_coefficients as _vsc
+        _other = dict(getattr(_vsc, "WEAPON_SLOTS", {}))
+    except Exception:                                     # noqa: BLE001
+        _other = {}
+    check("[3m-C5] ...and any DIVERGENT copy of the slot map in another tool is "
+          "NAMED — 3l fixed the gate-feeding copy and left the others, so a "
+          "reader grepping WEAPON_SLOTS finds two different answers",
+          True,
+          f"gate copy (calibrate_crawled) = {_cc.WEAPON_SLOTS}; "
+          f"verify_scraped_coefficients = {_other or 'absent'}"
+          + ("  ⚠ THESE DISAGREE — verify_scraped_coefficients still uses the "
+             "pre-3l API-style map and does not run the per-snapshot detector; "
+             "it feeds no gate artifact, which is why this is a NOTE and not a "
+             "failure (3m C5, carried to 3n)"
+             if _other and _other != _cc.WEAPON_SLOTS else ""))
+
+    # --- 1b. the PER-SNAPSHOT convention detector (M66) ---------------------
+    # Arm 1 tests the map; this tests the DETECTOR that chooses between maps,
+    # which is a different mechanism and the one 3l found by falsification.
+    # Both halves are asserted, because a mutation forcing EITHER branch must
+    # go red — that is what "the corpus mixes two conventions" means.
+    import sqlite3 as _sq3
+
+    def _snap(rows):
+        c = _sq3.connect(":memory:")
+        c.execute("CREATE TABLE snapshot_gear (snapshot_id INT, slot INT, "
+                  "item_id INT, item_name TEXT, stats_json TEXT, "
+                  "weapon_json TEXT)")
+        c.execute("CREATE TABLE snapshot_cards (snapshot_id INT, tree TEXT, "
+                  "spell_id INT, rank INT)")
+        c.execute("CREATE TABLE character_snapshots (snapshot_id INT, "
+                  "character_id INT, path TEXT, spec_role TEXT, "
+                  "captured_at TEXT, gear_stats_json TEXT)")
+        c.execute("INSERT INTO character_snapshots VALUES (1,1,'strength',"
+                  "'dps','2026-08-01T00:00:00Z','{}')")
+        wj = '{"min": 100, "max": 200, "speed": 3.0, "hand": "1h"}'
+        for slot in rows:
+            c.execute("INSERT INTO snapshot_gear VALUES (1,?,?,?,?,?)",
+                      (slot, 9000 + slot, f"W{slot}", "{}", wj))
+        return c
+
+    server = _cc.build_spec_for(_snap([15, 16]), 1, "Strength")
+    api = _cc.build_spec_for(_snap([16, 17]), 1, "Strength")
+    check("[3m-C5] the per-snapshot slot-convention DETECTOR serves BOTH halves "
+          "of the corpus — a slot-15 weapon anchors the server map (15=MH), and "
+          "without one, 16/17 read API-style (16=MH). 3l found this only "
+          "because fixing one half falsified its own prediction",
+          server.gear.get("main_hand") is not None
+          and server.gear["main_hand"].source_slot == 15
+          and api.gear.get("main_hand") is not None
+          and api.gear["main_hand"].source_slot == 16,
+          f"server-convention MH from slot "
+          f"{server.gear.get('main_hand') and server.gear['main_hand'].source_slot}; "
+          f"API-convention MH from slot "
+          f"{api.gear.get('main_hand') and api.gear['main_hand'].source_slot}")
+
+    # --- 2. the attack-power term, asserted as ARITHMETIC -------------------
+    class _S:
+        level = 60
+        melee_crit_pct, melee_hit_pct, expertise_points = 0.0, 100.0, 0
+        armor_pen_pct, ability_crit_damage_bonus = 0.0, 0.0
+        attack_power = 1400.0            # /14 = 100 per second of weapon speed
+        main_hand = {"min": 100.0, "max": 100.0, "speed": 3.0}
+        off_hand = None
+        warnings = []
+
+    # A REAL TargetProfile, not a hand-rolled stub: armor 0 and no avoidance so
+    # the arithmetic below is exact, but every field the combat tables read is
+    # present. (My first fixture was a bare class and died on `dodge_pct` —
+    # a stub that is missing a field tests the stub, not the engine.)
+    _naked = ce.TargetProfile(level=60, armor=0, dodge_pct=0.0, parry_pct=0.0)
+
+    class _C:
+        target = _naked
+
+    out = expected_swing(_S(), _S.main_hand, _naked)
+    # weapon roll is a flat 100; AP term is 1400/14 x 3.0 = 300; total 400.
+    check("[3m-C5] expected_swing includes the AP/14 x speed term — a flat-100 "
+          "weapon at speed 3.0 on 1,400 AP swings for 400, not 100 (3l measured "
+          "Ryno at 122 sim per swing against 1,382 logged)",
+          out is not None and abs(out.mean - 400.0) < 1.0,
+          f"mean={out.mean:.2f}, expected 400.00 (100 weapon + 300 AP)")
+
+    # --- 3. RV survives a weaponless build ----------------------------------
+    class _RVState:
+        main_hand = None
+        off_hand = None
+        melee_haste_pct = 0.0
+
+    per_ability = {
+        555: {"name": "fixture", "casts": 2.0, "damage": 100.0,
+              "mean_per_cast": 50.0, "school": "Holy", "attributed": True,
+              "unresolved_events": [], "events": [{"crit_damage": 500.0}]},
+    }
+
+    class _Card:
+        def __init__(self, sid):
+            self.spell_id = sid
+
+    class _Spec:
+        talents = [_Card(53382)]         # rank 3 -> 30%
+        abilities = []
+
+    warns = []
+    _t._add_swing_sources(None, _RVState(), _C(), 60.0, per_ability, 0.0,
+                          warns, build_spec=_Spec())
+    rv = per_ability.get(_t.RIGHTEOUS_VENGEANCE_SPELL_ID)
+    mh, oh, _ = swing_events(_RVState(), 60.0)
+    check("[3m-C5] a WEAPONLESS build still derives Righteous Vengeance — the "
+          "pre-3l `if mh <= 0: return` skipped the RV section along with the "
+          "autos, and RV needs no weapon (Deyindra and Shana both held the card "
+          "and derived nothing)",
+          mh == 0.0 and rv is not None and abs(rv["damage"] - 300.0) < 1e-6,
+          f"mh={mh}, rv={rv and round(rv['damage'], 2)} "
+          f"(30% of 2 casts x 500 crit damage = 300)")
+
+    # --- 4. ...and it is RANK-CORRECT, which is C1's half of the same row ---
+    per_ability_r1 = {
+        555: {"name": "fixture", "casts": 2.0, "damage": 100.0,
+              "mean_per_cast": 50.0, "school": "Holy", "attributed": True,
+              "unresolved_events": [], "events": [{"crit_damage": 500.0}]},
+    }
+
+    class _Spec1:
+        talents = [_Card(53380)]         # rank 1 -> 10%, NOT 30%
+        abilities = []
+
+    _t._add_swing_sources(None, _RVState(), _C(), 60.0, per_ability_r1, 0.0,
+                          [], build_spec=_Spec1())
+    rv1 = per_ability_r1.get(_t.RIGHTEOUS_VENGEANCE_SPELL_ID)
+    check("[3m-C5/C1] ...and the fraction comes from the CARD ID's rank — "
+          "53380 gives 10% (100), not the flat 30% 3l applied to all three "
+          "ranks, which credited a rank-1 holder 3x",
+          rv1 is not None and abs(rv1["damage"] - 100.0) < 1e-6
+          and RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD[53380] == 0.10,
+          f"rank-1 rv={rv1 and round(rv1['damage'], 2)} (expected 100.0), "
+          f"map={RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD}")
 
 
 def check_improved_cleave_bonus_only():

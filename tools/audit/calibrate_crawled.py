@@ -403,7 +403,8 @@ def build_spec_for(conn, snapshot_id, path_token):
         # and every weapon-percent ability
         weapon = json.loads(weapon_json) if weapon_json else None
         gear[slot_name] = GearItem(item_id=item_id, name=name or f"item {item_id}",
-                                   slot=slot_name, stats=stats, weapon=weapon)
+                                   slot=slot_name, stats=stats, weapon=weapon,
+                                   source_slot=slot)
     abilities, talents = [], []
     for tree, spell_id, rank in conn.execute(
             "SELECT tree, spell_id, rank FROM snapshot_cards "

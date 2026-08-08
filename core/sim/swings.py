@@ -76,6 +76,25 @@ RIGHTEOUS_VENGEANCE_SPELL_ID = 61840
 # membership test, never a name match (CLAUDE.md: never relate two spell ids by
 # name) and never a join of 61840 to a card id (they are different spaces).
 RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS = frozenset({53380, 53381, 53382})
+
+# 🚨 `3m` C1 (`AUDIT_3L` F3) — THE RANK THE CARD ID ENCODES, WHICH `3l` DISCARDED.
+# `3k` B3 correctly identified the three card ids and then used them as a
+# MEMBERSHIP test against a flat 0.30, so a rank-1 holder was credited 3x. The
+# ranks were two columns away in the same extract rows the id list was read from:
+#
+#   53380  EffectBasePoints [9, -1, 0]   -> 10%      (basepoints + 1)
+#   53381  EffectBasePoints [19, -1, 0]  -> 20%
+#   53382  EffectBasePoints [29, -1, 0]  -> 30%
+#
+# Re-derived from `data/source/dbc/dbc-extract.json` via `spell_dbc_raw`. This is
+# a direct hit on the standing rank rule — CLAUDE.md has said since Phase 0 that
+# a magnitude without its rank is a 10x error class — applied here to the card's
+# OWN magnitude rather than to the id space, which is the half `3l` honoured.
+RIGHTEOUS_VENGEANCE_FRACTION_BY_CARD = {53380: 0.10, 53381: 0.20, 53382: 0.30}
+
+# The top rank, kept as the named default for callers that genuinely cannot say
+# which card is held. 🛑 It is an UPPER BOUND, not a neutral value, and the caller
+# is warned when it is used — the same treatment `3k` B3 gave unknown ownership.
 RIGHTEOUS_VENGEANCE_FRACTION = 0.30
 RIGHTEOUS_VENGEANCE_DURATION = 8.0
 RIGHTEOUS_VENGEANCE_PERIOD = 2.0

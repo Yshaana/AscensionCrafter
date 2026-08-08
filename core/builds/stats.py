@@ -342,6 +342,28 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
             f"weapon-stat item(s) in unmapped slot(s) {sorted(stray)} — not "
             f"swung by the white-swing model (ranged/stray slots are outside "
             f"the melee hand mapping, 3l B3)")
+    # 🚨 3m C6 (AUDIT_3L F10) — THE SAME CHECK, KEYED ON THE SLOT INDEX.
+    # The check above cannot see a slot that was MAPPED into a melee hand. A
+    # snapshot whose only weapon sits at slot 17 takes the API branch of the
+    # convention detector, becomes `off_hand`, and escapes it entirely — while
+    # still reaching `wielding()`, which reports '2h' and switches on path
+    # clauses (Strength physical_ability x1.10, Agility ability_crit_damage
+    # +0.20, Duality all_damage x1.06, Intelligence spell_haste +12). 36 rows
+    # corpus-wide are slot-17-only; none is in the frozen cohort, so this was
+    # latent rather than acting, and latent-by-cohort-luck is not a guard.
+    promoted_17 = sorted(
+        g.slot for g in build_spec.gear.values()
+        if g and g.weapon and g.source_slot == 17 and g.slot == "off_hand"
+        and not any(o and o.weapon and o.source_slot == 15
+                    for o in build_spec.gear.values()))
+    if promoted_17:
+        warnings.append(
+            "a slot-17 weapon was mapped to `off_hand` by the API-convention "
+            "branch, with NO slot-15 anchor to confirm the convention — slot 17 "
+            "is the RANGED slot under server numbering, so this may be a bow "
+            "being swung as a melee off-hand. It also flips `wielding()` to "
+            "'2h', which turns ON path weapon clauses. Named because the "
+            "name-keyed stray check above structurally cannot see it (3m C6)")
 
     if build_spec.stats_override:
         # ----- sheet mode: values are FINAL; do not reapply path stats -----

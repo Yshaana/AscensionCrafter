@@ -52,24 +52,72 @@ def rank_for_level(conn, spell_id, level=DEFAULT_LEVEL):
     Returns a dict with the resolved member plus the id that was asked about, or
     None when the spell is not in a rank line at all (a single-rank ability — in
     which case the id you have IS the id you cast).
+
+    🚨 `3m` C4 (`AUDIT_3L` F6) — AN ENCHANT-DELIVERED LINE IS GATED BY THE
+    ENCHANT, NOT BY `SpellLevel`, and the two disagree in real data.
+
+    `rank_for_level(conn, 200824, 60)` returned **rank 5 (+40)** because rank 6's
+    `SpellLevel` is 64 — while `3l` seeded, from two independent routes, that the
+    owner holds **rank 6 (+86)**. Both were right about different gates: these
+    spells are never *cast*, they are applied by `SpellItemEnchantment` rows
+    (23387–23395), and it is `SpellItemEnchantment.min_level` that decides which
+    one a character can have. Rank 6's enchant gates at **55**, rank 7's at 63 —
+    so a level-60 character holds exactly rank 6, which is what was measured.
+
+    Nothing recorded that the two gates disagreed, so the next caller through the
+    canonical resolver got 40 and no warning. Now the enchant gate is used when
+    the line is enchant-delivered, and `gate` names which rule answered — never
+    silent either way.
     """
     line = line_of(conn, spell_id)
     if line is None:
         return None
-    row = conn.execute(
-        "SELECT spell_id, rank, rank_text, spell_level FROM dbc_spell_rank "
-        "WHERE line_id = ? AND spell_level <= ? ORDER BY rank DESC LIMIT 1",
-        (line["line_id"], level),
-    ).fetchone()
+    gate = "spell_level"
+    row = None
+    try:
+        # Is this line delivered by an item enchant? `effect_args_json` holds the
+        # hidden spell id an enchant applies. A line is enchant-delivered when
+        # its members appear there; the join is on the ID, never on the name.
+        row = conn.execute(
+            "SELECT r.spell_id, r.rank, r.rank_text, r.spell_level "
+            "FROM dbc_spell_rank r "
+            "JOIN dbc_spellitemenchantment e "
+            "  ON json_extract(e.effect_args_json, '$[0]') = r.spell_id "
+            "WHERE r.line_id = ? AND e.min_level <= ? "
+            "ORDER BY r.rank DESC LIMIT 1",
+            (line["line_id"], level),
+        ).fetchone()
+        if row is not None:
+            gate = "spellitemenchantment.min_level"
+    except Exception:                                     # noqa: BLE001
+        # No enchant table in this clone (a DB built without the 3l extract).
+        # Fall through to the SpellLevel gate rather than refusing — but the
+        # `gate` field still says which rule produced the answer.
+        row = None
+    if row is None:
+        row = conn.execute(
+            "SELECT spell_id, rank, rank_text, spell_level FROM dbc_spell_rank "
+            "WHERE line_id = ? AND spell_level <= ? ORDER BY rank DESC LIMIT 1",
+            (line["line_id"], level),
+        ).fetchone()
     if row is None:
         # every rank in the line gates above this level — the character holds none
         return {"queried_spell_id": spell_id, "line_id": line["line_id"],
                 "name": line["name"], "spell_id": None, "rank": None,
-                "rank_text": None, "spell_level": None,
+                "rank_text": None, "spell_level": None, "gate": gate,
                 "gap": "no rank of this line is available at this level"}
+    gap = None
+    if gate == "spellitemenchantment.min_level" and row[3] is not None             and row[3] > level:
+        # Named, not silent: the answer is the enchant gate's, and it disagrees
+        # with SpellLevel. This is the 200824 case (rank 6, SpellLevel 64,
+        # enchant min_level 55) and it is CORRECT — the measurement says +86.
+        gap = (f"resolved by the ENCHANT gate (min_level) to rank {row[1]}, "
+               f"whose SpellLevel is {row[3]} > {level}. These spells are "
+               f"applied by SpellItemEnchantment, never cast, so SpellLevel is "
+               f"the wrong gate here (3m C4 / AUDIT_3L F6)")
     return {"queried_spell_id": spell_id, "line_id": line["line_id"], "name": line["name"],
             "spell_id": row[0], "rank": row[1], "rank_text": row[2], "spell_level": row[3],
-            "gap": None}
+            "gate": gate, "gap": gap}
 
 
 def catalog_rank_gaps(conn, level=DEFAULT_LEVEL):

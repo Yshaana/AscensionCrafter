@@ -37,6 +37,13 @@ class GearItem:
     slot: str
     stats: dict = field(default_factory=dict)
     weapon: dict | None = None
+    # 🆕 3m C6 (AUDIT_3L F10) — the RAW slot index the corpus stored, before the
+    # per-snapshot convention detector mapped it to a name. Load-bearing for the
+    # stray-weapon check: that check keyed on the mapped NAME, so a snapshot
+    # whose only weapon sits at slot 17 took the API branch, became `off_hand`,
+    # and escaped the very check meant to name it. The index cannot be mapped
+    # away. None when the caller did not supply one (hand-built specs).
+    source_slot: int | None = None
 
 
 @dataclass
