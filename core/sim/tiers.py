@@ -24,7 +24,8 @@ from .apl import APL, MAX_COMBO_POINTS, entry_ready
 from .content import ContentProfile, Metric, PRIMARY_METRIC_BY_ROLE, SimResult
 from .pets import detect_summons, pet_gap_warning
 from .swings import (
-    swing_events, expected_swing, seal_procs, righteous_vengeance_damage,
+    swing_events, swing_interval, expected_swing, seal_procs,
+    righteous_vengeance_damage,
     SEAL_PROC_PER_MELEE_EVENT, SEAL_PROC_RATE_EVIDENCE,
     RIGHTEOUS_VENGEANCE_SPELL_ID, RIGHTEOUS_VENGEANCE_FRACTION,
     RIGHTEOUS_VENGEANCE_CARD_SPELL_IDS,
@@ -298,6 +299,30 @@ def _is_pure_periodic(ability):
     return bool(evs) and all(e.kind == "periodic" for e in evs)
 
 
+def _is_next_swing(ability):
+    """An ON-NEXT-SWING ability: it replaces your next main-hand white swing.
+
+    🚨 `3n` B — THE ONE DISCRIMINATOR, shared by `apl_gen` and `fast_sim`, for
+    the same reason `_is_pure_periodic` is shared: the two layers must not be
+    able to drift apart about what an ability *is*.
+
+    Read from `Attributes & 0x4`, decoded in `core/spells/mechanics.py`. Until
+    `3n` this field was set and then **read by nothing in `core/sim/`**, which
+    is the whole defect: a next-swing ability was ranked among GCD fillers by
+    damage **per cast** and then charged a GCD it does not cost. Its cast rate is
+    governed by the **weapon swing timer**, not the GCD, so comparing its
+    per-cast damage against a GCD filler's compares two different clocks — the
+    same units error as `3b`'s effect-slot aggregate, one layer up.
+
+    ⚠ These abilities ALSO fail the off-GCD test on a technicality, which is why
+    testing `gcd_type` is not enough: all 11 next-swing ids in the corpus resolve
+    `gcd_type = None`, because they are rank siblings absent from the catalog and
+    `mechanics.py` only sets `off_gcd` for `catalog_type == "ability"`. Test the
+    attribute, not the GCD field.
+    """
+    return bool(ability.fields.get("is_next_swing"))
+
+
 def _useful_cast_interval(ability):
     """Seconds between USEFUL casts, read from the ability's own fields.
 
@@ -416,6 +441,46 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
                + [s for s in ids if s in off_gcd_ids])
     gcd_actions = 0.0
 
+    # 🚨 3n B leg 1 — THE SWING BUDGET, the second clock in this function.
+    #
+    # An on-next-swing ability is bought with a WEAPON SWING, not a GCD. Until
+    # `3n` there was one budget here and every ability was charged against it,
+    # so a next-swing ability competed for GCD time it does not consume and was
+    # ranked against GCD fillers on damage per cast — two different clocks
+    # compared as if they were one. Measured cost: 10 of the 35 tuning-set
+    # members had a next-swing ability allocated ZERO casts, including Blix's
+    # Lightbound Cleave at 41% of his logged damage.
+    #
+    # Several next-swing abilities SHARE this budget, because they compete for
+    # the same swing slots — you cannot ride one white swing with two Cleaves.
+    # That is why it is a budget and not a per-ability rate: Robottikyrpa holds
+    # three `-bound` Cleaves at identical damage, and only one of them can have
+    # any given swing.
+    #
+    # 🛑 UNKNOWN WEAPON SPEED IS A REFUSAL, NOT A FALLBACK. With no resolvable
+    # main hand there are no swings, so an on-next-swing ability genuinely
+    # cannot land — allocating it zero and SAYING SO is the mechanically correct
+    # answer. Falling back to the GCD budget would restore the exact defect this
+    # fix removes, silently, on the characters least able to reveal it.
+    next_swing_ids = [s for s in ids
+                      if abilities.get(s) and _is_next_swing(abilities[s])]
+    mh_swing_interval = swing_interval(char_state.main_hand,
+                                       char_state.melee_haste_pct)
+    if next_swing_ids and mh_swing_interval is None:
+        swing_budget = 0.0
+        warnings.append(
+            f"{len(next_swing_ids)} ON-NEXT-SWING abilities are allocated ZERO "
+            "casts because the main-hand weapon SPEED is unknown, so the swing "
+            "clock that bounds them cannot be computed. They are NOT falling "
+            "back to the GCD budget — a character with no resolvable weapon "
+            "cannot land an on-next-swing ability at all: "
+            + ", ".join(sorted(abilities[s].name for s in next_swing_ids)))
+    else:
+        swing_budget = (available / mh_swing_interval
+                        if mh_swing_interval else 0.0)
+    swing_budget_total = swing_budget
+    next_swing_casts_total = 0.0
+
     for sid in ordered:
         ab = abilities.get(sid)
         if ab is None:
@@ -441,7 +506,16 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         # useful cast interval, capped again by the budget left in front of it,
         # and it consumes only what it uses. A filler with no interval is a spam
         # button and still absorbs the remainder — that part was always right.
-        if sid in off_gcd_ids:
+        if _is_next_swing(ab):
+            # 3n B leg 1 — bounded by the SWING clock and by its own cooldown,
+            # and it consumes SWING budget rather than GCD budget. It rides a
+            # white swing, so it is not limited by how many GCD actions happen.
+            casts = swing_budget if interval <= 0 else min(
+                swing_budget, available / interval)
+            casts = max(0.0, casts)
+            swing_budget = max(0.0, swing_budget - casts)
+            next_swing_casts_total += casts
+        elif sid in off_gcd_ids:
             # Queued alongside a GCD action, so it costs no budget; it fires
             # about as often as there are GCD actions to ride, or as its own
             # interval allows, whichever is fewer.
@@ -503,7 +577,9 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
             "attributed": any(e["attributed"] for e in exp.per_event),
             # 3e B1 — what actually bounded this ability's cast count, so the
             # rotation can be read without re-deriving the allocation by hand.
-            "rate_limit": ("off_gcd" if sid in off_gcd_ids
+            "rate_limit": ("swing_budget" if _is_next_swing(ab) and interval <= 0
+                           else f"next_swing, {why}" if _is_next_swing(ab)
+                           else "off_gcd" if sid in off_gcd_ids
                            else "gcd_budget" if interval <= 0 else why),
         }
 
@@ -525,6 +601,15 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
             f"{gcd_budget:.1f}s of {available:.1f}s GCD budget went UNUSED — "
             "the rotation cannot fill the fight; either an ability is missing "
             "from the APL or the build has no filler")
+    # 3n B — the swing budget is reported the same way the GCD budget is, so a
+    # rotation can be read without re-deriving which clock bound what.
+    if next_swing_ids and swing_budget_total > 0:
+        warnings.append(
+            f"swing budget: {next_swing_casts_total:.1f} of "
+            f"{swing_budget_total:.1f} main-hand swings were spent on "
+            f"on-next-swing abilities ({mh_swing_interval:.2f}s per swing over "
+            f"{available:.1f}s). These cost NO GCD budget — they are bought "
+            "with swings")
     warnings.append(
         "fast_sim does not model resources — it cannot see mana/rage/energy "
         "starvation. Use medium_sim for castability")

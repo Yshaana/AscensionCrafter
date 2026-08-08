@@ -29,7 +29,7 @@ orderings, and a hand-authored APL will usually beat it.
 """
 from .ability_model import resolve_ability, AbilityResolutionError
 from .apl import APL, APLEntry, MAX_COMBO_POINTS
-from .tiers import _is_pure_periodic
+from .tiers import _is_pure_periodic, _is_next_swing
 
 SELF_SUSTAIN_HEALTH_PCT = 50.0
 
@@ -59,11 +59,24 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
             continue                      # no damage: not a rotational button
         cd = ab.fields.get("cooldown_seconds") or 0.0
         gt = ab.fields.get("gcd_type")
-        off_gcd = gt in ("none", "off")
+        # 🚨 3n B leg 1 — a NEXT-SWING ability costs no GCD. It replaces your
+        # next white swing, so it is queued alongside a GCD action exactly like
+        # a declared off-GCD ability, and it must NOT enter the filler ranking
+        # below — that ranking sorts by damage per CAST, and a next-swing
+        # ability's casts are bought with swings, not GCDs. Ranking the two
+        # against each other compares different clocks, which is what dropped
+        # Lightbound Cleave out of Blix's rotation entirely (41% of his logged
+        # damage) while Plague Strike's higher per-cast damage took the budget.
+        #
+        # ⚠ Testing `gcd_type` alone does NOT catch these: every one of the 11
+        # next-swing ids in the corpus resolves `gcd_type = None`. Hence the
+        # attribute test, shared with `fast_sim` via `_is_next_swing`.
+        next_swing = _is_next_swing(ab)
+        off_gcd = gt in ("none", "off") or next_swing
         dur = ab.fields.get("duration_seconds") or 0.0
         scored.append({
             "ability": ab, "spell_id": ab.spell_id, "cooldown": cd,
-            "off_gcd": off_gcd, "mean": exp.mean,
+            "off_gcd": off_gcd, "next_swing": next_swing, "mean": exp.mean,
             # 3e B3 — a MAINTAINED DEBUFF: something applied to the target that
             # ticks and falls off, and whose damage is ENTIRELY those ticks.
             # ⚠ "has a periodic component" is NOT the test, and using it was a
@@ -103,7 +116,12 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
     # duration each time (`expected_cast` scores duration/tick ticks per cast).
     # That is why E4's grammar had to land first: this fix is not expressible
     # without `debuff_remaining_below`.
-    off = [s for s in scored if s["off_gcd"]]
+    # 3n B — within the off-GCD tier, next-swing abilities are ordered by damage
+    # per SWING (which is their per-cast damage, since each costs exactly one
+    # swing). That is a comparison inside ONE clock, which is legitimate; the
+    # defect was comparing across two.
+    off = sorted([s for s in scored if s["off_gcd"]],
+                 key=lambda s: (not s["next_swing"], -s["mean"]))
     on_gcd = [s for s in scored if not s["off_gcd"]]
     maintained = sorted([s for s in on_gcd if s["debuff_duration"] > 0],
                         key=lambda s: -s["mean"])
@@ -127,7 +145,11 @@ def generate_apl(conn, build_spec, content, char_state, name=None):
         entries.append(APLEntry(
             spell_id=s["spell_id"], conditions=[{"type": "always"}],
             off_gcd=True,
-            comment=f"{s['ability'].name}: off-GCD, queue alongside a GCD action"))
+            comment=(f"{s['ability'].name}: ON-NEXT-SWING — replaces a main-hand "
+                     "white swing, so it costs no GCD and is bounded by the "
+                     "weapon swing timer, not the GCD budget"
+                     if s["next_swing"] else
+                     f"{s['ability'].name}: off-GCD, queue alongside a GCD action")))
 
     if content.self_sustain_required:
         for s in scored:
