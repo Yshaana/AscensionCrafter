@@ -96,14 +96,16 @@
 > `builds.db` built before the day's own crawl commit was ingested.
 >
 > * 🚨 **THE PHASE FLIP LANDED IN A SHAPE WITH NO PROTOCOL, AND IT WOULD HAVE
->   NULLED THE CORPUS INDEFINITELY.** `Phase 2 - Molten Core / Onyxia` opened
->   **top-level** at `2026-08-07T18:00:00Z` — **and `Phase 1 - Zul'Gurub`
+>   NULLED THE CORPUS FOR THE WHOLE OVERLAP.** `Phase 2 - Molten Core / Onyxia`
+>   opened **top-level** at `2026-08-07T18:00:00Z` — **and `Phase 1 - Zul'Gurub`
 >   stayed `is_active`.** Two active top-level phases. `3g` G0's
 >   `len(tops) != 1` read that as *"a transition in progress"* and refused
->   **every** `phase_label`, in a condition that could never clear itself.
->   🆕 **Owner decision: TRANSITIONS ON THIS SERVER ARE ADDITIVE** — raids get
->   added, none removed, so actives accumulate every phase and a count can
->   never mean "transition in progress". The current phase is the
+>   **every** `phase_label`. ⚠ **This block said "in a condition that could
+>   never clear itself"; `3m` pre-flight falsified that** (`AUDIT_3L` F16) — ZG
+>   and Phase 1.1 went inactive on 08-08, so the overlap ran under ~12 h.
+>   🆕 **Owner decision: a COUNT of active top-levels is never the answer.** (Its
+>   stated warrant — *"additive: raids get added, none removed"* — is the part
+>   that was falsified; the rule is not.) The current phase is the
 >   **latest-STARTING active top-level**, on both sides (`assert_phase` died on
 >   the same arm, so a `core/`-only fix leaves the crawler unable to capture).
 >   The ambiguity protection **moved** rather than vanished: same-`start_date`
@@ -233,13 +235,20 @@
 > null) — **and `Phase 1 - Zul'Gurub` stayed `is_active` with a NULL
 > `end_date`.** Two active top-level phases. The old `len(tops) != 1` predicate
 > read that as *"a transition in progress or a schema change"* and refused
-> **every** `phase_label`, permanently, since Zul'Gurub never stops being
-> active — it would have NULLed the corpus from the first Molten Core crawl on.
+> **every** `phase_label` for as long as the overlap lasted — it would have
+> NULLed the corpus from the first Molten Core crawl on.
 >
-> 🆕 **Owner decision 2026-08-07: TRANSITIONS ON THIS SERVER ARE ADDITIVE** —
-> raids get added, none removed, so actives accumulate every phase and a count
-> can never mean "transition in progress". `is_active` means *this content is
-> live*, not *this is the current phase*. The current phase is now the
+> 🆕 **Owner decision 2026-08-07: a COUNT of active top-level phases is never
+> the answer to "what phase is the server on".** ⚠ **`3m` pre-flight corrected
+> the WARRANT this was stated with** (`AUDIT_3L` F16): it read *"transitions are
+> ADDITIVE — raids get added, none removed, so actives accumulate every phase
+> and a count can never mean 'transition in progress'"*. **Zul'Gurub and Phase
+> 1.1 both went `is_active: False` on 2026-08-08** (`7f28c4e`), so the overlap
+> lasted **under ~12 h** and a count of 2 *does* signal a transition that *does*
+> clear itself. **The rule survives its warrant**: latest-starting-active returns
+> Molten Core in both regimes, and the retired predicate's real defect is that it
+> blanks a live day, not that it could never clear. `is_active` means *this
+> content is live*, not *this is the current phase*. The current phase is now the
 > **latest-STARTING active top-level** (`current_top_level()` /
 > `current_top_level_phase()`, both sides — `assert_phase` died on the same arm,
 > so a `core/`-only fix would have left the crawler unable to capture at all).

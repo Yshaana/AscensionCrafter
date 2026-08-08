@@ -36,10 +36,21 @@ Three defences now, and they are ordered so the widest fires first:
 
 1. **`phase_guard()` — the payload's own phase set must agree with what this
    clone expects.** If the live active top-level phase is not the expected one
-   (`3k` B0: the CURRENT one — the latest-starting active top-level, since
-   actives accumulate — or two windows genuinely overlap), **every** label is
-   NULL with that as the
-   reason. Nothing compared the two before.
+   (`3k` B0: the CURRENT one — the **latest-starting** active top-level — or two
+   windows genuinely overlap), **every** label is NULL with that as the reason.
+   Nothing compared the two before.
+
+   ⚠ **`3m` pre-flight, `AUDIT_3L` F16 — the rule stands; the warrant behind it
+   is falsified.** `3k` retired `len(tops) != 1` on the stated ground that
+   *"transitions are additive: raids get added, none removed, so actives
+   accumulate and a count can never mean 'transition in progress'"*. On
+   2026-08-08 Zul'Gurub and Phase 1.1 both went `is_active: False`; the
+   two-active overlap had lasted **under ~12 hours**. So a count of 2 **does**
+   signal a transition, and it **does** clear itself. Latest-starting-active is
+   correct either way — it returns Molten Core during the overlap and after it —
+   but the retired predicate's real defect was that it NULLs a live day's
+   captures *while the overlap lasts*, not that it could never clear.
+   **Do not predict the next boundary's shape from "actives accumulate".**
 2. **A DECLARED boundary that the payload has not caught up to.** The
    child-phase precedent is the reason this exists: the server published its
    last content boundary (Phase 1.1) as a **child**, which `phase_windows`

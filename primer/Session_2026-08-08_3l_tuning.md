@@ -247,3 +247,36 @@ close-out commit, per the established pattern.
    its own migration discipline.
 5. Gate at close: **0 of 35 · 0 qualified · slice 30.4% (n=24) · absent
    58.8%** — coverage and accuracy quoted together, per the standing rule.
+
+---
+
+## 🆕 APPENDED `3m` pre-flight, 2026-08-08 — one correction to §8 item 6
+
+**The record above is unchanged; this is an append.** `AUDIT_3L` F10 checked §8's
+sentence against the code and it is wrong in one half.
+
+§8 item 6 reads: *"Slot-17-only and stray-slot weapon rows (36 + 8 corpus-wide) —
+the detector maps neither; named in `compute_stats`' warning, not silently
+swung."*
+
+**What the detector actually does** (`calibrate_crawled.py:394-400`): slot-15
+weapon present → `{15: main_hand, 16: off_hand}`, else → `{16: main_hand,
+17: off_hand}`. A snapshot whose only weapon sits at slot **17** therefore takes
+the API branch, and **slot 17 is mapped — to `off_hand` — with no warning**. The
+36 slot-17-only rows are mapped, not skipped. Only the 8 stray-slot rows are
+genuinely unmapped.
+
+**Why "not silently swung" held anyway, and why that is not a defence.**
+`swing_events` returns `(0, 0)` when there is no main hand, so nothing swung. That
+is an accident of a different function's guard, not something the detector
+enforces. Meanwhile the promoted row **does** reach `wielding()`, which reports
+`'2h'` and switches on path clauses — Strength `physical_ability ×1.10`, Agility
+`ability_crit_damage +0.20`, Duality `all_damage ×1.06`, Intelligence
+`spell_haste +12`. And the stray-row check keys on the mapped slot **name**
+(`g.slot not in ("main_hand", "off_hand")`), so a promoted slot-17 row escapes the
+very check that was supposed to name it.
+
+**Blast radius at the time of writing: none for the gate.** No member of the
+frozen 41 is slot-17-only or {15,17}; the sentence was latent, not acting. `3m`
+keys the stray check on the slot **index** rather than the mapped name (C6), so
+the escape is closed rather than left to cohort luck.

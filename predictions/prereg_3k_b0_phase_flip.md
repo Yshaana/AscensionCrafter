@@ -151,3 +151,43 @@ the before.
 Bands moved with the corpus, not with the change: `≥30%` 17.5% → 19.2%,
 `≥50%` (n=9) 15.6% → (n=8) 14.0%. `predictions/CALIBRATION_TOLERANCE.md`'s
 table regenerated with `render_band_table.py`, not retyped.
+
+---
+
+## 🆕 ANNOTATION — appended `3m` pre-flight, 2026-08-08 (`AUDIT_3L` F16)
+
+**Nothing above this line has been changed.** This document is a `FINDING`: it
+records what was measured and decided *on 2026-08-07*, and that record is
+correct as a record. The annotation exists because one sentence in it has since
+been falsified by the server, and a later session reading the quoted warrant
+would mis-predict the next boundary.
+
+**What was falsified.** The owner decision quoted at line 32 reads *"transitions
+are additive on this server: raids get added, none removed, so expect actives to
+accumulate each phase"*. Today's `/api/phases` captures (`2026-08-08T06:05:56Z`
+and `07:05:29Z`, committed `7f28c4e`):
+
+| id | name | `is_active` 08-07 19:20Z | `is_active` 08-08 06:05Z |
+|---|---|---|---|
+| 2 | `Phase 1 - Zul'Gurub` | **true** | **false** |
+| 3 | `Phase 1.1` | true | **false** |
+| 4 | `Phase 2 - Molten Core / Onyxia` | true | true |
+
+Raids **were** removed. The two-active-top-level overlap lasted **under ~12
+hours** — so a count of 2 *does* mean a transition is in progress, and it *does*
+clear itself, both of which the warrant denied.
+
+**What survives, and why the decision was still right.** The rule that was
+adopted — *the current phase is the latest-STARTING active top-level* — returns
+`Phase 2 - Molten Core / Onyxia` under **both** regimes, during the overlap and
+after the removal. And retiring `len(tops) != 1` was still correct, but for a
+different reason than the one recorded: not *"it could never clear"*, but *"it
+NULLs every label for as long as the overlap lasts"*, which on the measured
+boundary was a live day of captures. A guard that blanks a day is a defect
+whether or not it eventually recovers.
+
+**Standing consequence.** Do not use "actives accumulate forever" to predict the
+shape of the next boundary. Corrected in `season_config.py`,
+`core/builds/phases.py`, `tools/audit/check_refusals.py`'s `[3k-B0]` arm text
+and `PROGRESS.md`; `CLAUDE.md` was checked and carries no phase warrant, so the
+audit's affected-text list over-names it by one file.

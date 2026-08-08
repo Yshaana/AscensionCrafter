@@ -36,11 +36,14 @@ import config  # noqa: E402
 config.ensure_utf8_stdout()
 
 FAILURES = []
+PASSED = []
 
 
 def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail else ""))
-    if not ok:
+    if ok:
+        PASSED.append(name)
+    else:
         FAILURES.append(name)
 
 
@@ -786,10 +789,20 @@ def check_phase_additive():
 
     This retires `3g` G0's `len(tops) != 1` predicate. That predicate read the
     real Molten Core payload as *"a phase transition in progress or a schema
-    change"* and refused **every** label — permanently, because Zul'Gurub never
-    stops being active. Owner decision 2026-08-07: transitions on this server
-    are ADDITIVE (raids get added, none removed), so the current phase is the
-    latest-STARTING active top-level.
+    change"* and refused **every** label for as long as the overlap lasted.
+    Owner decision 2026-08-07: the current phase is the latest-STARTING active
+    top-level; a COUNT is never the answer.
+
+    ⚠ `3m` pre-flight (`AUDIT_3L` F16) — WARRANT CORRECTED, RULE UNCHANGED. The
+    decision was stated as *"transitions are ADDITIVE — raids get added, none
+    removed, so the count grows every phase and can never mean 'transition in
+    progress'"*. Falsified 2026-08-08: Zul'Gurub and Phase 1.1 both flipped to
+    `is_active: False`, so the overlap ran **under ~12 h** and a count of 2 does
+    mean a transition in progress. The predicate is still correctly retired —
+    refusing every label for a live day is the defect, whether or not it would
+    eventually clear — and latest-starting-active returns Molten Core in both
+    regimes, which is what arms 1 and 2 assert. This check's fixture is the
+    OVERLAP payload on purpose: it is the state the rule has to survive.
 
     RED — M50: restore `len(tops) != 1` as a refusal arm in `phase_guard()`
     (and/or in `season_config.assert_phase()`); arms 1, 2 and 4 go red.
@@ -815,8 +828,9 @@ def check_phase_additive():
 
     # --- 1. two actives is NORMAL, and the newest one is the current phase --
     check("[3k-B0] a payload with TWO active top-level phases does NOT refuse "
-          "— transitions are additive on this server, so the count grows every "
-          "phase and can never mean 'transition in progress'",
+          "— the current phase is the latest-STARTING active top-level, and a "
+          "COUNT is never the answer (the overlap is real but transient: "
+          "measured under ~12 h on the 2026-08-07 boundary)",
           refuse is None and n_tops == 2
           and (current_top_level(_PHASES_MC) or {}).get("name")
           == "Phase 2 - Molten Core / Onyxia",
@@ -1939,6 +1953,30 @@ def check_band_table_matches_manifest():
           + ("" if doc is not None and rbt._norm(doc) == rbt._norm(table)
              else f"\n--- document ---\n{doc}\n--- manifest ---\n{table}"))
 
+    # --- 3m (AUDIT_3L F11): the PROSE's numbers get the same owner -----------
+    # [3j-C3] above protected the table and nothing around it. `3l` regenerated
+    # the table correctly and left "At 26.3%", "a 3.8x rise" and "roughly ONE
+    # QUARTER" stale within twenty lines of it — the third staling of this file
+    # inside its own assertion's blind spot. Those sentences are now derived
+    # from the same manifest and asserted here.
+    #
+    # MUTATION THAT MAKES THIS FAIL (red, RUN 2026-08-08, M57): change one digit
+    # in the derived-figures block in CALIBRATION_TOLERANCE.md — or delete the
+    # `<!-- GENERATED derived-figures ... -->` markers, which is the *other*
+    # failure mode (a block that is no longer found is not a block that agrees).
+    # GREEN PATH: `py tools/audit/render_band_table.py` and paste the second
+    # block — which IS the fix, not a stub.
+    derived, _ = rbt.render_derived()
+    doc_d = rbt.extract_derived_from_doc()
+    ok_d = doc_d is not None and rbt._norm(doc_d) == rbt._norm(derived)
+    check("[3m-A0] CALIBRATION_TOLERANCE.md's DERIVED-FIGURES block EQUALS the "
+          "one generated from gate_manifest_3e.json — the prose built on the "
+          "band table has the same owner the table does, after three stalings "
+          "in the assertion's blind spot",
+          ok_d,
+          ("derived block matches" if ok_d else
+           f"\n--- document ---\n{doc_d}\n--- manifest ---\n{derived}"))
+
 
 def check_predictions_json_status():
     """`3j` C5 (`AUDIT_3I_ADVERSARIAL` §9, table) — the `predictions/` status
@@ -2058,6 +2096,12 @@ def main():
     check_coverage_split_producing_vs_zero()
 
     print()
+    # 🆕 3m pre-flight (AUDIT_3L F11): the harness emits its OWN arm count.
+    # The 3l record states "74 arms" as hand-typed prose; the tree had 77 at
+    # the time it was written. A number in a document with no tool to emit it
+    # has no owner — so cite this line, never a remembered figure.
+    print(f"[arms] check_refusals.py: {len(PASSED) + len(FAILURES)} arms — "
+          f"{len(PASSED)} passed / {len(FAILURES)} failed")
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         return 1

@@ -71,10 +71,24 @@ SEASON = "S10"               # `seasons.label` / DB-stamp form
 # (id=4, parent=None) while `Phase 1 - Zul'Gurub` stayed `is_active` with a
 # NULL `end_date`, because Zul'Gurub is still open. `is_active` on this server
 # means "this content is live", NOT "this is the current phase" — see
-# `core.builds.phases.current_top_level`. Owner decision 2026-08-07:
-# transitions here are additive, raids get added and none removed, so the
-# count of active top-level phases will keep growing and must never be read as
-# a transition-in-progress signal.
+# `core.builds.phases.current_top_level`. Owner decision 2026-08-07: the current
+# phase is the **latest-STARTING active top-level**, and a COUNT is never the
+# answer.
+#
+# ⚠ `3m` pre-flight, 2026-08-08 (`AUDIT_3L` F16) — THE RULE STANDS, THE STATED
+# WARRANT DOES NOT. This note used to read *"transitions here are additive,
+# raids get added and none removed, so the count will keep growing"*. **Zul'Gurub
+# and Phase 1.1 both went `is_active: False` overnight** (`/api/phases` at
+# `2026-08-08T06:05:56Z`, committed `7f28c4e`): the two-active overlap lasted
+# **under ~12 hours**, not forever. So a count of 2 *does* mean a transition is
+# in progress, and it *does* clear itself within about a day.
+#
+# Why the decision survives its own warrant: latest-starting-active-top-level
+# returns Molten Core under BOTH regimes — during the overlap and after the
+# removal — while `len(tops) != 1` would have NULLed every label for the whole
+# overlap window. The predicate was retired for being unsatisfiable-in-the-
+# moment, which is true regardless of whether the overlap is permanent. **Do not
+# use "actives accumulate forever" to predict the next boundary's shape.**
 #
 # When the NEXT phase lands, `assert_phase()` still fails loudly with the live
 # name in the message. Update this constant — and `SEASON`/`SEASON_NUMBER` if
@@ -130,8 +144,12 @@ def current_top_level_phase(payload):
     `3k` B0 — the crawler-side twin of `core.builds.phases.current_top_level`,
     duplicated for the same reason the other pair is: `core/` may not import
     this module. Both are three lines of field access over the same payload.
-    Owner decision 2026-08-07: transitions are ADDITIVE, so the current phase
-    is the newest active top-level, never 'the only one'.
+    Owner decision 2026-08-07: the current phase is the newest active top-level,
+    never 'the only one'. ⚠ The *warrant* that decision was stated with
+    ("transitions are additive, none removed") was falsified on 2026-08-08 —
+    Zul'Gurub went inactive within ~12 h. The rule is unaffected: newest-active
+    returns Molten Core both during the overlap and after. See the
+    `EXPECTED_PHASE_NAME` note and `AUDIT_3L` F16.
     """
     dated = []
     for p in active_top_level_phases(payload):
@@ -174,17 +192,21 @@ def assert_phase(payload):
     """The live server must still be on `EXPECTED_PHASE_NAME`.
 
     "Still on" means the CURRENT top-level phase — the active one with the
-    latest `start_date` (`3k` B0: actives accumulate, so a count is not the
-    answer). Raises RealmSeasonMismatch on any of: no payload, no active
-    top-level phase with a parseable start, or a name mismatch. Returns the
-    matched phase dict.
+    latest `start_date` (`3k` B0: a COUNT is not the answer). Raises
+    RealmSeasonMismatch on any of: no payload, no active top-level phase with a
+    parseable start, or a name mismatch. Returns the matched phase dict.
 
     🚨 This is the phase-flip tripwire. It fired for real on the Molten Core
     boundary — though on the wrong arm: the old `len(tops) != 1` check caught
-    the flip as "a transition in progress" and would have gone on refusing
-    forever, because Zul'Gurub never stopped being active. A phase flip is not
-    an error in the server — it is an error in THIS CLONE'S CONSTANTS, and the
-    message says so.
+    the flip as "a transition in progress" and refused every label while the
+    overlap lasted. ⚠ `3m` pre-flight correction (`AUDIT_3L` F16): the `3k`
+    record said it "would have gone on refusing FOREVER, because Zul'Gurub never
+    stopped being active" — Zul'Gurub **did** stop, ~12 h later. The refusal
+    would have been temporary, not permanent. Retiring the arm was still right
+    (it NULLs a live day's captures for no gain), but the reason is
+    "unsatisfiable while it lasts", not "unsatisfiable forever". A phase flip is
+    not an error in the server — it is an error in THIS CLONE'S CONSTANTS, and
+    the message says so.
     """
     if not payload or not payload.get("phases"):
         raise RealmSeasonMismatch(

@@ -165,11 +165,20 @@ Schema in `INDEX_GUIDE.md`.
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
   date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
   `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
-  as generated 2026-08-08 (`3m` pre-flight — the `3l` audit landing in `primer/` moved it
-  the same day `3l` closed, which is the rule earning its keep for the third time):
+  as generated 2026-08-08 (`3m` pre-flight — `SESSION_3M_PRIMER.md` landing in `primer/`
+  moved it in the same commit that added it, the **fourth** time this rule has earned its
+  keep, and the second in two days):
 
   ```
-  [census] primer/ status lines: 73 files — 13 LIVE / 40 HISTORICAL / 7 SUPERSEDED / 13 FINDING
+  [census] primer/ status lines: 74 files — 14 LIVE / 40 HISTORICAL / 7 SUPERSEDED / 13 FINDING
+  ```
+
+  🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).
+  The `3l` record states "74 arms" as hand-typed prose and the tree had 77 when it was
+  written. Cite the `[arms]` line `check_refusals.py` emits, never a remembered figure:
+
+  ```
+  [arms] check_refusals.py: 82 arms — 82 passed / 0 failed
   ```
 
   🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it

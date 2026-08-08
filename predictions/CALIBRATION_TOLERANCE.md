@@ -199,30 +199,54 @@ admissibility) and did not touch this table — the warning was ignored by the s
 had just written it. `AUDIT_3I` §9.3 measured the drift: doc `≥10% 23.4% (n=26)` against
 manifest `34.96% (n=27)`, doc `≥20% 20.5%` against manifest `26.31%`.
 
-**The sim reproduces roughly ONE QUARTER of the damage of the abilities it has a key for.**
-⚠ *(`3j` C3: this sentence read "ONE FIFTH", true of the pre-E15 20.5% and stale at 26.3%.
-`AUDIT_3I` §9.6 flagged the same wording on `ENGINE_BUGS` E16.)*
+🆕 **`3m` pre-flight (`AUDIT_3L` F11) — the figures the prose below is built from are
+GENERATED AND ASSERTED, exactly like the table above.** Row *"stated as a fraction of
+reality"* is the sentence that used to live here in words:
+
+<!-- GENERATED derived-figures (render_band_table.py) — DO NOT RETYPE -->
+
+| derived figure | value | derived from |
+|---|---:|---|
+| headline slice accuracy (≥20% coverage floor) | **30.4% (n=24)** | `median_slice_accuracy_pct_at_coverage_ge_20` |
+| …stated as a fraction of reality | **roughly ONE THIRD** | the same figure, rendered in words |
+| multiple the slice must rise by at the 100% coverage CEILING | **3.3×** | `100 / headline` |
+| best coverage anywhere in the cohort | **Boomcat 82.2%** — **NOT ADMISSIBLE** | `max(cohort[].modelled_damage_pct)` |
+| …slice accuracy that coverage would require for `delta = 0` | **121.7%** | `100 / (best coverage / 100)` |
+| producing-only slice median (≥20%) | **36.7% (n=22)** | `median_slice_accuracy_pct_producing_only_at_coverage_ge_20` |
+| …paired over the SAME members (no selection bias) | **30.43% headline / 39.94% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
+
+*(from `gate_manifest_3e.json`, generated 2026-08-08T00:46:29+00:00, git `ab5ca92`.)*
+
+<!-- /GENERATED derived-figures -->
+
+**The sim reproduces the fraction named in that block's second row, of the damage of the
+abilities it has a key for.**
+⚠ *(History, kept because it is the argument for generating the word: this sentence read
+"ONE FIFTH" — true of the pre-E15 20.5% — then "ONE QUARTER" at 26.3%, and was stale
+again at 30.4% inside the session that regenerated the table above it. It states no
+number now. `AUDIT_3I` §9.6 flagged the same wording on `ENGINE_BUGS` E16.)*
 ⚠ *"has a key for"* is deliberate and is not the same as *"models"* — see
 `AUDIT_3G_ADVERSARIAL.md` §4 and `3h` Block B. Until that split is measured, this figure
 conflates magnitude error with zero production.
 
-> ✅ **ANNOTATION (`3i` A5, ⚠ CORRECTED `3j` C3): the split IS measured now** (`3h`
-> Block B, committed in `gate_manifest_3e.json`): producing-only slice median
-> **37.6% (n=19)** beside the headline **26.3% (n=23)**. ⚠ The two medians are over
-> **different populations** — the producing-only figure is upward-biased by selection
-> (the dropped members are the worst cases); the paired median over the same members
-> is a `3i` C5 output and reads **26.3% headline / 37.6% producing-only**. The
-> paragraph above is kept as stamped.
+> ✅ **ANNOTATION (`3i` A5, ⚠ CORRECTED `3j` C3, ⚠ DE-NUMBERED `3m` pre-flight): the
+> split IS measured now** (`3h` Block B, committed in `gate_manifest_3e.json`) — the
+> producing-only median and the headline are the last two rows of the generated block
+> above, and **this annotation no longer restates either.** ⚠ The two medians are over
+> **different populations**: the producing-only figure is upward-biased by selection
+> (the dropped members are the worst cases), which is why the block's final row carries
+> the **paired** medians over the same members (a `3i` C5 output). The paragraph above
+> is kept as stamped.
 >
-> 🛑 **This annotation was stale inside its own session.** `3i` wrote it in Block A
-> citing *"30.7% (n=20), committed in `gate_manifest_3e.json`"*, and `3i` Block D then
-> re-ran the gate — so by the session's own close the manifest read **37.65 (n=19)**
-> and the annotation cited a number the file it named no longer contained. Figures
-> above re-read from the manifest (`result.median_slice_accuracy_pct_producing_only_
-> at_coverage_ge_20`, `result.producing_only_n`), not retyped. The lesson is the one
-> the band table above now enforces mechanically: **an annotation written in Block A
-> and a gate re-run in Block D belong to the same session and must be reconciled
-> before it closes.**
+> 🛑 **This annotation has now gone stale twice, in two different sessions, and that is
+> why its numbers were removed rather than corrected a third time.** `3i` wrote it in
+> Block A citing *"30.7% (n=20)"*, then re-ran the gate in Block D — by its own close
+> the manifest read 37.65 (n=19) and the annotation cited a figure the file it named no
+> longer contained. `3j` C3 corrected it to 37.6/26.3; `3l` moved the gate again and it
+> was wrong on both halves within the day. **Two corrections of the same sentence is
+> the signal to change its owner, not to correct it better.** The lesson otherwise
+> stands: an annotation written in Block A and a gate re-run in Block D belong to the
+> same session and must be reconciled before it closes.
 
 *(Corroboration, independent of coverage: `3f` F9's frost-mage assertion compares modelled
 DPS to a measured capture with a same-session verified stat block and no coverage term. It
@@ -243,17 +267,23 @@ total output. That it is not ~20% is itself informative and is a `3h` Block C qu
 
 🛑 **Why this matters more than a bigger number.** At slice accuracy ~62–64% the previous
 text said *"both levers have to roughly double"*, which reads as a hard but ordinary
-programme. **At 26.3% the coverage lever is arithmetically dead.** Landing `delta = 0`
-requires `slice × coverage = 1.0`:
+programme. **At the headline slice the coverage lever is arithmetically dead.** Landing
+`delta = 0` requires `slice × coverage = 1.0`, and the generated block above states both
+consequences:
 
-* at the **ceiling** of 100% coverage, slice must reach **100%** — a **3.8×** rise;
-* at the **best coverage in the cohort** (`Boomcat`, 82.2%), slice must reach **121.7%**;
+* at the **ceiling** of 100% coverage, slice must reach **100%** — the block's
+  *"multiple the slice must rise by"* row;
+* at the **best coverage anywhere in the cohort**, slice must exceed **100%**, which is
+  impossible by construction — the block's *"slice accuracy that coverage would require"*
+  row;
 * no attainable coverage substitutes for **any** of it.
 
-⚠ *(`3j` C3: this passage read "At 20.5%" and "a **4.9×** rise". E15 moved the headline
-to 26.3%, so the multiple is now 3.8×. **The conclusion is unchanged and the correction
-makes it no easier** — 3.8× is still far beyond what any coverage work can substitute
-for, and `Boomcat`'s 121.7% is unmoved because it exceeds 100% by construction.)*
+⚠ *(History: this passage stated "At 20.5%" and "a **4.9×** rise", was corrected by
+`3j` C3 to 26.3% / 3.8×, and was stale again at 30.4% before `3m` de-numbered it. **The
+conclusion has survived every correction and each one made it no easier** — the required
+multiple is still far beyond what coverage work can substitute for, and the
+best-coverage row exceeds 100% under every value the headline has ever taken. That the
+argument is invariant to the number is the reason it can safely stop quoting one.)*
 
 **The magnitude lever has to carry essentially all of the gap.** Coverage work is now
 support work, not the programme. Under the discarded 160% reading the conclusion inverted
