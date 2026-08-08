@@ -12,9 +12,10 @@
 
 **Paste this at the start of a fresh monitoring chat.** Supersedes v1–v7. Written
 2026-08-08 (morning), at the end of the session that audited `3l` — the audit is
-`AUDIT_3L_ADVERSARIAL.md`, ⚠ **written in the oversight chat and not yet committed to
-`primer/`** — committing it, with this file, is the first document action owed
-(`3m` pre-flight).
+`AUDIT_3L_ADVERSARIAL.md` (landed `851fc64`, `primer/`). **Amended the same morning**
+after the daily crawl (`7f28c4e`) returned three findings that are `3m` inputs, two of
+which change `LIVE` text: they are `AUDIT_3L` **§5a F15–F17** and are folded in below.
+Still v8 — nothing here was superseded, it was extended before anyone read it.
 
 This chat's job is **oversight and verification** — Claude Code writes the code
 locally. If this chat writes the code, nobody is left to audit it.
@@ -85,6 +86,22 @@ rows) and decoded the Consecrated Weapon chain. The MC capture passed its ingest
 every figure exact from the bytes. **Five predictions falsified, all diagnosed, none
 rescued.** Prereg parenthood exact on all three pairs. Harnesses green (77 arms).
 
+🚨 **A SERVER PATCH LANDS MONDAY 10 AUGUST AND INVALIDATES A MODEL THIS PROJECT WAS
+RIGHT TO BUILD.** Changelog `2026-08-07T21:32:22`, `[Darkmoon] [Dawnrise]`: *"Fixed a bug
+where **Improved Cleave increased hybrid Cleaves weapon damage, rather than only their
+bonus damage**."* The project read `EffectMiscValue = 8 = SPELLMOD_ALL_EFFECTS` over the
+tooltip — **correctly, per its own standing rule** — and models ×2.20 on the whole
+ability (`talents.py:187`; `damage_multiplier` is whole-ability). Ascension now says the
+tooltip was the **intent** and `ALL_EFFECTS` was the **broken delivery**: same shape as
+`2d`'s Duality lesson, fired in the opposite direction — here the numeric field was the
+bug. Lightbound Cleave goes from `2.2 × (0.65·W + 9 + AP)` to `0.65·W + 2.2 × (9 + AP)`;
+the delta is a pure weapon term, so **the nerf scales with weapon damage**. ⚠
+`seed_confirmed.py:103` already states the *fixed* formula while the code applies the
+bugged one — they have disagreed since `2b` and Monday makes the seed right. **Every
+parse in the corpus is pre-fix**; the cohort was frozen 2026-08-06 so it stays
+self-consistent, but no post-Monday capture is comparable for a hybrid-Cleave character.
+Decide and stamp before it ships.
+
 **The five things the audit found wrong — `3m`'s first block:**
 
 1. 🚨 **RV's rank is discarded.** `RIGHTEOUS_VENGEANCE_FRACTION = 0.30` flat, while the
@@ -130,6 +147,16 @@ rescued.** Prereg parenthood exact on all three pairs. Harnesses green (77 arms)
 ---
 
 ## The open threads, in priority order
+
+**-1. 🚨 DEADLINE: MONDAY 10 AUGUST.** The Improved Cleave fix (above) ships that day and
+splits the corpus for every hybrid-Cleave character. Owed in writing **before** it
+lands: intended-vs-delivered decision; a `SYSTEM_IMPAIRMENTS` record shape for the first
+*delivered > intended* case (every existing record is the other way round); and a
+pre-registered gate prediction — this is a rare change whose direction is known in
+advance, which makes it the cleanest prereg opportunity the project has had.
+`talents.py:187` and `seed_confirmed.py:103` must stop disagreeing. ⚠ **`bugfix_watch_
+sweep` did NOT surface this** — it keys on *our own submitted bugs*, and a patch that
+invalidates a model we were right about is invisible to it. Read the changelog by hand.
 
 **0. 🚨 CORRECTNESS BEFORE COVERAGE.** `AUDIT_3L` §5 items 1–4 are three-line fixes plus
 four mutations, and two of them change a gate number. **RV rank + RV pool retraction is
@@ -190,9 +217,15 @@ call); one owner-gated `--with-dbc` run remains the staleness clock; predicate 2
 - ❌ **"RV pools white-swing crits"** — unwarranted; 49/49 worse against the committed
   logs.
 - ❌ **"0 of 36"** — the denominator is **35** since `3k`.
-- ❌ **"two active top-level phases = a transition in progress"** — transitions are
-  ADDITIVE; the current phase is the latest-**starting** active top-level. Ambiguity now
-  means same-`start_date` windows.
+- ⚠ **"transitions on this server are ADDITIVE — raids get added, none removed"** —
+  🆕 **the WARRANT is FALSIFIED, the RULE survives** (`AUDIT_3L` F16, measured
+  2026-08-08). Zul'Gurub and Phase 1.1 both went `is_active: False` overnight, leaving
+  Molten Core the only active phase; the two-active overlap lasted **under ~12 hours**.
+  So a count of 2 **does** mean a transition is in progress — it just **clears itself
+  within a day** rather than never. Retiring `len(tops) != 1` was still correct (it
+  would have NULLed every label during the overlap), and latest-**starting** active
+  top-level resolves correctly in both regimes with no code change. But do not predict
+  the next boundary's shape from "actives accumulate" — they don't.
 - ❌ **"coverage gains are progress toward the gate"** — `3k` P4, falsified by
   measurement; `3l` re-confirmed it (absent 59.9→58.8 with no real slice move).
 - ❌ **"the absent-key targets can't be read from a committed artifact"** — ✅ **retired**,
@@ -253,8 +286,17 @@ unguarded.** In every finding above, the missing half was already in hand.
 - **Daily:** crawler at logon (Task Scheduler). ⚠ If it dies at `assert_phase` ("PHASE
   FLIP DETECTED"), that is a NEW boundary — save the message verbatim. A silent
   label-refusal pile-up would now mean same-`start_date` windows — also report.
-  🆕 The next run also retires the `19:45:34Z` payload horizon that blocks four of the
-  six MC stat blocks, which is E2's precondition.
+  ✅ The `19:45:34Z` horizon is **retired** — the 2026-08-08 run advanced it to
+  `07:05:29Z`, so all six MC stat blocks are phase-resolvable and **E2 is unblocked**.
+  🛑 **The canary now fails on EVERY run and the capture is fine** (`AUDIT_3L` F17):
+  `leaderboards` fell 12.0 → 2.0 rec/run (−83%, threshold 50%) because ZG and Phase 1.1
+  went inactive, so `crawl_leaderboards` walks **one** active phase instead of two. It
+  normalises by run count, which cannot see that. Failures are deliberately not stamped,
+  so the scheduled task retries and fails identically at every logon until it is fixed
+  (normalise by active-phase count; keep the zero-floor arm). Until then the owner must
+  commit `data/source/crawl` + `data/source/changelog` **by hand, with the diagnosis in
+  the message** — precedent `7f28c4e`. Do not raise the threshold to make it pass.
+  🆕 **Read the changelog by hand every session** — see thread -1.
 - **Occasional, overnight, manual:** `catchup_crawler.bat`.
 - **Per client patch:** `run_dbc_extract.bat`. Last *successful* run is the clock —
   currently `2026-08-08T00:48:58`, with `SpellItemEnchantment.dbc` in scope.

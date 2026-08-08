@@ -417,6 +417,13 @@ committed instruments carry.
 The ranking rule: things that make a number **wrong** first, then things that make a
 number **unprotected**, then the delivery work `3l` handed over.
 
+0. 🚨 **BEFORE MONDAY 10 AUGUST — decide and stamp the Improved Cleave question** (F15).
+   The server patch lands that day and splits the corpus for every hybrid-Cleave
+   character. Needed in writing before it ships: does the sim model intended or
+   delivered behaviour; what `SYSTEM_IMPAIRMENTS` looks like for a *delivered >
+   intended* record; and a pre-registered prediction of the gate move, since this is a
+   change whose direction is known in advance and therefore testable. `talents.py:187`
+   and `seed_confirmed.py:103` must stop disagreeing.
 1. 🚨 **Rescore RV by rank** (F3). Read `snapshot_cards.rank`, or map card id → fraction
    `{53380: 0.10, 53381: 0.20, 53382: 0.30}` — it is three lines, and it is a standing
    hard rule. Register a mutation (flatten the map to 0.30) with a named green path.
@@ -457,11 +464,121 @@ number **unprotected**, then the delivery work `3l` handed over.
     35% weapon, Holy, delivery-blocked not extraction-blocked), imbue per-hit (effect 0,
     divisors 77/25 — *stated*), Plague Swarm 276445 (146× gap), school-variant autos,
     Deep Wounds/Ignite/diseases.
-12. **Carried, unchanged:** Devour Mind 287865 (6.63%, largest single absent key — third
+12. ⚠ **Correct the additive-transition warrant** (F16) across `CLAUDE.md`,
+    `PROGRESS.md`, `season_config.py` and `core/builds/phases.py` — the rule stands, the
+    stated reason does not. Annotate `prereg_3k_b0_phase_flip.md` rather than rewriting
+    it. **And fix the crawl canary** (F17) to normalise by active-phase count, or the
+    daily job fails at every logon from here on.
+13. **Carried, unchanged:** Devour Mind 287865 (6.63%, largest single absent key — third
     deferral); Elemental Blast 954892 mechanism; the holdout stays unspent (0 passers,
     correct call); one `--with-dbc` run remains the staleness clock.
 
 ---
+
+## §5a — Post-close, same day: three findings from the 2026-08-08 crawl
+
+Appended 2026-08-08 morning, after the daily crawl (`7f28c4e`). None of these is a `3l`
+defect — `3l` had closed. All three are `3m` inputs, and two of them change what a
+`LIVE` document says.
+
+### F15 🚨 A server patch invalidates the sim's Improved Cleave model on **Monday 10 August**. CONFIRMED
+
+`data/source/changelog/daily/2026-08-08_page1.json`, entry dated `2026-08-07T21:32:22`,
+`[Darkmoon] [Dawnrise]`:
+
+> *"[Going Live Monday, 10 August] Fixed a bug where **Improved Cleave increased hybrid
+> Cleaves weapon damage, rather than only their bonus damage.** Regular Cleave was
+> unaffected. … Improved Cleave is now eligible for reset at Gabril Mewell."*
+
+**This is the `2b`/`2c` finding, declared a bug by the server.** The project read
+`EffectMiscValue = 8 = SPELLMOD_ALL_EFFECTS` over the tooltip's *"increases the bonus
+damage done by your Cleave ability"* — correctly, per its own rule — and modelled ×2.20
+on the whole ability. Ascension has now stated the tooltip described the **intent** and
+`ALL_EFFECTS` was the **broken delivery**. Same shape as `2d`'s Path of Duality lesson,
+fired in the opposite direction: here the numeric field was the bug and the prose was
+right.
+
+**Where it bites, in code.** `core/sim/talents.py:187` admits op 8 into `candidates`,
+and `damage_multiplier` is a **whole-ability** multiplier — so Lightbound Cleave is
+currently modelled as `2.2 × (0.65·W + 9 + AP)`. After Monday the server computes
+`0.65·W + 2.2 × (9 + AP)`. The difference is `1.2 × 0.65 × W` — a pure weapon-damage
+term, i.e. **the nerf scales with weapon damage**, which is exactly where a Hammerdin
+with The Light's Hope is heaviest. No figure is quoted here on purpose: it needs the
+owner's live weapon and AP, and `3m` should measure it rather than inherit an estimate.
+
+⚠ **The seed and the code already disagree, and Monday makes the seed right.**
+`seed_confirmed.py:103` (`improved_cleave_true_magnitude`) states *"applied to the
+AP-scaling **bonus term only** … bonus becomes `(9+AP)*2.2`"* — the fixed formula —
+while `talents.py` applies ALL_EFFECTS. Nobody reconciled them because both readings
+produced a defensible number and only one was ever executed.
+
+**Corpus consequence, and it is the sharp one.** Every crawled parse and every capture
+in the tree is **pre-fix**. The gate cohort was frozen 2026-08-06, so it stays
+internally consistent — but any capture taken from Monday onward is **not comparable to
+the frozen cohort** for a hybrid-Cleave character. `3m` should decide, before Monday and
+in writing, whether the sim models intended or delivered behaviour, and stamp a
+`fixed_on` date. `core/builds/stats.py:97 SYSTEM_IMPAIRMENTS` is the registered home for
+exactly this — but every existing record there is *delivered < intended*, and this is
+the first *delivered > intended* case, so the record shape needs checking rather than
+assuming.
+
+Two smaller notes: the same changelog carries a `[Pending Restart]` Guardian Rune
+stacking fix (not build-relevant); and `bugfix_watch_sweep` did not surface either entry,
+because the watch list keys on **our own submitted bugs** and Improved Cleave was never
+one. **A patch can invalidate a model we were right about — the sweep only catches
+patches that resolve a model we knew was wrong.**
+
+### F16 🚨 The `3k` additive-transition **warrant** is falsified. The decision survives. CONFIRMED
+
+Today's `/api/phases` capture (`2026-08-08T06:05:56Z` and `07:05:29Z`, committed at
+`7f28c4e`):
+
+```
+1  Phase 0                          active False
+2  Phase 1 - Zul'Gurub              active False   <-- was True at 19:45:34Z on 08-07
+3  Phase 1.1                        active False   <-- was True
+4  Phase 2 - Molten Core / Onyxia   active True
+```
+
+`3k`'s stamped owner decision reads: *"raids get added, none removed, so actives
+accumulate every phase and **a count can never mean 'transition in progress'**."*
+Zul'Gurub **was** removed. The overlap ran from `18:00Z` on 08-07 to somewhere before
+`06:05:56Z` on 08-08 — under ~12 hours.
+
+**The rule is still right and needs no code change**: latest-starting active top-level
+gives Molten Core in both regimes, and `assert_phase` passed cleanly today. Retiring
+`len(tops) != 1` was still correct — during the overlap it would have NULLed every
+label. But the *reason on record is wrong in a way that matters*: a count of 2 **does**
+mean a transition is in progress, and it **would have cleared itself within a day**
+rather than never. A future session reading the current warrant will mis-predict the
+next boundary's shape.
+
+Affected `LIVE` text: `CLAUDE.md`'s hard-rules block, `PROGRESS.md`'s `3k` summary,
+`season_config.py`'s module docstring, `core/builds/phases.py`, and
+`prereg_3k_b0_phase_flip.md`'s quoted decision (that one is a `FINDING` and should be
+annotated, not rewritten — it records what was decided on the day).
+
+### F17 ⚠ The crawl canary now fails on every run, and the cause is legitimate server state. CONFIRMED
+
+`canary_check` refused today's auto-commit: `leaderboards` **12.0 rec/run → 2.0 rec/run,
+−83%**, past the 50% `CANARY_DROP_RATIO`. Verified by hand — the capture is sound:
+
+| | 2026-08-07 | 2026-08-08 |
+|---|---|---|
+| active phases | ZG (phase 1) + Phase 1.1 (phase 2) | Molten Core only (phase 3) |
+| leaderboard queries written | ZG ascended/normal, Scarlet Monastery, World Bosses, ×2 phases = **12** | Molten Core normal, dps + tank = **2** |
+
+`crawl_leaderboards` walks `active phases × locations × difficulties × roles`. The
+denominator that changed is **active phases**, and the canary normalises by **run
+count** (`runs_now = now["phases"]`), which cannot see it. So a completed phase
+transition trips the guard permanently, and because failures are deliberately not
+stamped, the scheduled task retries and fails identically at every logon.
+
+The guard behaved correctly — it refused an unexplained drop, and the drop needed
+explaining. The defect is that it has no way to be satisfied. Fix direction: normalise
+by active-phase count (or by query count attempted vs written), and keep the absolute
+zero-floor arm as-is. Today's capture was committed by hand at `7f28c4e` with the
+diagnosis in the message.
 
 ## §6 — Tone note for the next session
 
