@@ -259,3 +259,41 @@ misranking cost **18%** of his simmed damage.
 5. **The Monday split.** Every parse in the corpus is pre-fix; the cohort stays
    pre-fix by owner decision. No capture from 10 August onward is comparable to it
    for a hybrid-Cleave character.
+
+---
+
+## §11 — APPENDED at `3n` pre-flight, 2026-08-08 — two magnitudes in this record had no owner
+
+> Appended, not rewritten: this document is `HISTORICAL` and the text above is
+> what `3m` wrote. These two corrections come from `AUDIT_3M_ADVERSARIAL.md` F3.
+
+**1. "13 of 15 predictions confirmed" is a hand tally that reproduces from no
+committed artifact.** Counted directly from the three preregs' own scored tables,
+the real figure is:
+
+| prereg | scored table | confirmed | falsified | split |
+|---|---|---:|---:|---:|
+| B — `prereg_3m_b_improved_cleave.md` | P1–P7 | 4 | 2 (P3, P5) | 1 (P6) |
+| C — `prereg_3m_c_correctness.md` | P1–P7 | 7 | 0 | 0 |
+| D — `prereg_3m_d_guid_windowing.md` | P1–P6 | 6 | 0 | 0 |
+| **total** | | **17** | **2** | **1** |
+
+**20 predictions, not 15.** "13 of 15" reproduces only under one unstated counting
+— drop the five "the gate does not move" predictions *and* score the
+half-falsified P6 as confirmed — which resolves an ambiguity **in the flattering
+direction**. That is the `AUDIT_3L` F11 arm-count lesson recurring **inside the
+very close-out that fixed the arm count**: a magnitude in a document with no tool
+emitting it. Quote per-block counts read from the scored tables
+(**B 4✓·2✗·1 split · C 7/7 · D 6/6**), never a summed headline.
+
+**2. "58.83%" absent share exists in no committed output.** The emitter
+(`tools/audit/per_ability_accuracy.py` → `predictions/per_ability_summary.json`)
+carries `key_state_share_of_cohort_logged_pct.absent = 58.8` — **one decimal**.
+The extra digit was added in prose. Every occurrence should read **58.8**.
+
+⚠ **A consequence worth stating rather than papering over:** at one decimal the
+artifact **cannot** support a claim that absent share was "unchanged" at a finer
+resolution than ±0.05 pp. `3m`'s "unchanged" claim is true at the precision the
+tool emits and is not evidence at any tighter one. Left as a named limitation
+rather than silently upgrading the emitter, which would change an artifact
+outside a baseline.

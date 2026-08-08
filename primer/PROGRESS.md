@@ -9,10 +9,14 @@
 >
 > 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
 > `30.426% → 30.040% (n=24)` — published **−0.385 pp** AND same-member
-> **−0.385 pp**, membership unchanged; absent `58.83%` unchanged.** Coverage and
-> accuracy together, per the standing rule. **13 of 15 predictions confirmed
-> across three preregs, both falsifications diagnosed to ONE mechanism, none
-> rescued.** Every gate-capable commit has a prereg as its commit-parent
+> **−0.385 pp**, membership unchanged; absent `58.8%` unchanged.** Coverage and
+> accuracy together, per the standing rule. **Predictions, per block, read from
+> the scored prereg tables: `B 4✓·2✗·1 split · C 7/7 · D 6/6` — 20 in total,
+> 17 confirmed.** Both falsifications diagnosed to ONE mechanism, none rescued.
+> ⚠ Corrected `3n` pre-flight (`AUDIT_3M` F3): this block previously read
+> *"13 of 15 predictions"* and *"58.83%"* — a hand tally reproducing from no
+> committed artifact, and a digit the emitter does not print (it emits **58.8**).
+> Every gate-capable commit has a prereg as its commit-parent
 > (`196838c`→`9267660`, `dee3ebd`→`fd11099`, `263e6db`→`766b269`).
 >
 > 🚨 **THE GATE MOVED DOWN, AND THAT IS THE CORRECT DIRECTION.** Two repairs (RV's
@@ -79,7 +83,7 @@
 > **(2) E2** — `infer_coefficient` on the six Elric MC stat blocks, **its SECOND
 > carry, stamped**, with the GUID windowing now landed under it
 > (`core/logs/encounters.py` — Garr's naive window is **2,138.6 s against
-> 382.6 s**); **(3) delivery modelling**, still 58.83% absent, now with aura 344
+> 382.6 s**); **(3) delivery modelling**, still 58.8% absent, now with aura 344
 > correctly identified.
 >
 > **The gate, closing state:**
@@ -91,7 +95,7 @@
 > | slice accuracy at ≥20% coverage | **30.040% (n=24)** |
 > | …published Δ / same-member Δ | **−0.385 pp / −0.385 pp** |
 > | admissible-only slice | **27.40% (n=21)** |
-> | absent share of cohort logged damage | **58.83%** (unchanged) |
+> | absent share of cohort logged damage | **58.8%** (unchanged; 1 dp is all the emitter prints) |
 > | producing median ratio | **0.3234 (n=117)** (unchanged) |
 > | criterion (≥3 within ±20%) | **NOT MET** |
 > | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |

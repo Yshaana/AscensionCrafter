@@ -165,13 +165,16 @@ Schema in `INDEX_GUIDE.md`.
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
   date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
   `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
-  as generated at `3m`'s close-out, 2026-08-08 — the session record landing and the work
-  order flipping to `SUPERSEDED` moved it **twice inside `3m` alone** (73 → 74 at
-  pre-flight, 74 → 75 here), which is the **fifth** time this rule has earned its keep
-  and the third in two days:
+  as generated at `3n`'s pre-flight, 2026-08-08 — the audit and the `3n` work order
+  landing moved it **75 → 77** on their own, one commit after `3m`'s close-out had
+  already moved it **twice inside `3m` alone** (73 → 74 at pre-flight, 74 → 75 at
+  close). That is the **sixth** time this rule has earned its keep and the fourth in
+  two days, and the pattern is now fully regular: **every cycle boundary moves the
+  census at least twice**, because a cycle *is* documents landing and expiring. A
+  hand-typed census is wrong by construction, not by accident:
 
   ```
-  [census] primer/ status lines: 75 files — 13 LIVE / 41 HISTORICAL / 8 SUPERSEDED / 13 FINDING
+  [census] primer/ status lines: 77 files — 14 LIVE / 41 HISTORICAL / 8 SUPERSEDED / 14 FINDING
   ```
 
   🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).

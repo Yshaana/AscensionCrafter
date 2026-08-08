@@ -64,12 +64,28 @@ same-day measurements on our own character.
 | Piece | What it does | Evidence |
 |---|---|---|
 | Lightbound Cleave (R5 at 60) | 62 flat + 65% MH weapon damage, Holystrike, **off-GCD next-swing queue** — stacks on top of any GCD rotation | 53 isolated single-target hits, 2026-08-05: avg 493 pre-resist unbuffed (MH 415–518 @ 3.57) |
-| Improved Cleave 3/3 | +120% to **all** effects (`SPELLMOD_ALL_EFFECTS`, class mask byte-identical to LC's, family 4) → **×2.20** | numeric-field proof, session `2c`; not yet parse-verified on our board (card not owned) |
+| Improved Cleave 3/3 | 🛑 **CORRECTED 2026-08-08** — **bonus-term-only** from 2026-08-10: `+120%` at 3/3 multiplies the **flat 62 alone**, not the 65% weapon component. Was whole-ability `×2.20` (`SPELLMOD_ALL_EFFECTS`) until the server declared that a **bug** and fixed it. | changelog 2026-08-10 + `improved_cleave_true_magnitude`; the `2c` numeric-field proof described the *delivered* behaviour, not the intended one |
 
-**Rough value at our unbuffed stats:** LC nets ~+133 per MH swing over the auto
-it replaces (auto avg 360); with Improved Cleave ×2.20 → ~1,085 per LC, net
-**~+725 per swing ≈ +200 DPS single-target for two slots**, scaling with weapon
-damage and crit (percentage-based, gear-proof).
+🛑 **VALUE RETRACTED 2026-08-08 (`3n` pre-flight, `AUDIT_3M` F2 blast radius).** The
+paragraph below computed Improved Cleave's worth as `×2.20` on the **whole** ability
+(~1,085 per LC, ~+725 per swing, **≈ +200 DPS for two slots**). Ascension declared that
+multiplier a bug and fixed it live **2026-08-10**; the card is **bonus-term-only** now.
+
+**Corrected value, from the owner's own stat block (The Light's Hope):** the weapon is
+**87.1%** of Lightbound Cleave's base, so Improved Cleave 3/3 falls from **578.1 to 74.4
+damage per hit — a −87.1% collapse in what the card is worth.** Lightbound Cleave itself
+falls **47.5%**. ⚠ **The nerf scales *with* weapon damage — the better the main hand, the
+less the card is worth**, which inverts the usual "percentage multipliers are gear-proof"
+reasoning the original paragraph leaned on. Resettable at Gabril Mewell.
+
+⚠ **This package's premise is what changed, not just its arithmetic.** It was sold as two
+slots buying a large multiplier on a large weapon-damage component; the weapon component is
+exactly the part the fix removed. Re-rank before slotting.
+
+*Original text, kept for history:* LC nets ~+133 per MH swing over the auto it replaces
+(auto avg 360); with Improved Cleave ×2.20 → ~1,085 per LC, net ~+725 per swing ≈ +200 DPS
+single-target for two slots, scaling with weapon damage and crit (percentage-based,
+gear-proof).
 
 **Why it travels (measured 2026-08-05, the key property):** LC is
 **engine-inert** — proc-tested feeding **zero** Hammerdin, zero Purification By

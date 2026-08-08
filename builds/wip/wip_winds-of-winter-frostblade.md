@@ -235,13 +235,17 @@ Titanic Mutilate ×2 = 4 CP. No scanned character's data resolved the 5th-point 
 - **Doesn't touch the combo-point economy at all** — pure bonus damage layered on top, independent of the generate/spend cycle.
 - **Improved Cleave (20496) is already owned at what appears to be max rank (3/3)** — no reroll chase needed. This is the DBC-confirmed +40%/rank (`improved_cleave_true_magnitude`), giving +120% at 3/3 on the Cleave family's AP-scaling bonus term.
 
-**Formula (v8: DBC-confirmed directly, not just extended by family pattern)** — Frostbound Cleave's own `effect_json` (spell 907340) is byte-identical to Lightbound Cleave (907300) and Voidbound Cleave (907280), field for field: `weapon_dmg × 0.65 + (9 + AP) × 2.2` at Improved Cleave 3/3.
+🛑 **FORMULA AND PREDICTED HITS RETRACTED 2026-08-08 (`3n` pre-flight, `AUDIT_3M` F2 blast radius).** The v8 block below read `weapon_dmg × 0.65 + (9 + AP) × 2.2` at Improved Cleave 3/3, predicting **973 (Strength) / 700 (Duality) / 606 (Intelligence)**. **Every one of those numbers is withdrawn**, on three independent grounds:
 
-| Path | Predicted hit |
-|---|---|
-| Strength | 973 |
-| Duality | 700 |
-| **Intelligence (current recommendation)** | **606** |
+- **There is no AP term.** The `(9 + AP)` came from reading `EffectBonusCoefficient = 1.0` as a 1:1 AP coefficient. Session `1x` established the day after this doc was written that the field is stock `EffectBonusMultiplier`, whose **neutral value is exactly 1.0** (7,647 of 9,211 non-zero values). Effect 0 is a **flat**.
+- **`9` is the Rank 1 value.** The byte-identical Lightbound Cleave reads a flat **62** at Rank 5 (907304), the rank a level-60 character casts. Frostbound Cleave's level-60 flat is unresolved — it needs `dbc_spell_rank`, not this row.
+- **The `× 2.2` was whole-ability only under a server bug.** Ascension declared Improved Cleave's whole-ability multiplier a bug and fixed it **live 2026-08-10**: it is **bonus-term-only** now, so it multiplies the flat and leaves the weapon component alone.
+
+**What survives:** the structural claim — Frostbound Cleave's `effect_json` (907340) *is* byte-identical to Lightbound Cleave (907300) and Voidbound Cleave (907280), field for field. The family inference was sound; the magnitude it carried was not.
+
+⚠ **The Path conclusion this table fed is also void.** With no AP term, Frostbound Cleave is **not** "the one place the Path of Intelligence recommendation costs real damage" — that argument was entirely the phantom AP coefficient. It must not be used to weigh the Path choice. The Intelligence recommendation stands on Winds of Winter's own scaling, which is unaffected.
+
+*Original v8 text, kept for history:* Frostbound Cleave's own `effect_json` (spell 907340) is byte-identical to Lightbound Cleave (907300) and Voidbound Cleave (907280), field for field: `weapon_dmg × 0.65 + (9 + AP) × 2.2` at Improved Cleave 3/3 → Strength 973 / Duality 700 / Intelligence 606.
 
 **The one real cost of the Path of Intelligence recommendation:** Frostbound Cleave scales off Attack Power, and Intelligence sacrifices AP hardest of the three paths. This doesn't change the Path recommendation — Winds of Winter is still 60%+ of total damage and wins outright under Intelligence per §4 — but it's a real, quantified tradeoff worth weighing once a parse exists, since it's the first piece of this build where the Intelligence pick isn't a strict upgrade over the alternatives.
 
