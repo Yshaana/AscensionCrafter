@@ -2361,6 +2361,100 @@ def check_stat_block_tolerates_session_lines():
           f"target={rf.get('Target')!r}")
 
 
+def check_imbue_attack_power_matches_the_capture():
+    """`3o` Block C (`AUDIT_3N` F1) — the imbue's AP grant equals what the
+    capture measured, asserted where it EXECUTES.
+
+    `3n` retired the "+88 AP per imbue" in both seeds and its commit said "and
+    its blast radius"; `core/sim/buffs.py` kept executing 88.0 inside the gate
+    pipeline (`group_buffs.derive_buffs` → `calibrate_crawled.py:1042`, 6 of the
+    35 tuning-set members). Two corrected seeds and one uncorrected constant is
+    the `3m` C3 shape exactly — the seed and the code stating different
+    formulas, with only one of them ever executed.
+
+    🛑 THE ARM READS THE CAPTURE FILE, NOT A CONSTANT COPIED FROM IT. Asserting
+    `attack_power == 80.0` against a literal 80.0 written here would be true of
+    any value both places happened to share, and would go green again the moment
+    someone "fixed" both. The three-step export states AP at each step; the
+    per-step delta IS the grant, and that is what is compared.
+
+    ⚠ It also pins the SP half, which reproduced across BOTH captures while the
+    AP half did not. An arm that only watched the moving number would not notice
+    the stable one drifting.
+
+    MUTATION THAT MAKES THIS FAIL (M72, red, RUN 2026-08-08): restore
+    `attack_power=88.0` — the value that actually shipped from `3k` to `3n`.
+    GREEN PATH: 80.0, the measured delta.
+    """
+    from core.sim.buffs import CONSECRATED_WEAPON_IMBUE
+    from core.builds.stat_block import parse_stat_block
+
+    cap = (Path(__file__).resolve().parents[2] / "data" / "source" / "captures"
+           / "2026-08-08_elric_lbc_baseline_imbue_test"
+           / "stat_export_consecrated_weapon_3step.txt")
+    if not cap.exists():
+        check("[3o-C] the 2026-08-08 three-step imbue capture is present — the "
+              "buff constant's evidence must exist to be checkable",
+              False, f"missing: {cap}")
+        return
+
+    text = cap.read_text(encoding="utf-8", errors="replace")
+    blocks, cur = [], None
+    for ln in text.splitlines(keepends=True):
+        if ln.lstrip().startswith("==="):
+            if cur:
+                blocks.append("".join(cur))
+            cur = [ln]
+        elif cur is not None:
+            cur.append(ln)
+    if cur:
+        blocks.append("".join(cur))
+    parsed = []
+    for b in blocks:
+        try:
+            parsed.append(parse_stat_block(b))
+        except Exception:                                     # noqa: BLE001
+            pass
+
+    aps = [p.get("attack_power") for p in parsed
+           if p.get("attack_power") is not None]
+    holy = [(p.get("spell_power_by_school") or {}).get("Holy")
+            for p in parsed]
+    holy = [h for h in holy if h is not None]
+    bh = [p.get("bonus_healing") for p in parsed
+          if p.get("bonus_healing") is not None]
+
+    check("[3o-C] the capture carries the three imbue steps it is cited for",
+          len(aps) >= 3 and len(bh) >= 3,
+          f"{len(aps)} AP readings, {len(bh)} BonusHealing readings")
+    if len(aps) < 3 or len(bh) < 3:
+        return
+
+    ap_steps = [round(aps[i + 1] - aps[i], 3) for i in range(len(aps) - 1)]
+    bh_steps = [round(bh[i + 1] - bh[i], 3) for i in range(len(bh) - 1)]
+    measured_ap = ap_steps[0] if ap_steps else None
+
+    check("[3o-C] the imbue's AP steps are EQUAL to each other — a per-weapon "
+          "grant that differed between two identical steps would mean the "
+          "sheet had not settled, and no single constant would be right",
+          len(set(ap_steps)) == 1, f"AP steps {ap_steps}")
+    check("[3o-C] CONSECRATED_WEAPON_IMBUE.attack_power EQUALS the measured "
+          "per-step AP delta from the capture bytes — the value asserted "
+          "against its evidence, at the one site where it executes",
+          CONSECRATED_WEAPON_IMBUE.attack_power == measured_ap,
+          f"code {CONSECRATED_WEAPON_IMBUE.attack_power} vs measured "
+          f"{measured_ap} (steps {ap_steps})")
+    # The stable half, pinned so a drift there cannot pass unnoticed.
+    check("[3o-C] …and the raw Holy SP grant still equals the BonusHealing "
+          "step (86), the half that reproduced across BOTH captures while the "
+          "AP half did not",
+          CONSECRATED_WEAPON_IMBUE.raw_spell_power_by_school.get("Holy")
+          == bh_steps[0],
+          f"code {CONSECRATED_WEAPON_IMBUE.raw_spell_power_by_school} vs "
+          f"BonusHealing steps {bh_steps}, Holy-SP field steps "
+          f"{[round(holy[i+1]-holy[i], 3) for i in range(len(holy)-1)]}")
+
+
 def check_capture_gap_is_derived_at_millisecond_precision():
     """`3o` Block B (`AUDIT_3N` F7) — the capture gap is DERIVED from the log
     files' own stamps, at the precision the client writes them.
@@ -2493,6 +2587,7 @@ def main():
     check_predictions_json_status()
     check_band_table_matches_manifest()
     check_blocked_question_count()
+    check_imbue_attack_power_matches_the_capture()
     check_stat_block_tolerates_session_lines()
     check_capture_gap_is_derived_at_millisecond_precision()
     print()

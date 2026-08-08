@@ -31,6 +31,26 @@ from dataclasses import dataclass, field
 CAPTURE = ("2026-08-05 incremental buff capture, "
            "data/source/captures/2026-08-05_elric_2e_poi_baseline/")
 
+# 🚨 `3o` Block C — the capture that RETIRED the +88 imbue AP figure.
+#
+# ⚠ THE TWO CAPTURES DISAGREE ON THE AP HALF AND AGREE EXACTLY ON THE SP HALF,
+# and the owner supplied the discriminator: the `2e` +88 was measured with
+# BLESSING OF KINGS UP (its steps 4->5 read AP 258->346 with gear identical),
+# while this one is UNBUFFED — and 80 x 1.10 = 88 exactly. That unifies it with
+# the open question `str_to_ap_1_21_under_buffs` (1.21 = 1.10 x 1.10): one
+# mechanism seen twice, not two puzzles.
+#
+# 🛑 REGISTERED, NOT MODELLED. Nothing in this module multiplies the imbue by a
+# second 1.10 under Kings. `Buff.attack_power` is the POST-DEADLINESS OBSERVED
+# grant and `apply_buffs` adds it without the Kings multiplier, so the value
+# belongs to the unbuffed state this capture measures. Applying an unexplained
+# multiplier because it makes a number come out right is fitting; the buffed
+# case is a named residual with a stated discriminator (one export pair, Kings
+# alone vs unbuffed, predicting +88 vs +80).
+CAPTURE_2026_08_08 = (
+    "2026-08-08 LBC baseline + imbue test, "
+    "data/source/captures/2026-08-08_elric_lbc_baseline_imbue_test/")
+
 
 @dataclass(frozen=True)
 class Buff:
@@ -78,10 +98,11 @@ ARCANE_BRILLIANCE = Buff(
 CONSECRATED_WEAPON_IMBUE = Buff(
     name="Consecrated Weapon (imbue)",
     raw_spell_power_by_school={"Holy": 86.0},
-    attack_power=88.0,
+    attack_power=80.0,
     ranged_attack_power=80.0,
     stacks_per_weapon=True,
-    evidence=CAPTURE + " (steps 4 and 5, one weapon each, identical deltas)",
+    evidence=CAPTURE_2026_08_08 + " (three-step imbue: AP 141 -> 221 -> 301, "
+             "i.e. +80 and +80 on a settled sheet, UNBUFFED)",
     notes="🆕 STACKS ONCE PER WEAPON — under Titan's Grip both weapons carry it "
           "and both grants apply (Holy SP premium 1050-706 = 344 = 2 x 172). "
           "School-scoped, so it separates Holy from general spell power and "
