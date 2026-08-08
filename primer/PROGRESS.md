@@ -2,6 +2,98 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-08 — SESSION `3n` IS DONE.** Record:
+> `primer/Session_2026-08-08_3n_clocks.md`. Work order it ran:
+> `primer/SESSION_3N_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3M_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
+> `30.040% → 30.150% (n=24)` — published **+0.11 pp** AND same-member
+> **+0.11 pp**, membership unchanged; producing median `0.3234 (n=117) →
+> 0.2571 (n=123)`, published **−0.0562** AND same-member **−0.0562**; absent
+> `58.8% → 59.0%`.** Predictions, per block, from the scored table:
+> **B 8✓ · 1✗ (9 total)**. The one falsification is diagnosed and not rescued.
+> Prereg parenthood: `fdf9851` → `14ec3dc` (leg 1) and `fdf9851` → `fc9a36c`
+> (leg 2).
+>
+> 🚨 **THE TWO HEADLINE INSTRUMENTS MOVED IN OPPOSITE DIRECTIONS AND BOTH PAIRS
+> ARE EQUAL** — so both are accuracy, not composition. Not a contradiction: the
+> slice is per **character** over that character's modelled abilities; the
+> producing median is per **ability row**, unweighted. Block B moved damage out
+> of a row every melee character has (autos) into rows only 12 have. First time
+> in the arc they have disagreed in sign with both pairs equal — and **neither
+> is the gate**, which is unchanged at 0 of 35.
+>
+> * ✅ **THE APL CLOCK FIX LANDED, IN TWO LEGS.** `is_next_swing` was decoded in
+>   `mechanics.py` and **read by nothing in `core/sim/`**; these abilities also
+>   fail the off-GCD test on a technicality (all 11 resolve `gcd_type = None`).
+>   Leg 1 gives them a **swing budget**; leg 2 makes them **replace** the white
+>   swing they ride. Starved allocations **105 → 94**.
+> * 🚨 **A CORRECTION TO `3m` §9:** its *"44.52 casts"* is **not** the swing
+>   clock — it is the GCD-budget count. Blix's real clock gives **23.936**, so
+>   the fix hands Lightbound Cleave roughly **half** what that figure implies. A
+>   number read off the wrong clock, in the section diagnosing a wrong clock.
+> * 🚨 **LEG 1 IS THE PUREST P4b INSTANCE YET:** the producing median FELL and
+>   **nothing became less accurate** — 11 starved abilities returned carrying a
+>   median ratio of **0.2061**, below the sitting median. They were always this
+>   badly modelled and were invisible because they cast zero times. **Fixing the
+>   clock made an existing error countable.**
+> * 🚨 **E2's BLOCKER IS REPLACED, NOT RESTATED.** `refused:no_per_parse_stats`
+>   is **LIFTED** for Gehennas (AP 488 held across it; **logged 319.8 s** vs wall
+>   379.8 s — dividing by wall understates DPS 15.8%). 1 of 4 windows admissible;
+>   Garr refuses because five stats move together across it. What blocks a
+>   coefficient now is **arithmetic**: one window is one point, and a coefficient
+>   is a slope. **The fix is a capture protocol** — a stat block immediately
+>   before and after each pull.
+> * 🛑 **TWO DRAFTS OF ONE CHECK WERE VACUOUS, AND ONLY RUNNING THE MUTATION
+>   FOUND IT.** The second is the new lesson: it asserted `rate_limit ==
+>   "swing_budget"` and stayed green under M70, **because the label is computed
+>   by a separate expression from the allocation** — the mutant left it reading
+>   `swing_budget` beside `casts = 0.0`. **A string describing what the code
+>   MEANT is not evidence of what it DID.**
+> * 🚨 **`2e`'s "+88 AP per imbue" DOES NOT REPRODUCE** (owner capture landed
+>   mid-session): **+80**, i.e. **×1.096** against the decoded 73 — one ordinary
+>   ×1.10, not two. **The ×1.21 is retired** in both seeds. ⚠ The SP half (+172 =
+>   2×86, BH +86) reproduces **exactly** in both captures; only the AP half moved.
+> * 🚨 **THE OWNER HOLDS IMPROVED CLEAVE 0/3 — he never rolled it.** Monday's
+>   patch changes his damage by **exactly zero**; it changes the card's chase
+>   value only. **The fix-shipped detector cannot come from his captures at all**
+>   — it needs post-Monday parses of card-holding cohort members (Blix,
+>   Lootgoblin, Robottikyrpa, Nodding). Chase-list re-rank written:
+>   `builds/my-builds/chase_improved-cleave_rerank_2026-08-08.md`.
+> * ⚠ **PRE-FLIGHT FOUND FIVE SIBLING SITES THE AUDIT DID NOT NAME**, including
+>   the seed that was the **root** of the retracted `9+AP` and two live build
+>   docs. `AUDIT_3M`'s blast-radius rule paid immediately.
+>
+> **Next session is `3o`. The registered load-bearing problems, in order:**
+> **(1) delivery modelling** — absent **59.0%**, Devour Mind now registered with
+> an ordered plan; **(2) E1**, the date-aware impairment — needed before a
+> **card-holder's** post-Monday parse is compared to anything pre-fix, not before
+> the owner's next capture; **(3) three fresh unscored measurements** — the
+> ×1.141 LBC residual, the 88-vs-80 imbue AP delta, and the sheet weapon-damage
+> +15.4×speed anomaly.
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 35) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **30.150% (n=24)** |
+> | …published Δ / same-member Δ | **+0.11 pp / +0.11 pp** |
+> | admissible-only slice | **27.4% (n=21)** |
+> | absent share of cohort logged damage | **59.0%** |
+> | producing median ratio | **0.2571 (n=123)** |
+> | …published Δ / same-member Δ | **−0.0562 / −0.0562** |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |
+>
+> 🛑 The holdout row is **not** like-for-like with the rows above it; do not
+> compute a tuning-vs-holdout gap from this table.
+
+<details><summary>Superseded: the <code>3m</code> top block</summary>
+
+
 > ✅ **2026-08-08 — SESSION `3m` IS DONE.** Record:
 > `primer/Session_2026-08-08_3m_repair.md`. Work order it ran:
 > `primer/SESSION_3M_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
@@ -103,6 +195,9 @@
 > 🛑 The holdout row is **not** like-for-like with the rows above it (read before
 > E15 and before every `3l`/`3m` fix); do not compute a tuning-vs-holdout gap
 > from this table.
+
+
+</details>
 
 <details><summary>Superseded: the <code>3l</code> top block</summary>
 

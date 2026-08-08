@@ -1,9 +1,11 @@
 # SESSION `3N` PRIMER — the APL clock fix, the first coefficients, and delivery's opening
 
-> **`LIVE`** — the work order for session `3n`, drafted 2026-08-08 (afternoon) from
-> `AUDIT_3M_ADVERSARIAL.md` (§5 is the source list). **SUPERSEDED BY
-> `primer/Session_<date>_3n_*.md` when `3n` closes** — mark it in the close-out
-> commit, not in a later cleanup.
+> **`SUPERSEDED BY primer/Session_2026-08-08_3n_clocks.md`** — the work order for
+> session `3n`, drafted 2026-08-08 from `AUDIT_3M_ADVERSARIAL.md`. Marked in `3n`'s
+> own close-out commit, per its own instruction. ⚠ Its **E1 detector note is
+> AMENDED** by the owner's mid-session capture: the fix-shipped detector cannot come
+> from the owner's captures at all, because he holds Improved Cleave 0/3 — see the
+> record's §7.
 
 **Audit implemented:** `primer/AUDIT_3M_ADVERSARIAL.md` (landed at `3n` pre-flight).
 **Previous session record:** `primer/Session_2026-08-08_3m_repair.md`.
