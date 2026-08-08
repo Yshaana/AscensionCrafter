@@ -242,16 +242,28 @@ next capture. The frozen cohort is entirely pre-fix and the owner holds the card
 
 | harness | result |
 |---|---|
-| `check_refusals.py` | exit 0 — **`[arms] check_refusals.py: 102 arms — 102 passed / 0 failed`** |
+| `check_refusals.py` | exit 0 — **`[arms] check_refusals.py: 98 arms — 98 passed / 0 failed`** |
 | `check_core_purity.py` | exit 0 — 52 files, 0 violations |
 | `check_sim_engine.py` | exit 0 — all checks pass |
 | `check_addon_lua.py` | 14/14 against a stubbed Lua 5.1 client (optional, needs `lupa`) |
 
 ⚠ **The arm count moves with the WORKING TREE'S cleanliness**, not only with
 added arms: the `[A7]`/`[E6]` fixtures exercise the dirty-tree manifest refusal,
-which cannot be tested on a clean tree, so a dirty tree runs four arms a clean
-one does not. Cite the clean-tree line. Census regenerated in every `primer/`
-commit.
+which cannot be tested on a clean tree, so a dirty tree runs **four** arms a
+clean one does not (98 clean / 102 dirty at this close). Cite the clean-tree
+line. Census regenerated in every `primer/` commit.
+
+🛑 **AND THIS TABLE GOT IT WRONG ON ITS FIRST WRITING — corrected before the
+session ended.** It cited **102** as the clean-tree figure, which is the *dirty*
+count: I had run the harness mid-edit, all session, and carried the number I
+kept seeing into a row explicitly labelled "clean tree". The close-out commit
+message carries the same 102 and cannot be amended. That is the arm-count rule's
+own failure mode — *"a magnitude in a document with nothing asserting it"* —
+landing in the close-out that quotes the rule, one cycle after `3n` did the same
+with three numbers. **The census beside it is asserted and was right; the arm
+count is not asserted and was wrong.** The lesson is not "be careful": it is
+that the two numbers on this page have different owners, and only one of them
+has a tool that will argue back.
 
 ## §10 — What `3o` hands to `3p`
 
