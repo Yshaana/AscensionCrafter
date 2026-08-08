@@ -1136,6 +1136,101 @@ def _gear_fixture_conn(n_snapshots, captured_at):
     return conn
 
 
+def check_encounter_kill_window():
+    """`3m` D (`AUDIT_3L` F13) — a window is built on the KILL GUID, and an
+    ambiguous or absent kill REFUSES.
+
+    Synthetic fixture, so it runs on every clone with no capture present. The
+    shape is the real Molten Core one: a wipe, then the kill, plus a boss that is
+    engaged three times and never dies.
+
+    RED — M67: in `kill_window`, window on the boss NAME — use
+    `encounters[0]["first"]` instead of the kill GUID's own `first`. Arm 2 goes
+    red: the wipe is folded back in and the window inflates.
+    RED — M68: delete the `if not kills:` refusal so a no-kill boss returns the
+    last attempt. Arm 3 goes red.
+    RED — M69: delete the `if len(kills) > 1:` refusal so the first kill is
+    picked silently. Arm 4 goes red.
+
+    GREEN is the fix in each case, and arm 1 asserts the tool still WORKS on the
+    ordinary single-pull case — so a mutation that refuses everything fails too.
+    """
+    from core.logs.encounters import kill_window
+
+    def L(ts, guid, name, extra=""):
+        return f"8/7 {ts}  SPELL_DAMAGE,{guid},\"{name}\",0x10,{extra}\n"
+
+    def D(ts, guid, name):
+        return f"8/7 {ts}  UNIT_DIED,{guid},\"{name}\",0x10,\n"
+
+    WIPE, KILL = "0xF13000000000AAAA", "0xF13000000000BBBB"
+    lines = (
+        [L("19:00:00.000", WIPE, "Bosso")] + [L("19:02:00.000", WIPE, "Bosso")]
+        + [L("19:05:00.000", KILL, "Bosso")] + [D("19:06:40.000", KILL, "Bosso")]
+        + [L("20:00:00.000", "0xF13000000000C001", "Nokill")]
+        + [L("20:01:00.000", "0xF13000000000C001", "Nokill")]
+        + [L("20:10:00.000", "0xF13000000000C002", "Nokill")]
+        + [L("20:11:00.000", "0xF13000000000C002", "Nokill")]
+    )
+
+    # --- 1. the ordinary case still works -----------------------------------
+    solo = [L("21:00:00.000", KILL, "Solo"), D("21:01:00.000", KILL, "Solo")]
+    r0 = kill_window(solo, "Solo")
+    check("[3m-D] a single-pull boss returns a window — the refusals do not "
+          "swallow the ordinary case",
+          r0["ok"] and abs(r0["wall_seconds"] - 60.0) < 0.01
+          and r0["attempts"] == 1,
+          f"{ {k: r0.get(k) for k in ('ok', 'wall_seconds', 'attempts')} }")
+
+    # --- 2. the KILL guid, not the name -------------------------------------
+    r = kill_window(lines, "Bosso")
+    check("[3m-D] the window is built on the KILL GUID and excludes the wipe — "
+          "100s, not the 400s that windowing on the boss NAME gives (on the real "
+          "capture: Gehennas 379.8s not 603.6s, Garr 382.6s not 2,138.6s)",
+          r["ok"] and abs(r["wall_seconds"] - 100.0) < 0.01
+          and r["guid"] == KILL and r["attempts"] == 2,
+          f"guid={r.get('guid')}, wall={r.get('wall_seconds')}, "
+          f"attempts={r.get('attempts')}")
+
+    # --- 3. no kill REFUSES, and says why -----------------------------------
+    rn = kill_window(lines, "Nokill")
+    check("[3m-D] a boss engaged repeatedly and NEVER killed REFUSES by name — "
+          "it does not return the longest or the last attempt (Baron Geddon: "
+          "3 attempts, no UNIT_DIED, in the real capture)",
+          rn["ok"] is False and "NEVER died" in rn["reason"]
+          and rn["attempts"] == 2,
+          f"ok={rn['ok']}, attempts={rn.get('attempts')}, "
+          f"reason={rn.get('reason', '')[:80]!r}")
+
+    # --- 4. TWO kills REFUSE rather than picking the first ------------------
+    twice = lines[:4] + [L("22:00:00.000", "0xF13000000000DDDD", "Bosso"),
+                         D("22:02:00.000", "0xF13000000000DDDD", "Bosso")]
+    r2 = kill_window(twice, "Bosso")
+    check("[3m-D] TWO GUIDs carrying a UNIT_DIED REFUSE — an ambiguous answer is "
+          "recorded as ambiguous, never resolved by list order (the same rule "
+          "rank resolution follows)",
+          r2["ok"] is False and "killed more than once" in r2["reason"]
+          and len(r2.get("candidates", [])) == 2,
+          f"ok={r2['ok']}, candidates={r2.get('candidates')}")
+
+    # --- 5. a capture gap is SUBTRACTED and NAMED ---------------------------
+    rg = kill_window(lines, "Bosso", gaps=[(_secs("19:05:30"), _secs("19:06:00"))])
+    check("[3m-D] a capture gap inside the window is subtracted from "
+          "logged_seconds AND named — a window is not coverage of that window "
+          "(the real Gehennas kill spans a 59.8s client crash: wall 379.8s, "
+          "logged 320.1s)",
+          rg["ok"] and abs(rg["wall_seconds"] - 100.0) < 0.01
+          and abs(rg["logged_seconds"] - 70.0) < 0.01
+          and any("NO LOG" in n for n in rg["notes"]),
+          f"wall={rg.get('wall_seconds')}, logged={rg.get('logged_seconds')}")
+
+
+def _secs(hhmmss):
+    """`HH:MM:SS` on 8/7, in the same seconds-within-year space the module uses."""
+    from core.logs.encounters import _parse_ts
+    return _parse_ts(f"8/7 {hhmmss}.000  X")
+
+
 def check_crawl_canary_carryover():
     """`3m` pre-flight (`AUDIT_3L` F17) — the leaderboard canary must be BOTH
     satisfiable across a phase transition AND still able to catch a shape break.
@@ -2240,6 +2335,7 @@ def main():
     check_null_spell_id_cannot_escape_dedupe()
     check_corpus_schema_gate()
     check_per_key_table_agrees_with_aggregates()
+    check_encounter_kill_window()
     check_crawl_canary_carryover()
     check_gear_tier_caller_refuses()
     check_enchant_record_parse()

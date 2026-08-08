@@ -82,3 +82,46 @@ slice 30.040% (n=24)`.* This block adds a tool and touches no sim path.
 * **No coefficient is derived, and none is seeded.** `infer_coefficient` is not run.
 * **Nothing about whether the stat blocks resolve** — that is `3n`'s first act.
 * **Anything about the holdout.**
+
+---
+
+## 🆕 RESULTS — appended in the same commit as the tool (2026-08-08)
+
+Run against the committed capture (1,181,972 lines across both halves), crash gap
+measured from the two files' own boundary timestamps at **59.8 s**.
+
+| # | prediction | outcome |
+|---|---|---|
+| **P1** | one window per boss with a kill, on the kill GUID | ✅ **CONFIRMED** — Lucifron `…56000055`, Magmadar `…CE0004B5`, Gehennas `…E3000994`, Garr `…19000FD7` |
+| **P2** | Gehennas 379.8 s (±0.2), not 603.6 s | ✅ **CONFIRMED to the decimal** — 379.8 s |
+| **P3** | Baron Geddon refuses by name | ✅ **CONFIRMED** — *"engaged 3 time(s) (212s, 161s, 133s) and NEVER died"* |
+| **P4** | the crash gap is reported, both durations stated | ✅ **CONFIRMED** — Gehennas wall **379.8 s**, logged **320.1 s** |
+| **P5** | two kill GUIDs refuse | ✅ **CONFIRMED** on the synthetic fixture |
+| **P6** | the gate does not move | ✅ **CONFIRMED** — `0 of 35 · 0 qualified · slice 30.040% (n=24)` |
+
+**Six of six confirmed.**
+
+| boss | attempts | kill GUID | wall | logged | naive name-window |
+|---|---:|---|---:|---:|---:|
+| Lucifron | 1 | `…56000055` | 253.1 s | 253.1 s | 253.1 s |
+| Magmadar | 2 | `…CE0004B5` | 285.8 s | 285.8 s | **782.7 s** |
+| Gehennas | 2 | `…E3000994` | 379.8 s | **320.1 s** | **603.6 s** |
+| Garr | 4 | `…19000FD7` | 382.6 s | 382.6 s | **2,138.6 s** |
+| Baron Geddon | 3 | — | REFUSED | — | — |
+
+🚨 **Garr is worse than the case the audit named.** Windowing on the boss name spans
+**2,138.6 s against 382.6 s — a 5.6× inflation**, because three failed pulls precede
+the kill. `AUDIT_3L` F13 quantified Gehennas at 603.6 s; Garr is the sharper example
+and was not measured before this block.
+
+M67 / M68 / M69 registered and all run red. ⚠ M68's first draft
+(`kills = [encounters[-1]]`) crashed on `died = None` — a TypeError is red, but it is
+a *crash*, not the behaviour under test. Sharpened to fall back to the longest attempt,
+which is a **plausible implementation** and the exact thing the refusal's own wording
+names. A mutation worth running is one someone might actually have written.
+
+## 🛑 NOT DONE, BY OWNER DECISION — and stamped as E2's SECOND carry
+
+`infer_coefficient` was **not run**. **No coefficient was derived and none was
+seeded.** The windowing is landed; the derivation is `3n`'s first act, and it now has
+an unambiguous window to run inside.
