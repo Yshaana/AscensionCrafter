@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-08T11:52:47+00:00",
- "git_sha": "fc9a36c31836617cc96dfbae909373a3201f208a",
+ "generated_at": "2026-08-08T12:26:27+00:00",
+ "git_sha": "1fba7f5d1fc07aaf27c788f9c1e72c4fd83939cd",
  "git_working_tree_dirty": false,
  "dirty_tree_write_allowed_by_flag": false,
  "dirty_tree_write_allowed_reason": null,
@@ -62,15 +62,15 @@
   "slice_accuracy_coverage_floor_pct": 20.0,
   "slice_delta_vs_previous_run": {
    "previous_run": {
-    "git_sha": "14ec3dc98440b79fbd364d6929d74a6b13a0cca7",
-    "generated_at": "2026-08-08T11:44:21+00:00",
-    "median_pct": 30.04,
+    "git_sha": "fc9a36c31836617cc96dfbae909373a3201f208a",
+    "generated_at": "2026-08-08T11:52:47+00:00",
+    "median_pct": 30.15,
     "n": 24
    },
    "published": {
     "median_pct": 30.15,
     "n": 24,
-    "delta_pp": 0.11
+    "delta_pp": -0.0
    },
    "membership_changed": {
     "dropped_since_previous": [],
@@ -79,9 +79,9 @@
    "_note": "`published.delta_pp` mixes accuracy with composition. `same_members.delta_pp` is the accuracy-only move. QUOTE THE PAIR \u2014 3l published +4.12 pp where the same-member move was -0.21 pp, the opposite sign (AUDIT_3L F1). An unchanged `n` does NOT mean an unchanged membership: 3l's 26.3 -> 33.5 leg had n=23 on both sides and swapped one member for another.",
    "same_members": {
     "n": 24,
-    "previous_median_pct": 30.04,
+    "previous_median_pct": 30.15,
     "this_median_pct": 30.15,
-    "delta_pp": 0.11
+    "delta_pp": -0.0
    }
   },
   "median_slice_accuracy_pct_admissible_only": {
