@@ -180,8 +180,8 @@ figure was measuring a defect.
 |---:|---:|---:|:--|
 | ≥0% | 34 | 41.0% | **no** — below the floor |
 | ≥10% | 27 | 32.7% | **no** — below the floor |
-| ≥20% | **24** | **30.0%** | yes |
-| ≥30% | 21 | 20.0% | yes |
+| ≥20% | **24** | **30.1%** | yes |
+| ≥30% | 20 | 24.4% | yes |
 | ≥50% | 10 | 10.2% | yes |
 
 ⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
@@ -207,15 +207,15 @@ reality"* is the sentence that used to live here in words:
 
 | derived figure | value | derived from |
 |---|---:|---|
-| headline slice accuracy (≥20% coverage floor) | **30.0% (n=24)** | `median_slice_accuracy_pct_at_coverage_ge_20` |
+| headline slice accuracy (≥20% coverage floor) | **30.1% (n=24)** | `median_slice_accuracy_pct_at_coverage_ge_20` |
 | …stated as a fraction of reality | **roughly ONE THIRD** | the same figure, rendered in words |
 | multiple the slice must rise by at the 100% coverage CEILING | **3.3×** | `100 / headline` |
 | best coverage anywhere in the cohort | **Boomcat 82.2%** — **NOT ADMISSIBLE** | `max(cohort[].modelled_damage_pct)` |
 | …slice accuracy that coverage would require for `delta = 0` | **121.7%** | `100 / (best coverage / 100)` |
-| producing-only slice median (≥20%) | **36.3% (n=22)** | `median_slice_accuracy_pct_producing_only_at_coverage_ge_20` |
-| …paired over the SAME members (no selection bias) | **30.04% headline / 39.94% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
+| producing-only slice median (≥20%) | **32.7% (n=23)** | `median_slice_accuracy_pct_producing_only_at_coverage_ge_20` |
+| …paired over the SAME members (no selection bias) | **30.15% headline / 36.27% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
 
-*(from `gate_manifest_3e.json`, generated 2026-08-08T11:23:51+00:00, git `9669b67`.)*
+*(from `gate_manifest_3e.json`, generated 2026-08-08T11:52:47+00:00, git `fc9a36c`.)*
 
 <!-- /GENERATED derived-figures -->
 
