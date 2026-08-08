@@ -164,3 +164,67 @@ either direction is a falsification, and it is reported, not rescued.
   threading a parse date into the talent layer and is registered for `3n`.
 * **Whether Regular Cleave was affected.** The changelog says it was not; nothing here
   tests it.
+
+---
+
+## 🆕 RESULTS — appended in the pair commit, `3m` B (2026-08-08)
+
+Run from the clean tree at `9267660`, the commit-child of this prereg.
+**Nothing above this line has been edited.**
+
+| # | prediction | outcome |
+|---|---|---|
+| **P1** | `within_tolerance` 0 → 0, `qualified` 0 → 0 | ✅ **CONFIRMED** — `0 / 0` |
+| **P2** | headline slice 30.426% (n=24) → 30.426%, same-member `delta_pp` 0.000 | ✅ **CONFIRMED to the digit** — 30.426 (n=24), same-member **+0.001 pp**, membership unchanged |
+| **P3** | producing median 0.3116 (n=118) → 0.3116 | ❌ **FALSIFIED** — **0.3234 (n=117)**, +0.0118 |
+| **P4** | absent share unchanged at 58.8% | ✅ **CONFIRMED** — 58.83% |
+| **P5** | three abilities move by −39.84 / −39.84 / −38.87% | ❌ **FALSIFIED** — two went to **−100%** (dropped from the rotation), one moved −1.4% |
+| **P6** | four characters move by −30.12 / −10.51 / −2.33 / 0.00%, and no other member moves | ⚠ **SPLIT: the tail CONFIRMED EXACTLY, the magnitudes FALSIFIED.** Exactly **3 of 35** moved, Lootgoblin exactly **0.00%** — but Blix moved **+14.71%**, not −30.12% |
+| **P7** | Piercing Cleaver does not move | ✅ **CONFIRMED exactly** — 2,683.1 before and after, talents factor 1.133 both times |
+
+### The diagnosis, and it is one mechanism
+
+**The APL is endogenous to ability magnitudes, and every falsified prediction here
+assumed a fixed rotation.**
+
+`apl_gen` ranks cooldown-less fillers by **expected damage per cast**
+(`fillers = sorted(rest, key=lambda s: -s["mean"])`), and `fast_sim` gives the top
+filler the entire remaining GCD budget. On Blix:
+
+| | per cast | casts | total |
+|---|---:|---:|---:|
+| Lightbound Cleave, before | **596.4** | 44.52 | 26,554 |
+| Plague Strike, before | 591.7 | *(unallocated)* | — |
+| Plague Strike, after | 591.7 | **54.99** | **32,540** |
+
+Lightbound Cleave led by **0.8% per cast**, so it took the whole budget. The
+bonus-only fix cut it ~40%, Plague Strike took the lead, and Lightbound Cleave left
+the rotation **entirely** — hence −100% rather than −39.84%, and hence P3's `n`
+falling 118 → 117 as its 0.0737 ratio left the producing population. **P3 is `3l`'s
+P4b lesson a third time: the producing median ROSE because a low ratio was removed,
+with no ability becoming more accurate.**
+
+**Blix's sim rose 14.71% because the pre-change rotation was worse by the sim's own
+accounting.** Plague Strike delivers 23.5% more casts at 0.8% less damage each —
+strictly more damage — and the APL preferred Lightbound Cleave anyway.
+
+### 🚨 A defect this falsification exposed, registered NOT fixed
+
+**`apl_gen` ranks fillers by damage per CAST while the budget allocates by TIME, so
+it can pick the lower-throughput button.** 596.4 × 44.52 = 26,554 against
+591.7 × 54.99 = 32,540 — the sim chose the option worth 18% less. The correct key is
+damage per GCD-second, not per cast.
+
+This is **not** fixed here: it is a separate mechanism, it moves the gate for every
+filler-limited character in the cohort rather than the four in this prereg's scope,
+and changing it inside a falsified prereg's own results commit would be rescuing.
+Registered for `3n` with this measurement as its evidence.
+
+### What was NOT rescued
+
+The prereg is not edited. P5 and P6's magnitudes are wrong because they were computed
+under a fixed-rotation assumption that this session's own instrument
+(`sim_ability_damage`, added two commits earlier) was sufficient to have tested and
+did not. **P2 and P7 were exact, P1 and P4 held, and P6's tail — the hard part, that
+*nothing else moves* — held exactly.** The mechanism scoping was right; the
+throughput model underneath it was not.
