@@ -1,21 +1,16 @@
-# CHAT MONITORING PRIMER v8 — AscensionCrafter
+# CHAT MONITORING PRIMER v9 — AscensionCrafter
 
 > **`LIVE`** — the standing brief for the oversight chat. **Must be true today, and is
-> citable as current truth.** Supersede at **v9** when `3m` closes. *(The streak is
-> three: v5, v6 and v7 each held their stated expiry. ⚠ **v7 expired for one morning**
-> — it said "supersede at v8 when `3l` closes", `3l` closed overnight, and the file sat
-> `LIVE`-and-false until this rewrite. Half a day, in one of only 13 `LIVE` documents.
-> **The repo file `primer/CHAT_MONITORING_PRIMER.md` is versionless and updated in
-> place; the version lives in the title line only. Never commit a `_v8` sibling** — a
-> versioned copy beside the live file is how v2–v4 each stayed marked `LIVE` after
-> expiring.)*
+> citable as current truth.** Supersede at **v10** when `3n` closes. *(The streak: v5–v8
+> each held their stated expiry, with v7's one-morning lapse on record. **The repo file
+> `primer/CHAT_MONITORING_PRIMER.md` is versionless and updated in place; the version
+> lives in the title line only. Never commit a `_v9` sibling** — a versioned copy beside
+> the live file is how v2–v4 each stayed marked `LIVE` after expiring.)*
 
-**Paste this at the start of a fresh monitoring chat.** Supersedes v1–v7. Written
-2026-08-08 (morning), at the end of the session that audited `3l` — the audit is
-`AUDIT_3L_ADVERSARIAL.md` (landed `851fc64`, `primer/`). **Amended the same morning**
-after the daily crawl (`7f28c4e`) returned three findings that are `3m` inputs, two of
-which change `LIVE` text: they are `AUDIT_3L` **§5a F15–F17** and are folded in below.
-Still v8 — nothing here was superseded, it was extended before anyone read it.
+**Paste this at the start of a fresh monitoring chat.** Supersedes v1–v8. Written
+2026-08-08 (afternoon), at the end of the session that audited `3m` — the audit is
+`AUDIT_3M_ADVERSARIAL.md` (written to the project; ⚠ **commit it to `primer/` at `3n`
+pre-flight**, census moves).
 
 This chat's job is **oversight and verification** — Claude Code writes the code
 locally. If this chat writes the code, nobody is left to audit it.
@@ -27,13 +22,15 @@ locally. If this chat writes the code, nobody is left to audit it.
 Clone and read the tree. Do not work from prose, this file included.
 
 ```bash
-git clone --depth 40 https://github.com/Yshaana/AscensionCrafter.git repo
+git clone --depth 80 https://github.com/Yshaana/AscensionCrafter.git repo
 ```
 
 Then `primer/PROGRESS.md`'s top block. **If a claim isn't in the tree, it isn't
-confirmed.** The owner may connect the local repo via `device_list_dir` /
-`device_stage_files` / `device_commit_files` — file read/write, **no shell**. Use it
-for documents only; never write code through it.
+confirmed.** 🆕 Rebuild the database so the full sim harness runs rather than refusing:
+`python3 cli/rebuild.py` (21 steps, ~2 min, needs only committed source). The owner may
+connect the local repo via `device_list_dir` / `device_stage_files` /
+`device_commit_files` — file read/write, **no shell**. Use it for documents only; never
+write code through it.
 
 ---
 
@@ -47,268 +44,219 @@ Claude Code locally; the owner plays the game and is the tier-1 evidence source.
 
 ---
 
-## Where things stand, 2026-08-08 morning (post-`3l`, post-audit)
+## Where things stand, 2026-08-08 afternoon (post-`3m`, post-audit)
 
-**Session map:** … → `3j`✅ (integrity) → `3k`✅ (flip + coverage) → `3l`✅ (Block C
-landed + tuning by diagnosed mechanism) → **`3m` (correctness repairs from `AUDIT_3L`
-§5 items 1–4 FIRST, then DELIVERY MODELLING)** → re-read Phase 3 exit honestly →
-Phase 4.
+**Session map:** … → `3k`✅ (flip + coverage) → `3l`✅ (Block C + tuning) → `3m`✅
+(deadline met + four repairs + first gate move DOWN) → **`3n` (APL clock fix, E2's
+coefficients, delivery's opening — work order `primer/SESSION_3N_PRIMER.md`)** →
+re-read Phase 3 exit honestly → Phase 4.
 
-**The gate:** `0 of 35 within ±20% · 0 qualified` at every `3l` commit; slice
-**30.4% (n=24)** published, **but see the caveat below**; absent **58.8%**; producing
-median **0.3116 (n=118)**; phantom 52.8%. 3 of the frozen 41 not admissible (Nodding
-52 s window, Boomcat 0.24, Deyindra 0.22). Holdout: still carried from `3g`, `0 of 5`,
-median slice 9.8% (n=4), **pre-E15**, not like-for-like — never compute a gap from the
-pair. Phase 3 exit: **2 of 7 criteria met**.
+**The gate:** `0 of 35 within ±20% · 0 qualified` at every `3m` commit; slice
+**30.426% → 30.040% (n=24)** — published **−0.385 pp** AND same-member **−0.385 pp**
+over an unchanged membership, and **that equality is the evidence the move is accuracy,
+not composition** (the manifest's `slice_delta_vs_previous_run` block now reports it
+automatically). Absent **58.8%**; producing median **0.3234 (n=117)**; admissible-only
+**27.4% (n=21)**. 3 of the frozen 41 not admissible (Nodding 52 s, Boomcat 0.24,
+Deyindra 0.22). Holdout: carried, unspent, pre-E15, not like-for-like. Phase 3 exit:
+**2 of 7 criteria met**.
 
-🛑 **THE SLICE MOVE IS COMPOSITION, NOT ACCURACY, AND THIS IS THE HEADLINE CORRECTION
-OF THE AUDIT.** `3l` published 26.3% (n=23) → 30.4% (n=24). Held to the same 22 members
-across all three runs the number goes **30.635 → 30.425 — a change of −0.21 pp**. The
-+4.12 pp is the population moving under the statistic. Worse, the *middle* leg
-(26.3 → 33.5, n=23 → n=23) is the most composition-driven of the three and is the one
-nobody flagged: **Onur left the band** (coverage 47.7→7.3, slice 6.03, the band's
-lowest) and **Deyindra joined** (10.9→42.1, slice 105.43) — and Deyindra is NOT
-ADMISSIBLE. The equal `n` is what made it look safe. `3l` derived this exact lesson
-(P4b) and applied it to the downward leg only. **In fairness the fixes did work** — on
-the 22 common members 16 moved toward 100%, mean 45.74 → 50.58; the statistic just
-doesn't show it. Quote **both** numbers, always.
+**`3m` under audit — and it is the cleanest session of the arc:** every number checked
+reproduced to the digit (gate recomputed from the manifests' own cohort arrays; all
+Block D windows re-measured from the capture bytes with an independent parser; B5's
+owner-facing arithmetic exact; five DBC constants re-derived). **Eight mutations
+re-applied and re-run — all red, all reverted green**, including M60's isolating
+property (the old source-text arm demonstrably prints `PASS (vacuous)` where the
+repaired arm fails). Both falsifications (B P3/P5) reported, diagnosed to ONE mechanism
+(the APL units mismatch), and the fix **correctly not** smuggled into the results
+commit. The four `AUDIT_3L` soft arms are genuinely hardened. Prereg parenthood exact
+on all three pairs. The Monday deadline was met before the patch.
 
-**What `3l` did well, and it is most of the session:** Block C landed after two carries
-(`cli/gear_tiers.py` refuses the live empty MC window by name, M55; the three
-gate-feeding presets carry corpus-measured durations with the query, corpus sha and IQR
-in the provenance string). Four real swing-layer mechanisms found and fixed — the corpus
-stores weapons at **slot 15** (13 of 41 simmed weaponless), it **mixes two slot
-conventions** (27 server / 14 API, found by a falsified prediction and fixed with a
-per-snapshot detector; 41 of 41 now sim a main hand), `expected_swing` had **no attack
-power term**, and the `mh<=0` early return killed Righteous Vengeance for weaponless
-sims. The owner's guided `--with-dbc` run landed `SpellItemEnchantment.dbc` (18,035
-rows) and decoded the Consecrated Weapon chain. The MC capture passed its ingest gate,
-every figure exact from the bytes. **Five predictions falsified, all diagnosed, none
-rescued.** Prereg parenthood exact on all three pairs. Harnesses green (77 arms).
+**What the audit found — `3n`'s pre-flight block (AUDIT_3M §1):**
 
-🚨 **A SERVER PATCH LANDS MONDAY 10 AUGUST AND INVALIDATES A MODEL THIS PROJECT WAS
-RIGHT TO BUILD.** Changelog `2026-08-07T21:32:22`, `[Darkmoon] [Dawnrise]`: *"Fixed a bug
-where **Improved Cleave increased hybrid Cleaves weapon damage, rather than only their
-bonus damage**."* The project read `EffectMiscValue = 8 = SPELLMOD_ALL_EFFECTS` over the
-tooltip — **correctly, per its own standing rule** — and models ×2.20 on the whole
-ability (`talents.py:187`; `damage_multiplier` is whole-ability). Ascension now says the
-tooltip was the **intent** and `ALL_EFFECTS` was the **broken delivery**: same shape as
-`2d`'s Duality lesson, fired in the opposite direction — here the numeric field was the
-bug. Lightbound Cleave goes from `2.2 × (0.65·W + 9 + AP)` to `0.65·W + 2.2 × (9 + AP)`;
-the delta is a pure weapon term, so **the nerf scales with weapon damage**. ⚠
-`seed_confirmed.py:103` already states the *fixed* formula while the code applies the
-bugged one — they have disagreed since `2b` and Monday makes the seed right. **Every
-parse in the corpus is pre-fix**; the cohort was frozen 2026-08-06 so it stays
-self-consistent, but no post-Monday capture is comparable for a hybrid-Cleave character.
-Decide and stamp before it ships.
+1. 🚨 **F1 — `seed_epistemics.py:181` still asserts the falsified aura-344 mechanic**
+   ("the per-hit damage parameter") — the exact line `AUDIT_3L` F5 named. C3 corrected
+   `seed_confirmed.py:361` only; the two seed files now disagree, and every rebuild
+   loads the stale text into `open_questions`.
+2. 🚨 **F2 — the `2b` seed `improved_cleave_modifies_all_effects_not_just_the_flat`
+   still states ALL_EFFECTS as DECISIVE current truth** (~1,033/hit), contradicting the
+   corrected seed in the same file. Annotate as pre-2026-08-10 **delivered** behaviour,
+   don't delete — it is historically right. The Frostbound Cleave seed also still cites
+   the retracted `(9+AP)*2.2`.
+3. ⚠ **F3 — "13 of 15 predictions confirmed" is a hand tally no artifact reproduces.**
+   Direct count over the scored prereg tables: **20 predictions — 17✓ / 2✗ / 1 split**
+   (B 4✓·2✗·1 split, C 7/7, D 6/6). It reproduces only by dropping the five
+   "gate-does-not-move" predictions AND counting the half-falsified P6 as confirmed —
+   the flattering resolution, unstated. Same class: "58.83%" absent share has no
+   committed emitter (the artifact says 58.8). Quote per-block counts from the tables.
+4. ⚠ **F4 — ENGINE_BUGS registers M63 at a site that does not exist**
+   (`core/sim/tiers.py`; `WEAPON_SLOTS` lives in `tools/audit/calibrate_crawled.py:207`).
+   The mutation is real and red at the real site; the registry row sends a future
+   session to a no-op green.
 
-**The five things the audit found wrong — `3m`'s first block:**
-
-1. 🚨 **RV's rank is discarded.** `RIGHTEOUS_VENGEANCE_FRACTION = 0.30` flat, while the
-   three card ids decode `EffectBasePoints` 9/19/29 → **10%/20%/30%**. A rank-1 holder
-   is credited 3×. Direct hit on the standing rank rule.
-2. 🚨 **RV's white-crit pool is unwarranted.** `3l` added white-swing crits to the pool;
-   RV's own client text says *"**Direct** critical strikes with **spells and
-   abilities**"*, and `core/builds/stats.py:234` asserts that wording **excludes**
-   autos. Measured on the committed logs: widening the pool makes the prediction worse
-   in **49 of 49** rows carrying white crit. Entered the gate with no warning line.
-3. 🚨 **Aura 344 is flat ATTACK POWER, not the per-hit damage parameter.** Spell
-   200809's own template: *"increasing Holy Spell power by `$200819s2` and your attack
-   power by `$200819s3`"* — `s3` is effect 2 = aura 344. The per-hit speed-scaled term
-   is effect **0**, rendered `$/77;m1 to $/25;M1`. `seed_confirmed.py:361` now
-   contradicts `seed_confirmed.py:278` in the same file, and `3m`'s delivery block is
-   scoped around a mechanic that does not exist. Rank 6 = **+73 raw AP per weapon**,
-   unmodelled.
-4. 🚨 **None of B3/B3b's four mechanisms carries a registered check.** `git log
-   --name-only a97b849..642f531` touches no test file; `check_sim_engine.py` is
-   untouched across the whole `3l` range. Reverting `WEAPON_SLOTS`, deleting the AP
-   term or restoring `if mh <= 0: return` all leave the harness green. And the AP term
-   made E13 **vacuous** — its fixture has no `attack_power`, so `getattr(..., 0.0)`
-   runs the branch off; with realistic AP the check's own ceiling breaks.
-5. ⚠ **C2's P1 is scored CONFIRMED and its falsifier says otherwise.** Six numbers
-   moved on two characters (Frediib's producing-only slice **114.47 → 242.59**, and
-   Frediib is a band member). The diagnosis (the `casts <= 0.001` absolute epsilon) is
-   right; only the scoring is wrong — the same mechanism moved both artifacts and only
-   the instrument was scored.
+**The audit's tone note, worth carrying:** `3m` broke `3l`'s pattern where it mattered
+(instruments, mutations, no rescues) — what it did not do is finish its own
+corrections' **blast radius**. Each repair updated the primary site and left a sibling:
+the second seed file, the seed twenty entries down, the registry row's path, the tally
+in the close-out prose. *When a fact is corrected, grep for its siblings before the
+commit.*
 
 **Key documents, reading order:**
 
 | File | What |
 |---|---|
-| `primer/PROGRESS.md` | live state — top block first; ⚠ its slice line needs the same-member pair appended |
-| `AUDIT_3L_ADVERSARIAL.md` | current audit; §5 is `3m`'s list; ⚠ commit it to `primer/` |
-| `primer/Session_2026-08-08_3l_tuning.md` | what `3l` did; §3 = the four mechanisms; §8 = honest not-done. ⚠ §7's "74 arms" is 77; ⚠ §5's "warnings sit exactly at the crash boundary" is false (1 of 11) |
-| `predictions/gate_manifest_3e.json` | current numbers (`LIVE`, clean tree, `git_sha ab5ca92`, committed at `642f531`) |
-| `predictions/per_ability_summary.json` | the distribution — ✅ **now carries the ranked per-key table** (`3l` B0 closed `AUDIT_3K` §3.2) |
-| `predictions/prereg_3l_b_tuning.md` + `_addendum.md` | the tuning preregs — ⚠ note the **one-sided falsifier** ("every delta moves UP") |
-| `predictions/CALIBRATION_TOLERANCE.md` | ⚠ `LIVE` **and stale in its derived prose** — the asserted band table was regenerated, the sentences around it were not (26.3%/3.8×/"one quarter"/the 3i A5 annotation) |
-| `primer/ENGINE_BUGS.md` | defect registry — parser-enforced, M1..M56 contiguous |
+| `primer/PROGRESS.md` | live state — top block first; ⚠ its "13 of 15" and "58.83%" need the F3 correction |
+| `AUDIT_3M_ADVERSARIAL.md` | current audit; §5 is `3n`'s list; ⚠ commit to `primer/` at pre-flight |
+| `primer/SESSION_3N_PRIMER.md` | `3n`'s work order |
+| `primer/Session_2026-08-08_3m_repair.md` | what `3m` did; §9 = the APL mechanism; §8 = honest not-done |
+| `predictions/gate_manifest_3e.json` | current numbers (`LIVE`, clean tree, git `ce50207`, committed `44ea940`) — now carries `slice_delta_vs_previous_run` and `not_scoreable_by_reason` |
+| `predictions/prereg_3m_{b,c,d}_*.md` | the three scored preregs — the ground truth for any tally |
+| `predictions/CALIBRATION_TOLERANCE.md` | ✅ de-numbered: derived prose now points at a generated, asserted block (M57 guards it) |
+| `primer/ENGINE_BUGS.md` | defect registry — M1..M69 contiguous, parser-enforced; ⚠ M63's site column is wrong (F4) |
 
 ---
 
 ## The open threads, in priority order
 
-**-1. 🚨 DEADLINE: MONDAY 10 AUGUST.** The Improved Cleave fix (above) ships that day and
-splits the corpus for every hybrid-Cleave character. Owed in writing **before** it
-lands: intended-vs-delivered decision; a `SYSTEM_IMPAIRMENTS` record shape for the first
-*delivered > intended* case (every existing record is the other way round); and a
-pre-registered gate prediction — this is a rare change whose direction is known in
-advance, which makes it the cleanest prereg opportunity the project has had.
-`talents.py:187` and `seed_confirmed.py:103` must stop disagreeing. ⚠ **`bugfix_watch_
-sweep` did NOT surface this** — it keys on *our own submitted bugs*, and a patch that
-invalidates a model we were right about is invisible to it. Read the changelog by hand.
+**0. Pre-flight doc/seed repairs** (F1–F4 above) — minutes of work, cannot move the
+gate, and stop `3n` inheriting disproven facts.
 
-**0. 🚨 CORRECTNESS BEFORE COVERAGE.** `AUDIT_3L` §5 items 1–4 are three-line fixes plus
-four mutations, and two of them change a gate number. **RV rank + RV pool retraction is
-the first change of the arc that moves a number DOWN** — which is why the tuning
-prereg's *"every delta moves UP; any character moving DOWN falsifies the mechanism
-model"* clause must be rewritten before `3m` registers anything.
+**1. 🚨 THE APL CLOCK FIX** — the largest measured modelling error left. `apl_gen`
+ranks fillers by damage per CAST across abilities on different clocks:
+`is_next_swing = 1` abilities (Cleave family, Heroic Strike, Light Maul, Shadow
+Slash) are swing-timer-limited, ordinary fillers GCD-limited. Blix's Lightbound
+Cleave left the rotation entirely (−100% vs predicted −39.84%), costing 18% of his
+sim; **15 of 41 members exposed**. ⚠ `3m`'s first diagnosis (per-cast vs
+per-GCD-second) was WRONG — 0 disagreements cohort-wide, because `_gcd_for` is
+per-character. Own prereg; direction NOT known in advance; mutation = restore
+per-cast ranking.
 
-**1. DELIVERY MODELLING is `3m`'s registered core**, and `3l` sharpened it. Absent mass
-58.8% is dominated by trigger-delivered damage. With the aura-344 correction the block
-is: seal per-proc (20424 — 35% weapon, Holy, **delivery**-blocked not
-extraction-blocked, corrected `3l`), imbue per-hit (effect **0**, divisors 77/25,
-*stated by the client*), Plague Swarm 276445 (5.96%, resolution complete, **146× gap**),
-school-variant/extra-attack autos, Deep Wounds/Ignite/diseases.
+**2. E2 — `infer_coefficient` on the six Elric MC stat blocks.** THIRD carry; lands
+or gets a fresh owner stamp. The windowing is done and verified from the bytes
+(`core/logs/encounters.py`: kill GUID explicit, no-kill and multi-kill REFUSE, wall
+379.8 vs logged 320.1 on Gehennas). 🛑 Divide by **logged** seconds. Unblocks Phase 3
+criteria 3-full and 4.
 
-**2. E2 — `infer_coefficient` on the six Elric MC stat blocks**, `3l`'s named handoff.
-Two of six were phase-resolvable at the 19:45:34Z payload horizon; the next crawler run
-retires that. 🛑 **Before running it, fix the windowing**: Gehennas has **two GUIDs**
-(a wipe at 19:52:51–19:54:56 and the kill pull), Garr has **four**, Geddon three. `3l`'s
-"one pull, never two encounters" is true of the GUID it checked and **invites a 604 s
-merged window** if read as an encounter-level claim. Window on GUID, pick the kill GUID
-explicitly.
+**3. Delivery modelling** — the load-bearing problem, absent **58.8%**. Open with the
+client-stated formulas: imbue per-hit (effect 0, divisors 77/25, rank via
+`snapshot_gear.enchant_id`) plus the **+73 AP per weapon** grant (seeded `3m` C3,
+unmodelled; ×1.21 residual named, not fitted); then seal per-proc 20424. Behind
+those: Plague Swarm 276445 (146×), school-variant autos, Deep Wounds/Ignite/diseases.
+**Devour Mind 287865 is at its FOURTH deferral — register or model, no bare carry.**
 
-**3. Instrument hygiene, all one-liners:** `not_scoreable_below_coverage_floor` counts
-3 NOT-ADMISSIBLE characters including the cohort's **highest-coverage** member (Boomcat,
-82.2%) — the JSON contradicts the console the same function prints; four check arms are
-satisfiable without the behaviour (`[3k-B3]` arm 4 is a pure source-text match — the
-M52/M53 shape, again); `check_refusals.py` should print its own arm count; the stray
-weapon-slot check keys on the mapped **name**, so a slot-17-only snapshot silently
-becomes an off-hand.
+**4. The Monday split, date-aware (E1).** From **2026-08-10** the server fixes
+Improved Cleave; the frozen cohort stays pre-fix (owner decision). No post-Monday
+capture of a hybrid-Cleave character is comparable to anything pre-fix until the
+date-aware impairment lands. The first post-fix capture doubles as the free detector
+that the fix shipped as stated.
 
-**4. Small carried threads:** Devour Mind 287865 (6.63%, largest single absent key —
-**third deferral**, register or explain); Elemental Blast 954892 (mechanism unpinned);
-`WEAPON_SLOTS` now exists in three conventions across three tools; the AP term's
-`retail_hypothesis` warning cannot reach the gate artifacts (`[:8]` truncation, no
-warnings field in the manifest, no `ENGINE_BANDS` entry).
-
-**5. Document actions owed at `3m` pre-flight:** `AUDIT_3L_ADVERSARIAL.md` → `primer/`
-(born `FINDING`); THIS file committed in place as v8; census regenerated in each commit
-that adds a `primer/` file; `CALIBRATION_TOLERANCE.md`'s derived prose regenerated.
-
-**6. Standing:** the holdout stays unspent (0 passers — nothing to validate, correct
-call); one owner-gated `--with-dbc` run remains the staleness clock; predicate 2
-(deaths > 0) stays UNARMED by owner decision.
+**5. Standing:** holdout unspent; predicate 2 UNARMED; one owner-gated `--with-dbc`
+run remains the staleness clock (last successful `2026-08-08T00:48:58`);
+`verify_scraped_coefficients.py`'s third slot convention is named by a check arm,
+deliberately not aligned.
 
 ---
 
 ## Corrections worth carrying — do not let these creep back
 
-- ❌ **"slice 26.3% → 30.4% is a 4-point accuracy gain"** — it is **−0.21 pp** held to
-  the same 22 members. Quote the pair.
-- ❌ **"equal n means the population didn't change"** — the 26.3 → 33.5 leg has n=23 on
-  both sides and swapped its lowest member for a near-top one. **`n` is not a
-  membership check.**
 - ❌ **"aura 344 is the per-hit speed-scaled damage parameter"** — it is flat attack
-  power (+73/weapon at rank 6). The per-hit term is effect 0.
-- ❌ **"Righteous Vengeance is 30%"** — 10/20/30 by rank, and the code applies 30 to all
-  three.
-- ❌ **"RV pools white-swing crits"** — unwarranted; 49/49 worse against the committed
-  logs.
-- ❌ **"0 of 36"** — the denominator is **35** since `3k`.
-- ⚠ **"transitions on this server are ADDITIVE — raids get added, none removed"** —
-  🆕 **the WARRANT is FALSIFIED, the RULE survives** (`AUDIT_3L` F16, measured
-  2026-08-08). Zul'Gurub and Phase 1.1 both went `is_active: False` overnight, leaving
-  Molten Core the only active phase; the two-active overlap lasted **under ~12 hours**.
-  So a count of 2 **does** mean a transition is in progress — it just **clears itself
-  within a day** rather than never. Retiring `len(tops) != 1` was still correct (it
-  would have NULLed every label during the overlap), and latest-**starting** active
-  top-level resolves correctly in both regimes with no code change. But do not predict
-  the next boundary's shape from "actives accumulate" — they don't.
-- ❌ **"coverage gains are progress toward the gate"** — `3k` P4, falsified by
-  measurement; `3l` re-confirmed it (absent 59.9→58.8 with no real slice move).
-- ❌ **"the absent-key targets can't be read from a committed artifact"** — ✅ **retired**,
-  `3l` B0 landed the per-key table. The two-refusal mass is **4.08**, verified exact.
+  power (+73/weapon at rank 6); the per-hit term is effect 0, divisors 77/25,
+  *stated by the client*. ⚠ `seed_epistemics.py:181` still says otherwise until `3n`
+  pre-flight lands.
+- ❌ **"Improved Cleave multiplies the whole ability"** — true only of pre-2026-08-10
+  delivered behaviour, declared a bug by the server. The model is INTENDED
+  (bonus-term-only, scoped by card id, NOT generalised to op 8). The card adds
+  **74.4/hit at 3/3** on the owner's weapon, not 578.1.
+- ❌ **"Lightbound Cleave's bonus is 9 + AP"** — the 9 was Rank 1 and the AP term was
+  `EffectBonusCoefficient = 1.0` read as a coefficient; its neutral value IS 1.0.
+  The decode is a **flat 62**, no AP term.
+- ❌ **"13 of 15 predictions confirmed"** — 20 predictions, 17✓/2✗/1 split by direct
+  count; quote per-block from the scored tables.
+- ❌ **"3m ranked fillers per-GCD-second wrongly"** — that diagnosis was falsified
+  (0 disagreements). The defect is the CLOCK mismatch: per-cast ranking across
+  swing-timer vs GCD abilities.
+- ❌ **"one pull, never two encounters"** — Gehennas 2 GUIDs, Magmadar 2, **Garr 4**,
+  Geddon 3 (no kill). Window on GUID; naive name-windows inflate Garr **5.6×**
+  (2,138.6 s vs 382.6 s).
+- ⚠ **"the audit said normalise the canary by active phases"** — superseded by
+  measurement: population collapse (MC returned rows for 2 of 200 queries) is
+  invisible to every structural denominator. The carry-over test is the standing fix.
+- ❌ **"slice 26.3% → 30.4% was a 4-point accuracy gain"** — composition; same-member
+  it was −0.21 pp. The `3m` move (−0.385 = −0.385) is what a real accuracy move looks
+  like. Quote the pair, always.
 - Still true and load-bearing: the gate fails CLOSED; `entry_id` ≠ `spells.id`; the
-  catalog's wrong-rank problem (**and it now applies to our own constants — see RV**);
+  catalog's wrong-rank problem (and RV's own constants were its latest victim);
   "coverage = has a key for, not produces damage for"; the holdout is pre-E15 and not
-  comparable; a single multiplier cannot fix the sim; no coefficient fitted to the parse
-  it must later check.
+  comparable; no coefficient fitted to the parse it must later check; the arm count
+  is **dirty-tree-dependent — cite the clean-tree figure** (87 at `3m` close, but
+  always cite the `[arms]` line, never a remembered number).
 
 ---
 
 ## How to review a session (the loop that works)
 
-1. Clone fresh. `PROGRESS.md`, the session's handoff, the work order it ran.
+1. Clone fresh; rebuild the db so the sim harness runs. `PROGRESS.md`, the session's
+   record, the work order it ran.
 2. **Spot-check claims against committed files, not prose.**
-3. **Run the harnesses** (`check_refusals.py` — 77 arms post-`3l`; `check_sim_engine.py`
-   exit 2 on a clone is a verdict, not a crash; `check_core_purity.py`).
-4. **Check `LIVE` documents against code, both directions, and against post-close
-   commits.** 🆕 And check a `LIVE` document's **own expiry condition** — v7 sat expired
-   for a morning, and `CALIBRATION_TOLERANCE.md`'s asserted table was regenerated while
-   every sentence deriving from it was not. **An assertion protects the block it covers
-   and advertises safety over the paragraphs it doesn't.**
-5. **Trace headline numbers from the schema up.** 🆕 **And recompute the headline
-   statistic over a FIXED membership.** Reconstructing every published band median from
-   the manifest's own `cohort` array takes ten minutes, validates the method before you
-   use it, and is what turned `3l`'s +4.12 pp into −0.21 pp.
-6. Confirm 🛑 stop-points were asked; **check prereg PARENTHOOD** (`git log --format='%H
-   %p %s'`).
-7. **Ask of every check: does it have a regime where it returns a number it cannot
-   support?** And: can the fixture even express the defect? 🆕 **Then ask the inverse:
-   which of this session's changes has NO check at all?** `git log --name-only <range>`
-   and look for a test file. `3l`'s four headline mechanisms touched none.
-8. **Ask: measured or derived? committed or gitignored? does a quoted baseline exist as
-   a committed artifact?**
-9. **Re-run the claimed reverts yourself — all of them if the count is small.** `3l`'s
-   M54/M55/M56 reproduced 2/2/1 exactly. 🆕 **Then mutate the checks the session did
-   NOT register** — that is where the four soft arms were found.
-10. **Re-derive a hard-rule-adjacent constant from the committed extract when cheap.**
-    🆕 Highest-yield check of this audit: `EffectBasePoints` for the three RV card ids
-    (nine lines of Python) exposed a 3× error, and reading spell 200809's own `$sN`
-    pointers exposed a mis-seeded aura. **When a session seeds a fact from one extract,
-    read the sibling fields in the same rows** — the disconfirming evidence is usually
-    two columns over.
-11. **A named mutation that does NOT go red is a result, not an embarrassment** — and a
-    falsified prediction diagnosed to its true cause is worth more than a confirmed one.
+3. **Run the harnesses** (`check_refusals.py` — cite its own `[arms]` line, clean
+   tree; `check_sim_engine.py`; `check_core_purity.py`).
+4. **Check `LIVE` documents both directions, against post-close commits, and against
+   their own expiry conditions.** Where an asserted block changed, check the prose
+   around it was regenerated — or better, de-numbered.
+5. **Trace headline numbers from the artifact up, and recompute the headline
+   statistic over FIXED membership** from each manifest's own `cohort` array. The
+   instrument reports it now — verify the instrument against your own recompute.
+6. Confirm 🛑 stop-points were asked; **check prereg PARENTHOOD**
+   (`git log --format='%H %p %s'`).
+7. **Re-run the session's registered mutations yourself** — red, then reverted green,
+   tree clean after. 🆕 **If a registered site doesn't exist, that is a finding (F4):
+   find the real site and run it there** — a no-op green is worse than no mutation.
+8. **Mutate what the session did NOT register**, and probe new arms for vacuity
+   (comment-satisfiable? fixture-blind? AST-structural arms are the acceptable form).
+9. **Re-derive hard-rule-adjacent constants from the committed extract** — and read
+   the sibling fields in the same rows.
+10. **Re-measure capture-derived claims from the bytes** with an independent parser.
+11. 🆕 **Trace every correction's blast radius**: grep the tree for the corrected
+    fact's siblings — both seed files, related seeds, registry rows, prose. `3m`'s
+    two 🚨 findings were both unfinished blast radius, and `AUDIT_3L` F5 had already
+    named one of the sites.
+12. 🆕 **Recount every hand-typed tally** in the record and PROGRESS against the
+    scored tables. A count that needs an unstated counting rule is a finding.
+13. **A named mutation that does NOT go red is a result, not an embarrassment** — and
+    a falsified prediction diagnosed to its true cause is worth more than a confirmed
+    one.
 
-**Tone:** falsifiable checking, not cheerleading. `3l` falsified five of its own
-predictions, rescued none, and put its sharpest lesson at the top of `PROGRESS.md` — say
-so first. The pattern to hold it to is narrower than "be careful": **it reasoned
-excellently about the numbers it was watching and left the numbers it was not watching
-unguarded.** In every finding above, the missing half was already in hand.
+**Tone:** falsifiable checking, not cheerleading. `3m` earned its §0 table — say so
+first, and hold the next session to the blast-radius rule, which is narrower and
+cheaper than "be careful": *the missing half was already named in a document the
+session had open.*
 
 ---
 
 ## Standing owner actions (not session tasks)
 
-- **Daily:** crawler at logon (Task Scheduler). ⚠ If it dies at `assert_phase` ("PHASE
-  FLIP DETECTED"), that is a NEW boundary — save the message verbatim. A silent
-  label-refusal pile-up would now mean same-`start_date` windows — also report.
-  ✅ The `19:45:34Z` horizon is **retired** — the 2026-08-08 run advanced it to
-  `07:05:29Z`, so all six MC stat blocks are phase-resolvable and **E2 is unblocked**.
-  🛑 **The canary now fails on EVERY run and the capture is fine** (`AUDIT_3L` F17):
-  `leaderboards` fell 12.0 → 2.0 rec/run (−83%, threshold 50%) because ZG and Phase 1.1
-  went inactive, so `crawl_leaderboards` walks **one** active phase instead of two. It
-  normalises by run count, which cannot see that. Failures are deliberately not stamped,
-  so the scheduled task retries and fails identically at every logon until it is fixed
-  (normalise by active-phase count; keep the zero-floor arm). Until then the owner must
-  commit `data/source/crawl` + `data/source/changelog` **by hand, with the diagnosis in
-  the message** — precedent `7f28c4e`. Do not raise the threshold to make it pass.
-  🆕 **Read the changelog by hand every session** — see thread -1.
+- **Daily:** crawler at logon (Task Scheduler). ✅ **The canary is satisfiable again**
+  (`3m` pre-flight, carry-over test) — auto-commits should resume; hand-commits are no
+  longer needed. If it fails now, the failure text names carried-over boards — that is
+  a real signal, investigate rather than override. 🆕 **Read the changelog by hand
+  every session** — `bugfix_watch_sweep` only sees our own submitted bugs; the
+  Improved Cleave patch (a fix to a model we were *right* about) was invisible to it.
+- **Monday 2026-08-10:** the Improved Cleave fix ships. First post-fix capture is the
+  free detector — but E1 (date-aware impairment) must land before that capture is
+  compared to anything.
+- **Improved Cleave is resettable at Gabril Mewell** — the toolkit's verdict: at 3/3
+  it adds 74.4/hit on The Light's Hope (was 578.1); no longer a top-tier slot.
 - **Occasional, overnight, manual:** `catchup_crawler.bat`.
 - **Per client patch:** `run_dbc_extract.bat`. Last *successful* run is the clock —
-  currently `2026-08-08T00:48:58`, with `SpellItemEnchantment.dbc` in scope.
-- **Stat-export addon** — byte-identical at `v2026-08-06c` (its T5 per-parse stats still
-  gate Phase 3 criteria 3-full and 4; the MC capture is their first real input).
+  `2026-08-08T00:48:58`, `SpellItemEnchantment.dbc` in scope.
+- **Stat-export addon** — byte-identical at `v2026-08-06c`; its per-parse stats feed
+  E2 this session.
 
 ## Reproducibility limit (standing)
 
-Tier-2 captures gitignored; no `.db` committed. Corpus figures (472 snapshots, the RV
-roster, per-character ratios, the 27/14 convention split) are unverifiable from a clone —
-verify function behaviour with fixtures, manifest-internal arithmetic, commit parenthood,
-and source-edit mutation re-runs instead. 🆕 **The committed DBC extract and the
-committed capture bytes are the strongest ground the oversight chat has, and `3l`'s two
-worst findings both came from there** — prefer them over manifest arithmetic when a
-claim can be reached either way.
+Tier-2 captures gitignored; no `.db` committed. Corpus figures (C2's 1,416/1,852 and
+0.2004; the APL's 15-of-41; the RV holder census) are unverifiable from a clone —
+verify function behaviour with fixtures, manifest-internal arithmetic, commit
+parenthood, and mutation re-runs instead. **The committed DBC extract and the capture
+bytes remain the strongest ground the oversight chat has** — every `3m` D-block figure
+reproduced from the bytes exactly; prefer them over manifest arithmetic when a claim
+can be reached either way.
