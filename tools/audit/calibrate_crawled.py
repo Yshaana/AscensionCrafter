@@ -196,7 +196,15 @@ PATH_TOKEN = {"strength": "Strength", "agility": "Agility", "duality": "Duality"
 
 # Slot index -> BuildSpec slot name. Only the two the sim reads by name matter;
 # everything else contributes stats under its numeric slot.
-WEAPON_SLOTS = {16: "main_hand", 17: "off_hand"}
+# 🚨 3l B3 F1 (prereg_3l_b_tuning.md) — the corpus stores weapons at slots
+# 15/16/17 = 3.3.5's EQUIPMENT_SLOT_MAINHAND/OFFHAND/RANGED. The old
+# `{16: main_hand, 17: off_hand}` used the API-style numbering, so the 105
+# snapshots whose only weapon sits at slot 15 (13 of 41 cohort members) were
+# simmed WEAPONLESS, and every double-2H character swung its slot-16 weapon
+# as the ONLY one. Slot 17 (ranged) is deliberately unmapped: a bow must not
+# swing as a melee off-hand. Stray weapon rows (slots 10-14, 8 corpus-wide)
+# stay `slot_N`; compute_stats names them in a warning.
+WEAPON_SLOTS = {15: "main_hand", 16: "off_hand"}
 
 
 # 🛑 3d F1 — snapshot sources that may NEVER enter the gate cohort.

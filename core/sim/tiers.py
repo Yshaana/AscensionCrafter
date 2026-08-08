@@ -825,10 +825,16 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
     added = 0.0
     mh, oh, w = swing_events(char_state, available)
     warnings.extend(w)
-    if mh <= 0:
-        return 0.0, None
+    # 🚨 3l B3 F3 (prereg_3l_b_tuning.md) — there is NO early return here any
+    # more. `if mh <= 0: return` skipped not just the autos (correct — no
+    # weapon, no swings) but the seal note and the RIGHTEOUS VENGEANCE
+    # derivation, which need no weapon at all: RV is 30% of the rotation's
+    # crit damage, and a weaponless-sim character still crits with abilities.
+    # Deyindra and Shana — both holding the card `confirmed`, both with
+    # positive crit pools — derived no RV for exactly this coupling.
 
     # --- auto-attacks -------------------------------------------------------
+    auto_crit_damage = 0.0
     for weapon, count, label, off in ((char_state.main_hand, mh, "Melee auto (MH)", False),
                                       (char_state.off_hand, oh, "Melee auto (OH)", True)):
         if not weapon or count <= 0:
@@ -839,33 +845,42 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
         warnings.extend(out.warnings)
         dmg = out.mean * count
         added += dmg
+        auto_crit_damage += out.crit_damage * count
         per_ability[f"auto_{'oh' if off else 'mh'}"] = {
             "name": label, "casts": round(count, 1), "damage": dmg,
             "mean_per_cast": out.mean, "school": "Physical",
             "events": [], "unresolved_events": [], "attributed": False}
 
     # --- seal riders --------------------------------------------------------
-    # The RATE is measured; the per-proc MAGNITUDE is not available, because the
-    # damage spell (20424) is absent from `spell_dbc_raw` entirely — it is
-    # reached only as an EffectTriggerSpell of the seal, a route the extract does
-    # not currently follow. Procs are reported; damage is NOT invented.
+    # The RATE is measured; per-proc DELIVERY is not modelled. ⚠ Stale-claim
+    # fix (3l pre-flight): 20424 HAS a record in spell_dbc_raw since 3b's
+    # observed-ids extract and decodes (35% weapon-percent, Holy) — the old
+    # text here said it was reached by no extraction route, which propagated
+    # from 2e. The real blocker is per-proc trigger DELIVERY for crawled
+    # characters (rate measured only on the owner), deferred with the
+    # delivery block. Procs are reported; damage is NOT invented.
     melee_events = mh + oh + melee_ability_hits
     procs = seal_procs(melee_events)
     seal_note = (
         f"seal riders: ~{procs:.0f} procs expected over the fight "
         f"({melee_events:.0f} melee events x {SEAL_PROC_PER_MELEE_EVENT:.2f}); "
-        f"rate is {SEAL_PROC_RATE_EVIDENCE}. 🛑 Per-proc DAMAGE is UNMODELLED — "
-        "the seal's damage spell (20424) has no record in spell_dbc_raw, so it "
-        "is reached by no extraction route. Seal damage is therefore MISSING "
-        "from this total, not zero; it measured 8.5% of unbuffed and 6.5% of "
-        "buffed damage in the 2e captures")
+        f"rate is {SEAL_PROC_RATE_EVIDENCE}. 🛑 Per-proc damage is UNMODELLED "
+        "— 20424 decodes (35% weapon damage, Holy; in spell_dbc_raw since 3b) "
+        "but its per-proc delivery for crawled characters is the deferred "
+        "trigger-delivery block. Seal damage is therefore MISSING from this "
+        "total, not zero; it measured 8.5% of unbuffed and 6.5% of buffed "
+        "damage in the 2e captures")
     warnings.append(seal_note)
 
     # --- Righteous Vengeance ------------------------------------------------
     # A derived source: 30% of the rotation's own crit damage as an 8 s Holy DoT.
     # It has no magnitude of its own in the DBC (aura 3, periodic, value supplied
     # by the caster), so this is the only way it can ever be modelled.
-    crit_damage = 0.0
+    # 3l B3 F3 — the pool now includes the WHITE-SWING crit component
+    # (`auto_crit_damage`): ability rows carry per-event crit damage, auto rows
+    # carry none (events=[]), so the old sum structurally excluded every white
+    # crit and RV inherited the rotation-only share.
+    crit_damage = auto_crit_damage
     for sid, rec in list(per_ability.items()):
         for ev in rec.get("events") or ():
             if ev.get("crit_damage"):

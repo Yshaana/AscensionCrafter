@@ -330,6 +330,18 @@ def compute_stats(build_spec, content, conversions: RatingConversions,
         if g and g.weapon:
             setattr(cs, attr, {k: g.weapon[k] for k in ("min", "max", "speed")
                                if k in g.weapon})
+    # 3l B3 F1 — a weapon parked in a slot the swing model does not read is
+    # NAMED, never silently ignored: a bow in the ranged slot, or a stray
+    # capture-format slot (10-14 in the corpus, 8 rows). The caller decides
+    # what to do; silence here reads as "this character swings everything
+    # they carry".
+    stray = [g.slot for g in build_spec.gear.values()
+             if g and g.weapon and g.slot not in ("main_hand", "off_hand")]
+    if stray:
+        warnings.append(
+            f"weapon-stat item(s) in unmapped slot(s) {sorted(stray)} — not "
+            f"swung by the white-swing model (ranged/stray slots are outside "
+            f"the melee hand mapping, 3l B3)")
 
     if build_spec.stats_override:
         # ----- sheet mode: values are FINAL; do not reapply path stats -----

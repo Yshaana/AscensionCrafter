@@ -92,12 +92,18 @@ JUDGEMENT_PRESS_CARDS = (20271, 53408)     # Judgement of Light / of Wisdom
 
 @dataclass
 class SwingOutcome:
-    """Expected damage per swing plus the table that produced it."""
+    """Expected damage per swing plus the table that produced it.
+
+    `crit_damage` is the expected CRIT damage per swing attempt
+    (base × p_crit × crit multiplier) — the white-swing share of the pool
+    Righteous Vengeance derives from (3l B3 F3: the pool used to sum ability
+    events only, structurally excluding every white crit)."""
     mean: float
     crit_fraction: float
     landed_fraction: float
     table: object
     warnings: list = field(default_factory=list)
+    crit_damage: float = 0.0
 
 
 def swing_interval(weapon, melee_haste_pct):
@@ -139,6 +145,28 @@ def expected_swing(char_state, weapon, target, *, is_offhand=False,
     p = table.probabilities()
 
     base = (float(lo) + float(hi)) / 2.0
+    # 3l B3 F2 (prereg_3l_b_tuning.md) — the attack-power term. Retail 3.3.5:
+    # a white swing is weapon roll + AP/14 × weapon speed, and this function
+    # mitigated the NAKED weapon roll through the armor table — measured on
+    # the cohort at ~122 sim per swing against ~1,382 logged per hit (Ryno).
+    # retail_hypothesis, same tier as the off-hand penalty below: Ascension's
+    # engine is 3.3.5-based (primer §1), but the 14 has not been separately
+    # measured here. Added BEFORE the off-hand halving so the penalty covers
+    # the whole swing, as retail's does.
+    speed = weapon.get("speed")
+    ap = getattr(char_state, "attack_power", 0.0) or 0.0
+    if ap > 0:
+        if speed and speed > 0:
+            base += ap / 14.0 * float(speed)
+            warnings.append(
+                "white swings include AP/14 × speed (retail_hypothesis — the "
+                "3.3.5 formula; the divisor is not separately validated on "
+                "Ascension)")
+        else:
+            warnings.append(
+                "weapon SPEED is unknown — the AP/14 × speed term is OMITTED "
+                "from white swings, so they carry the bare weapon roll and "
+                "are understated, not guessed")
     if is_offhand:
         # retail_hypothesis: off-hand swings deal 50% damage. NOT validated on
         # Ascension. It is flagged rather than silently applied, and the owner's
@@ -180,7 +208,9 @@ def expected_swing(char_state, weapon, target, *, is_offhand=False,
     # had ZERO readers tree-wide (core/, tools/, cli/, ingest/ all grepped), so
     # the mis-unit never reached a number — but a write-only field whose name
     # contradicts its value is a trap armed for its first reader.
-    return SwingOutcome(mean, p.get("crit", 0.0), landed, table, warnings)
+    # (3l B3: `crit_damage` is that first reader's field — the RV pool.)
+    return SwingOutcome(mean, p.get("crit", 0.0), landed, table, warnings,
+                        crit_damage=base * p.get("crit", 0.0) * crit_mult)
 
 
 def swing_events(char_state, duration):
