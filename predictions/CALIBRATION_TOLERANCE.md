@@ -214,6 +214,7 @@ reality"* is the sentence that used to live here in words:
 | …slice accuracy that coverage would require for `delta = 0` | **121.7%** | `100 / (best coverage / 100)` |
 | producing-only slice median (≥20%) | **32.7% (n=23)** | `median_slice_accuracy_pct_producing_only_at_coverage_ge_20` |
 | …paired over the SAME members (no selection bias) | **30.15% headline / 36.27% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
+| …admissible-only slice median (≥20%) | **27.62% (n=21)** | `median_slice_accuracy_pct_admissible_only` |
 
 *(from `gate_manifest_3e.json`, generated 2026-08-08T12:26:27+00:00, git `1fba7f5`.)*
 

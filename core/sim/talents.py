@@ -143,9 +143,20 @@ SPELLMOD_DAMAGE_OPS = {
 # opposite direction: there the prose was aspirational and the delivery was
 # broken; here the numeric field was the bug and the prose was right.
 #
-# Owner decision 2026-08-08: **model INTENDED.** So `0.65·W + 2.2·(9+AP)`
-# replaces `2.2·(0.65·W + 9+AP)`, and the removed term is `1.2 × 0.65 × W` — a
-# pure weapon term, so the nerf scales with weapon damage.
+# Owner decision 2026-08-08: **model INTENDED.** So `0.65·W + 2.2·B` replaces
+# `2.2·(0.65·W + B)`, where `B` is the ability's bonus term; the removed term is
+# `1.2 × 0.65 × W` — a pure weapon term, so the nerf scales with weapon damage.
+#
+# ⚠ `3o` pre-flight, found by the VALUE-grep this cycle's rule 8 mandates
+# (`AUDIT_3N` F1/F2): these two lines used to write `B` out as `9+AP`, a
+# magnitude retracted TWICE — the `9` and the `AP` term both came from reading
+# `EffectBonusCoefficient = 1.0` as a real 1:1 AP coefficient, and `1x`
+# established the next day that 1.0 is that field's NEUTRAL value. Lightbound
+# Cleave's current decode is a **flat 62 with no AP term**, which is what the
+# sim actually uses as `B`. The audit named two sibling sites for this
+# retraction and this was not one of them — a comment inside the very module
+# implementing the fix. Code comments are prose living in code, and they are
+# reached by the value-grep, not by the sentence-grep.
 #
 # 🛑 SCOPED TO IMPROVED CLEAVE BY CARD ID, NOT GENERALISED TO op 8. The evidence
 # is one changelog line about one card. `SPELLMOD_ALL_EFFECTS` means all effects

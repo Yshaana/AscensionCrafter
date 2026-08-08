@@ -91,6 +91,7 @@ def render_derived(manifest_path=MANIFEST):
     prod_n = r["producing_only_n"]
     head_n = r["slice_accuracy_by_coverage_band_pct"][f">={floor:g}"]["n"]
     paired = r.get("paired_medians_same_members_at_headline_floor") or {}
+    admiss = r.get("median_slice_accuracy_pct_admissible_only") or {}
 
     cohort = m.get("cohort") or []
     # The cohort's best coverage — the most generous coverage assumption
@@ -141,6 +142,21 @@ def render_derived(manifest_path=MANIFEST):
             f"{paired.get('producing_only_pct')}% producing-only "
             f"(n={paired.get('n')})** "
             f"| `paired_medians_same_members_at_headline_floor` |")
+    # 🆕 `3o` pre-flight (AUDIT_3N F4). The audit's first half is right — the
+    # closing table's 27.4 was `3m`'s figure carried forward and is stale. Its
+    # second half is NOT: `calibrate_crawled.admissible_only_slice` has emitted
+    # this into the manifest since `3m` A2 (`7c5db49`), and the committed
+    # manifest carries the key. What it lacked was an ASSERTED home — the
+    # emitted value was there to be read and the close-out hand-typed a
+    # different one anyway, which is the [3j-C3] lesson exactly ("generated
+    # once and pasted" is one document-landing from wrong). Rendering it here
+    # puts it under [3m-A0], so a stale paste now fails a check instead of
+    # surviving to the next audit.
+    if admiss:
+        lines.append(
+            f"| …admissible-only slice median (≥{floor:g}%) "
+            f"| **{admiss['median_pct']:.2f}% (n={admiss['n']})** "
+            f"| `median_slice_accuracy_pct_admissible_only` |")
     lines += [
         "",
         (f"*(from `{MANIFEST.name}`, generated {m['generated_at']}, "

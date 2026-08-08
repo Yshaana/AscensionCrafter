@@ -261,3 +261,51 @@ Census regenerated in every commit touching `primer/`.
 5. **A producing same-member instrument**, live from its second run.
 6. **Three fresh measurements nobody has scored**: the ×1.141 LBC residual, the
    88-vs-80 imbue AP delta, and the sheet weapon-damage +15.4×speed anomaly.
+
+---
+
+## §11 — APPENDED at `3o` pre-flight, 2026-08-08 — three close-out numbers, and one audit finding that does not survive contact with the tree
+
+> Appended, not rewritten: this document is `HISTORICAL` and the text above is
+> what `3n` wrote. These corrections come from `AUDIT_3N_ADVERSARIAL.md`
+> F3/F4/F6 — **all three are the same failure**, and it is the one this
+> session's own §0 rule 9 names: a magnitude in the close-out that no tool
+> printed.
+
+**1. The producing pair was quoted at the wrong endpoints (F3).** §0's table and
+§3 state `0.3234 (n=117) → 0.2571 (n=123)` with *"published −0.0562 AND
+same-member −0.0562"*. Recomputed from the artifacts, **−0.0562 is the leg 1 →
+leg 2 delta** (`0.3133 (n=127) → 0.2571 (n=123)`, the manifest's own
+`producing_delta_vs_previous_run`). Across the endpoints actually quoted the
+published delta is **−0.0663**, and no same-member figure spans that pair at all
+— the baseline artifact predates `producing_ratio_by_row`. Worse, the equality
+was doing argumentative work: *"both pairs are equal, so both are accuracy, not
+composition"* was attached to a span whose first segment (leg 1) **is** this
+session's own showcase composition move, correctly scored as such under P4.
+
+> **A DELTA MAY ONLY SIT BESIDE TWO MEDIANS IF IT SPANS EXACTLY THOSE TWO RUNS.**
+> The instrument was honest; the prose re-paired its output.
+
+**2. The admissible-only slice was stale — but it was NOT unemitted (F4).** The
+closing table's **27.4% (n=21)** is `3m`'s figure carried forward; the final
+manifest gives **27.62% (n=21)**, and it moved with Block B because three of the
+21 are exposed members. 🛑 **The audit's second claim — *"no committed tool
+emits an admissible-only median (the manifest has no such key — checked)"* — is
+false.** `calibrate_crawled.admissible_only_slice` has emitted
+`median_slice_accuracy_pct_admissible_only` since `3m` A2 (`7c5db49`), and the
+manifest committed at `6f1fc7c` carries it. **The emitted value was sitting in
+the artifact while the close-out typed a different one beside it.** That is a
+sharper finding than the audit's: the failure was not a missing emitter, it was
+an emitter with **no assertion**, which is [3j-C3]'s lesson verbatim
+("generated once and pasted is one document-landing from wrong"). Fixed at `3o`
+pre-flight by rendering it into `CALIBRATION_TOLERANCE.md`'s derived-figures
+block, where `[3m-A0]` asserts it.
+
+**3. "Starved allocations 105 → 94" reproduces from nothing (F6).** No committed
+manifest, per-key table or tool produces 105 or 94, and it **cannot be
+reconstructed** — the baseline artifact predates `producing_ratio_by_row`, so
+the leg-1 row set is gone. The committed counts that do have an owner are
+`paired_keyed_at_exactly_zero` **37 → 27** and per-key starved states
+**28 → 22**, both from `per_ability_summary.json`. The claim's *direction* is
+unaffected and is corroborated by both owned pairs; only its magnitude had no
+provenance.

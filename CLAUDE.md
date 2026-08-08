@@ -165,17 +165,22 @@ Schema in `INDEX_GUIDE.md`.
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
   date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
   `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
-  as generated at `3n`'s close, 2026-08-08. It moved **three times inside `3n`
+  as generated at `3o` pre-flight, 2026-08-08. It moved **three times inside `3n`
   alone** — 75 → 77 when the audit and work order landed at pre-flight, and 77 → 78
   at close when the session record landed and the work order flipped to
-  `SUPERSEDED` (which moves *two* counters without moving the file count). That is
-  the **seventh** time this rule has earned its keep and the fifth in two days, and
-  the pattern is fully regular: **every cycle boundary moves the census at least
-  twice**, because a cycle *is* documents landing and expiring. A hand-typed census
-  is wrong by construction, not by accident:
+  `SUPERSEDED` (which moves *two* counters without moving the file count) — and a
+  fourth time immediately after, **78 → 81**, when the cycle's four documents
+  landed. That is the **eighth** time this rule has earned its keep and the sixth
+  in two days, and the pattern is fully regular: **every cycle boundary moves the
+  census at least twice**, because a cycle *is* documents landing and expiring.
+  🆕 **`3o` pre-flight adds the sharpest instance yet: the commit that landed those
+  four documents did not regenerate the census, so `[A4]` was RED on the first
+  harness run of the session** — the assertion caught it within minutes, which is
+  the whole reason the paste is asserted rather than merely warned about. A
+  hand-typed census is wrong by construction, not by accident:
 
   ```
-  [census] primer/ status lines: 78 files — 13 LIVE / 42 HISTORICAL / 9 SUPERSEDED / 14 FINDING
+  [census] primer/ status lines: 81 files — 14 LIVE / 42 HISTORICAL / 9 SUPERSEDED / 16 FINDING
   ```
 
   🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).
@@ -185,6 +190,12 @@ Schema in `INDEX_GUIDE.md`.
   here on purpose.** The census above is asserted, so pasting it is safe; an arm count
   is not, it moves in every commit that adds an arm, and a magnitude in a document with
   nothing asserting it is exactly what this rule exists to stop.
+  🆕 **`3o` pre-flight — it does not only move when an arm is ADDED. It moves with the
+  WORKING TREE'S OWN CLEANLINESS:** the `[A7]`/`[E6]` fixtures exercise the
+  dirty-tree manifest refusal, which cannot be tested on a clean tree, so a dirty
+  tree runs **four arms a clean one does not**. That is why the standing instruction
+  is to cite the **clean-tree** line specifically — a mid-session count is not
+  comparable to a close-out count, and neither is wrong.
 
   🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it
   prints**, so "generated" no longer means "generated once and pasted". The census moved

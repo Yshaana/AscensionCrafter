@@ -9,26 +9,44 @@
 >
 > 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
 > `30.040% → 30.150% (n=24)` — published **+0.11 pp** AND same-member
-> **+0.11 pp**, membership unchanged; producing median `0.3234 (n=117) →
-> 0.2571 (n=123)`, published **−0.0562** AND same-member **−0.0562**; absent
-> `58.8% → 59.0%`.** Predictions, per block, from the scored table:
+> **+0.11 pp**, membership unchanged; producing median, baseline→close,
+> `0.3234 (n=117) → 0.2571 (n=123)`, published **−0.0663** (no same-member
+> figure spans that pair — see below); absent `58.8% → 59.0%`.** Predictions,
+> per block, from the scored table:
 > **B 8✓ · 1✗ (9 total)**. The one falsification is diagnosed and not rescued.
 > Prereg parenthood: `fdf9851` → `14ec3dc` (leg 1) and `fdf9851` → `fc9a36c`
 > (leg 2).
 >
-> 🚨 **THE TWO HEADLINE INSTRUMENTS MOVED IN OPPOSITE DIRECTIONS AND BOTH PAIRS
-> ARE EQUAL** — so both are accuracy, not composition. Not a contradiction: the
-> slice is per **character** over that character's modelled abilities; the
-> producing median is per **ability row**, unweighted. Block B moved damage out
-> of a row every melee character has (autos) into rows only 12 have. First time
-> in the arc they have disagreed in sign with both pairs equal — and **neither
-> is the gate**, which is unchanged at 0 of 35.
+> ⚠ **CORRECTED `3o` PRE-FLIGHT (`AUDIT_3N` F3) — this block previously quoted
+> the producing delta at the WRONG ENDPOINTS.** The equal pair **−0.0562
+> published = −0.0562 same-member** is the **leg 1 → leg 2** move
+> (`0.3133 (n=127) → 0.2571 (n=123)`, the manifest's own
+> `producing_delta_vs_previous_run`). It was printed beside the
+> **baseline→close** medians, whose published delta is **−0.0663** and whose
+> first segment (`0.3234 → 0.3133`, leg 1) is by this session's own scoring of
+> P4 a **composition** move — 11 starved rows entering below the sitting
+> median, which was the point of the fix. **A delta may only sit beside two
+> medians if it spans exactly those two runs.**
+>
+> 🚨 **THE TWO HEADLINE INSTRUMENTS MOVED IN OPPOSITE DIRECTIONS, AND OVER
+> LEG 1 → LEG 2 BOTH PAIRS ARE EQUAL** — so over *that* span both are accuracy,
+> not composition. Not a contradiction: the slice is per **character** over
+> that character's modelled abilities; the producing median is per **ability
+> row**, unweighted. Block B moved damage out of a row every melee character
+> has (autos) into rows only 12 have. First time in the arc they have disagreed
+> in sign with both pairs equal — and **neither is the gate**, which is
+> unchanged at 0 of 35.
 >
 > * ✅ **THE APL CLOCK FIX LANDED, IN TWO LEGS.** `is_next_swing` was decoded in
 >   `mechanics.py` and **read by nothing in `core/sim/`**; these abilities also
 >   fail the off-GCD test on a technicality (all 11 resolve `gcd_type = None`).
 >   Leg 1 gives them a **swing budget**; leg 2 makes them **replace** the white
->   swing they ride. Starved allocations **105 → 94**.
+>   swing they ride. ⚠ **CORRECTED `3o` PRE-FLIGHT (`AUDIT_3N` F6): this line
+>   read "starved allocations 105 → 94", which no committed artifact
+>   produces** — and it cannot be reconstructed, because the baseline artifact
+>   predates `producing_ratio_by_row`. The committed counts, which do have an
+>   owner, are `paired_keyed_at_exactly_zero` **37 → 27** and per-key starved
+>   states **28 → 22** (`per_ability_summary.json`).
 > * 🚨 **A CORRECTION TO `3m` §9:** its *"44.52 casts"* is **not** the swing
 >   clock — it is the GCD-budget count. Blix's real clock gives **23.936**, so
 >   the fix hands Lightbound Cleave roughly **half** what that figure implies. A
@@ -81,7 +99,7 @@
 > | qualified (≥50% coverage) | **0** |
 > | slice accuracy at ≥20% coverage | **30.150% (n=24)** |
 > | …published Δ / same-member Δ | **+0.11 pp / +0.11 pp** |
-> | admissible-only slice | **27.4% (n=21)** |
+> | admissible-only slice | **27.62% (n=21)** |
 > | absent share of cohort logged damage | **59.0%** |
 > | producing median ratio | **0.2571 (n=123)** |
 > | …published Δ / same-member Δ | **−0.0562 / −0.0562** |
