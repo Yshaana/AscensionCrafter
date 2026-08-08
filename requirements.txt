@@ -20,3 +20,13 @@ datasette
 #     built DLL (ASCENSION_STORMLIB_DLL overrides the path). Only needed when
 #     re-extracting from the game client; every other session reads the committed
 #     JSON in data/source/dbc/ instead.
+
+# OPTIONAL, and only for tools/audit/check_addon_lua.py (`3o` Block B): a real
+# Lua 5.1 runtime, which is the version the 3.3.5 client runs. It lets the
+# capture addon be LOADED AND DRIVEN in a test — slash commands dispatched,
+# combat events fired, the session blob handed to the same parser the repo uses
+# on real captures — instead of being verified only by the owner installing it
+# and playing. 🛑 NOT needed by cli/rebuild.py, and NOT needed by
+# check_refusals.py: the routine harness must stay green on a bare checkout, so
+# the parser-tolerance arm that gates every run ([3o-B1]) uses no Lua at all.
+lupa

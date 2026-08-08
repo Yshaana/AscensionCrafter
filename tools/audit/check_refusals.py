@@ -2273,6 +2273,94 @@ def check_predictions_json_status():
           + (f"; UNLABELLED: {missing}" if missing else ""))
 
 
+def check_stat_block_tolerates_session_lines():
+    """`3o` Block B — the stat parser must SKIP the capture addon's new lines,
+    not choke on them and not absorb them into a stat.
+
+    The `/ace` session capture adds `SnapshotReason:`, `Seq:`, `Target:`,
+    `WeaponMH:` and `WeaponOH:` to every snapshot. Those lines are additive by
+    design, and the whole reason the addon reuses one stat emitter is so that
+    `pair_parses_to_stats.py` ingests a session blob with no change at all.
+    "Additive by design" is a claim about a parser nobody had run against the
+    new shape — so this runs it.
+
+    🛑 THE ARM ASSERTS THE PARSED STAT DICT, NOT THAT PARSING "SUCCEEDED"
+    (`3n`'s label lesson). A parser that swallowed `Target: none` into some
+    numeric field, or that let `WeaponMH:` overwrite the weapon block, would
+    still "parse fine" — so the test is that the block WITH the session lines
+    yields the byte-same stat dict as the block without them, plus nothing.
+
+    MUTATION THAT MAKES THIS FAIL (M76, red, RUN 2026-08-08): make
+    `core/builds/stat_block.py` raise on a line whose key it does not
+    recognise — the plausible "be strict about input" change, and exactly what
+    a future session hardening the parser would reach for. GREEN PATH: keep the
+    unknown-key skip (`if not m: continue` plus the `raw_fields` catch-all).
+    """
+    from core.builds.stat_block import parse_stat_block
+
+    plain = (
+        "=== Elric - Darkmoon - Season 10 Wildcard ===\n"
+        "Level: 60\n"
+        "ExportedAt: 2026-08-08 13:00:37 (client local time)\n"
+        "Strength: 121\n"
+        "AttackPower: 141\n"
+        "SpellPower_Holy: 672\n"
+        "MainHandDamage: 227.7-253.7 (speed 1.66)\n"
+    )
+    # The same block as the addon emits it inside a session.
+    sessioned = (
+        "=== Elric - Darkmoon - Season 10 Wildcard ===\n"
+        "Level: 60\n"
+        "ExportedAt: 2026-08-08 13:00:37 (client local time)\n"
+        "SnapshotReason: combat_start\n"
+        "Seq: 4\n"
+        "Target: Training Dummy / 0xF130002FE3000994\n"
+        "WeaponMH: item:200001:23392:0:0:0:0:0:0:60:0\n"
+        "WeaponOH: none\n"
+        "Strength: 121\n"
+        "AttackPower: 141\n"
+        "SpellPower_Holy: 672\n"
+        "MainHandDamage: 227.7-253.7 (speed 1.66)\n"
+    )
+    try:
+        a = parse_stat_block(plain)
+        b = parse_stat_block(sessioned)
+        err = None
+    except Exception as e:                                    # noqa: BLE001
+        a = b = None
+        err = f"{type(e).__name__}: {e}"
+
+    check("[3o-B1] the stat parser SKIPS the /ace session lines rather than "
+          "raising — the addon's new fields are additive, and this is the arm "
+          "that says so instead of the commit message",
+          err is None, err or "both blocks parsed")
+    if err:
+        return
+
+    # Every stat must be identical: the session lines add context, never data.
+    STATS = ("strength", "attack_power", "level", "weapon", "exported_at",
+             "spell_power_by_school", "character", "realm", "season")
+    differing = [k for k in STATS if a.get(k) != b.get(k)]
+    check("[3o-B1] …and the parsed STAT DICT is unchanged by their presence — "
+          "asserting the values, not that a parse 'succeeded'",
+          not differing,
+          f"differing keys: {differing}" if differing
+          else f"AP={b.get('attack_power')}, weapon={b.get('weapon')}")
+
+    # The new lines must still be RECOVERABLE — they carry the imbue rank and
+    # the target GUID, which is the entire reason they exist. A parser that
+    # dropped them silently would pass both arms above.
+    rf = b.get("raw_fields") or {}
+    check("[3o-B1] …and the session fields are RECOVERABLE from raw_fields, so "
+          "the enchant id (= the imbue rank per parse) and the target GUID are "
+          "not silently discarded",
+          rf.get("SnapshotReason") == "combat_start"
+          and "23392" in (rf.get("WeaponMH") or "")
+          and "0xF130002FE3000994" in (rf.get("Target") or ""),
+          f"reason={rf.get('SnapshotReason')!r} mh={rf.get('WeaponMH')!r} "
+          f"target={rf.get('Target')!r}")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -2344,6 +2432,7 @@ def main():
     check_predictions_json_status()
     check_band_table_matches_manifest()
     check_blocked_question_count()
+    check_stat_block_tolerates_session_lines()
     print()
     check_coverage_split_producing_vs_zero()
 

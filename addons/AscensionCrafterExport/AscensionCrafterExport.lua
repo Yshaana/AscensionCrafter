@@ -35,7 +35,50 @@ CAVEATS:
     does not exist here - the export will not say so. Diff a fresh export
     against the expected field list before relying on any single field.
 
+SESSION CAPTURE (2026-08-08):
+  /ace start   - begin a dungeon/raid session: turns combat logging ON
+                 (and VERIFIES it), takes a full export, then snapshots
+                 the character's stats automatically at the start and end
+                 of every combat.
+  /ace snap    - a manual stat snapshot (e.g. after re-imbuing).
+  /ace status  - what the session has captured so far.
+  /ace stop    - final snapshot, logging OFF, and ONE copyable blob.
+  /ace resume  - reattach to a session left open by a crash or /reload.
+  /ace         - unchanged: the one-off full export (same as /acexport).
+
 CHANGELOG
+  2026-08-08 (session `3o`) - SESSION CAPTURE MODE.
+    * The point of it: `3n` proved that ONE stat block per parse cannot
+      yield a coefficient. A coefficient is a SLOPE, and one (stat,
+      damage) pair is one point - every coefficient fits it, with the
+      flat absorbing the difference. Two stat levels are what turn a
+      point into a slope, and PLAYER_REGEN_DISABLED / _ENABLED fire at
+      exactly the two instants that bracket a pull. This turns that
+      capture protocol from a per-pull chore into one button.
+    * The per-snapshot block REUSES the same stat emitter as the full
+      export, so `tools/analysis/pair_parses_to_stats.py` parses a
+      session blob with no change at all. New lines (SnapshotReason,
+      Seq, Target, WeaponMH, WeaponOH) are ADDITIVE - the repo-side
+      parser skips unknown `Key: value` lines by construction, and
+      there is now a registered check asserting exactly that.
+    * `Target:` carries the target's GUID at combat start, so a window
+      can be tied to the enemy it was fought against rather than to a
+      name. `Target: none` when there is no target - never a guess.
+    * `WeaponMH:` / `WeaponOH:` carry the itemString, whose SECOND field
+      is the enchant id - i.e. the imbue RANK, per parse. No stat number
+      carries that, and delivery modelling needs it.
+    * A GUARD THAT CANNOT RUN SAYS SO. `LoggingCombat` is read back
+      after every write; if the API is absent or errors, the addon
+      prints COULD NOT VERIFY in red rather than a reassuring "logging
+      on". The 3b extract wrapper printed "OK - game is closed" after
+      its check had errored, and that is the failure this rule exists
+      to stop.
+    * Persistence: the session buffer is written to SavedVariables on
+      EVERY snapshot, so a /reload after a wipe loses nothing.
+      ⚠ STATED LIMIT, not hidden: a hard client crash loses whatever
+      was not flushed to disk by a reload or logout. The combat LOG
+      file survives a crash; the Lua buffer does not.
+
   2026-08-06c - Two real bugs from the second live test.
     * 🚨 ACTION BARS WERE WRONG AND LOOKED PLAUSIBLE - the worst kind.
       `GetActionInfo` returns a SPELLBOOK INDEX, not a spell id, and the
@@ -141,15 +184,54 @@ local function addWrapped(add, prefix, items, perLine)
   end
 end
 
-local function gatherText()
-  local lines = {}
-  local function add(s) table.insert(lines, s) end
+-- The itemString for one equipped slot: `item:<id>:<enchant>:<gem1>:...`.
+-- 🆕 The SECOND field is the enchant id, which for a weapon IS the imbue rank
+-- (Consecrated Weapon 1..9 = enchants 23387..23395). No stat number on the
+-- sheet carries the rank, so without this line a parse cannot say which rank
+-- of an imbue was running while it was recorded.
+local function itemStringFor(slotId)
+  local link = safe(GetInventoryItemLink, "player", slotId)
+  if not link then return nil end
+  -- Prefer the bare itemString; fall back to the whole link rather than
+  -- returning nothing, so a link this pattern does not recognise is still
+  -- RECORDED (unparsed) instead of silently dropped.
+  return string.match(link, "|H(item[%d:%-]+)|h") or link
+end
 
+-- 🆕 2026-08-08 (`3o`) — THE STAT BLOCK, factored out so the session snapshots
+-- and the full export emit BYTE-IDENTICAL stat lines.
+--
+-- This is a hard requirement, not tidiness: `core/builds/stat_block.py` and
+-- `tools/analysis/pair_parses_to_stats.py` both parse this exact shape, and a
+-- second emitter would drift from the first the moment either is edited. Every
+-- block still opens with its own `=== <character> - <realm> ===` header,
+-- because that header is what the repo-side splitter uses to find block
+-- boundaries in a multi-block paste.
+local function emitStatBlock(add, reason, seq)
   add("=== " .. (UnitName("player") or "?") .. " - " .. (GetRealmName() or "?") .. " ===")
   add("Level: " .. tostring(UnitLevel("player")))
 
   local stamp = safe(date, "%Y-%m-%d %H:%M:%S")
   if stamp then add("ExportedAt: "..stamp.." (client local time)") end
+
+  -- Session context. Absent entirely on a plain /acexport, so that export is
+  -- unchanged from every capture already committed under data/source/captures/.
+  if reason then
+    add("SnapshotReason: "..reason)
+    if seq then add("Seq: "..tostring(seq)) end
+    local tname = safe(UnitName, "target")
+    local tguid = safe(UnitGUID, "target")
+    if tname and tguid then
+      add("Target: "..tname.." / "..tguid)
+    elseif tname then
+      -- Named but no GUID: say which half is missing rather than inventing one.
+      add("Target: "..tname.." / GUID_UNAVAILABLE")
+    else
+      add("Target: none")
+    end
+    add("WeaponMH: "..(itemStringFor(16) or "none"))
+    add("WeaponOH: "..(itemStringFor(17) or "none"))
+  end
 
   local statNames = {"Strength","Agility","Stamina","Intellect","Spirit"}
   for i=1,5 do
@@ -240,6 +322,23 @@ local function gatherText()
   else
     add("OffHandDamage: none (no off-hand equipped)")
   end
+end
+
+-- A stat-only snapshot: ~45 lines. Per the spec's size discipline, per-combat
+-- snapshots never carry the gear/spellbook/bars dump — a 5-boss dungeon with
+-- trash has to paste comfortably in one go.
+local function gatherStatText(reason, seq)
+  local lines = {}
+  local function add(s) table.insert(lines, s) end
+  emitStatBlock(add, reason, seq)
+  return table.concat(lines, "\n")
+end
+
+local function gatherText(reason, seq)
+  local lines = {}
+  local function add(s) table.insert(lines, s) end
+
+  emitStatBlock(add, reason, seq)
 
   -- --- GetSpellInfo signature probe --------------------------------------
   -- Every return position, verbatim, for three spells whose expected shape
@@ -426,6 +525,217 @@ local function gatherText()
   return table.concat(lines, "\n")
 end
 
+--===========================================================================
+-- 🆕 2026-08-08 (`3o`) — SESSION CAPTURE
+--
+-- One button at the dungeon door, one at the end. Between them the addon
+-- snapshots the character's stats at the start and end of every combat, so a
+-- kill window is bracketed by two stat blocks taken at the instants combat
+-- actually began and ended.
+--
+-- WHY BRACKETS AND NOT A MID-FIGHT SAMPLE: `pair_parses_to_stats.py` REFUSES a
+-- window whose bracketing blocks disagree, because a stat that moved mid-parse
+-- means the character who dealt the damage is not the character the block
+-- describes (`2d`'s Path of Duality confound). Snapshot noise is therefore
+-- handled by the comparator refusing, never by this addon trying to outsmart
+-- it: a proc already on the sheet at PLAYER_REGEN_DISABLED produces a REFUSAL
+-- downstream, not a silently wrong coefficient. More brackets is strictly
+-- better; cleverer brackets are not.
+--===========================================================================
+local session = nil
+
+local function nowStamp() return safe(date, "%Y-%m-%d %H:%M:%S") or "UNKNOWN" end
+local function say(msg) print("|cff33ff99ACE|r "..msg) end
+local function warn(msg) print("|cffff2020ACE|r "..msg) end
+
+-- 🛑 A GUARD THAT CANNOT RUN MUST SAY SO.
+-- These two return `nil, reason` when the API is absent or errors — never
+-- `false`, which a caller would read as "logging is off" and report as a
+-- successful check. `3b`'s extract wrapper printed "OK - game is closed" after
+-- its own check had errored; this is that lesson, in the addon that replaces
+-- the manual protocol.
+local function readLogging()
+  if type(LoggingCombat) ~= "function" then
+    return nil, "the LoggingCombat API does not exist on this client"
+  end
+  local ok, state = pcall(LoggingCombat)
+  if not ok then return nil, "LoggingCombat() raised an error when read" end
+  return state and true or false
+end
+
+local function setLogging(want)
+  if type(LoggingCombat) ~= "function" then
+    return nil, "the LoggingCombat API does not exist on this client"
+  end
+  local ok = pcall(LoggingCombat, want)
+  if not ok then return nil, "LoggingCombat(...) raised an error when set" end
+  local state, err = readLogging()
+  if state == nil then
+    return nil, "the write did not error, but the state CANNOT BE VERIFIED ("..
+                (err or "unknown")..")"
+  end
+  return state
+end
+
+local function reportLogging(want)
+  local state, err = setLogging(want)
+  if state == nil then
+    warn("COULD NOT VERIFY COMBAT LOGGING: "..(err or "unknown")..
+         ". Set it yourself with /combatlog and check Logs/WoWCombatLog.txt "..
+         "is growing — this addon will NOT claim a state it did not read.")
+    return nil
+  end
+  if state ~= want then
+    warn(("COMBAT LOGGING IS %s AFTER ASKING FOR %s — the client refused the "..
+          "change. Use /combatlog."):format(state and "ON" or "OFF",
+                                            want and "ON" or "OFF"))
+    return state
+  end
+  say(("combat logging verified %s at %s"):format(state and "ON" or "OFF",
+                                                  nowStamp()))
+  return state
+end
+
+local function persist()
+  if type(AscensionCrafterExportDB) ~= "table" then
+    AscensionCrafterExportDB = {}
+  end
+  AscensionCrafterExportDB.session = session
+end
+
+local function takeSnapshot(reason, full)
+  if not session then return end
+  session.seq = (session.seq or 0) + 1
+  local text = full and gatherText(reason, session.seq)
+                     or gatherStatText(reason, session.seq)
+  table.insert(session.snapshots, text)
+  table.insert(session.census, {reason = reason, at = nowStamp(),
+                                seq = session.seq})
+  -- Flush to SavedVariables on EVERY snapshot, so a /reload keeps everything.
+  persist()
+  say(("snapshot #%d (%s)%s"):format(session.seq, reason,
+                                     full and " — full export" or ""))
+end
+
+local combatFrame = CreateFrame("Frame")
+combatFrame:Hide()
+combatFrame:SetScript("OnEvent", function(self, event)
+  if not session or not session.active then return end
+  if event == "PLAYER_REGEN_DISABLED" then
+    session.combats = (session.combats or 0) + 1
+    takeSnapshot("combat_start", false)
+  elseif event == "PLAYER_REGEN_ENABLED" then
+    takeSnapshot("combat_end", false)
+  end
+end)
+
+local function registerCombatEvents(on)
+  if on then
+    combatFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    combatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+  else
+    combatFrame:UnregisterAllEvents()
+  end
+end
+
+local function sessionBlob()
+  local out = {}
+  -- ⚠ This header deliberately contains NO " - " separators, so the repo-side
+  -- block splitter (which keys on `=== <character> - <realm> ===`) cannot
+  -- mistake it for a stat block. Metadata for a human reader; the parser skips
+  -- everything before the first real header.
+  table.insert(out, "=== ACE SESSION ===")
+  table.insert(out, "SessionStart: "..tostring(session.startedAt))
+  table.insert(out, "SessionStop: "..tostring(session.stoppedAt or "(open)"))
+  table.insert(out, "SessionSnapshots: "..tostring(#session.snapshots))
+  table.insert(out, "SessionCombats: "..tostring(session.combats or 0))
+  table.insert(out, "SessionLoggingAtStart: "..tostring(session.loggingAtStart))
+  table.insert(out, "SessionLoggingAtStop: "..tostring(session.loggingAtStop))
+  table.insert(out, "SessionReloads: "..tostring(session.reloads or 0))
+  local order = {}
+  for _, c in ipairs(session.census or {}) do
+    table.insert(order, ("%d:%s@%s"):format(c.seq, c.reason, c.at))
+  end
+  table.insert(out, "SessionOrder: "..table.concat(order, ", "))
+  table.insert(out, "")
+  for _, s in ipairs(session.snapshots) do
+    table.insert(out, s)
+    table.insert(out, "")
+  end
+  return table.concat(out, "\n")
+end
+
+local showBlob   -- forward declaration; defined with the popup window below
+
+local function sessionStart()
+  if session and session.active then
+    say("a session is ALREADY ACTIVE (started "..tostring(session.startedAt)..
+        ", "..#session.snapshots.." snapshots). Doing nothing — "..
+        "/ace stop ends it, /ace status shows it.")
+    return
+  end
+  local prior, priorErr = readLogging()
+  if prior == nil then
+    warn("could not read the CURRENT combat-logging state ("..
+         (priorErr or "unknown")..") — continuing, but treat the log's start "..
+         "point as unknown.")
+  elseif prior then
+    warn("combat logging was ALREADY ON. WoWCombatLog.txt will be APPENDED "..
+         "to, so it may hold an earlier session too — window this capture by "..
+         "the timestamps below, not by the file.")
+  end
+  session = {
+    active = true, startedAt = nowStamp(), seq = 0, combats = 0,
+    snapshots = {}, census = {}, reloads = 0,
+  }
+  session.loggingAtStart = reportLogging(true)
+  registerCombatEvents(true)
+  takeSnapshot("session_start", true)   -- full export, once per session
+  say("session started. Play normally — every combat is bracketed "..
+      "automatically. /ace stop when you are done.")
+end
+
+local function sessionStop()
+  if not session or not session.active then
+    say("no active session. /ace start begins one.")
+    return
+  end
+  takeSnapshot("session_stop", false)
+  session.loggingAtStop = reportLogging(false)
+  session.stoppedAt = nowStamp()
+  session.active = false
+  registerCombatEvents(false)
+  persist()
+  say(("session complete: %d snapshots across %d combat(s). Ctrl+A, Ctrl+C "..
+       "the window and paste it."):format(#session.snapshots,
+                                          session.combats or 0))
+  showBlob(sessionBlob())
+end
+
+local function sessionStatus()
+  if not session then say("no session recorded."); return end
+  local state = readLogging()
+  say(("session %s — started %s, %d snapshot(s), %d combat(s), logging now %s")
+      :format(session.active and "ACTIVE" or "stopped",
+              tostring(session.startedAt), #session.snapshots,
+              session.combats or 0,
+              state == nil and "UNVERIFIABLE" or (state and "ON" or "OFF")))
+end
+
+local function sessionResume()
+  if not session then say("nothing to resume."); return end
+  if session.active then
+    session.reloads = (session.reloads or 0) + 1
+    registerCombatEvents(true)
+    session.loggingAtStart = reportLogging(true)
+    persist()
+    say(("resumed: %d snapshot(s) recovered from before the reload.")
+        :format(#session.snapshots))
+  else
+    say("the last session is already stopped — /ace stop reopens its window.")
+  end
+end
+
 -- copyable popup window (created lazily, once)
 local exportFrame
 local function ensureExportFrame()
@@ -484,17 +794,77 @@ local function showExport()
   f:Show()
 end
 
+-- Defined as a forward local above, so the session code can open the window
+-- without the window code having to know anything about sessions.
+function showBlob(text)
+  local f = ensureExportFrame()
+  f.editBox:SetText(text)
+  f.editBox:HighlightText()
+  f.editBox:SetFocus()
+  f:Show()
+end
+
 -- slash command
+--
+-- ⚠ Bare `/ace` and `/acexport` keep their ORIGINAL behaviour — the one-off
+-- full export. Every capture already committed under data/source/captures/ was
+-- produced that way, and the owner types it from muscle memory; a session verb
+-- silently stealing the bare command would be a change nobody asked for.
 SLASH_ASCENSIONCRAFTEREXPORT1 = "/acexport"
 SLASH_ASCENSIONCRAFTEREXPORT2 = "/ace"
-SlashCmdList["ASCENSIONCRAFTEREXPORT"] = function()
-  showExport()
+SlashCmdList["ASCENSIONCRAFTEREXPORT"] = function(msg)
+  local cmd = string.lower(string.match(tostring(msg or ""), "^%s*(%S*)") or "")
+  if cmd == "" or cmd == "export" then
+    showExport()
+  elseif cmd == "start" or cmd == "dungeon" then
+    sessionStart()
+  elseif cmd == "stop" or cmd == "end" then
+    sessionStop()
+  elseif cmd == "snap" then
+    if session and session.active then
+      takeSnapshot("manual", false)
+    else
+      say("no active session — /ace start first (or /ace for a one-off export).")
+    end
+  elseif cmd == "status" then
+    sessionStatus()
+  elseif cmd == "resume" then
+    sessionResume()
+  else
+    say("commands: /ace (full export) | start | snap | status | stop | resume")
+  end
 end
 
 -- draggable button, created once on login
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
-eventFrame:SetScript("OnEvent", function()
+eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:SetScript("OnEvent", function(self, event, arg1)
+  if event == "ADDON_LOADED" then
+    -- SavedVariables are only populated by the time OUR addon has loaded.
+    if arg1 ~= ADDON_NAME then return end
+    if type(AscensionCrafterExportDB) ~= "table" then
+      AscensionCrafterExportDB = {}
+    end
+    local saved = AscensionCrafterExportDB.session
+    if type(saved) == "table" and saved.snapshots then
+      session = saved
+      if session.active then
+        -- Re-arm immediately: a /reload after a wipe must not silently stop
+        -- bracketing the pulls that follow it. `/ace resume` remains for the
+        -- case where the owner wants the state reported back to them.
+        registerCombatEvents(true)
+        session.reloads = (session.reloads or 0) + 1
+        persist()
+        print("|cffff2020ACE|r an UNCLOSED session was recovered ("..
+              #session.snapshots.." snapshots, started "..
+              tostring(session.startedAt)..") and is ACTIVE again. "..
+              "/ace status to check, /ace stop to finish it.")
+      end
+    end
+    return
+  end
+  if event ~= "PLAYER_LOGIN" then return end
   if _G.ACF_ExportButton then return end
   local btn = CreateFrame("Button", "ACF_ExportButton", UIParent)
   btn:SetSize(100, 100)
