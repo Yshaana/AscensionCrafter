@@ -182,7 +182,9 @@ figure was measuring a defect.
 | ≥10% | 27 | 33.5% | **no** — below the floor |
 | ≥20% | **24** | **30.4%** | yes |
 | ≥30% | 21 | 20.0% | yes |
-| ≥50% | 10 | 10.2% | yes |⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
+| ≥50% | 10 | 10.2% | yes |
+
+⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
 GENERATED AND ASSERTED, because the warning alone failed twice.**
 `py tools/audit/render_band_table.py` renders it from
 `predictions/gate_manifest_3e.json`'s `result.slice_accuracy_by_coverage_band_pct`, and
