@@ -54,9 +54,15 @@
 > 🛑 **Block C was NOT done and has now been carried twice**: the
 > `gear_tier_stats(phase=…)` production caller and corpus-measured
 > `ContentProfile` presets. Do them first. Two named refusals
-> (Consecrated Holy Weapon 200818, Seal of Command 20424 — 3.5 points of
-> absent mass over 10 characters) need **one** owner-gated `--with-dbc` run
-> scoped to include `SpellItemEnchantment.dbc`.
+> (Consecrated Holy Weapon 200818, Seal of Command 20424 — **4.08** points of
+> absent mass over 10 characters; ⚠ corrected `3l` B0 from the committed
+> per-key table, `per_ability_summary.json` @ `bbed0e44` — the 3.5 that stood
+> here was hand-typed and matched nothing; the prereg's 2.61 + 1.47 was right).
+> ⚠ **The 20424 half of the standing unblock claim was STALE when written**
+> (`3l` pre-flight finding): 20424 has been in the extract since `3b`'s
+> observed-ids run and decodes (35% weapon-percent, Holy) — its blocker is
+> trigger DELIVERY, not extraction. Only 200818 needed the owner-gated
+> `--with-dbc` run scoped to `SpellItemEnchantment.dbc` — which `3l` ran.
 >
 > **The gate, closing state:**
 >
