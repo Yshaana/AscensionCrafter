@@ -104,27 +104,44 @@ _ELITE_62 = TargetProfile(level=62, armor=3300, dodge_pct=5.0, parry_pct=12.0,
 _MOB_60 = TargetProfile(level=60, armor=2800, dodge_pct=5.0, parry_pct=5.0,
                         block_pct=5.0)
 
-# Fight durations: derived where possible from scouted_rankings (Zul'Gurub,
-# 50 ranking rows, fastest_duration_ms mean 48s / range 24-78s, captured
-# 2026-08-03). Those are FASTEST kills — biased short — so raid presets use
-# ~1.5x the fastest-kill mean as a typical-kill estimate and say so.
-_ZG_PROVENANCE = ("fight_duration derived from scouted_rankings Zul'Gurub "
-                  "fastest-kill data (mean 48s, n=50, fastest-kill bias): "
-                  "typical-kill estimate ~1.5x. Target stats retail_hypothesis")
+# Fight durations (3l C2, prereg predictions/prereg_3l_c2.md): the three
+# gate-feeding presets are MEASURED from the corpus — scope-joined encounters
+# only, because those are exactly the fights the calibration gate's
+# boss_single scopes cite (CONTENT_PRESET in calibrate_crawled.py). Median,
+# not mean: both distributions are right-skewed. The remaining presets have
+# no corpus measurement (no gate scope maps to them; dungeon_mythic has zero
+# corpus rows; trash bundles carry no encounter durations) and keep their
+# `assumption:` strings — fabricating a measurement would be worse.
+_DURATION_QUERY = ("SELECT e.content_type, e.duration_seconds FROM "
+                   "capture_scopes cs JOIN encounters e ON e.encounter_id = "
+                   "cs.encounter_id WHERE e.duration_seconds IS NOT NULL")
+_RAID_PROVENANCE = ("fight_duration measured: median 78.1s over n=33 "
+                    f"scope-joined raid encounters ({_DURATION_QUERY} AND "
+                    "content_type='raid'), builds.db @ f7b14af 2026-08-08; "
+                    "IQR 49.3-112.1. Supersedes the scouted fastest-kill x1.5 "
+                    "estimate (75.0). Target stats retail_hypothesis")
+_DUNGEON_PROVENANCE = ("fight_duration measured: median 39.9s over n=566 "
+                       f"scope-joined dungeon_normal encounters "
+                       f"({_DURATION_QUERY} AND content_type="
+                       "'dungeon_normal'), builds.db @ f7b14af 2026-08-08; "
+                       "IQR 26.0-59.9. dungeon_mythic itself is unobserved in "
+                       "the corpus — this preset serves both, and the measured "
+                       "side is dungeon_normal. Target stats: assumption "
+                       "(+2 elevated boss, partial group buffs)")
 
 PRESETS = {
     "raid_boss_st": ContentProfile(
         name="raid_boss_st", content_type="raid", difficulty=None,
-        target=_BOSS_63, fight_duration=75.0,
+        target=_BOSS_63, fight_duration=78.1,
         raid_buffs_available=True, self_sustain_required=False,
         incoming_damage_dps=0.0, movement_pct=0.10,
-        provenance=_ZG_PROVENANCE),
+        provenance=_RAID_PROVENANCE),
     "raid_boss_cleave": ContentProfile(
         name="raid_boss_cleave", content_type="raid", difficulty=None,
-        target=replace(_BOSS_63, count=3), fight_duration=75.0,
+        target=replace(_BOSS_63, count=3), fight_duration=78.1,
         raid_buffs_available=True, self_sustain_required=False,
         incoming_damage_dps=0.0, movement_pct=0.10,
-        provenance=_ZG_PROVENANCE),
+        provenance=_RAID_PROVENANCE),
     "raid_aoe": ContentProfile(
         name="raid_aoe", content_type="raid", difficulty=None,
         target=replace(_ELITE_62, count=12), fight_duration=40.0,
@@ -133,10 +150,10 @@ PRESETS = {
         provenance="assumption: 10-15 adds, medium burst window"),
     "mythic_dungeon_st": ContentProfile(
         name="mythic_dungeon_st", content_type="dungeon_mythic", difficulty="mythic",
-        target=_ELITE_62, fight_duration=60.0,
+        target=_ELITE_62, fight_duration=39.9,
         raid_buffs_available=False, self_sustain_required=False,
         incoming_damage_dps=150.0, movement_pct=0.10,
-        provenance="assumption: +2 elevated boss, partial group buffs"),
+        provenance=_DUNGEON_PROVENANCE),
     "mythic_dungeon_aoe": ContentProfile(
         name="mythic_dungeon_aoe", content_type="dungeon_mythic", difficulty="mythic",
         target=replace(_MOB_60, level=61, count=6), fight_duration=20.0,
