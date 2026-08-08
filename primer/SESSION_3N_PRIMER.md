@@ -56,7 +56,10 @@ ceremonial.
     (owner decision, `3m`). Any capture or crawl parse of a hybrid-Cleave character
     taken from 10 August onward is **not comparable** to the cohort or to any pre-fix
     artifact until the date-aware handling (Block E1) lands. Check the date of every
-    input before comparing.
+    input before comparing. ⚠ **Correction (owner, 2026-08-08): the owner holds
+    Improved Cleave 0/3 — he never rolled the card.** Monday changes his character's
+    damage by exactly zero; the split bites only cohort members who hold the card,
+    and the card's *chase value* (B5: ~578/hit → ~74/hit at 3/3 on his weapon).
 
 ---
 
@@ -185,7 +188,25 @@ Improved Cleave whole-ability impairment only to parses dated **before 2026-08-1
 (the `SYSTEM_IMPAIRMENTS`-style record from `3m` B1 carries the `fixed_on` date).
 Required before any post-Monday capture or crawl parse of a hybrid-Cleave character
 can be compared to anything pre-fix. If the owner takes a post-Monday capture this
-session, E1 lands **first**.
+session, E1 lands **first**. ⚠ **The fix-shipped detector CANNOT come from the
+owner's own captures** (he holds IC 0/3): it comes from post-Monday crawl parses of
+cohort members who hold the card (e.g. Blix). The owner's optional post-Monday
+control capture should show **no change** — that confirms "Regular Cleave was
+unaffected", the other half of the changelog claim.
+
+**E2 — the 2026-08-08 capture's open questions.** A new committed capture exists:
+`data/source/captures/2026-08-08_elric_lbc_baseline_imbue_test/` (README has the
+oversight chat's independent numbers — re-derive before seeding). It feeds four
+things: **(a)** the LBC ×1.141 observed/base residual vs the board's computed talent
+layer; **(b)** 🚨 the `consecrated_weapon_grants_and_stacking` seed's "+88 AP per
+imbue" does NOT reproduce — the controlled 3-step measured **+80 per weapon, linear**
+(raw 73 × ~1.10, one Deadliness-shaped multiplier, and it reaches RAP too). Update
+the seed **and its siblings** (§0 rule 8); the ×1.21 residual is retired and the
+88-vs-80 delta vs `2e` is the successor question; **(c)** the sheet weapon-damage
+display anomaly (+15.4 dps × speed per imbue step, both weapons, ~+216 effective AP
+vs the displayed +80) — recorded, underived; **(d)** the Azeroth Execute Training
+Dummy's level (both crit rates ran ~2σ low of sheet — provisional crit-suppression
+hint).
 
 ---
 
@@ -197,11 +218,12 @@ session, E1 lands **first**.
    needs its own stamp.
 3. **Holdout:** unspent by default.
 4. **Predicate 2 (deaths > 0):** stays UNARMED by name unless stamped.
-5. **Post-Monday captures:** none compared to pre-fix artifacts until E1 lands. When
-   is the first post-fix capture planned? (It is also the free detector for the
-   server fix actually landing as stated.)
-6. **Improved Cleave reset:** the toolkit's verdict stands (74.4/hit at 3/3 on The
-   Light's Hope) — does the owner want a chase-list re-rank written up once B/C land?
+5. **Post-Monday captures:** none compared to pre-fix artifacts until E1 lands. The
+   detector for the fix shipping is a post-Monday parse of a cohort IC-holder, not
+   the owner (he holds 0/3); his optional control capture should show no change.
+6. **Improved Cleave chase priority:** the owner never rolled the card. Post-Monday
+   it is worth ~74/hit at 3/3 on his weapon (was ~578) — does he want a chase-list
+   re-rank written up once B/C land, with IC demoted accordingly?
 
 ---
 
