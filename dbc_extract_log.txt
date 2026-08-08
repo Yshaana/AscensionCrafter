@@ -1,0 +1,67 @@
+AscensionCrafter DBC extract - 06/08/2026 15:09:52.21 
+Already up to date.
+spells indexed: 3061
+spells with a detected school: 1079
+spells with explicit SP/AP/RAP/weapon term: 597
+spells with a hidden (unresolvable) sub-spell formula: 887
+owned card rows: 4465
+ÔÜá owned cards NOT in the catalog export: 47 rows / 39 distinct spellIds - the export lags the client; look these up in dbc_character_advancement, not here
+database: C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\data\derived\ascension.db
+Scanning 76 MPQ archives under E:\Ascension Launcher\resources\ascension-live\Data ...
+Spell.dbc -> E:\Ascension Launcher\resources\ascension-live\Data\patch-T.MPQ
+Observed-id scope: 2902 ids from extract_scope_observed_ids.json
+Scoping spell_dbc_raw to 22639 relevant IDs (3061 catalog + 1029 hidden_refs + 7639 rank siblings + 797 rank-sibling sub-spell refs + 2902 observed + neighbor buffer)
+spell_dbc_raw: 17400 rows (of 209130 total in the client) from patch-T.MPQ
+dbc_spellduration: 866 rows from patch-S.MPQ
+dbc_spellrange: 323 rows from patch-S.MPQ
+dbc_spellcasttimes: 71 rows from patch-S.MPQ
+dbc_spellradius: 318 rows from patch-S.MPQ
+dbc_talent: 2383 rows from patch-M.MPQ
+dbc_talenttab: 37 rows from patch-M.MPQ
+dbc_skilllineability: 40981 rows from patch-M.MPQ
+dbc_skill_line: 872 rows from patch-M.MPQ (10 class lines)
+dbc_spell_class: 10864 spells (10862 unambiguous); 1789 of them are catalog entries
+dbc_character_advancement: 10233 rows from patch-M.MPQ (3016 whose rank-1 spell is a catalog entry; 3129 flagged in_current_pool)
+dbc_gt_tables: 22564 rows across 10 tables
+dbc_spell_rank: 42612 ranked spells in 12779 lines (6700 multi-rank)
+
+level-60 rank check: 1409 catalog entries sit in a rank line; 712 are already the level-60 id, 697 are NOT (697 of those level-60 ids are absent from the catalog entirely)
+
+Validation OK: 10 known spells match expected raw text.
+
+has_hidden_formula=1 spells: 887
+hidden_refs total: 1080, resolved against DBC: 1080 (100.0%)
+
+has_hidden_formula spells resolved into spell_scaling: 90 / 887
+left flagged (no SP/AP/RAP/weapon term found in hidden sub-spell text): 797
+
+Exported 17400 spell_dbc_raw rows + 3998 support-table rows + 138 hidden-formula scaling rows to C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\data\source\dbc\dbc-extract.json
+py : Traceback (most recent call last):
+At line:1 char:1
++ py cli\rebuild.py --with-dbc 2>&1 | Tee-Object -Variable out; $out |  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\ingest\dbc\build_dbc_index.py", line 1204, in <module>
+    main()
+  File "C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\ingest\dbc\build_dbc_index.py", line 1198, in main
+    export_ascension_extract_json(cur)
+  File "C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\ingest\dbc\build_dbc_index.py", line 909, in 
+export_ascension_extract_json
+    total = sum(len(v['rows']) for v in payload.values())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yshaana\Documents\GitHub\AscensionCrafter\ingest\dbc\build_dbc_index.py", line 909, in <genexpr>
+    total = sum(len(v['rows']) for v in payload.values())
+                    ~^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+=== ingest/export/build_index.py
+    (catalog + owned cards; DROPS and recreates the db)
+    -> exit 0 in 0.6s
+
+=== ingest/dbc/build_dbc_index.py
+    (re-extract from the CLIENT; rewrites data/source/dbc/*.json)
+    -> exit 1 in 5.7s
+
+STOPPED at ingest/dbc/build_dbc_index.py. Fix it, or re-run with --keep-going.

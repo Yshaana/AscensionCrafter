@@ -228,3 +228,37 @@ under a fixed-rotation assumption that this session's own instrument
 did not. **P2 and P7 were exact, P1 and P4 held, and P6's tail — the hard part, that
 *nothing else moves* — held exactly.** The mechanism scoping was right; the
 throughput model underneath it was not.
+
+---
+
+## B5 — the owner's own build: is Improved Cleave still worth its slot?
+
+Computed from the owner's own stat block
+(`data/source/captures/2026-08-06_elric_hammerdin_proc_retest/stat_export_21.52.16.txt`),
+which is the current character state. **The Light's Hope: 586.5–705.1, avg 645.8.**
+
+Lightbound Cleave is `0.65 × weapon + 62` (the flat 62 that survives the `9+AP`
+retraction above), so on this weapon the base is **481.8 per hit — and the weapon is
+87.1% of it.** The nerf is a pure weapon term, so it lands almost entirely on him.
+
+| Improved Cleave | LC per hit, pre-Monday | post-Monday | what the CARD adds |
+|---|---:|---:|---:|
+| 0/3 | 481.8 | 481.8 | — |
+| 1/3 (×1.4) | 674.5 | 506.6 | 24.8 *(was 192.7)* |
+| 2/3 (×1.8) | 867.2 | 531.4 | 49.6 *(was 385.4)* |
+| **3/3 (×2.2)** | **1,059.9** | **556.2** | **74.4** *(was 578.1)* |
+
+**The verdict, plainly: at 3/3 the card's own contribution falls from 578.1 to 74.4
+damage per Cleave hit — it loses 87.1% of its value — and Lightbound Cleave itself
+falls 47.5%.** The card is not worthless (74.4 per hit before crit and the rest of the
+multiplier stack is not nothing) but it is no longer a top-tier chase: it went from
+roughly doubling his main damage ability to adding ~13% of that ability's base.
+
+⚠ **The 87.1% figure is specific to a big weapon.** The nerf scales with weapon
+damage, so the better his main hand gets, the *less* Improved Cleave is worth —
+the opposite of the usual scaling direction, and worth remembering when a bigger
+weapon drops. On the cohort's smaller weapons the same card retains ~27–29% of its
+value (weapon share 71–73% rather than 87%).
+
+✅ **Improved Cleave is resettable at Gabril Mewell from Monday**, per the same
+changelog entry — so this is an actionable decision, not just an accounting one.
