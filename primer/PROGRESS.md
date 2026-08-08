@@ -2,6 +2,89 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-08 — SESSION `3o` IS DONE.** Record:
+> `primer/Session_2026-08-08_3o_delivery.md`. Work order it ran:
+> `primer/SESSION_3O_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3N_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
+> `30.150% → 30.150% (n=24)` — published **0.0 pp** AND same-member **0.0 pp**,
+> membership unchanged; producing median `0.2571 (n=123) → 0.2571 (n=123)`,
+> published **0.0** AND same-member **0.0**, 0 rows dropped and 0 added; absent
+> `59.0%` unchanged.** Both pairs are quoted **baseline→close, at the same
+> endpoints** — the `AUDIT_3N` F3 discipline. Predictions, from the scored
+> table: **Block C 7✓ · 1✗ (8 total)**. The falsification is diagnosed by probe
+> and registered, not rescued.
+>
+> 🚨 **NOTHING WAS ADDED TO THE MODEL, SO NOTHING MOVED — AND THAT IS THE
+> HONEST HEADLINE.** `3o` opened delivery modelling, measured two mechanisms
+> against real evidence, and **modelled neither**, because neither reproduced.
+> A session that measures and refuses is not a session that stalled; a session
+> that had modelled either would have added phantom damage to named characters.
+>
+> * ✅ **THE ONE-BUTTON CAPTURE ADDON EXISTS.** `/ace start` … `/ace stop`
+>   brackets every combat in a dungeon with stat snapshots, auto-toggling
+>   combat logging and **verifying it by reading the state back**. It reuses
+>   one stat emitter, so the pairing tool ingests a session blob unchanged; its
+>   `Target:` line carries the enemy GUID and its weapon itemStrings carry the
+>   **enchant id = the imbue rank per parse**. 🆕 **It is the first addon this
+>   repo can TEST** — `check_addon_lua.py` drives it in a real Lua 5.1 runtime
+>   behind a stubbed WoW API, 14/14. ⏳ **Waiting on one training-dummy run.**
+> * 🚨 **A RETIRED CONSTANT WAS STILL EXECUTING, AND FIXING IT EXPOSED A BIGGER
+>   GAP.** `buffs.py`'s imbue AP is 88.0 → **80.0**. The prereg predicted all 6
+>   holders would move; **one did**. Probing at 8000 AP/weapon showed **three of
+>   the six are structurally AP-INERT** — fifteen thousand attack power changes
+>   their modelled damage by exactly nothing, so no AP correction can ever
+>   reach them. Registered with two candidate causes, deliberately not separated.
+> * 🚨 **THE 88-VS-80 QUESTION IS ANSWERED BY THE OWNER AND UNIFIED, NOT
+>   MODELLED.** `2e`'s +88 was measured with **Kings up**, `3n`'s +80 unbuffed,
+>   and **80 × 1.10 = 88 exactly** — so it is almost certainly the same
+>   mechanism as `str_to_ap_1_21_under_buffs` (**1.21 = 1.10 × 1.10**). No
+>   second multiplier is applied anywhere. Discriminator stated in advance.
+> * 🚨 **DELIVERY: TWO MECHANISMS MEASURED, BOTH REFUSED.** The imbue chain is
+>   **confirmed** on its sheet grants (rank 6 decodes SP **86** and AP **73**,
+>   both matching measurement) — but its stated per-hit form implies a
+>   **3.08:1** range and the log gives **three discrete values, ratio 1.196**.
+>   Devour Mind's **card hypothesis is ELIMINATED**: zero cards are common to
+>   the 12 boards that logged it, on top of the pre-flight finding that no
+>   trigger edge reaches it.
+> * ✅ **BOTH MUTANTS `AUDIT_3N` FOUND GREEN NOW GO RED** (M73/M74), on a new
+>   two-next-swing dual-wield fixture. ⚠ The first candidate board was rejected
+>   **after measuring it**: its three Cleaves all deal the same 283 per swing,
+>   so the ordering arm would have passed on a tie.
+> * ⚠ **THE AUDIT WAS WRONG ON ONE POINT, AND THE TRUTH IS SHARPER.** F4 said
+>   the admissible-only slice had no emitter; it has had one since `3m`, and
+>   the emitted **27.62** was in the artifact while the close-out typed 27.4
+>   beside it. The defect was a missing **assertion**, not a missing emitter.
+>
+> **Next session is `3p`. The registered load-bearing problems, in order:**
+> **(1) delivery, still** — absent **59.0%**, now with two mechanisms measured
+> and their next steps named; **(2) the addon's live smoke test**, which is the
+> only thing a stubbed client cannot settle; **(3) E1**, carried with a stated
+> trigger; **(4) the AP-inert half of the imbue holders**, two candidates, one
+> cheap discriminator.
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 35) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **30.150% (n=24)** |
+> | …published Δ / same-member Δ (baseline→close) | **0.0 pp / 0.0 pp** |
+> | admissible-only slice | **27.62% (n=21)** |
+> | absent share of cohort logged damage | **59.0%** |
+> | producing median ratio | **0.2571 (n=123)** |
+> | …published Δ / same-member Δ (baseline→close) | **0.0 / 0.0** |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |
+>
+> 🛑 The holdout row is **not** like-for-like with the rows above it; do not
+> compute a tuning-vs-holdout gap from this table.
+
+<details><summary>Superseded: the <code>3n</code> top block</summary>
+
+
 > ✅ **2026-08-08 — SESSION `3n` IS DONE.** Record:
 > `primer/Session_2026-08-08_3n_clocks.md`. Work order it ran:
 > `primer/SESSION_3N_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
@@ -112,6 +195,8 @@
 >
 > 🛑 The holdout row is **not** like-for-like with the rows above it; do not
 > compute a tuning-vs-holdout gap from this table.
+
+</details>
 
 <details><summary>Superseded: the <code>3m</code> top block</summary>
 

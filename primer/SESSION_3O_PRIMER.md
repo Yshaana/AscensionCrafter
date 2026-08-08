@@ -1,9 +1,11 @@
 # SESSION `3O` PRIMER — delivery modelling opens, the one-button capture, and `3n`'s last mile
 
-> **`LIVE`** — the work order for session `3o`, drafted 2026-08-08 (evening) from
-> `AUDIT_3N_ADVERSARIAL.md` (§5 is the source list). **SUPERSEDED BY
-> `primer/Session_<date>_3o_*.md` when `3o` closes** — mark it in the close-out
-> commit, not in a later cleanup.
+> **`SUPERSEDED BY primer/Session_2026-08-08_3o_delivery.md`** — the work order
+> for session `3o`, drafted 2026-08-08 (evening) from `AUDIT_3N_ADVERSARIAL.md`
+> (§5 was the source list). `3o` closed 2026-08-08; read the record for what
+> actually happened, including the two blocks whose mechanisms were measured and
+> **refused** rather than modelled, and the one audit finding (F4) that did not
+> survive contact with the tree. Marked in the close-out commit, per the rule.
 
 **Audit implemented:** `primer/AUDIT_3N_ADVERSARIAL.md` (landed at `3o` pre-flight).
 **Previous session record:** `primer/Session_2026-08-08_3n_clocks.md`.

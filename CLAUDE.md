@@ -180,7 +180,7 @@ Schema in `INDEX_GUIDE.md`.
   hand-typed census is wrong by construction, not by accident:
 
   ```
-  [census] primer/ status lines: 81 files — 14 LIVE / 42 HISTORICAL / 9 SUPERSEDED / 16 FINDING
+  [census] primer/ status lines: 82 files — 13 LIVE / 43 HISTORICAL / 10 SUPERSEDED / 16 FINDING
   ```
 
   🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).
