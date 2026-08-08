@@ -13,6 +13,17 @@
 > that is its commit-parent; **five predictions falsified, every one
 > diagnosed to a mechanism, none rescued** (the record's §0 table).
 >
+> 🚨 **CORRECTED `3m` A1 (`AUDIT_3L` F1) — THAT SLICE LINE IS COMPOSITION, NOT
+> ACCURACY, AND ITS SIGN IS WRONG.** Published **26.308 → 30.426 = +4.12 pp**.
+> Over the **22 characters readable in BOTH runs' bands: 30.635 → 30.425 =
+> −0.21 pp.** No member's accuracy improved; the band gained members whose
+> values sat below the sitting median. **Quote the pair wherever either number
+> appears.** ⚠ An unchanged `n` is not a defence — `3l`'s earlier 26.3 → 33.5
+> leg had n=23 on both sides and was a pure membership swap (Onur out at slice
+> 6.03, Deyindra in at 105.43, and Deyindra is NOT ADMISSIBLE). The gate
+> manifest now emits `slice_delta_vs_previous_run` so this is generated rather
+> than remembered.
+>
 > * ✅ **BLOCK C LANDED — no third carry.** `cli/gear_tiers.py` refuses the
 >   live empty Molten Core window BY NAME (M55); the three gate-feeding
 >   `ContentProfile` presets carry corpus-measured durations (raid 78.1 s

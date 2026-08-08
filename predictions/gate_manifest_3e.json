@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-08T00:46:29+00:00",
- "git_sha": "ab5ca92fda8092bb86ce265f2885ebf0a77bb055",
+ "generated_at": "2026-08-08T08:11:51+00:00",
+ "git_sha": "7c5db49e56692542bfbe6b00b835fd95b3f962f5",
  "git_working_tree_dirty": false,
  "dirty_tree_write_allowed_by_flag": false,
  "dirty_tree_write_allowed_reason": null,
@@ -28,7 +28,31 @@
   "tuning_set_size": 35,
   "within_tolerance": 0,
   "not_scoreable_zero_coverage": 1,
-  "not_scoreable_below_coverage_floor": 13,
+  "not_scoreable_below_coverage_floor": 10,
+  "not_scoreable_not_admissible": 3,
+  "not_scoreable_total": 14,
+  "not_scoreable_by_reason": {
+   "zero_coverage": [
+    "Jamppa"
+   ],
+   "below_coverage_floor": [
+    "Chastie",
+    "David",
+    "Me",
+    "Mutaforma",
+    "Pedroporro",
+    "Prithika",
+    "Trace",
+    "Xizek",
+    "Xoller",
+    "Zaczao"
+   ],
+   "not_admissible": [
+    "Boomcat",
+    "Deyindra",
+    "Nodding"
+   ]
+  },
   "coverage_floor_pct_applied": 20.0,
   "qualified": 0,
   "criterion_met": false,
@@ -36,6 +60,35 @@
   "exit_met": false,
   "median_slice_accuracy_pct_at_coverage_ge_20": 30.426328856848606,
   "slice_accuracy_coverage_floor_pct": 20.0,
+  "slice_delta_vs_previous_run": {
+   "previous_run": {
+    "git_sha": "ab5ca92fda8092bb86ce265f2885ebf0a77bb055",
+    "generated_at": "2026-08-08T00:46:29+00:00",
+    "median_pct": 30.425,
+    "n": 24
+   },
+   "published": {
+    "median_pct": 30.426,
+    "n": 24,
+    "delta_pp": 0.001
+   },
+   "membership_changed": {
+    "dropped_since_previous": [],
+    "added_this_run": []
+   },
+   "_note": "`published.delta_pp` mixes accuracy with composition. `same_members.delta_pp` is the accuracy-only move. QUOTE THE PAIR \u2014 3l published +4.12 pp where the same-member move was -0.21 pp, the opposite sign (AUDIT_3L F1). An unchanged `n` does NOT mean an unchanged membership: 3l's 26.3 -> 33.5 leg had n=23 on both sides and swapped one member for another.",
+   "same_members": {
+    "n": 24,
+    "previous_median_pct": 30.425,
+    "this_median_pct": 30.426,
+    "delta_pp": 0.001
+   }
+  },
+  "median_slice_accuracy_pct_admissible_only": {
+   "median_pct": 27.4,
+   "n": 21,
+   "_note": "admissibility is not a coverage property, so this is a companion to the headline, never a replacement for it"
+  },
   "slice_accuracy_by_coverage_band_pct": {
    ">=0": {
     "median_pct": 41.01844016233622,
@@ -77,14 +130,14 @@
   "passer_coverage_pct": {}
  },
  "corpus_row_counts": {
-  "characters": 4251,
-  "character_snapshots": 472,
-  "snapshot_cards": 23251,
-  "snapshot_gear": 7924,
-  "encounters": 5715,
-  "capture_scopes": 1591,
-  "encounter_performance": 19788,
-  "ability_performance": 300157
+  "characters": 4326,
+  "character_snapshots": 517,
+  "snapshot_cards": 25726,
+  "snapshot_gear": 8696,
+  "encounters": 5905,
+  "capture_scopes": 1660,
+  "encounter_performance": 21406,
+  "ability_performance": 337155
  },
  "cohort_definition": {
   "source_file": "predictions/cohort_frozen_3e.json",
@@ -101,7 +154,7 @@
     "reason": "content_type 'unknown' has no matching sim preset \u2014 simming it against a raid profile would compare two different fights"
    }
   ],
-  "qualifying_but_not_frozen_in": 155,
+  "qualifying_but_not_frozen_in": 186,
   "note": "FROZEN id set, not ORDER BY character_id LIMIT N. A frozen member that stops qualifying is reported as dropped with its reason and is never substituted; a cohort that quietly shrinks is the sliding-window defect in a different coat. TWO exits: `dropped` is the completeness filter, `excluded_after_selection` is the scoring loop. frozen_size == still_qualifying + len(dropped), and still_qualifying == scored + len(excluded_after_selection)."
  },
  "holdout": {
