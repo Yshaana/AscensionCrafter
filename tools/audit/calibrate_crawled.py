@@ -381,12 +381,23 @@ CONTENT_PRESET = {
 
 
 def build_spec_for(conn, snapshot_id, path_token):
+    rows = list(conn.execute(
+        "SELECT slot, item_id, item_name, stats_json, weapon_json "
+        "FROM snapshot_gear WHERE snapshot_id = ?", (snapshot_id,)))
+    # 🚨 3l B3b (prereg_3l_b_tuning_addendum.md) — the convention is detected
+    # PER SNAPSHOT, from its own weapon rows: the corpus mixes 3.3.5 server
+    # numbering (15=MH, 16=OH, 17=ranged) with API-style numbering (16=MH,
+    # 17=OH), measured 27 vs 14 across the cohort. A slot-15 weapon row is the
+    # server-convention anchor; without one, weapons at 16/17 read API-style.
+    # (Slot-17 rows include 2H weapons — impossible for a ranged slot — which
+    # is how the API half was proven rather than assumed.)
+    weapon_slot_ids = {r[0] for r in rows if r[4]}
+    slot_map = (WEAPON_SLOTS if 15 in weapon_slot_ids
+                else {16: "main_hand", 17: "off_hand"})
     gear = {}
-    for slot, item_id, name, stats_json, weapon_json in conn.execute(
-            "SELECT slot, item_id, item_name, stats_json, weapon_json "
-            "FROM snapshot_gear WHERE snapshot_id = ?", (snapshot_id,)):
+    for slot, item_id, name, stats_json, weapon_json in rows:
         stats, _unmapped = normalise_stats(stats_json)
-        slot_name = WEAPON_SLOTS.get(slot, f"slot_{slot}")
+        slot_name = slot_map.get(slot, f"slot_{slot}")
         # weapon damage lives only in the item description, and without it the
         # sim gives a crawled character no weapon at all — zeroing white swings
         # and every weapon-percent ability

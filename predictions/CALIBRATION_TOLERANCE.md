@@ -178,11 +178,11 @@ figure was measuring a defect.
 
 | coverage floor | n | median slice accuracy | readable? |
 |---:|---:|---:|:--|
-| ≥0% | 33 | 37.6% | **no** — below the floor |
-| ≥10% | 27 | 30.6% | **no** — below the floor |
-| ≥20% | **23** | **26.3%** | yes |
-| ≥30% | 20 | 19.2% | yes |
-| ≥50% | 10 | 10.0% | yes |
+| ≥0% | 33 | 42.2% | **no** — below the floor |
+| ≥10% | 25 | 34.4% | **no** — below the floor |
+| ≥20% | **23** | **33.5%** | yes |
+| ≥30% | 19 | 27.4% | yes |
+| ≥50% | 8 | 12.7% | yes |
 
 ⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
 GENERATED AND ASSERTED, because the warning alone failed twice.**
