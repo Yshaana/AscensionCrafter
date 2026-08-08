@@ -129,6 +129,51 @@ def hist_bucket(ratio):
     return f"> {HIST_EDGES[-1]:g}"
 
 
+def per_key_table(paired, total_logged_all):
+    """Ranked per-key table: one row per (spell_id, key_state) over the cohort.
+
+    3l B0 (`AUDIT_3K` §3.2): every target-pick and every audit reads exactly
+    this table, and until now it existed only as pasted tool output with no
+    committed source — the `3k` prereg's target list could not be re-derived
+    from the tree. One row per (spell_id, state) because key_state is
+    PER-CHARACTER: the same spell can be producing for one member and absent
+    for another, and collapsing that to one row would average two mechanisms
+    (the `3b` per-effect-slot lesson, one level up).
+
+    Built from PAIRED rows only (logged > 0): `characters` means characters
+    that LOG the key, which is what every quoted count has meant (RV "9
+    characters", Devour Mind "2"). Sim-only keys are the `phantom` block's
+    business — mixing them in would count characters that never logged the
+    ability.
+
+    `median_producing_ratio` is the median of per-character rate ratios where
+    producing, same semantics as the headline `producing.median_ratio`.
+    """
+    groups = {}
+    for r in paired:
+        g = groups.setdefault((r["spell_id"], r["key_state"]), {
+            "spell_id": r["spell_id"], "name": str(r["spell_name"]),
+            "state": r["key_state"], "logged": 0.0,
+            "chars": set(), "ratios": []})
+        g["logged"] += r["logged_damage"]
+        g["chars"].add(r["character_id"])
+        if r["key_state"] == "producing" and r["ratio"] is not None:
+            g["ratios"].append(r["ratio"])
+    out = []
+    for g in groups.values():
+        out.append({
+            "spell_id": g["spell_id"], "name": g["name"], "state": g["state"],
+            "share_of_cohort_logged_pct": round(
+                100.0 * g["logged"] / total_logged_all, 3),
+            "characters": len(g["chars"]),
+            "median_producing_ratio": (round(statistics.median(g["ratios"]), 4)
+                                       if g["ratios"] else None),
+        })
+    out.sort(key=lambda row: (-row["share_of_cohort_logged_pct"],
+                              str(row["spell_id"])))
+    return out
+
+
 def rows_for_character(bdb, asc, conv, cand):
     """Every paired ability row for one candidate tuple from cc.candidates().
 
@@ -525,6 +570,8 @@ def main():
                         100.0 * phantom_sim / total_sim_all, 1),
                     "sim_only_rows_total": sum(
                         1 for r in all_rows if r["logged_damage"] == 0)},
+        # 3l B0 — the ranked per-key table, committed. Full list, no caps.
+        "per_key_table": per_key_table(paired, total_logged_all),
         "per_character_coverage_split": per_char_split,
     }
     # 🛑 3j C7 (`AUDIT_3I_ADVERSARIAL` §6) — REFUSE TO WRITE THE COMMITTED

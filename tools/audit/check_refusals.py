@@ -985,6 +985,70 @@ _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
 
 
 # --------------------------------------------------------------------------
+# 3l B0 — the committed per-key table must agree with the aggregate it feeds
+# --------------------------------------------------------------------------
+def check_per_key_table_agrees_with_aggregates():
+    """[3l-B0] per_key_table's per-state sums equal the aggregate shares.
+
+    The `3k` audit (§3.2): the target table every pick and audit reads existed
+    only as pasted prose. Now it is committed — and this arm makes it E1-style
+    falsifiable: the table's absent-state shares summed must equal the absent
+    aggregate computed INDEPENDENTLY over the same rows, and the same for
+    producing. Two code paths over one row set; a bug in either disagrees.
+
+    MUTATION THAT MAKES THIS FAIL (red, M56): in `per_key_table`, divide each
+    group's share by the GROUP's own summed logged damage instead of
+    `total_logged_all` — every share becomes 100.0 and the sums explode.
+    """
+    from tools.audit.per_ability_accuracy import per_key_table
+
+    rows = [
+        dict(spell_id=100, spell_name="Alpha", key_state="producing",
+             character_id=1, logged_damage=600.0, ratio=0.30),
+        dict(spell_id=100, spell_name="Alpha", key_state="producing",
+             character_id=2, logged_damage=200.0, ratio=0.10),
+        dict(spell_id=100, spell_name="Alpha", key_state="absent",
+             character_id=3, logged_damage=100.0, ratio=None),
+        dict(spell_id=200, spell_name="Beta", key_state="absent",
+             character_id=1, logged_damage=100.0, ratio=None),
+    ]
+    total = sum(r["logged_damage"] for r in rows)
+    table = per_key_table(rows, total)
+
+    absent_sum = round(sum(r["share_of_cohort_logged_pct"] for r in table
+                           if r["state"] == "absent"), 3)
+    absent_indep = round(100.0 * sum(r["logged_damage"] for r in rows
+                                     if r["key_state"] == "absent") / total, 3)
+    prod_sum = round(sum(r["share_of_cohort_logged_pct"] for r in table
+                         if r["state"] == "producing"), 3)
+    prod_indep = round(100.0 * sum(r["logged_damage"] for r in rows
+                                   if r["key_state"] == "producing") / total, 3)
+    check("[3l-B0] per_key_table state sums == independently-summed state "
+          "shares (absent AND producing)",
+          absent_sum == absent_indep and prod_sum == prod_indep,
+          f"table absent {absent_sum} vs {absent_indep}, "
+          f"producing {prod_sum} vs {prod_indep}")
+
+    alpha_prod = next(r for r in table
+                      if r["spell_id"] == 100 and r["state"] == "producing")
+    alpha_abs = next(r for r in table
+                     if r["spell_id"] == 100 and r["state"] == "absent")
+    check("[3l-B0] one spell_id in TWO states stays TWO rows (key_state is "
+          "per-character; collapsing would average two mechanisms), with "
+          "per-state char counts and a producing-only median",
+          alpha_prod["characters"] == 2 and alpha_abs["characters"] == 1
+          and alpha_prod["median_producing_ratio"] == 0.2
+          and alpha_abs["median_producing_ratio"] is None,
+          f"prod={alpha_prod}, abs={alpha_abs}")
+
+    check("[3l-B0] ranked by cohort-logged share, descending",
+          [r["share_of_cohort_logged_pct"] for r in table]
+          == sorted((r["share_of_cohort_logged_pct"] for r in table),
+                    reverse=True),
+          f"order={[r['share_of_cohort_logged_pct'] for r in table]}")
+
+
+# --------------------------------------------------------------------------
 # 3l C1 — the gear-tier production caller must REFUSE an empty phase window
 # --------------------------------------------------------------------------
 def _gear_fixture_conn(n_snapshots, captured_at):
@@ -1982,6 +2046,7 @@ def main():
     print()
     check_null_spell_id_cannot_escape_dedupe()
     check_corpus_schema_gate()
+    check_per_key_table_agrees_with_aggregates()
     check_gear_tier_caller_refuses()
     check_enchant_record_parse()
     print()
