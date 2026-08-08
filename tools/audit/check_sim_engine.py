@@ -1473,6 +1473,125 @@ def check_improved_cleave_bonus_only():
           f"all={o_all:.4f}, weapon={o_wpn:.4f}")
 
 
+def check_next_swing_clocks(conn, kind, spec, f, cs, ct):
+    """`3n` B — an ON-NEXT-SWING ability rides the swing clock, and replaces the
+    swing it rides.
+
+    🛑 **These arms read the REAL sim's output on a REAL fixture.** An earlier
+    draft of this check asserted the arithmetic on literal constants and
+    re-implemented the clamp inline — it stayed **green under M70**, which is
+    `3f`'s vacuous-check failure and `3g` G5's "re-implemented the
+    discriminator it was testing". Two fixtures carry a next-swing ability
+    (`build_elric_paladin`: Lightbound Cleave 907300→907304;
+    `build_crawled_cp_melee`: Heroic Strike 25286), so there is no need to
+    assert against a hand-built fake at all.
+
+    RED — **M70**: `off_gcd = gt in ("none", "off")` in `apl_gen` without the
+    `or next_swing` clause, plus delete `fast_sim`'s swing-budget branch. Then
+    the ability is charged a GCD and `rate_limit` reads `gcd_budget`, which
+    arm 2 asserts against directly. **This is the code that actually shipped
+    from `3e` through `3m`.** GREEN: the swing budget.
+
+    RED — **M71**: keep leg 1 but pass `next_swing_casts=0.0` to
+    `_add_swing_sources`. Arm 3 recomputes the main-hand swing count from the
+    same `swing_interval` the sim uses and asserts the auto row carries
+    `swings − next_swing_casts`; the half-fix leaves it at `swings` and the sim
+    counts one swing twice. GREEN: leg 2.
+    """
+    from core.sim.tiers import (_is_next_swing, _effective_time,
+                                _useful_cast_interval)
+    from core.sim.swings import swing_interval
+
+    ns = {sid: ab for sid, ab in
+          ((c.spell_id, None) for c in spec.abilities)}
+    # Resolve through the sim's own result rows: any row the sim produced whose
+    # ability is next-swing. Reading `f.per_ability` keeps this on the real path.
+    ns_rows = {sid: r for sid, r in f.per_ability.items()
+               if isinstance(sid, int) and r.get("rate_limit") is not None
+               and _row_is_next_swing(conn, sid, spec)}
+    if not ns_rows:
+        return                       # this fixture has no next-swing ability
+
+    available = _effective_time(ct)
+    mh_int = swing_interval(cs.main_hand, cs.melee_haste_pct)
+    if mh_int is None:
+        check(f"[{kind}] [3n-B] a next-swing ability with NO resolvable weapon "
+              "speed is allocated zero casts, not fallen back to the GCD budget",
+              all(r.get("casts", 0) == 0 for r in ns_rows.values()),
+              f"casts={[r.get('casts') for r in ns_rows.values()]}")
+        return
+
+    swings = available / mh_int
+    ns_casts = sum(r.get("casts", 0.0) for r in ns_rows.values())
+
+    # 🛑 ASSERT THE CAST COUNT, NOT THE `rate_limit` LABEL. An earlier draft
+    # asserted the label and stayed GREEN under M70: the label is computed by a
+    # separate expression from the allocation, so breaking the allocation left
+    # `rate_limit='swing_budget'` sitting next to `casts=0.0`. A string that
+    # describes what the code MEANT is not evidence of what it DID.
+    #
+    # The budget is shared and allocated highest-damage-first, so the top-ranked
+    # next-swing ability gets `min(swings, its own interval cap)` — recomputed
+    # here from the same inputs the sim used, never read back from its output.
+    top = max(ns_rows.items(), key=lambda kv: kv[1].get("mean_per_cast", 0.0))
+    top_ab = _resolve_for_check(conn, top[0], spec)
+    cap, _why = _useful_cast_interval(top_ab) if top_ab else (0.0, "")
+    expect_top = swings if cap <= 0 else min(swings, available / cap)
+    check(f"[{kind}] [3n-B] leg 1 — {top[1]['name']} ({top[0]}) is allocated "
+          f"{expect_top:.1f} casts, the number its SWING clock allows "
+          f"({swings:.1f} swings in the window"
+          + (f", capped by its own {cap:g}s interval" if cap > 0 else "")
+          + "). Under M70 it is charged a GCD, loses the per-cast filler "
+            "ranking to a higher-damage GCD ability and is allocated ZERO",
+          abs(top[1].get("casts", 0.0) - expect_top) < 0.05,
+          f"casts={top[1].get('casts')} vs swing-clock {expect_top:.3f} "
+          f"(rate_limit={top[1].get('rate_limit')!r})")
+    check(f"[{kind}] [3n-B] leg 1 — the next-swing abilities together consume "
+          f"no MORE than the {swings:.1f} main-hand swings the window contains: "
+          "they share ONE swing budget, because two Cleaves cannot ride one "
+          "white swing",
+          ns_casts <= swings + 1e-6,
+          f"next-swing casts={ns_casts:.3f} vs {swings:.3f} swings available")
+
+    # Leg 2. ⚠ The auto row is OMITTED entirely when every swing is replaced
+    # (`_add_swing_sources` skips a weapon at `count <= 0`), and that is the
+    # commonest case on these fixtures — Heroic Strike alone consumes all 39.3
+    # of cp_melee's swings. An arm that only fires when the row EXISTS would
+    # silently not run in exactly the situation the mutation produces, so both
+    # branches assert.
+    auto = f.per_ability.get("auto_mh")
+    expected = max(0.0, swings - ns_casts)
+    got = auto["casts"] if auto is not None else 0.0
+    check(f"[{kind}] [3n-B] leg 2 — the main hand's autos carry "
+          f"{expected:.1f} swings: the window's {swings:.1f} MINUS the "
+          f"{ns_casts:.1f} REPLACED by on-next-swing abilities"
+          + (" — every swing is replaced here, so the auto row is absent "
+             "altogether" if expected < 0.05 else "")
+          + f". Under M71 this reads {swings:.1f} and the sim counts one swing "
+            "twice, once as an auto and once as the ability that replaced it",
+          abs(got - expected) < 0.15,
+          f"auto_mh casts={got} (row {'present' if auto else 'ABSENT'}) vs "
+          f"expected {expected:.3f} = {swings:.3f} swings - {ns_casts:.3f} "
+          "replaced")
+
+
+def _resolve_for_check(conn, spell_id, spec):
+    """Resolve through the SAME resolver the sim used, so a check cannot drift
+    from what `fast_sim` decided. Returns None if the resolver refuses."""
+    from core.sim.ability_model import resolve_ability, AbilityResolutionError
+    try:
+        return resolve_ability(conn, spell_id, level=spec.character_level)
+    except (AbilityResolutionError, Exception):          # noqa: BLE001
+        return None
+
+
+def _row_is_next_swing(conn, spell_id, spec):
+    """True if the sim's row for `spell_id` belongs to an on-next-swing ability."""
+    from core.sim.tiers import _is_next_swing
+    ab = _resolve_for_check(conn, spell_id, spec)
+    return bool(ab) and _is_next_swing(ab)
+
+
 def check_e15_pet_row_double_count():
     """E15, ✅ FIXED 3i B — a pet-attributable row stored twice is counted once.
 
@@ -1876,6 +1995,7 @@ def check_nonpaladin_fixtures(conn, ct, conv):
         global _CS_FOR_E12
         _CS_FOR_E12 = (cs, ct)
         check_registered_defects(conn, kind, spec, apl, f, m)
+        check_next_swing_clocks(conn, kind, spec, f, cs, ct)
 
 
 if __name__ == "__main__":
