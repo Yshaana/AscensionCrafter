@@ -165,10 +165,11 @@ Schema in `INDEX_GUIDE.md`.
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
   date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
   `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
-  as generated 2026-08-08 (`3l` close):
+  as generated 2026-08-08 (`3m` pre-flight — the `3l` audit landing in `primer/` moved it
+  the same day `3l` closed, which is the rule earning its keep for the third time):
 
   ```
-  [census] primer/ status lines: 72 files — 13 LIVE / 40 HISTORICAL / 7 SUPERSEDED / 12 FINDING
+  [census] primer/ status lines: 73 files — 13 LIVE / 40 HISTORICAL / 7 SUPERSEDED / 13 FINDING
   ```
 
   🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it
