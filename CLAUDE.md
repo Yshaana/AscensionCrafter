@@ -175,11 +175,11 @@ Schema in `INDEX_GUIDE.md`.
 
   🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).
   The `3l` record states "74 arms" as hand-typed prose and the tree had 77 when it was
-  written. Cite the `[arms]` line `check_refusals.py` emits, never a remembered figure:
-
-  ```
-  [arms] check_refusals.py: 82 arms — 82 passed / 0 failed
-  ```
+  written. **Cite the `[arms] check_refusals.py: N arms — P passed / F failed` line the
+  tool emits, never a remembered figure — and note that no number for it is written
+  here on purpose.** The census above is asserted, so pasting it is safe; an arm count
+  is not, it moves in every commit that adds an arm, and a magnitude in a document with
+  nothing asserting it is exactly what this rule exists to stop.
 
   🆕 **`3h` A4 — `check_refusals.py` now asserts that the block above matches what it
   prints**, so "generated" no longer means "generated once and pasted". The census moved

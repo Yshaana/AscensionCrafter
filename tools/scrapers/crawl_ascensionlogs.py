@@ -329,8 +329,22 @@ def crawl_phases(writers):
 
 def crawl_leaderboards(writers, active_phases, seen_characters):
     """Walk zones x difficulties x roles for every active phase. Raw responses are
-    kept whole; character ids/names are collected for the armory stage."""
+    kept whole; character ids/names are collected for the armory stage.
+
+    Returns `(written, attempted)`.
+
+    🆕 `3m` pre-flight (`AUDIT_3L` F17) — `attempted` is new and it is what makes
+    the canary satisfiable. This function's output volume is
+    `active phases × locations × difficulties × roles × metrics`, so it moves
+    with legitimate SERVER state: when Zul'Gurub and Phase 1.1 went inactive on
+    2026-08-08 the boards fell 12 → 2 and the canary, normalising by run count,
+    read that as an 83% shape break and refused the commit at every logon.
+    Recording the denominator turns the comparison into a YIELD, which is the
+    thing the threshold was always meant to test — a changed payload shape drops
+    written while attempted stays put.
+    """
     n = 0
+    attempted = 0
     for phase in active_phases:
         phase_num = phase.get("phase_number")
         locations = [loc.get("location") for loc in phase.get("locations", [])]
@@ -345,6 +359,7 @@ def crawl_leaderboards(writers, active_phases, seen_characters):
                         path = (f"/api/encounters/rankings/overall?location={loc_q}"
                                 f"&difficulty={difficulty}&phase={phase_num}&metric={metric}"
                                 f"&page=1&limit=100&role={role}&cohort=global")
+                        attempted += 1
                         status, d = api_get(path, ok_statuses=(200, 400))
                         if d is None or status == 400 or not d.get("success", True):
                             continue
@@ -362,9 +377,9 @@ def crawl_leaderboards(writers, active_phases, seen_characters):
                             cid, cname = e.get("character_id"), e.get("name")
                             if cid:
                                 seen_characters[str(cid)] = cname
-        print(f"[leaderboards] phase {phase_num}: cumulative non-empty boards={n}, "
-              f"characters seen={len(seen_characters)}")
-    return n
+        print(f"[leaderboards] phase {phase_num}: cumulative non-empty boards={n}"
+              f"/{attempted} attempted, characters seen={len(seen_characters)}")
+    return n, attempted
 
 
 def fetch_encounter_data(writers, report_id, encounter_ids, scope_note, seen_characters):
@@ -611,7 +626,8 @@ def crawl_characters(writers, scan_log, seen_characters, max_armory):
     return pulled
 
 
-def write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids):
+def write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids,
+                   leaderboard_queries_attempted=None, active_phase_count=None):
     """Write a COMMITTED manifest describing every capture file, including the
     gitignored tier-2 bulk. This is what keeps ARCHITECTURE §2.12 honest: git may
     not hold the bytes, but it always records that they existed, how many records,
@@ -647,6 +663,16 @@ def write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids):
         "new_report_ids": sorted(new_report_ids),
         "reports_known": len(scan_log.get("reports", {})),
         "characters_known": len(scan_log.get("characters", {})),
+        # 🆕 3m (AUDIT_3L F17) — the leaderboard canary's DENOMINATOR. Board
+        # volume is `active phases x locations x difficulties x roles x metrics`,
+        # so it moves with legitimate server state; without the attempt count the
+        # canary can only compare raw yield-per-run and a completed phase
+        # transition trips it permanently. NULL on a recrawl (which walks no
+        # leaderboards) and on every manifest written before 2026-08-08 — the
+        # canary says so explicitly rather than comparing against a missing
+        # denominator.
+        "leaderboard_queries_attempted": leaderboard_queries_attempted,
+        "active_phase_count": active_phase_count,
         "tier2_note": ("tier-2 files are gitignored; re-fetchable from "
                        "darkmoon.ascensionlogs.gg by report id — see "
                        "tools/scrapers/README.md"),
@@ -685,38 +711,144 @@ CANARY_WRITERS = ["phases", "leaderboards"]
 CANARY_DROP_RATIO = 0.5      # fail if a writer falls below half the previous day's rate
 
 
+def leaderboard_query_keys(day_dir):
+    """`(attempted, written)` sets of leaderboard query keys for one day folder.
+
+    A key is `(location, difficulty, phase_number, role, metric)` — the exact
+    tuple `crawl_leaderboards` walks. **Both sets are derived from COMMITTED
+    tier-1 captures**, so this is auditable after the fact and needs no extra
+    stored state: `attempted` is rebuilt from that day's `/api/phases` snapshots
+    (the walk is a deterministic function of the active phases and their
+    `locations`), `written` is read from the `query` field the leaderboard
+    writer already records on every row.
+
+    🛑 `phase_number` is part of the key ON PURPOSE. Zul'Gurub appears in the
+    `locations` array of Phase 2 as well as Phase 1, but a ZG board queried
+    under phase 3 is a different leaderboard from the same board under phase 1 —
+    collapsing them would let a retired phase's populated boards masquerade as
+    the new phase's.
+    """
+    attempted, written = set(), set()
+    ph_path = day_dir / "phases.jsonl.gz"
+    if ph_path.exists():
+        try:
+            with gzip.open(ph_path, "rt", encoding="utf-8") as f:
+                for line in f:
+                    rec = json.loads(line)
+                    payload = rec.get("payload") or rec
+                    for phase in (payload.get("phases") or []):
+                        if not phase.get("is_active"):
+                            continue
+                        pnum = phase.get("phase_number")
+                        for loc in (phase.get("locations") or []):
+                            location = loc.get("location")
+                            if not location:
+                                continue
+                            for difficulty in DIFFICULTIES:
+                                for role in ROLES:
+                                    metrics = (["avg_dps", "avg_hps"]
+                                               if role == "support" else ["avg_dps"])
+                                    for metric in metrics:
+                                        attempted.add((location, difficulty, pnum,
+                                                       role, metric))
+        except (OSError, ValueError):
+            return set(), set()
+    lb_path = day_dir / "leaderboards.jsonl.gz"
+    if lb_path.exists():
+        try:
+            with gzip.open(lb_path, "rt", encoding="utf-8") as f:
+                for line in f:
+                    q = (json.loads(line).get("query") or {})
+                    written.add((q.get("location"), q.get("difficulty"),
+                                 q.get("phase"), q.get("role"), q.get("metric")))
+        except (OSError, ValueError):
+            return attempted, set()
+    return attempted, written
+
+
 def previous_manifest(date_dir):
     """The most recent prior day's manifest.json, or None on the first ever run.
 
     Deliberately skips the `baseline_phase1` folder — it is a one-shot artifact
     with its own cadence, not a daily capture, so it is not a baseline for
     "did today look like yesterday".
+
+    Returns `(manifest, day_dir)` — the folder too, because the canary now reads
+    the previous day's committed leaderboard capture, not only its record count.
     """
     if not CRAWL_ROOT.exists():
-        return None
+        return None, None
     days = sorted(p for p in CRAWL_ROOT.iterdir()
                   if p.is_dir() and p.name < date_dir.name
                   and (p / "manifest.json").exists()
                   and p.name[:4].isdigit())
     if not days:
-        return None
+        return None, None
     try:
-        return json.loads((days[-1] / "manifest.json").read_text(encoding="utf-8"))
+        return json.loads(
+            (days[-1] / "manifest.json").read_text(encoding="utf-8")), days[-1]
     except (OSError, ValueError):
-        return None
+        return None, None
 
 
-def canary_check(manifest, prev):
+def canary_check(manifest, prev, date_dir=None, prev_dir=None):
     """Compare this run's per-writer volume against the previous day's.
 
-    Returns a list of human-readable failure strings; empty means healthy.
+    Returns `(failures, notes)` — both lists of human-readable strings. A
+    non-empty `failures` blocks the commit; `notes` are printed and block
+    nothing.
 
-    Rates, not raw counts: `phases` writes one record per RUN, and the owner may
-    log on twice in a day, so 2026-08-04's manifest holds 3 phase records for 3
-    runs. Comparing raw counts across days would flag a normal one-run day
-    against a three-run day. Dividing by that day's phase-record count — which
-    IS the run count, since every run writes exactly one — makes the comparison
-    per-run and stable.
+    🚨 `3m` pre-flight (`AUDIT_3L` F17) — THE LEADERBOARD ARM IS A CARRY-OVER
+    TEST NOW, AND THE ROUTE THERE IS WORTH RECORDING BECAUSE TWO OBVIOUS FIXES
+    ARE WRONG.
+
+    The failure: `canary_check` divided by the RUN count, and leaderboard volume
+    is not run-driven. On 2026-08-08 Zul'Gurub and Phase 1.1 went inactive,
+    boards fell 12 → 2/run, the canary read −83% against a 50% threshold and
+    refused the commit. It was right to refuse an unexplained drop — but it had
+    **no way to ever be satisfied**: failures are deliberately not stamped, so
+    the scheduled task retried and failed identically at every logon. A guard
+    that cannot be satisfied gets switched off, and that costs the real signal.
+
+    🛑 `CANARY_DROP_RATIO` IS NOT RAISED. Loosening a threshold after watching it
+    fire is redefining a check by its result.
+
+    ⚠ **`AUDIT_3L` F17 proposed normalising by active-phase count, and MEASURED
+    ON THE COMMITTED CAPTURES THAT DOES NOT WORK.** Nor does normalising by
+    attempted queries, which was this fix's first draft:
+
+        day         written  attempted  yield   boards/run  active phases
+        2026-08-06       36       1200   3.00%        12.0   2
+        2026-08-07       12        400   3.00%        12.0   2
+        2026-08-08        4        400   1.00%         2.0   1
+
+    Every structural denominator still shows a ~67% drop, because **the thing
+    that collapsed is not query structure, it is content population**: Molten
+    Core was ~13 h old and returned rows for **2 of 200** queries. All 200 were
+    attempted and 198 legitimately came back empty. No denominator built from
+    the shape of the walk can see that, so no such denominator makes the guard
+    satisfiable.
+
+    What IS invariant: **a query that was populated yesterday and is still being
+    attempted today should still return rows.** So the arm compares only the
+    carry-over set — `prev_written ∩ today_attempted`:
+
+    * a retired phase's boards leave the ATTEMPTED set, so they leave the
+      denominator, and a phase transition is invisible to this arm (correct: it
+      is not a shape break);
+    * a new phase's empty boards were never in `prev_written`, so they never
+      enter the numerator (correct: an unparsed raid is not a shape break);
+    * a payload-shape change leaves the same queries being attempted and stops
+      them returning rows — the carry-over yield goes to zero and it FIRES.
+
+    When the carry-over set is empty (exactly what a phase transition produces)
+    the arm **cannot run, and says so** rather than passing silently — the `3b`
+    lesson from the extract wrapper that printed "OK - game is closed" without
+    having checked. It self-clears the following day.
+
+    Rates are still right for anything the run count DOES drive, and `phases`
+    writes one record per run (the owner may log on twice in a day), so the run
+    normalisation stays where it belongs.
     """
     def counts(m):
         out = {}
@@ -725,9 +857,11 @@ def canary_check(manifest, prev):
         return out
 
     now, before = counts(manifest), counts(prev)
-    failures = []
+    failures, notes = [], []
 
-    # Absolute floor: these can never legitimately be zero on a completed run.
+    # --- arm 1: the absolute floor. UNCHANGED, deliberately. ----------------
+    # This is the arm that catches "200 response, changed shape, zero records",
+    # and it needs no denominator at all. The work order says keep it as-is.
     for w in CANARY_WRITERS:
         if now.get(w, 0) == 0:
             failures.append(
@@ -737,13 +871,58 @@ def canary_check(manifest, prev):
                 f"looks exactly like this.")
 
     if not prev:
-        return failures
+        return failures, notes
 
+    # --- arm 2: leaderboard CARRY-OVER, not volume ---------------------------
+    if date_dir is None or prev_dir is None:
+        notes.append(
+            "leaderboards: carry-over NOT CHECKED — the capture folders were "
+            "not supplied to canary_check(). The zero-floor arm above still "
+            "applied.")
+    else:
+        att_now, written_now = leaderboard_query_keys(date_dir)
+        _att_prev, written_prev = leaderboard_query_keys(prev_dir)
+        carry = written_prev & att_now
+        if not carry:
+            # A guard that cannot run must SAY SO. This is the phase-transition
+            # case by construction, and it clears itself the next day.
+            notes.append(
+                f"leaderboards: carry-over NOT CHECKED — none of "
+                f"{prev.get('date')}'s {len(written_prev)} populated boards is "
+                f"still being queried today ({len(att_now)} queries attempted "
+                f"across {manifest.get('active_phase_count')} active phase(s)). "
+                f"That is what a completed phase transition looks like, and it "
+                f"is NOT evidence of a healthy capture — only an absence of "
+                f"comparable evidence. The zero-floor arm above still applied.")
+        else:
+            kept = carry & written_now
+            ratio = len(kept) / len(carry)
+            if ratio < CANARY_DROP_RATIO:
+                failures.append(
+                    f"leaderboards: only {len(kept)} of {len(carry)} boards "
+                    f"that were populated on {prev.get('date')} AND are still "
+                    f"being queried today returned rows ({100 * ratio:.0f}%, "
+                    f"past the {100 * (1 - CANARY_DROP_RATIO):.0f}% threshold). "
+                    f"Phase changes are normalised out of this comparison by "
+                    f"construction, so this is NOT a content transition — check "
+                    f"the endpoint's payload shape before trusting this capture. "
+                    f"Missing: {sorted(carry - written_now)[:5]}")
+            else:
+                notes.append(
+                    f"leaderboards: {len(kept)}/{len(carry)} carried-over boards "
+                    f"still populated ({100 * ratio:.0f}%); "
+                    f"{len(written_now)} written of {len(att_now)} attempted "
+                    f"across {manifest.get('active_phase_count')} active "
+                    f"phase(s).")
+
+    # --- arm 3: rate-normalised volume for the rest --------------------------
     runs_now = max(1, now.get("phases", 1))
     runs_prev = max(1, before.get("phases", 1))
     for w in CANARY_WRITERS:
-        if w == "phases":
-            continue    # phases IS the run counter; rate-normalising it is circular
+        if w in ("phases", "leaderboards"):
+            # `phases` IS the run counter — rate-normalising it is circular.
+            # `leaderboards` is handled by arm 2 on its own denominator.
+            continue
         if not before.get(w):
             continue
         rate_now = now.get(w, 0) / runs_now
@@ -755,7 +934,7 @@ def canary_check(manifest, prev):
                 f"{100 * (1 - rate_now / rate_prev):.0f}%, past the "
                 f"{100 * (1 - CANARY_DROP_RATIO):.0f}% threshold. Check the "
                 f"endpoint's payload shape before trusting this capture.")
-    return failures
+    return failures, notes
 
 
 # --- git -------------------------------------------------------------------
@@ -881,11 +1060,12 @@ def main():
         print(f"\nRecrawl complete. {STATS['requests']} requests, {len(ERRORS)} errors.")
         return 0 if not ERRORS else 1
 
-    prev_manifest = previous_manifest(date_dir)   # read BEFORE we write today's
+    prev_manifest, prev_dir = previous_manifest(date_dir)  # read BEFORE we write today's
 
     active_phases = crawl_phases(writers)
     crawl_watchlist(seen_characters, scan_log)
-    crawl_leaderboards(writers, active_phases, seen_characters)
+    _boards, boards_attempted = crawl_leaderboards(
+        writers, active_phases, seen_characters)
     reports_before = set(scan_log.get("reports", {}))
     new_reports = crawl_reports(writers, scan_log, seen_characters, args.max_reports)
     reverified = 0
@@ -895,14 +1075,19 @@ def main():
     armory_pulls = crawl_characters(writers, scan_log, seen_characters, args.max_armory)
 
     new_report_ids = [int(r) for r in set(scan_log.get("reports", {})) - reports_before]
-    manifest = write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids)
+    manifest = write_manifest(date_dir, writers, scan_log, patch_date, new_report_ids,
+                              leaderboard_queries_attempted=boards_attempted,
+                              active_phase_count=len(active_phases))
     build_tier2_manifest.build_for_dir(date_dir)
     t1 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 1)
     t2 = sum(f["bytes_gz"] for f in manifest["files"] if f["tier"] == 2)
 
     # 3d A3 — canary BEFORE the commit. An empty or shape-broken capture must
     # not be committed, must not be pushed, and must not stamp the day as done.
-    canary_failures = canary_check(manifest, prev_manifest)
+    canary_failures, canary_notes = canary_check(manifest, prev_manifest,
+                                                date_dir, prev_dir)
+    for _note in canary_notes:
+        print(f"  [canary] {_note}")
 
     total_bytes = sum(f.stat().st_size for f in date_dir.glob("*.jsonl.gz")) if date_dir.exists() else 0
     commit_status = "skipped (--no-push)"

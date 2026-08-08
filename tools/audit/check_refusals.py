@@ -1085,6 +1085,97 @@ def _gear_fixture_conn(n_snapshots, captured_at):
     return conn
 
 
+def check_crawl_canary_carryover():
+    """`3m` pre-flight (`AUDIT_3L` F17) — the leaderboard canary must be BOTH
+    satisfiable across a phase transition AND still able to catch a shape break.
+
+    The `3l`-era canary normalised leaderboard volume by RUN count. Leaderboard
+    volume is `active phases × locations × difficulties × roles × metrics`, so
+    when Zul'Gurub and Phase 1.1 went inactive on 2026-08-08 it read 12.0 → 2.0
+    rec/run (−83%, threshold 50%) and refused the commit at **every logon**,
+    with no state a correct capture could reach. A guard that cannot be
+    satisfied gets switched off.
+
+    ⚠ The audit's proposed fix — normalise by active-phase count — does NOT
+    work, and neither does normalising by attempted queries: measured on the
+    committed captures, yield is 3.00% / 3.00% / 1.00% across 08-06/07/08, still
+    a ~67% drop. What collapsed is content POPULATION (Molten Core was ~13 h old
+    and returned rows for 2 of 200 queries, all 200 attempted), not query shape.
+
+    So the arm compares the CARRY-OVER set — boards populated yesterday that are
+    still being queried today. Arms below use the real committed captures.
+
+    RED — M58: in `canary_check`, replace the carry-over arm with the old
+    run-normalised rate (`now/runs_now < before/runs_prev * RATIO`) — arm 1 goes
+    red, because that is exactly the state the fix removes.
+    RED — M59: delete the `if not carry:` branch so an empty carry-over set
+    computes `0/0` or silently passes — arm 2 goes red (it asserts the note is
+    EMITTED; a guard that cannot run must say so, `3b`).
+    GREEN is the fix and only the fix: arm 3 asserts a payload-shape break still
+    FAILS, so a canary that shrugged at everything cannot pass this set.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "scrapers"))
+    import crawl_ascensionlogs as _c
+
+    root = _Path(__file__).resolve().parents[2] / "data" / "source" / "crawl"
+
+    def _man(d):
+        return _json.loads((root / d / "manifest.json").read_text(encoding="utf-8"))
+
+    if not (root / "2026-08-08" / "manifest.json").exists():
+        check("[3m-P1] the crawl canary's carry-over arms run against the "
+              "committed captures", False,
+              "the 2026-08-07/2026-08-08 capture folders are missing")
+        return
+
+    # --- 1. the REAL transition must not fail -------------------------------
+    fails, notes = _c.canary_check(_man("2026-08-08"), _man("2026-08-07"),
+                                   root / "2026-08-08", root / "2026-08-07")
+    check("[3m-P1] the completed 2026-08-07 -> 2026-08-08 phase transition does "
+          "NOT fail the canary — the real capture is sound and the guard had no "
+          "reachable satisfied state before this fix",
+          not fails, f"failures={fails}")
+
+    # --- 2. ...and it SAYS it could not check, rather than passing silently --
+    check("[3m-P1] ...and the transition emits an explicit NOT CHECKED note "
+          "naming the empty carry-over set — a guard that cannot run must say "
+          "so (`3b`: 'OK - game is closed' printed without checking)",
+          any("NOT CHECKED" in n and "carry-over" in n for n in notes),
+          f"notes={notes}")
+
+    # --- 3. an ORDINARY day still compares, and a SHAPE BREAK still fails ----
+    fails_ok, notes_ok = _c.canary_check(_man("2026-08-07"), _man("2026-08-06"),
+                                         root / "2026-08-07", root / "2026-08-06")
+    check("[3m-P1] an ordinary same-phase day DOES compare and passes — the "
+          "carry-over denominator is non-empty when nothing transitioned",
+          not fails_ok and any("carried-over" in n for n in notes_ok),
+          f"failures={fails_ok}, notes={notes_ok}")
+
+    # A payload-shape break: same queries attempted, none return rows. Built by
+    # pointing "today" at a folder whose phases payload still carries yesterday's
+    # active phases while its leaderboards file holds none of them.
+    import tempfile as _tf, gzip as _gz, shutil as _sh
+    with _tf.TemporaryDirectory() as td:
+        broken = _Path(td) / "2026-08-07"
+        broken.mkdir()
+        _sh.copy(root / "2026-08-07" / "phases.jsonl.gz", broken / "phases.jsonl.gz")
+        # leaderboards.jsonl.gz present but empty == "200 OK, changed shape"
+        with _gz.open(broken / "leaderboards.jsonl.gz", "wt", encoding="utf-8"):
+            pass
+        broken_man = dict(_man("2026-08-07"))
+        # keep the record count non-zero so the ZERO-FLOOR arm cannot be what
+        # fires — this arm must be the thing that catches it, on its own.
+        fails_b, _ = _c.canary_check(broken_man, _man("2026-08-06"),
+                                     broken, root / "2026-08-06")
+        check("[3m-P1] a payload-SHAPE break still FAILS — same queries "
+              "attempted, zero carried-over boards returning rows, and the "
+              "zero-floor arm deliberately cannot be the arm that fires",
+              any("carried-over" in f or "populated on" in f for f in fails_b),
+              f"failures={fails_b}")
+
+
 def check_gear_tier_caller_refuses():
     """[3l-C1] cli/gear_tiers.py refuses an empty phase window BY NAME.
 
@@ -2085,6 +2176,7 @@ def main():
     check_null_spell_id_cannot_escape_dedupe()
     check_corpus_schema_gate()
     check_per_key_table_agrees_with_aggregates()
+    check_crawl_canary_carryover()
     check_gear_tier_caller_refuses()
     check_enchant_record_parse()
     print()
