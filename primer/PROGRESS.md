@@ -2,6 +2,102 @@
 
 > **`LIVE`** — the running state of the project; read it before anything else. **Must be true today, and is citable as current truth.** If you find a claim here that the tree contradicts, that is a defect in this file. *(Classified `3f` F8c, 2026-08-07.)*
 
+> ✅ **2026-08-08 — SESSION `3m` IS DONE.** Record:
+> `primer/Session_2026-08-08_3m_repair.md`. Work order it ran:
+> `primer/SESSION_3M_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
+> `primer/AUDIT_3L_ADVERSARIAL.md`.
+>
+> 🛑 **THE GATE: `0 of 35 within ±20% · 0 qualified` at every commit; slice
+> `30.426% → 30.040% (n=24)` — published **−0.385 pp** AND same-member
+> **−0.385 pp**, membership unchanged; absent `58.83%` unchanged.** Coverage and
+> accuracy together, per the standing rule. **13 of 15 predictions confirmed
+> across three preregs, both falsifications diagnosed to ONE mechanism, none
+> rescued.** Every gate-capable commit has a prereg as its commit-parent
+> (`196838c`→`9267660`, `dee3ebd`→`fd11099`, `263e6db`→`766b269`).
+>
+> 🚨 **THE GATE MOVED DOWN, AND THAT IS THE CORRECT DIRECTION.** Two repairs (RV's
+> rank, RV's white-crit pool) and one server patch (Improved Cleave) all *remove*
+> modelled damage. The previous number was larger because it was wrong.
+> 🆕 **Published and same-member are EQUAL here — that equality is the evidence
+> the move is accuracy and not composition**, which is exactly the distinction
+> `3l` could not make about its own headline.
+>
+> * ✅ **THE MONDAY DEADLINE WAS MET BEFORE THE PATCH, NOT AFTER.** Ascension
+>   declared Improved Cleave's whole-ability ×2.20 a **bug**, fixed 10 August.
+>   The project had read `EffectMiscValue = 8 = SPELLMOD_ALL_EFFECTS` over the
+>   tooltip **correctly, per its own rule** — `2d`'s Duality lesson fired in the
+>   **opposite direction: the numeric field was the bug and the prose was right.**
+>   Owner decision: model INTENDED; the frozen cohort stays pre-fix. Scoped by
+>   **card id**, not generalised to op 8.
+> * 🚨 **THE OWNER'S OWN VERDICT, from his own stat block:** on The Light's Hope
+>   the weapon is **87.1%** of Lightbound Cleave's base, so Improved Cleave 3/3
+>   falls from **578.1 to 74.4 damage per hit (−87.1%)** and Lightbound Cleave
+>   itself falls **47.5%**. ⚠ The nerf scales with weapon damage — **the better
+>   his main hand gets, the LESS the card is worth.** Resettable at Gabril Mewell.
+> * 🚨 **A SEED'S MAGNITUDE RETRACTED, ITS SHAPE KEPT.** `9 + AP × 1.0` came from
+>   reading `EffectBonusCoefficient = 1.0` as a real coefficient; `1x` established
+>   **the next day** that its neutral value IS 1.0 (7,647 of 9,211 non-zero values).
+>   The current decode is a **flat 62**.
+> * ✅ **BLOCK C: SEVEN OF SEVEN CONFIRMED.** RV's rank ladder (10/20/30%, a
+>   rank-1 holder was credited **3×**); RV's white-crit pool **retracted**
+>   (worse in 49/49 committed-log rows and **1,416/1,852** corpus rows —
+>   ability-only implies **0.2004**, landing on rank 2's 20%); **aura 344 is flat
+>   ATTACK POWER** (+73/weapon, spell 200809's own template says so);
+>   `rank_for_level` gated by `SpellItemEnchantment.min_level` on enchant lines.
+> * 🚨 **THE APL IS ENDOGENOUS TO ABILITY MAGNITUDES** — Block B's falsification.
+>   A nerfed ability can leave the rotation **entirely**, so per-ability
+>   predictions that assume a fixed rotation are wrong. **`3l`'s P4b lesson for
+>   the THIRD time**: the producing median *rose* with nothing becoming more
+>   accurate, because a low ratio left the population.
+> * 🔬 **THE APL DEFECT IS MEASURED, NOT FIXED, and my first diagnosis was
+>   WRONG.** It is not per-cast-vs-per-second (a cohort sweep found **0**
+>   disagreements). It is a **UNITS MISMATCH** — `apl_gen` ranks fillers by damage
+>   per CAST across abilities whose cast rates are governed by **different
+>   clocks**: `is_next_swing` abilities run on the weapon swing timer, the rest on
+>   the GCD. **15 of 41 cohort members are exposed.** Same family as the
+>   effect-slot aggregate trap.
+> * ✅ **THE CRAWL CANARY IS SATISFIABLE AGAIN** — and `AUDIT_3L`'s proposed fix
+>   **does not work**: normalising by active-phase count *or* attempted queries
+>   still shows a ~67% drop, because what collapsed is **content population**
+>   (Molten Core returned rows for 2 of 200 queries). Replaced with a
+>   **carry-over** test; when the carry-over set is empty it **says it could not
+>   run** rather than passing.
+> * ✅ **13 MUTATIONS REGISTERED AND RUN (M57–M69).** Two are worth naming: **M60**
+>   is A3's *isolating* mutation — under it the old source-text arm printed
+>   `PASS (vacuous)` while the repaired arm failed; and **M68's first draft
+>   crashed**, which is red but is not the behaviour under test. **A mutation
+>   worth running is one someone might actually have written.**
+>
+> **Next session is `3n`. The registered load-bearing problems, in order:**
+> **(1) the APL units mismatch** — 15 of 41 members, ~18% of simmed damage on the
+> measured case, and the largest single modelling error left;
+> **(2) E2** — `infer_coefficient` on the six Elric MC stat blocks, **its SECOND
+> carry, stamped**, with the GUID windowing now landed under it
+> (`core/logs/encounters.py` — Garr's naive window is **2,138.6 s against
+> 382.6 s**); **(3) delivery modelling**, still 58.83% absent, now with aura 344
+> correctly identified.
+>
+> **The gate, closing state:**
+>
+> | | |
+> |---|---:|
+> | within ±20% (tuning set of 35) | **0** |
+> | qualified (≥50% coverage) | **0** |
+> | slice accuracy at ≥20% coverage | **30.040% (n=24)** |
+> | …published Δ / same-member Δ | **−0.385 pp / −0.385 pp** |
+> | admissible-only slice | **27.40% (n=21)** |
+> | absent share of cohort logged damage | **58.83%** (unchanged) |
+> | producing median ratio | **0.3234 (n=117)** (unchanged) |
+> | criterion (≥3 within ±20%) | **NOT MET** |
+> | holdout, carried from `3g` (not re-read, **PRE-E15**) | **0 of 5**, median slice **9.8% (n=4)** |
+>
+> 🛑 The holdout row is **not** like-for-like with the rows above it (read before
+> E15 and before every `3l`/`3m` fix); do not compute a tuning-vs-holdout gap
+> from this table.
+
+<details><summary>Superseded: the <code>3l</code> top block</summary>
+
+
 > ✅ **2026-08-08 — SESSION `3l` IS DONE.** Record:
 > `primer/Session_2026-08-08_3l_tuning.md`. Work order it ran:
 > `primer/SESSION_3L_PRIMER.md` (now `SUPERSEDED`). Audit it implemented:
@@ -90,6 +186,8 @@
 > 🛑 The holdout row is **not** like-for-like with the rows above it (read
 > before E15 and before every `3l` fix); do not compute a tuning-vs-holdout
 > gap from this table.
+
+</details>
 
 <details><summary>Superseded: the <code>3k</code> top block</summary>
 

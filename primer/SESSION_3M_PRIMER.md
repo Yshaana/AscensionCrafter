@@ -1,9 +1,10 @@
 # SESSION `3M` PRIMER — a deadline, four repairs, then the first real coefficients
 
-> **`LIVE`** — the work order for session `3m`, drafted 2026-08-08 (morning) from
+> **`SUPERSEDED BY primer/Session_2026-08-08_3m_repair.md`** — the work order for
+> session `3m`, drafted 2026-08-08 (morning) from
 > `AUDIT_3L_ADVERSARIAL.md` (§5 is the source list, §5a the post-close additions).
-> **SUPERSEDED BY `primer/Session_<date>_3m_*.md` when `3m` closes** — mark it in the
-> close-out commit, not in a later cleanup.
+> **Superseded at the close of `3m`, in the close-out commit** — as its own rule
+> required, rather than in a later cleanup.
 
 **Audit implemented:** `primer/AUDIT_3L_ADVERSARIAL.md` (landed `851fc64`).
 **Previous session record:** `primer/Session_2026-08-08_3l_tuning.md`.

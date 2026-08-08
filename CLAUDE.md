@@ -165,12 +165,13 @@ Schema in `INDEX_GUIDE.md`.
   today, and that is correct** · `SUPERSEDED BY <path>` · `FINDING <date>` = true as of its
   date, not maintained. 🆕 **The census is GENERATED — do not retype it here.**
   `py tools/audit/check_refusals.py` prints it and asserts that no file is unclassified;
-  as generated 2026-08-08 (`3m` pre-flight — `SESSION_3M_PRIMER.md` landing in `primer/`
-  moved it in the same commit that added it, the **fourth** time this rule has earned its
-  keep, and the second in two days):
+  as generated at `3m`'s close-out, 2026-08-08 — the session record landing and the work
+  order flipping to `SUPERSEDED` moved it **twice inside `3m` alone** (73 → 74 at
+  pre-flight, 74 → 75 here), which is the **fifth** time this rule has earned its keep
+  and the third in two days:
 
   ```
-  [census] primer/ status lines: 74 files — 14 LIVE / 40 HISTORICAL / 7 SUPERSEDED / 13 FINDING
+  [census] primer/ status lines: 75 files — 13 LIVE / 41 HISTORICAL / 8 SUPERSEDED / 13 FINDING
   ```
 
   🆕 **`3m` pre-flight — the harness also prints its OWN arm count now** (`AUDIT_3L` F11).
@@ -225,9 +226,38 @@ Schema in `INDEX_GUIDE.md`.
   hand-transcribed — **four for four, and zero errors in numbers a tool emitted**. If a
   number belongs in a document, have the tool print it and paste that. Where no tool prints
   it, the number has no owner.
+  🆕 **A DERIVED FIGURE HAS THE SAME OWNER AS THE TABLE IT IS DERIVED FROM** (`3m`
+  pre-flight). `[3j-C3]` asserted `CALIBRATION_TOLERANCE.md`'s band table and nothing
+  around it, so `3l` regenerated the table correctly and left *"At **26.3%**"*, *"a
+  **3.8×** rise"* and *"roughly **ONE QUARTER**"* stale **within twenty lines of it** —
+  the third staling of that file inside its own assertion's blind spot. The fix is not
+  a wider regex: the sentences now point at a generated, asserted block and quote no
+  number at all. **A sentence that quotes no number cannot go stale.** And when the
+  same sentence has been corrected twice, change its owner rather than correcting it a
+  third time.
+- 🆕 **A STATISTIC OVER A CHANGING POPULATION IS NOT A FIXED TARGET — and an unchanged
+  `n` is not a defence** (`3l` P4b, re-measured twice in `3m`). `3l` published a slice
+  move of **+4.12 pp** where the same 22 members moved **−0.21 pp**, the opposite sign;
+  its earlier leg had n=23 on both sides and was a pure membership swap.
+  `gate_manifest_3e.json` now emits `slice_delta_vs_previous_run` — **quote the
+  published and same-member pair together, everywhere either appears.** When they are
+  *equal*, that equality is the evidence the move is accuracy rather than composition.
+  ⚠ It bites the producing median too: `3m` B watched it **rise** while nothing became
+  more accurate, because a low ratio left the population when its ability left the
+  rotation.
 - 🆕 **Every check carries a registered test that makes it fail** — name the mutation, and
   **run it**. `3f` found four of its own checks vacuous only by running the mutation.
   Registry: `primer/ENGINE_BUGS.md`. If you cannot name one, it is not a check.
+  🆕 **A MUTATION MUST BE ONE SOMEONE MIGHT ACTUALLY HAVE WRITTEN** (`3m`, M60/M68).
+  Two failure modes, both met this session. **Too broad:** deleting a warning branch
+  *and* the phrase it contains reds both the old and the new arm and proves nothing —
+  M60 deletes the branch and **leaves the phrase in a comment**, under which the old
+  source-text arm printed `PASS (vacuous)` while the repaired arm failed. That
+  asymmetry is the only thing that demonstrates a soft check was soft. **Too crude:**
+  M68's first draft crashed with a `TypeError` on a `None`; a crash is red, but it
+  tests the fixture rather than the behaviour, so it was sharpened to a plausible
+  fallback. **If your mutation could not plausibly have been the code, it is not
+  measuring your check.**
 - 🆕 **A defect check names BOTH mutations: the one that turns it RED, and the change that
   turns it GREEN — and the green one must be the FIX, not a stub** (`3g` G5, 2026-08-07).
   The red half alone is half a rule. The `3f` audit found **three registered checks that
