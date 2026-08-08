@@ -630,7 +630,8 @@ def fast_sim(conn, build_spec, content: ContentProfile, char_state,
         if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
     swing_damage, _ = _add_swing_sources(
         conn, char_state, content, available, per_ability, melee_ability_hits,
-        warnings, build_spec=build_spec)
+        warnings, build_spec=build_spec,
+        next_swing_casts=next_swing_casts_total)
     total += swing_damage
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
@@ -822,9 +823,19 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
     melee_ability_hits = sum(
         r["casts"] for sid, r in per_ability.items()
         if (abilities.get(sid) and abilities[sid].school in ("Physical", "Holystrike")))
+    # 3n B leg 2 — medium's timeline has no swing clock of its own, but an
+    # on-next-swing ability it DID cast still replaces a white swing. Counting
+    # what the timeline actually cast keeps the two tiers agreeing about WHAT AN
+    # ABILITY DOES, which is the invariant `check_sim_engine`'s fast-vs-medium
+    # guard exists to protect (PHASE_2 T3) — the tiers may differ in how
+    # rigorously they evaluate over time, never in the mechanic.
+    medium_next_swing_casts = sum(
+        r["casts"] for sid, r in per_ability.items()
+        if abilities.get(sid) and _is_next_swing(abilities[sid]))
     swing_damage, seal_note = _add_swing_sources(
         conn, char_state, content, available, per_ability, melee_ability_hits,
-        warnings, build_spec=build_spec)
+        warnings, build_spec=build_spec,
+        next_swing_casts=medium_next_swing_casts)
     total += swing_damage
 
     dps = total / content.fight_duration if content.fight_duration else 0.0
@@ -892,7 +903,8 @@ def medium_sim(conn, build_spec, apl: APL, content: ContentProfile,
 
 
 def _add_swing_sources(conn, char_state, content, available, per_ability,
-                       melee_ability_hits, warnings, build_spec=None):
+                       melee_ability_hits, warnings, build_spec=None,
+                       next_swing_casts=0.0):
     """Auto-attacks, seal riders and Righteous Vengeance (session `2e`, T1).
 
     Returns the damage added. Every source that cannot be computed is WARNED and
@@ -911,6 +923,31 @@ def _add_swing_sources(conn, char_state, content, available, per_ability,
     added = 0.0
     mh, oh, w = swing_events(char_state, available)
     warnings.extend(w)
+
+    # 🚨 3n B leg 2 — AN ON-NEXT-SWING ABILITY REPLACES THE WHITE SWING IT RIDES.
+    #
+    # `schema.py:341` calls it exactly that — "On-Next-Hit REPLACEMENT
+    # (Cleave/Heroic Strike pattern)" — decoded from `Attributes & 0x4`. Leg 1
+    # gave these abilities their own swing clock; without this, their damage is
+    # added ON TOP of white swings that, in the game, never happen. The sim
+    # would count one swing twice: once as an auto and once as the ability that
+    # replaced it.
+    #
+    # ⚠ MAIN HAND ONLY. The attribute replaces the main-hand swing; the off-hand
+    # keeps swinging. Reducing both would be a different, invented mechanic.
+    #
+    # The clamp matters: leg 1 bounds next-swing casts by the swing budget, so
+    # `replaced <= mh` holds by construction today — but a future caller that
+    # passes a count from somewhere else must not be able to drive `mh`
+    # negative and start ADDING damage by subtracting it.
+    replaced = max(0.0, min(next_swing_casts, mh))
+    if replaced > 0:
+        mh -= replaced
+        warnings.append(
+            f"{replaced:.1f} of the main hand's swings were REPLACED by "
+            "on-next-swing abilities and are not counted as autos as well — "
+            "an on-next-swing ability rides a white swing instead of it, not "
+            "alongside it")
     # 🚨 3l B3 F3 (prereg_3l_b_tuning.md) — there is NO early return here any
     # more. `if mh <= 0: return` skipped not just the autos (correct — no
     # weapon, no swings) but the seal note and the RIGHTEOUS VENGEANCE
