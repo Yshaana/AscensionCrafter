@@ -62,6 +62,11 @@
 >   (Molten Core returned rows for 2 of 200 queries). Replaced with a
 >   **carry-over** test; when the carry-over set is empty it **says it could not
 >   run** rather than passing.
+> * ⚠ **THE ARM COUNT IS TREE-STATE DEPENDENT: 87 on a CLEAN tree, 91 on a dirty
+>   one.** The `[A7]`/`[E6]` arms exercise the dirty-tree manifest refusal and can
+>   only fire when the tree is dirty; on a clean tree the check SAYS it cannot run.
+>   **Cite 87** — the close-out standard is a clean tree. Caught by the arm count
+>   this session added, on its first outing.
 > * ✅ **13 MUTATIONS REGISTERED AND RUN (M57–M69).** Two are worth naming: **M60**
 >   is A3's *isolating* mutation — under it the old source-text arm printed
 >   `PASS (vacuous)` while the repaired arm failed; and **M68's first draft

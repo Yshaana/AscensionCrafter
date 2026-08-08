@@ -184,10 +184,22 @@ have written.**
 
 ## §7 — Harnesses at close
 
-`check_refusals.py` **exit 0** (91 arms, 91 passed — cite the tool's own `[arms]`
-line, never a remembered figure); `check_sim_engine.py` **exit 0** (registered
-XFAILs unchanged); `check_core_purity.py` **exit 0** (52 files, 0 violations).
-Final gate manifest regenerated from a clean tree at the close-out commit.
+`check_refusals.py` **exit 0 — 87 arms, 87 passed on a CLEAN tree**;
+`check_sim_engine.py` **exit 0** (registered XFAILs unchanged);
+`check_core_purity.py` **exit 0** (52 files, 0 violations). Final gate manifest
+regenerated from a clean tree at the close-out commit.
+
+⚠ **THE ARM COUNT DEPENDS ON WHETHER THE TREE IS DIRTY, and this session's own
+close-out nearly published the wrong one.** The `[A7]` and `[E6]` arms exercise
+the *dirty-tree manifest refusal*, so they can only fire when the tree actually is
+dirty: a dirty run reports **91**, a clean run **87**, and the difference is those
+four. On a clean tree the check prints *"tree is CLEAN — the dirty-tree refusal
+cannot fire from here (stated, not silently skipped)"*, which is the same
+"a guard that cannot run must say so" discipline `3b` established and this
+session's canary fix applied. **87 is the figure to cite**, because the close-out
+standard is a clean tree. Caught by comparing arm counts across two runs and
+diffing the labels — the arm count exists precisely so this is checkable, and it
+worked on its first outing.
 
 ## §8 — NOT done, explicitly
 
