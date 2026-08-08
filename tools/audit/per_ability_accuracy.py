@@ -86,6 +86,79 @@ MD_PATH = DATA_DERIVED / "per_ability_accuracy.md"
 SUMMARY_PATH = (Path(__file__).resolve().parents[2] / "predictions"
                 / "per_ability_summary.json")
 
+
+def _producing_delta(keyed):
+    """The producing median's PUBLISHED and SAME-MEMBER move, as a pair.
+
+    🚨 `3n` B. The sibling of `slice_delta_vs_previous_run`, for the statistic
+    CLAUDE.md's standing rule names directly: *"It bites the producing median
+    too — `3m` B watched it rise while nothing became more accurate."*
+
+    `3n` B leg 1 is the case that forced this. The published producing median
+    fell **0.3234 -> 0.3133** while **no row became less accurate**: eleven
+    starved abilities returned to the rotation, and those eleven have a median
+    ratio of 0.2061, below the sitting median. The move was pure composition,
+    and the number that would have said so was not computable from any
+    committed artifact — `data/derived/` is gitignored and this file stored no
+    per-row ratios.
+
+    🛑 **Refuses rather than guessing.** With no previous summary, or one
+    written before `producing_ratio_by_row` existed, it returns a record saying
+    it could not run. An absent comparison must be distinguishable from a
+    comparison that found no change — the same rule the crawl canary learned in
+    `3m`.
+    """
+    rows = {f"{r['character_id']}:{r['spell_id']}": r["ratio"]
+            for r in keyed
+            if r["key_state"] == "producing" and r["ratio"] is not None}
+    note = ("`published` mixes accuracy with composition; `same_members` is the "
+            "accuracy-only move. QUOTE THE PAIR. A producing row is born when a "
+            "starved ability starts casting, so this population changes "
+            "whenever the rotation does.")
+    if not SUMMARY_PATH.exists():
+        return {"_could_not_run": "no previous per_ability_summary.json",
+                "_note": note}
+    try:
+        prev = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        return {"_could_not_run": f"previous summary unreadable: {e}",
+                "_note": note}
+    prev_rows = prev.get("producing_ratio_by_row")
+    if not prev_rows:
+        return {"_could_not_run": "previous summary predates "
+                                  "producing_ratio_by_row (3n B)",
+                "_note": note}
+    both = sorted(set(rows) & set(prev_rows))
+    this_med = statistics.median(rows.values()) if rows else None
+    prev_med = (statistics.median(prev_rows.values()) if prev_rows else None)
+    out = {
+        "previous_run": {"git_sha": prev.get("git_sha"),
+                         "generated_at": prev.get("generated_at"),
+                         "median_ratio": round(prev_med, 4) if prev_med else None,
+                         "n": len(prev_rows)},
+        "published": {"median_ratio": round(this_med, 4) if this_med else None,
+                      "n": len(rows),
+                      "delta": (round(this_med - prev_med, 4)
+                                if this_med is not None and prev_med is not None
+                                else None)},
+        "membership_changed": {
+            "dropped_since_previous": sorted(set(prev_rows) - set(rows))[:40],
+            "added_this_run": sorted(set(rows) - set(prev_rows))[:40],
+            "n_dropped": len(set(prev_rows) - set(rows)),
+            "n_added": len(set(rows) - set(prev_rows))},
+        "_note": note,
+    }
+    if both:
+        a = statistics.median([prev_rows[k] for k in both])
+        b = statistics.median([rows[k] for k in both])
+        out["same_members"] = {"n": len(both),
+                               "previous_median_ratio": round(a, 4),
+                               "this_median_ratio": round(b, 4),
+                               "delta": round(b - a, 4)}
+    else:
+        out["same_members"] = {"_could_not_run": "no rows producing in both runs"}
+    return out
+
 # C4 — the round numbers and orders of magnitude a unit error looks like.
 # E13 was exactly 100; E14 was exactly card_duration / component_tick. Integers
 # 2..30 cover tick counts, target counts and rank multipliers.
@@ -561,6 +634,25 @@ def main():
                           if len(prod) >= 4 else None),
             "in_band_0.8_1.25": sum(1 for x in prod if 0.8 <= x <= 1.25),
         } if prod else None),
+        # 🚨 3n B — the producing median's SAME-MEMBER pair, and the per-row
+        # ratios that make it computable NEXT run.
+        #
+        # CLAUDE.md's standing rule names this exact statistic — "It bites the
+        # producing median too" — and until now nothing emitted the pair.
+        # `slice_delta_vs_previous_run` solved it for the slice in `3m`; the
+        # producing median had no counterpart, so `3n` B leg 1 could report that
+        # the median FELL 0.3234 -> 0.3133 while nothing became less accurate,
+        # and could not quote the same-member number that says so. The rows were
+        # unrecoverable because `data/derived/` is gitignored and this artifact
+        # stored no per-row ratios.
+        #
+        # ⚠ Keyed on `(character_id, spell_id)`, which is the row's identity —
+        # NOT on the name, which is the duplicate-name trap, and not on position.
+        "producing_ratio_by_row": {
+            f"{r['character_id']}:{r['spell_id']}": round(r["ratio"], 6)
+            for r in keyed
+            if r["key_state"] == "producing" and r["ratio"] is not None},
+        "producing_delta_vs_previous_run": _producing_delta(keyed),
         "zeros": {"paired_keyed_at_exactly_zero": zero_paired,
                   "paired_keyed_total": len(keyed)},
         "absent": {"rows": len(absent),
