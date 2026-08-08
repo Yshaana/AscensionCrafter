@@ -57,8 +57,12 @@
 >   badly modelled and were invisible because they cast zero times. **Fixing the
 >   clock made an existing error countable.**
 > * 🚨 **E2's BLOCKER IS REPLACED, NOT RESTATED.** `refused:no_per_parse_stats`
->   is **LIFTED** for Gehennas (AP 488 held across it; **logged 319.8 s** vs wall
->   379.8 s — dividing by wall understates DPS 15.8%). 1 of 4 windows admissible;
+>   is **LIFTED** for Gehennas (AP 488 held across it; **logged 320.1 s** vs wall
+>   379.8 s — dividing by wall understates DPS 15.7%). ⚠ **Corrected `3o` Block B
+>   (`AUDIT_3N` F7): `3n` published 319.8 s** from a hand-typed whole-second gap;
+>   the gap derived from the log files' own millisecond stamps is **59.764 s**,
+>   giving **320.084 s** and restoring agreement with `3m`'s published 320.1.
+>   1 of 4 windows admissible;
 >   Garr refuses because five stats move together across it. What blocks a
 >   coefficient now is **arithmetic**: one window is one point, and a coefficient
 >   is a slope. **The fix is a capture protocol** — a stat block immediately

@@ -152,3 +152,60 @@ def kill_window(lines, boss_name, gaps=()):
     return {"ok": True, "guid": k["guid"], "start": start, "end": end,
             "wall_seconds": wall, "logged_seconds": wall - lost,
             "attempts": len(encounters), "notes": notes}
+
+
+def log_span(lines):
+    """`(first, last)` event timestamps for one log file, or `None` if it holds
+    no timestamped line. Seconds-within-year, the same scale as everything else
+    in this module — only ever differenced."""
+    first = last = None
+    for line in lines:
+        ts = _parse_ts(line)
+        if ts is None:
+            continue
+        if first is None:
+            first = ts
+        last = ts
+    if first is None:
+        return None
+    return (first, last)
+
+
+def derive_capture_gaps(files_lines):
+    """The gaps BETWEEN consecutive log files, read from the files' own stamps.
+
+    🚨 `3o` Block B (`AUDIT_3N` F7) — THIS REPLACES A HAND-TYPED CONSTANT, AND
+    THE CONSTANT WAS WRONG IN THE DIRECTION THAT FLATTERS.
+
+    `pair_parses_to_stats.py` carried `CRASH_GAP_LOCAL = ("19:57:30",
+    "19:58:30")` with a comment claiming it had been *"measured from the two log
+    files' own stamps"*. It had been measured to **whole seconds**: the real
+    stamps are `19:57:30.470` and `19:58:30.234`, a gap of **59.764 s**, not
+    60.0. The tool subtracts the gap from `logged_seconds`, and
+    `logged_seconds` is the DENOMINATOR of every per-parse coefficient — so
+    truncating the gap upward shortens the window and inflates DPS. 0.08% on
+    that capture, systematically in one direction, in the instrument whose
+    entire purpose is dividing by the right number.
+
+    A capture folder can hold any number of log files (a crash splits a raid,
+    and the `/ace` session capture will produce more of them), so the gap list
+    is derived rather than stated.
+
+    `files_lines` is an iterable of per-file line iterables. Order does not
+    matter — files are sorted by their own first timestamp, which is the only
+    ordering that a filename cannot lie about.
+
+    Returns `(gaps, spans)`: `gaps` is the `[(start, end), ...]` list
+    `kill_window` takes, `spans` the per-file `(first, last)` for reporting.
+    ⚠ An overlapping or out-of-order pair yields NO gap rather than a negative
+    one — a negative gap would ADD time to `logged_seconds`, which is the same
+    silent error one step worse.
+    """
+    spans = [s for s in (log_span(ls) for ls in files_lines) if s is not None]
+    spans.sort(key=lambda s: s[0])
+    gaps = []
+    for i in range(len(spans) - 1):
+        end_of_this, start_of_next = spans[i][1], spans[i + 1][0]
+        if start_of_next > end_of_this:
+            gaps.append((end_of_this, start_of_next))
+    return gaps, spans

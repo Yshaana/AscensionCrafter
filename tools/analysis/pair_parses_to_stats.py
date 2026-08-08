@@ -24,8 +24,19 @@ What this tool does, and deliberately does not do:
   admissible. A coefficient fitted in the same breath as the pairing would be
   fitted to the parse it must later check.
 
-Run:  py tools/analysis/pair_parses_to_stats.py
+🆕 `3o` Block B — GENERALISED, and its capture-gap constant retired.
+
+It took a hardcoded folder, a hardcoded boss list, a hardcoded block count and a
+hardcoded crash gap typed to whole seconds. It now takes any capture folder,
+reads however many blocks the files hold, derives the gaps from the log files'
+own millisecond stamps (`AUDIT_3N` F7 — see `core.logs.encounters
+.derive_capture_gaps` for why that matters), and takes its window list from the
+`/ace` addon's own `Target:` lines when the capture has them.
+
+Run:  py tools/analysis/pair_parses_to_stats.py [--capture <folder>]
+                                                [--bosses "A,B,C"]
 """
+import argparse
 import re
 import sys
 from pathlib import Path
@@ -33,23 +44,21 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import config                                                   # noqa: E402
 from core.builds.stat_block import parse_stat_block             # noqa: E402
-from core.logs.encounters import kill_window, scan_encounters   # noqa: E402
+from core.logs.encounters import (derive_capture_gaps,          # noqa: E402
+                                  kill_window, scan_encounters)
 
 config.ensure_utf8_stdout()
 
 _HEADER_LINE = re.compile(r"^\s*===\s+.+\s+-\s+.+\s+-\s+.+\s+===\s*$")
 
-CAPTURE = (config.REPO / "data" / "source" / "captures"
-           / "2026-08-07_elric_mc_first_raid")
-BOSSES = ["Lucifron", "Magmadar", "Gehennas", "Garr", "Baron Geddon",
-          "Shazzrah", "Sulfuron Harbinger", "Golemagg the Incinerator"]
+CAPTURES = config.REPO / "data" / "source" / "captures"
+DEFAULT_CAPTURE = CAPTURES / "2026-08-07_elric_mc_first_raid"
 
-# 🛑 The crash gap, measured in `3m` D from the two log files' own stamps: the
-# first ends 19:57:30 and the second resumes 19:58:30. Stated here as data, not
-# rediscovered, and passed to `kill_window` so `logged_seconds` is right.
-CRASH_GAP_LOCAL = ("19:57:30", "19:58:30")
-
-EXPECTED_BLOCKS = 6      # README: six ExportedAt stamps in this capture
+# The reference capture's encounter list. Kept as a NAMED DEFAULT for that one
+# folder rather than a global: a dungeon capture has different bosses, and the
+# `/ace` session blob names its own targets (see `_targets_from_blocks`).
+MC_BOSSES = ["Lucifron", "Magmadar", "Gehennas", "Garr", "Baron Geddon",
+             "Shazzrah", "Sulfuron Harbinger", "Golemagg the Incinerator"]
 
 # 🛑 The pairing tolerance, STATED BEFORE THE PAIRING IS READ. A stat block
 # describes the character at ONE instant; a parse spans minutes. A block is
@@ -68,25 +77,40 @@ def _secs(hms, day=7, mon=8):
     return ((mon * 31 + day) * 86400.0 + h * 3600.0 + m * 60.0 + s)
 
 
-def _load_lines():
-    logs = sorted(CAPTURE.glob("*WoWCombatLog.txt"))
-    lines = []
+def _load_lines(capture):
+    """All combat-log lines, plus the PER-FILE line lists the gap derivation
+    needs. Sorted by name first, then re-sorted by their own first timestamp
+    inside `derive_capture_gaps` — a filename is a claim about ordering, a
+    timestamp is evidence of it."""
+    logs = sorted(capture.glob("*WoWCombatLog.txt"))
+    per_file, lines = [], []
     for p in logs:
         with p.open(encoding="utf-8", errors="replace") as fh:
-            lines.extend(fh.readlines())
-    return lines, [p.name for p in logs]
+            fl = fh.readlines()
+        per_file.append(fl)
+        lines.extend(fl)
+    return lines, per_file, [p.name for p in logs]
 
 
-def _load_stat_blocks():
-    """Every AscensionCrafterExport block in the mixed-content file.
+def _load_stat_blocks(capture):
+    """Every AscensionCrafterExport block in the capture's non-log text files.
 
     ⚠ `Molten Core.txt` is TWO datasets in one file (stat blocks + 20
     inspects.nie.one links). The README says a naive parse trips on the URL
     lines, so blocks are split on their own header and the URLs never reach the
     parser.
+
+    🆕 `3o` — every `.txt` that is not a combat log is scanned, not one named
+    file, so a `/ace` session blob pasted into the folder is picked up with no
+    code change. The block splitter is unchanged, which is exactly why the
+    addon reuses one stat emitter.
     """
-    text = (CAPTURE / "Molten Core.txt").read_text(encoding="utf-8",
-                                                   errors="replace")
+    parts = []
+    for p in sorted(capture.glob("*.txt")):
+        if "WoWCombatLog" in p.name:
+            continue
+        parts.append(p.read_text(encoding="utf-8", errors="replace"))
+    text = "\n".join(parts)
     # ⚠ A block is delimited by its OWN `=== character - realm - season ===`
     # header, which is what `parse_stat_block` refuses without. An earlier draft
     # split on the literal "AscensionCrafterExport" — the addon's name, which
@@ -112,40 +136,100 @@ def _load_stat_blocks():
     return out
 
 
+def _targets_from_blocks(blocks):
+    """Encounter names the `/ace` capture itself recorded, from its `Target:`
+    lines. Free window-pairing hints: the addon writes the target's name and
+    GUID at the instant combat began, so a dungeon capture names its own
+    windows and no boss list has to be maintained per folder."""
+    names = []
+    for b in blocks:
+        raw = (b.get("raw_fields") or {}).get("Target")
+        if not raw or raw.strip() == "none":
+            continue
+        nm = raw.split(" / ")[0].strip()
+        if nm and nm not in names:
+            names.append(nm)
+    return names
+
+
 def main():
-    lines, names = _load_lines()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--capture", default=str(DEFAULT_CAPTURE),
+                    help="capture folder (default: the 2026-08-07 MC raid)")
+    ap.add_argument("--bosses", default=None,
+                    help="comma-separated encounter names; default is the "
+                         "capture's own /ace Target: lines, falling back to "
+                         "the MC list for the reference capture")
+    args = ap.parse_args()
+    capture = Path(args.capture)
+    if not capture.is_dir():
+        alt = CAPTURES / args.capture
+        if alt.is_dir():
+            capture = alt
+        else:
+            print(f"🛑 no such capture folder: {args.capture}")
+            return 1
+    print(f"[capture] {capture.name}")
+
+    lines, per_file, names = _load_lines(capture)
     print(f"[logs] {len(lines):,} lines from {len(names)} file(s): "
           f"{', '.join(names)}")
-    gap = (_secs(CRASH_GAP_LOCAL[0]), _secs(CRASH_GAP_LOCAL[1]))
-    print(f"[gap]  a {gap[1] - gap[0]:.0f}s capture gap between the two files "
-          f"({CRASH_GAP_LOCAL[0]}-{CRASH_GAP_LOCAL[1]}) is subtracted from "
-          "logged_seconds wherever it overlaps a window")
 
-    blocks = _load_stat_blocks()
+    # 🚨 `AUDIT_3N` F7 — the gaps are DERIVED from the files' own millisecond
+    # stamps. The constant this replaces was typed to whole seconds and read
+    # 60.0 where the bytes give 59.764, which shortened the Gehennas window and
+    # inflated its DPS. `logged_seconds` is the denominator of every per-parse
+    # coefficient, so a systematic truncation there is not a rounding question.
+    gaps, spans = derive_capture_gaps(per_file)
+    for i, (lo, hi) in enumerate(gaps):
+        print(f"[gap]  a {hi - lo:.3f}s capture gap between file {i + 1} and "
+              f"file {i + 2}, DERIVED from their own first/last event stamps "
+              f"(not a hand-typed constant), subtracted from logged_seconds "
+              f"wherever it overlaps a window")
+    if not gaps:
+        print("[gap]  no capture gaps — the log files are contiguous")
+
+    blocks = _load_stat_blocks(capture)
     ok_blocks = [b for b in blocks if "error" not in b]
-    print(f"\n[stats] {len(ok_blocks)} of {len(blocks)} stat blocks parsed "
-          f"(README states {EXPECTED_BLOCKS})")
-    if len(blocks) != EXPECTED_BLOCKS:
-        print(f"    🛑 EXPECTED {EXPECTED_BLOCKS} BLOCKS, FOUND {len(blocks)}. "
-              "A splitter looking for the wrong delimiter reports '0 of 0', "
-              "which reads as 'no data' rather than 'I looked for the wrong "
-              "thing' — this guard exists because that happened.")
+    print(f"\n[stats] {len(ok_blocks)} of {len(blocks)} stat blocks parsed")
+    if not blocks:
+        # 🛑 The guard that survives generalisation: "0 of 0" reads as "no data"
+        # when it may mean "I looked for the wrong delimiter". That happened.
+        print("    🛑 ZERO BLOCKS FOUND. Either this capture has no stat "
+              "export, or the block delimiter has changed — those are "
+              "different problems and this line refuses to conflate them.")
     for b in blocks:
         if "error" in b:
             print(f"    🛑 unparsed: {b['error']}")
     for b in ok_blocks:
+        reason = (b.get("raw_fields") or {}).get("SnapshotReason")
         print(f"    ExportedAt {b.get('exported_at')}  "
               f"AP={b.get('attack_power')} "
               f"Str={b.get('strength')} Int={b.get('intellect')} "
-              f"meleecrit={b.get('melee_crit_pct')}")
+              f"meleecrit={b.get('melee_crit_pct')}"
+              + (f"  [{reason}]" if reason else ""))
 
-    print("\n[windows] kill windows, GUID-resolved, wall vs LOGGED:")
+    if args.bosses:
+        bosses = [s.strip() for s in args.bosses.split(",") if s.strip()]
+        src = "the --bosses argument"
+    else:
+        bosses = _targets_from_blocks(ok_blocks)
+        src = "the capture's own /ace Target: lines"
+        if not bosses and capture.name == DEFAULT_CAPTURE.name:
+            bosses, src = MC_BOSSES, "the reference capture's known boss list"
+    print(f"\n[windows] {len(bosses)} encounter name(s) from {src}")
+    if not bosses:
+        print("    🛑 NO ENCOUNTER NAMES. This capture carries no /ace "
+              "`Target:` lines and none were passed — pass --bosses. Refusing "
+              "to guess names out of the log.")
+        return 1
+    print("[windows] kill windows, GUID-resolved, wall vs LOGGED:")
     usable = 0
-    for boss in BOSSES:
+    for boss in bosses:
         enc = scan_encounters(lines, boss)
         if not enc:
             continue
-        w = kill_window(lines, boss, gaps=[gap])
+        w = kill_window(lines, boss, gaps=gaps)
         if not w.get("ok"):
             print(f"\n  {boss:<26} 🛑 REFUSED — {w['reason'][:130]}")
             continue
@@ -164,7 +248,8 @@ def main():
 
     print(f"\n[summary] {usable} kill window(s) usable; "
           f"{len(ok_blocks)} stat block(s) parsed.")
-    _report_pairing(lines, ok_blocks, gap)
+    _report_pairing(lines, ok_blocks, gaps, bosses)
+    return 0
 
 
 def _block_secs(b):
@@ -173,7 +258,7 @@ def _block_secs(b):
                                         f"{d.second:02d}", day=d.day, mon=d.month)
 
 
-def _report_pairing(lines, blocks, gap):
+def _report_pairing(lines, blocks, gaps, bosses):
     """Pair each kill window with the stat blocks that BRACKET it, and rule on
     admissibility. The verdict is per window and is stated with its reason."""
     stamped = sorted(((_block_secs(b), b) for b in blocks if _block_secs(b)),
@@ -183,8 +268,8 @@ def _report_pairing(lines, blocks, gap):
           "that moved mid-parse means\n          the character who dealt the "
           "damage is not the character the block describes (2d).")
     verdicts = []
-    for boss in BOSSES:
-        w = kill_window(lines, boss, gaps=[gap])
+    for boss in bosses:
+        w = kill_window(lines, boss, gaps=gaps)
         if not w.get("ok"):
             continue
         before = [t for t in stamped if t[0] <= w["start"]]
@@ -270,4 +355,4 @@ def _report_pairing(lines, blocks, gap):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)

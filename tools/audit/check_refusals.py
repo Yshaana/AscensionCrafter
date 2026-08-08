@@ -2361,6 +2361,67 @@ def check_stat_block_tolerates_session_lines():
           f"target={rf.get('Target')!r}")
 
 
+def check_capture_gap_is_derived_at_millisecond_precision():
+    """`3o` Block B (`AUDIT_3N` F7) — the capture gap is DERIVED from the log
+    files' own stamps, at the precision the client writes them.
+
+    The constant this replaces was `("19:57:30", "19:58:30")` → 60.0 s, with a
+    comment claiming it was measured from those files. It was measured to whole
+    seconds; the stamps are `19:57:30.470` and `19:58:30.234`, i.e. **59.764 s**.
+    The gap is subtracted from `logged_seconds`, which is the DENOMINATOR of
+    every per-parse coefficient — so rounding it up shortens the window and
+    inflates DPS, systematically and in one direction.
+
+    🛑 THIS ARM ASSERTS THE MAGNITUDE, recomputed here from timestamps this
+    function writes, not that a "derive" function was called (`3n`'s label
+    lesson). A truncating implementation returns a number; only comparing it to
+    the fractional truth catches it.
+
+    MUTATION THAT MAKES THIS FAIL (M77, red, RUN 2026-08-08): make
+    `derive_capture_gaps` round or truncate to whole seconds — e.g.
+    `gaps.append((float(int(end)), float(int(start_next))))`. That is precisely
+    the shape of the constant it replaced, so it is a change someone plausibly
+    writes while "tidying". GREEN PATH: return the raw floats.
+    """
+    from core.logs.encounters import derive_capture_gaps, log_span
+
+    # Two synthetic files whose stamps differ by a fraction of a second, in the
+    # client's own `MM/DD HH:MM:SS.mmm` grammar.
+    f1 = ["8/7 19:17:12.000  SPELL_DAMAGE,0x1,\"A\",0x2,\"B\"\n",
+          "8/7 19:57:30.470  SPELL_DAMAGE,0x1,\"A\",0x2,\"B\"\n"]
+    f2 = ["8/7 19:58:30.234  SPELL_DAMAGE,0x1,\"A\",0x2,\"B\"\n",
+          "8/7 20:10:00.000  SPELL_DAMAGE,0x1,\"A\",0x2,\"B\"\n"]
+    gaps, spans = derive_capture_gaps([f1, f2])
+    width = (gaps[0][1] - gaps[0][0]) if gaps else None
+    check("[3o-B2] the capture gap is derived at MILLISECOND precision — "
+          "59.764s, not the 60.0s a whole-second constant gives; it is the "
+          "denominator of every per-parse coefficient",
+          gaps and abs(width - 59.764) < 0.0005,
+          f"derived width {width!r}")
+
+    # Order must come from the stamps, not the order the caller happened to
+    # pass — a filename is a claim about ordering, a timestamp is evidence.
+    gaps_rev, _ = derive_capture_gaps([f2, f1])
+    check("[3o-B2] …and files are ordered by their OWN first stamp, so a "
+          "caller passing them out of order gets the same gap",
+          gaps_rev == gaps, f"{gaps_rev!r} vs {gaps!r}")
+
+    # 🛑 An overlap must yield NO gap. A negative gap would ADD time to
+    # logged_seconds — the same silent error one step worse.
+    over_a = ["8/7 19:00:00.000  X\n", "8/7 19:30:00.000  X\n"]
+    over_b = ["8/7 19:20:00.000  X\n", "8/7 19:40:00.000  X\n"]
+    gaps_ov, _ = derive_capture_gaps([over_a, over_b])
+    check("[3o-B2] …and OVERLAPPING files yield no gap rather than a negative "
+          "one, which would lengthen logged_seconds instead of shortening it",
+          gaps_ov == [], f"{gaps_ov!r}")
+
+    check("[3o-B2] a file with no timestamped line contributes no span, "
+          "rather than a (None, None) that propagates",
+          log_span(["not a log line\n"]) is None
+          and derive_capture_gaps([["junk\n"], f1])[0] == [],
+          "empty-span file handled")
+
+
 def check_blocked_question_count():
     """`3g` G9 — the "Blocked on the user" table counts ITSELF.
 
@@ -2433,6 +2494,7 @@ def main():
     check_band_table_matches_manifest()
     check_blocked_question_count()
     check_stat_block_tolerates_session_lines()
+    check_capture_gap_is_derived_at_millisecond_precision()
     print()
     check_coverage_split_producing_vs_zero()
 
