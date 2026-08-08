@@ -206,4 +206,77 @@ and neither may be so broad that it reds the arm for the wrong reason.
 
 ## §5 — Scoring
 
-*Filled in after the run. Nothing above is edited.*
+*Written after the run. Nothing above this line is edited.*
+
+**Commit chain:** prereg `fdf9851` → leg 1 code `14ec3dc` → leg 1 manifest
+`699f878` → leg 1 per-ability `260c930` → instrument `9c96dc6`/`10c52b4` →
+leg 2 code `fc9a36c` → leg 2 artifacts.
+
+### Leg 1
+
+| | verdict |
+|---|---|
+| **P1** all 12 exposed rise | ✅ **CONFIRMED** — 12 of 12, none flat, none falling |
+| **P2** 23 unexposed do not move | ✅ **CONFIRMED** — 0 moved |
+| **P3** membership unchanged, published Δ == same-member Δ | ✅ **CONFIRMED** — n=24, no member added or dropped; **−0.0 pp / −0.0 pp** |
+| **P4** producing population grows; the pair is not equal | ✅ **CONFIRMED** — **n=117 → 127**, median **0.3234 → 0.3133**; the 11 added rows have median **0.2061**, below the sitting median, which is the whole move |
+| **P5** Blix's LC returns at 23.9 casts, ≈8,590 damage | ✅ **CONFIRMED** — 23.936 casts, **8,588.7** damage. ⚠ My own restatement "+122 DPS" was wrong: I divided by the 70.29 s allocation window instead of the 78.1 s fight duration. It reads **110.0 DPS**. The prediction's substance is exact; the DPS gloss was my arithmetic slip |
+| **P6** within/qualified stay 0 / 0 | ✅ **CONFIRMED** |
+
+### Leg 2
+
+| | verdict |
+|---|---|
+| **P7** all 12 fall relative to leg 1 | ✅ **CONFIRMED** — 12 of 12 |
+| **P8** all 12 stay above the Block A baseline | ❌ **FALSIFIED — 11 of 12.** Meritania ends **below**: −61.21 → −60.64 → **−65.01** |
+| **P9** 23 unexposed still do not move | ✅ **CONFIRMED** — 0 moved, at either leg |
+
+**Block B totals: 9 predictions — 8 confirmed, 1 falsified.**
+
+### P8's falsification, diagnosed and not rescued
+
+P8's stated precondition — the next-swing ability out-damages the auto it
+replaces — **holds** for Meritania (Dusk Maul 304.3 vs auto 131.6). The
+precondition was **incomplete**: it silently assumed leg 1 *gains* the member
+casts. Meritania is the one member whose next-swing ability was already being
+cast at roughly its swing rate (**19.625 casts before, 19.008 after**), so leg 1
+gave her nothing and leg 2 only subtracted. For her the sim had been counting
+Dusk Maul *and* all 19 of the white swings it replaces.
+
+**The log agrees with the direction.** Even after leg 2 her autos sim at
+**33.48** against **21.66** logged — still over-producing by 1.55× — so what
+was removed was over-count, not signal. Her Mystic Talon logs **0.00** and the
+swing budget starves it, which also matches.
+
+A correct P8 would have read: *above baseline **if** the member gains
+next-swing casts in leg 1.* That clause was derivable from the probe data I
+already had — Meritania's 19.625-vs-19.008 was sitting in it — and I did not
+write it.
+
+### The gate, Block A → Block B
+
+| | baseline | after B |
+|---|---:|---:|
+| within ±20% / qualified | 0 / 0 | **0 / 0** |
+| slice at ≥20% coverage | 30.040% (n=24) | **30.150% (n=24)** |
+| …published Δ / same-member Δ | — | **+0.11 pp / +0.11 pp** |
+| producing median | 0.3234 (n=117) | **0.2571 (n=123)** |
+| …published Δ / same-member Δ | — | **−0.0562 / −0.0562** |
+| absent share | 58.8% | **59.0%** |
+
+🚨 **The two headline instruments moved in OPPOSITE directions and both pairs
+are equal**, so both are accuracy rather than composition. Not a contradiction:
+the slice is per **character** over that character's modelled abilities, the
+producing median is per **ability row**, unweighted. Block B moved damage out of
+a row every melee character has (autos) and into rows only 12 characters have.
+Per character that is an improvement; averaged over rows, the many autos
+outvote the few abilities. First time in the arc the two have disagreed in sign
+with both pairs equal — and neither is the gate, which is unchanged at 0 of 35.
+
+### Mutations
+
+M70 red (exit 1) / green (exit 0); M71 red (exit 1) / green (exit 0); tree
+verified clean after each revert. **Two drafts of the check were vacuous and
+only running the mutation found it** — the second asserted the `rate_limit`
+label, which the mutant left reading `swing_budget` beside `casts = 0.0`.
+*A string describing what the code meant is not evidence of what it did.*
