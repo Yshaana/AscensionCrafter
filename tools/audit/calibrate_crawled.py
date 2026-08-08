@@ -675,6 +675,126 @@ def slice_accuracy_bands(results, bands=SLICE_BANDS):
     return out
 
 
+def slice_delta_vs_previous_run(tuning, prev_manifest, floor):
+    """`3m` A1 (`AUDIT_3L` F1) — the published slice move BESIDE the same-member
+    move, so a composition change cannot be read as an accuracy change.
+
+    🚨 THIS IS `3l`'s HEADLINE FINDING, TURNED INTO AN INSTRUMENT. `3l` published
+    a slice move of **26.308 → 30.426 (+4.12 pp)**. Over the 22 characters
+    present in BOTH runs' readable bands it was **30.635 → 30.425 (−0.21 pp)** —
+    the opposite sign. Nothing got more accurate; the band gained members whose
+    values sat below the sitting median.
+
+    ⚠ And `n` DOES NOT PROTECT YOU. `3l`'s earlier 26.3 → 33.5 leg had n=23 on
+    both sides and was a pure membership swap (Onur out at slice 6.03, Deyindra
+    in at 105.43 — and Deyindra is NOT ADMISSIBLE). An unchanged sample size is
+    not an unchanged sample. That is why this compares MEMBER IDS, never counts.
+
+    Both medians are computed over the intersection using **each run's own
+    per-character values** — the previous run's from its committed `cohort`
+    array, this run's from `tuning`. Returns None when there is no previous
+    manifest to compare against (the first run, and after a schema change), and
+    says so rather than emitting a zero.
+    """
+    if not prev_manifest:
+        return None
+    prev_cohort = prev_manifest.get("cohort")
+    if not isinstance(prev_cohort, list) or not prev_cohort:
+        return None
+
+    def _readable(rows, get_slice, get_cov, get_id, get_name):
+        return {get_id(r): (get_slice(r), get_name(r)) for r in rows
+                if get_slice(r) is not None and (get_cov(r) or 0) >= floor}
+
+    prev_band = _readable(
+        prev_cohort,
+        lambda r: r.get("slice_accuracy_pct"),
+        lambda r: r.get("modelled_damage_pct"),
+        lambda r: r.get("character_id"),
+        lambda r: r.get("name"))
+    now_band = _readable(
+        tuning,
+        lambda r: r.get("slice_accuracy_pct"),
+        lambda r: (r["modelled"] or {}).get("modelled_damage_pct"),
+        lambda r: r.get("character_id"),
+        lambda r: r.get("name"))
+    if not prev_band or not now_band:
+        return None
+
+    shared = sorted(set(prev_band) & set(now_band))
+    prev_pub = (statistics.median([v for v, _ in prev_band.values()])
+                if prev_band else None)
+    now_pub = statistics.median([v for v, _ in now_band.values()])
+
+    block = {
+        "previous_run": {
+            "git_sha": prev_manifest.get("git_sha"),
+            "generated_at": prev_manifest.get("generated_at"),
+            "median_pct": round(prev_pub, 3) if prev_pub is not None else None,
+            "n": len(prev_band),
+        },
+        "published": {
+            "median_pct": round(now_pub, 3),
+            "n": len(now_band),
+            "delta_pp": (round(now_pub - prev_pub, 3)
+                         if prev_pub is not None else None),
+        },
+        "membership_changed": {
+            "dropped_since_previous": sorted(
+                name for cid, (_, name) in prev_band.items()
+                if cid not in now_band),
+            "added_this_run": sorted(
+                name for cid, (_, name) in now_band.items()
+                if cid not in prev_band),
+        },
+        "_note": (
+            "`published.delta_pp` mixes accuracy with composition. "
+            "`same_members.delta_pp` is the accuracy-only move. QUOTE THE PAIR "
+            "— 3l published +4.12 pp where the same-member move was -0.21 pp, "
+            "the opposite sign (AUDIT_3L F1). An unchanged `n` does NOT mean an "
+            "unchanged membership: 3l's 26.3 -> 33.5 leg had n=23 on both sides "
+            "and swapped one member for another."),
+    }
+    if shared:
+        prev_same = statistics.median([prev_band[c][0] for c in shared])
+        now_same = statistics.median([now_band[c][0] for c in shared])
+        block["same_members"] = {
+            "n": len(shared),
+            "previous_median_pct": round(prev_same, 3),
+            "this_median_pct": round(now_same, 3),
+            "delta_pp": round(now_same - prev_same, 3),
+        }
+    else:
+        block["same_members"] = {
+            "n": 0,
+            "_refused": ("no character is readable in BOTH runs' bands, so "
+                         "there is no accuracy-only comparison to make. The "
+                         "published move is composition in its entirety."),
+        }
+    return block
+
+
+def admissible_only_slice(tuning, floor):
+    """`3m` A2 — the headline slice recomputed over ADMISSIBLE members only.
+
+    The headline band includes characters flagged NOT ADMISSIBLE, because the
+    band is defined on coverage and admissibility is a separate axis. That is
+    defensible, and it is also why the pair has to be published: at `642f531`
+    the cohort's highest-coverage member (Boomcat, 82.2%) is not admissible, so
+    it sits inside the headline band while being excluded from the pass count.
+    Measured across the arc: 26.31 (n=21) -> 30.43 (n=20) -> 27.40 (n=21).
+    """
+    xs = [r["slice_accuracy_pct"] for r in tuning
+          if r.get("slice_accuracy_pct") is not None
+          and not r.get("not_admissible")
+          and ((r["modelled"] or {}).get("modelled_damage_pct") or 0) >= floor]
+    if not xs:
+        return None
+    return {"median_pct": round(statistics.median(xs), 3), "n": len(xs),
+            "_note": ("admissibility is not a coverage property, so this is a "
+                      "companion to the headline, never a replacement for it")}
+
+
 def slice_accuracy_band_n(results, bands=SLICE_BANDS):
     """How many characters each band's median was taken over. (`3f` F7)
 
@@ -1597,19 +1717,23 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
     # actually read the holdout rather than drifting forward one commit at a
     # time until it claims to be current.
     carried = carried_from = None
-    if not read_holdout and GATE_MANIFEST_PATH.exists():
+    prev_manifest = None
+    if GATE_MANIFEST_PATH.exists():
         try:
-            prev = json.loads(GATE_MANIFEST_PATH.read_text(encoding="utf-8"))
-            ph = prev.get("holdout") or {}
-            if isinstance(ph.get("results"), list):
-                carried = ph["results"]
-                carried_from = ph.get("results_carried_forward_from") or {
-                    "git_sha": prev.get("git_sha"),
-                    "generated_at": prev.get("generated_at"),
-                    "slug": ph.get("slug"),
-                }
+            prev_manifest = json.loads(
+                GATE_MANIFEST_PATH.read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            carried = carried_from = None
+            prev_manifest = None
+    if not read_holdout and prev_manifest:
+        prev = prev_manifest
+        ph = prev.get("holdout") or {}
+        if isinstance(ph.get("results"), list):
+            carried = ph["results"]
+            carried_from = ph.get("results_carried_forward_from") or {
+                "git_sha": prev.get("git_sha"),
+                "generated_at": prev.get("generated_at"),
+                "slug": ph.get("slug"),
+            }
 
     import subprocess
     try:
@@ -1749,10 +1873,55 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             "not_scoreable_zero_coverage": sum(
                 1 for r in tuning
                 if not (r["modelled"] or {}).get("modelled_damage_pct")),
+            # 🚨 3m A2 (AUDIT_3L F8) — SPLIT AGAIN, AND FOR THE SECOND TIME BY
+            # THE SAME MECHANISM. G8 split this key once because a new `None`
+            # cause (the coverage floor) had silently been absorbed by the
+            # survivor key. `3i` D then added a THIRD `None` cause —
+            # inadmissibility — and this key absorbed that one too, so at
+            # `642f531` its 13 was 10 below-floor + 3 NOT ADMISSIBLE, one of
+            # which (Boomcat, 82.2%) has the cohort's HIGHEST coverage. The name
+            # said "below coverage floor" about the least-below-floor character
+            # in the cohort.
+            #
+            # 🛑 The tell was in this same function: the console line at ~1094
+            # already excludes not-admissible characters and its own comment
+            # calls the alternative "actively MISLEADING". The JSON contradicted
+            # the console that the same call printed.
+            #
+            # So the key now carries its reasons rather than a bare survivor
+            # count, and a FOURTH cause lands in `not_scoreable_other` — visibly
+            # — instead of inflating whichever key happens to be last.
             "not_scoreable_below_coverage_floor": sum(
                 1 for r in tuning
                 if r["within_tolerance"] is None
+                and not r["not_admissible"]
                 and (r["modelled"] or {}).get("modelled_damage_pct")),
+            "not_scoreable_not_admissible": sum(
+                1 for r in tuning
+                if r["within_tolerance"] is None and r["not_admissible"]),
+            # The partition's own closure, computed the OTHER way round: the
+            # total count of `within_tolerance is None`, so a reader can add the
+            # three reasons and check they reconcile. If a fourth cause is ever
+            # added and its bucket is not, this total stops matching the sum —
+            # which is the failure mode the last two splits both had, and
+            # neither had anything that could notice it.
+            "not_scoreable_total": sum(
+                1 for r in tuning if r["within_tolerance"] is None),
+            "not_scoreable_by_reason": {
+                "zero_coverage": sorted(
+                    r["name"] for r in tuning
+                    if r["within_tolerance"] is None
+                    and not r["not_admissible"]
+                    and not (r["modelled"] or {}).get("modelled_damage_pct")),
+                "below_coverage_floor": sorted(
+                    r["name"] for r in tuning
+                    if r["within_tolerance"] is None
+                    and not r["not_admissible"]
+                    and (r["modelled"] or {}).get("modelled_damage_pct")),
+                "not_admissible": sorted(
+                    r["name"] for r in tuning
+                    if r["within_tolerance"] is None and r["not_admissible"]),
+            },
             "coverage_floor_pct_applied": SUCCESSOR_COVERAGE_FLOOR_PCT,
             "qualified": len(qualified),
             "criterion_met": crit_met,
@@ -1765,6 +1934,14 @@ def write_gate_manifest(tuning, holdout, passing, qualified, crit_met,
             f"median_slice_accuracy_pct_at_coverage_ge_{SLICE_COVERAGE_FLOOR_PCT:g}":
                 slice_bands.get(SLICE_COVERAGE_FLOOR_PCT),
             "slice_accuracy_coverage_floor_pct": SLICE_COVERAGE_FLOOR_PCT,
+            # 🆕 3m A1 (AUDIT_3L F1) — the published move and the SAME-MEMBER
+            # move, together. 3l published +4.12 pp on a same-member move of
+            # -0.21 pp; quoting either alone is quoting the wrong thing.
+            "slice_delta_vs_previous_run": slice_delta_vs_previous_run(
+                tuning, prev_manifest, SLICE_COVERAGE_FLOOR_PCT),
+            # 🆕 3m A2 — the headline band contains NOT-ADMISSIBLE members.
+            "median_slice_accuracy_pct_admissible_only": admissible_only_slice(
+                tuning, SLICE_COVERAGE_FLOOR_PCT),
             # 3f F7 — `n` BESIDE EVERY BAND, and the caveat in the artifact
             # rather than only in the generated report. `>=0` is a number this
             # project has retracted; it must not ship bare next to the good one.

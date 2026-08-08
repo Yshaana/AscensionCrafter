@@ -988,11 +988,52 @@ def check_righteous_vengeance_wiring():
           f"branches gated on it={len(guards)}")
 
     # …and a caller that CANNOT say must be told so, not assumed to hold it.
+    #
+    # 🚨 3m A3 (AUDIT_3L F9) — THIS ARM USED TO BE A PURE SOURCE-TEXT MATCH:
+    # `"WITHOUT a card-ownership check" in inspect.getsource(...)`. A comment
+    # carrying that phrase satisfied it, and deleting the entire `elif
+    # crit_damage > 0 and holds_rv is None:` branch left it GREEN as long as the
+    # words survived anywhere in the function — including in the docstring that
+    # describes the branch. It is called now, with the exact conditions the
+    # branch needs (build_spec=None, crit_damage > 0), and asserts the string
+    # comes back in `warnings`.
+    # Weaponless on purpose: `swing_events` returns (0, 0) with no main hand, so
+    # no auto rows are produced and NOTHING touches a database. The crit pool
+    # comes from a pre-seeded ability row, which is exactly the shape the real
+    # caller passes in — `per_ability` is an in/out parameter.
+    class _RVState:
+        main_hand = None
+        off_hand = None
+        melee_haste_pct = 0.0
+
+    class _RVTarget:
+        level = 63
+
+    class _RVContent:
+        target = _RVTarget()
+
+    _warn = []
+    _per_ability = {
+        999001: {"name": "fixture ability", "casts": 4.0, "damage": 1000.0,
+                 "mean_per_cast": 250.0, "school": "Holy", "attributed": True,
+                 "unresolved_events": [],
+                 "events": [{"crit_damage": 125.0}]},
+    }
+    try:
+        _tiers._add_swing_sources(
+            None, _RVState(), _RVContent(), 60.0, _per_ability,
+            0.0, _warn, build_spec=None)
+        _called = True
+    except Exception as _e:                              # noqa: BLE001
+        _called, _warn = False, [f"raised: {_e!r}"]
     check("[3k-B3] …and a caller passing no build_spec gets a stated UPPER "
-          "BOUND, not a silent assumption of ownership",
-          "WITHOUT a card-ownership check" in inspect.getsource(
-              _tiers._add_swing_sources),
-          "unknown-ownership warning present")
+          "BOUND, not a silent assumption of ownership — CALLED with "
+          "build_spec=None and crit_damage>0, asserting on the returned "
+          "warnings rather than on the source text (a comment used to satisfy "
+          "this arm)",
+          _called and any("WITHOUT a card-ownership check" in w for w in _warn),
+          f"warnings={_warn}, RV row emitted="
+          f"{_tiers.RIGHTEOUS_VENGEANCE_SPELL_ID in _per_ability}")
 
 
 _STATUSES = ("LIVE", "HISTORICAL", "SUPERSEDED", "FINDING")
@@ -1016,11 +1057,20 @@ def check_per_key_table_agrees_with_aggregates():
     """
     from tools.audit.per_ability_accuracy import per_key_table
 
+    # 🚨 3m A3 (AUDIT_3L F9) — THE THIRD PRODUCING ROW IS LOAD-BEARING. The
+    # fixture used to give Alpha exactly TWO producing ratios (0.30, 0.10), for
+    # which median == mean == 0.20 — so the arm asserting
+    # `median_producing_ratio == 0.2` was equally satisfied by a `per_key_table`
+    # that computed a MEAN, and could never have caught the swap. With three
+    # ratios (0.10 / 0.30 / 0.90) the median is 0.30 and the mean 0.4333, and
+    # the assertion below distinguishes them.
     rows = [
         dict(spell_id=100, spell_name="Alpha", key_state="producing",
              character_id=1, logged_damage=600.0, ratio=0.30),
         dict(spell_id=100, spell_name="Alpha", key_state="producing",
              character_id=2, logged_damage=200.0, ratio=0.10),
+        dict(spell_id=100, spell_name="Alpha", key_state="producing",
+             character_id=4, logged_damage=100.0, ratio=0.90),
         dict(spell_id=100, spell_name="Alpha", key_state="absent",
              character_id=3, logged_damage=100.0, ratio=None),
         dict(spell_id=200, spell_name="Beta", key_state="absent",
@@ -1049,9 +1099,10 @@ def check_per_key_table_agrees_with_aggregates():
                      if r["spell_id"] == 100 and r["state"] == "absent")
     check("[3l-B0] one spell_id in TWO states stays TWO rows (key_state is "
           "per-character; collapsing would average two mechanisms), with "
-          "per-state char counts and a producing-only median",
-          alpha_prod["characters"] == 2 and alpha_abs["characters"] == 1
-          and alpha_prod["median_producing_ratio"] == 0.2
+          "per-state char counts and a producing-only MEDIAN — 0.30 over "
+          "(0.10, 0.30, 0.90), which a mean would report as 0.4333",
+          alpha_prod["characters"] == 3 and alpha_abs["characters"] == 1
+          and alpha_prod["median_producing_ratio"] == 0.3
           and alpha_abs["median_producing_ratio"] is None,
           f"prod={alpha_prod}, abs={alpha_abs}")
 
@@ -1223,10 +1274,17 @@ def check_gear_tier_caller_refuses():
           rc == 2 and "phase window empty: 0 snapshots" in text
           and "No tier is reported" in text,
           f"rc={rc}, text={text[:90]!r}")
+    # 🚨 3m A3 (AUDIT_3L F9) — `rc == 2 and "REFUSED" in text` added to the
+    # conjunction. This arm asserted only that the excluded-by-reason breakdown
+    # was PRESENT, so it stayed green on a `run()` that printed the breakdown
+    # and then reported a tier anyway — the substring says where the population
+    # went, not that anything refused. A trace line is not a refusal.
     check("[3l-C1] ...and the refusal names where the population went "
-          "(excluded-by-reason, the 3f F8b discipline)",
-          "captured in" in text and "Zul'Gurub" in text,
-          f"text={text[:120]!r}")
+          "(excluded-by-reason, the 3f F8b discipline) — WHILE STILL REFUSING: "
+          "the breakdown being printed is not evidence that anything stopped",
+          rc == 2 and "REFUSED" in text
+          and "captured in" in text and "Zul'Gurub" in text,
+          f"rc={rc}, text={text[:120]!r}")
 
     rc, text = collect(conn2, "Phase 1 - Zul'Gurub")
     check("[3l-C1] a thin (2 < 8) in-window population refuses as "
@@ -1283,7 +1341,12 @@ def check_enchant_record_parse():
     rec = _s.pack("<2I", 23387, 0)                        # id, charges
     rec += _s.pack("<3I", 1, 3, 0)                        # effect types
     rec += _s.pack("<3i", -5, 10, 0)                      # points min (SIGNED)
-    rec += _s.pack("<3i", 6, 10, 0)                       # points max
+    # 🚨 3m A3 (AUDIT_3L F9) — slot 0's points-MAX is negative too. Every
+    # amounts_max fixture value used to be non-negative, so a sign regression on
+    # THAT field (the exact M54 bug, one column across) decoded identically and
+    # the arm could not see it. Real enchants carry negative maxima — the
+    # -armor curses M54's own comment names.
+    rec += _s.pack("<3i", -2, 10, 0)                      # points max (SIGNED)
     rec += _s.pack("<3I", 200818, 99999, 0)               # effect args
     rec += _s.pack("<16I", 1, *([0] * 15))                # name locs (enUS=1)
     rec += _s.pack("<I", 0)                               # name flags
@@ -1293,10 +1356,11 @@ def check_enchant_record_parse():
                              dbc["field_count"])
     got = (p["id"], p["effect_types"], p["amounts_min"], p["amounts_max"],
            p["effect_args"], p["description"], p["min_level"])
-    want = (23387, [1, 3, 0], [-5, 10, 0], [6, 10, 0], [200818, 99999, 0],
+    want = (23387, [1, 3, 0], [-5, 10, 0], [-2, 10, 0], [200818, 99999, 0],
             "Test Enchant", 60)
     check("[3l-D2] synthetic 38-slot enchant record decodes exactly "
-          "(incl. a NEGATIVE points-min)", got == want,
+          "(incl. a NEGATIVE points-min AND a negative points-MAX — every "
+          "amounts_max fixture value used to be non-negative)", got == want,
           f"got {got}" if got != want else "")
 
     # The honest boundary: a non-stock field_count must trust the numeric
