@@ -107,3 +107,53 @@ or C3/C4/C6 producing any gate move.
 * **That the sim gets closer to reality.** C1 and C2 both REMOVE modelled damage from
   a sim that already under-produces by ~70%, so the gate is expected to get slightly
   worse. That is the correct direction when the previous number was wrong.
+
+---
+
+## 🆕 RESULTS — appended in the pair commit (2026-08-08)
+
+Run from the clean tree at the commit-child of this prereg. **Nothing above this line
+has been edited.** 🆕 The published and same-member slice numbers are **identical
+here** — reported as a pair regardless, per the standing rule.
+
+| # | prediction | outcome |
+|---|---|---|
+| **P1** | C3 and C6 move nothing | ✅ **CONFIRMED** — every mover is an RV holder |
+| **P2** | C4 moves nothing | ✅ **CONFIRMED** — same evidence |
+| **P3** | Shana −2.26%, Striker −1.88% (±0.3 pp) | ✅ **CONFIRMED** — **−2.31%** and **−1.94%** |
+| **P4** | every RV holder with white crits falls, none rises | ✅ **CONFIRMED** — 9 movers, RV **−1.5% to −43.1%**, **zero** rose |
+| **P5** | no non-holder moves at all | ✅ **CONFIRMED** — 9 of 9 movers hold the card |
+| **P6** | the headline slice does not RISE; membership unchanged | ✅ **CONFIRMED** — **30.426 → 30.040**, published **−0.385 pp**, same-member **−0.385 pp**, membership unchanged (n=24, none dropped or added) |
+| **P7** | `within_tolerance` 0, `qualified` 0 | ✅ **CONFIRMED** |
+
+**Seven of seven confirmed. Nothing falsified, nothing rescued.**
+
+### The gate, before → after
+
+| | before (`9267660`) | after |
+|---|---:|---:|
+| within ±20% / qualified | 0 / 0 | **0 / 0** |
+| headline slice (n=24) | 30.426% | **30.040%** |
+| same-member Δ | — | **−0.385 pp** |
+| admissible-only (n=21) | 27.40% | **27.40%** |
+| absent share | 58.83% | **58.83%** |
+| producing median | 0.3234 (n=117) | **0.3234 (n=117)** |
+
+**The gate got slightly worse, and that is the correct outcome.** C1 and C2 both
+*remove* modelled damage from a sim that already under-produces; the previous number
+was larger because it was wrong, not because it was better.
+
+### Why P3 landed just outside its own centre, and it is not a miss
+
+Shana's RV fell **34.1%**, not the 33.3% C1 alone implies, and Striker's **34.5%** —
+because **C1 and C2 both apply to the same two characters.** The prereg predicted C1's
+contribution and tolerated ±0.3 pp for exactly this; both landed inside it (−2.31 vs
+−2.26; −1.94 vs −1.88). The two mechanisms are separable in principle and were not
+separated here.
+
+### The instrument earning its keep
+
+`slice_delta_vs_previous_run` reports **published −0.385 pp and same-member −0.385 pp**
+over an unchanged membership. That equality is the *evidence* the move is accuracy and
+not composition — which is precisely the distinction `3l` could not make about its own
+headline, and it is the first run where the block has had a real move to describe.
