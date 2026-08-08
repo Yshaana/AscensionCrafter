@@ -29,6 +29,7 @@ import json
 from dataclasses import dataclass, field
 
 from . import combat_engine as ce
+from . import talents as talents_mod
 from .content import ContentProfile, Metric
 
 OUTLIER_COEFFICIENT_CAP = 3.0
@@ -582,6 +583,22 @@ class ResolvedAbility:
                 warnings.append(
                     f"{self.name} event {ev.key}: talent multiplier "
                     f"x{factor:.4f} from {', '.join(names)}")
+        # 🆕 3m B — the WEAPON half's own factor, when a bonus-only modifier
+        # (Improved Cleave) makes it differ. Reported under its own key so the
+        # split is visible in the artifact rather than folded away; identical to
+        # `talents` for every ability no bonus-only modifier reaches, and the
+        # key is omitted entirely in that case so nothing changes downstream.
+        w_factor, w_names = talents.damage_multiplier(
+            ev.school, spell_family=self.spell_family,
+            class_mask=self.spell_class_mask, component="weapon")
+        if w_factor != factor:
+            applied["talents_weapon_component"] = w_factor
+            if warnings is not None:
+                warnings.append(
+                    f"{self.name} event {ev.key}: the WEAPON component takes "
+                    f"x{w_factor:.4f} instead of x{factor:.4f} — "
+                    f"{talents_mod.BONUS_TERM_ONLY_EVIDENCE} Applied from "
+                    f"{', '.join(w_names) or 'no talent'}")
         if self.spell_class_mask is None and warnings is not None:
             warnings.append(
                 f"{self.name} ({self.spell_id}): no SpellClassMask in the "
@@ -788,8 +805,13 @@ class ResolvedAbility:
             combo_points=combo_points)
         mitigation = self._mitigation(ev, char_state, content, warnings)
         buckets = self._damage_buckets(ev, char_state, warnings)
+        # 🛑 `talents_weapon_component` is an ALTERNATIVE to `talents`, not an
+        # additional multiplier — multiplying it in here would apply the talent
+        # stack twice. It is excluded from every product and consumed by name.
         bucket_mult = 1.0
-        for m in buckets.values():
+        for k, m in buckets.items():
+            if k == "talents_weapon_component":
+                continue
             bucket_mult *= m
 
         base_avg = (dmin + dmax) / 2.0
@@ -799,7 +821,27 @@ class ResolvedAbility:
         # every other kind carries a single `value` or a flat min/max pair.
         base_weapon_avg = sum(((c["min"] + c["max"]) / 2.0)
                               for c in comps if c.get("kind") == "weapon")
-        scale = mitigation * bucket_mult
+
+        # 🆕 3m B — the WEAPON half may take a smaller talent factor than the
+        # rest (Improved Cleave post-2026-08-10). `bucket_mult` is the
+        # everything-applies product; `w_bucket_mult` swaps the talent factor
+        # for the weapon-scoped one. When no bonus-only modifier reaches this
+        # ability the key is absent and the two are identical, so `scale`
+        # collapses to exactly what it was and nothing else in the file changes.
+        w_talent = buckets.get("talents_weapon_component")
+        if w_talent is not None and buckets.get("talents"):
+            w_bucket_mult = bucket_mult / buckets["talents"] * w_talent
+        else:
+            w_bucket_mult = bucket_mult
+        # An EFFECTIVE whole-ability multiplier, so every downstream consumer
+        # (variance, crit damage, the roll path) keeps working off one number
+        # rather than each having to know about the split.
+        eff_bucket_mult = (
+            ((base_avg - base_weapon_avg) * bucket_mult
+             + base_weapon_avg * w_bucket_mult) / base_avg
+            if base_avg else bucket_mult)
+
+        scale = mitigation * eff_bucket_mult
         e_crit_factor = 1.0 + p_crit * (mult - 1.0)
         mean = p_land * base_avg * scale * e_crit_factor
         # `3k` B3 — the damage dealt BY critical strikes, as opposed to the
@@ -889,9 +931,27 @@ class ResolvedAbility:
         dmin, dmax, heal, _ = self._components(
             ev, char_state, warnings, include_healing=(ev is primary))
         mitigation = self._mitigation(ev, char_state, content, warnings)
+        # 3m B — the roll path takes the SAME split as `expected_hit`, or the
+        # two diverge and check_sim_engine's convergence assertion fails. The
+        # weapon share of one ROLL is the weapon share of the base (both halves
+        # scale with the same uniform draw), so the effective multiplier is the
+        # base-weighted blend, exactly as in expected_hit.
+        _buckets = self._damage_buckets(ev, char_state)
         bucket_mult = 1.0
-        for m in self._damage_buckets(ev, char_state).values():
-            bucket_mult *= m
+        for _k, _m in _buckets.items():
+            if _k == "talents_weapon_component":
+                continue
+            bucket_mult *= _m
+        _w_talent = _buckets.get("talents_weapon_component")
+        if _w_talent is not None and _buckets.get("talents"):
+            _w_bucket = bucket_mult / _buckets["talents"] * _w_talent
+            _base_avg = (dmin + dmax) / 2.0
+            _w_avg = sum(((c["min"] + c["max"]) / 2.0)
+                         for c in self._components(ev, char_state, [])[3]
+                         if c.get("kind") == "weapon")
+            if _base_avg:
+                bucket_mult = ((_base_avg - _w_avg) * bucket_mult
+                               + _w_avg * _w_bucket) / _base_avg
         dmg = rng.uniform(dmin, dmax) * mitigation * bucket_mult
 
         can_crit, always = self._can_crit(ev, warnings)

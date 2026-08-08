@@ -787,6 +787,7 @@ def main():
     # state what the engine claims about itself in its own comments and
     # docstrings, and a failing one means the code does not do what it says.
     check_nonpaladin_fixtures(conn, ct, conv)
+    check_improved_cleave_bonus_only()
     check_e15_pet_row_double_count()
     resolve_generality()
 
@@ -1196,6 +1197,82 @@ def check_ground_truth(kind, bd, f, m):
           bool(rows) and not miss and not absent,
           f"{len(hit)} within, {len(miss)} outside, {len(absent)} not modelled "
           f"at all. outside: {miss or '-'}; unmodelled: {absent or '-'}")
+
+
+def check_improved_cleave_bonus_only():
+    """`3m` B — Improved Cleave multiplies the BONUS term, never the weapon term.
+
+    Ascension's 2026-08-07 changelog (live 2026-08-10): *"Fixed a bug where
+    Improved Cleave increased hybrid Cleaves weapon damage, rather than only
+    their bonus damage."* Owner decision 2026-08-08: model INTENDED.
+
+    Arithmetic, on a fixture with weapon base 100 and bonus base 50 and
+    Improved Cleave rank 3 (+120%):
+
+        pre-fix   2.2 x (100 + 50)        = 330
+        intended  100 + 2.2 x 50          = 210
+        ratio     210 / 330               = 0.63636...
+
+    RED — M61: remove `20496` from `talents.BONUS_TERM_ONLY_TALENT_IDS` (or
+    empty the set). The weapon half takes 2.2 again and the effective
+    multiplier returns to 2.2, so arms 1 and 2 go red.
+    RED — M62: in `damage_multiplier`, drop the `component == "weapon"` skip.
+    Same result by the other route — the set is consulted but does nothing.
+    GREEN is the fix and only the fix: restoring the id (or the skip) makes the
+    weapon-scoped factor 1.0 and the blended factor 1.4, which arm 2 asserts to
+    4 decimal places. ⚠ Arm 3 asserts the OTHER direction — a talent that is
+    NOT bonus-only still reaches the weapon term — so a mutation that makes
+    EVERY modifier bonus-only cannot pass this set either.
+    """
+    from core.sim.talents import (BONUS_TERM_ONLY_TALENT_IDS, TalentEffects,
+                                  TalentModifier)
+
+    def _mod(sid, name, pct):
+        return TalentModifier(
+            talent_spell_id=sid, talent_name=name, card_rank=3,
+            resolved_spell_id=sid, effect_index=0,
+            kind="spellmod_pct", value=pct,
+            # 🛑 REAL masks. `_mask_hits` returns False when either side is
+            # falsy, so a None/None fixture matches NOTHING and every factor
+            # comes back 1.0 — which would make all three arms pass or fail for
+            # reasons unrelated to the split. Family 4 / [4194304,0,0] is
+            # Lightbound Cleave's own mask, byte-identical to Improved Cleave's
+            # (`2c`).
+            scope={"op": 8, "class_mask": [4194304, 0, 0], "family": 4})
+
+    ic = TalentEffects(modifiers=[_mod(20496, "Improved Cleave", 120.0)])
+    _KW = dict(spell_family=4, class_mask=[4194304, 0, 0])
+    all_f, _ = ic.damage_multiplier("Holystrike", **_KW)
+    wpn_f, _ = ic.damage_multiplier("Holystrike", component="weapon", **_KW)
+    check("[3m-B] Improved Cleave (20496) is registered bonus-only and does "
+          "NOT reach the weapon component — the whole-ability factor is still "
+          "2.20, the weapon-scoped factor is 1.00",
+          abs(all_f - 2.2) < 1e-9 and abs(wpn_f - 1.0) < 1e-9,
+          f"all={all_f:.4f}, weapon={wpn_f:.4f}, "
+          f"registered={sorted(BONUS_TERM_ONLY_TALENT_IDS)}")
+
+    # The blended effective multiplier the ability model applies, stated as
+    # arithmetic rather than as "whatever the code returns".
+    w_base, b_base = 100.0, 50.0
+    eff = (b_base * all_f + w_base * wpn_f) / (w_base + b_base)
+    check("[3m-B] ...so an ability with weapon base 100 and bonus base 50 takes "
+          "an EFFECTIVE x1.4000, i.e. 210 where the pre-fix model gave 330 "
+          "(0.65W + 2.2B replaces 2.2(0.65W + B))",
+          abs(eff - 1.4) < 1e-9 and abs((w_base + b_base) * eff - 210.0) < 1e-9,
+          f"effective={eff:.4f}, damage={(w_base + b_base) * eff:.1f}")
+
+    # 🛑 THE OTHER DIRECTION. Scoping is by CARD ID and is deliberately NOT
+    # generalised to every SPELLMOD_ALL_EFFECTS modifier (op 8 means all
+    # effects in the engine, and a weapon-percent effect IS an effect). An
+    # ordinary op-8 talent must still reach the weapon term.
+    other = TalentEffects(modifiers=[_mod(999999, "Some Other Talent", 20.0)])
+    o_all, _ = other.damage_multiplier("Holystrike", **_KW)
+    o_wpn, _ = other.damage_multiplier("Holystrike", component="weapon", **_KW)
+    check("[3m-B] ...while an ordinary SPELLMOD_ALL_EFFECTS talent STILL reaches "
+          "the weapon term — the scope is one card id backed by one changelog "
+          "line, not a new general rule about op 8",
+          abs(o_all - 1.2) < 1e-9 and abs(o_wpn - 1.2) < 1e-9,
+          f"all={o_all:.4f}, weapon={o_wpn:.4f}")
 
 
 def check_e15_pet_row_double_count():

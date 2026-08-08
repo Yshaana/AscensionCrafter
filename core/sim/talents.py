@@ -128,6 +128,39 @@ SPELLMOD_DAMAGE_OPS = {
     0: "SPELLMOD_DAMAGE",
     8: "SPELLMOD_ALL_EFFECTS",     # the Improved Cleave case
 }
+
+# 🚨 `3m` Block B (2026-08-08) — MODIFIERS THAT REACH THE BONUS TERM ONLY.
+#
+# Ascension's 2026-08-07 changelog, live Monday 10 August:
+#     "Fixed a bug where Improved Cleave increased hybrid Cleaves weapon damage,
+#      rather than only their bonus damage. Regular Cleave was unaffected."
+#
+# `2b`/`2c` read `EffectMiscValue = 8 = SPELLMOD_ALL_EFFECTS` over the tooltip's
+# "increases the BONUS damage done by your Cleave ability" — correctly, per this
+# project's own standing rule that a numeric field outranks tooltip prose. The
+# server has now declared the tooltip to be the INTENT and `ALL_EFFECTS` to be
+# the broken DELIVERY. Same shape as `2d`'s Path of Duality lesson, fired in the
+# opposite direction: there the prose was aspirational and the delivery was
+# broken; here the numeric field was the bug and the prose was right.
+#
+# Owner decision 2026-08-08: **model INTENDED.** So `0.65·W + 2.2·(9+AP)`
+# replaces `2.2·(0.65·W + 9+AP)`, and the removed term is `1.2 × 0.65 × W` — a
+# pure weapon term, so the nerf scales with weapon damage.
+#
+# 🛑 SCOPED TO IMPROVED CLEAVE BY CARD ID, NOT GENERALISED TO op 8. The evidence
+# is one changelog line about one card. `SPELLMOD_ALL_EFFECTS` means all effects
+# in the engine, and a weapon-percent effect IS an effect — so treating every op
+# 8 modifier as bonus-only would be inventing a general rule from a specific
+# statement, which is the same over-reach `2d` had to walk back. If another card
+# is later declared the same way, add its id here with its own changelog line.
+#
+# Ranks 1/2/3 = 12329 / 12950 / 20496 (`seed_confirmed.py`
+# improved_cleave_true_magnitude, +40%/+80%/+120%).
+BONUS_TERM_ONLY_TALENT_IDS = {12329, 12950, 20496}
+BONUS_TERM_ONLY_EVIDENCE = (
+    "Ascension changelog 2026-08-07T21:32:22 [Darkmoon][Dawnrise], live "
+    "2026-08-10: 'Fixed a bug where Improved Cleave increased hybrid Cleaves "
+    "weapon damage, rather than only their bonus damage.'")
 SPELLMOD_OP_NAMES = {
     0: "DAMAGE", 1: "DURATION", 2: "THREAT", 3: "EFFECT1", 4: "CHARGES",
     5: "RANGE", 6: "RADIUS", 7: "CRITICAL_CHANCE", 8: "ALL_EFFECTS",
@@ -163,10 +196,24 @@ class TalentEffects:
     buckets: dict = field(default_factory=dict)
 
     # --- damage ---------------------------------------------------------------
-    def damage_multiplier(self, school, spell_family=None, class_mask=None):
+    def damage_multiplier(self, school, spell_family=None, class_mask=None,
+                          component="all"):
         """Multiplicative damage factor for one ability, and what produced it.
 
         Returns `(factor, [applied_names])`.
+
+        🆕 `3m` B — `component` selects which half of the ability's base the
+        factor is for: `"all"` (every modifier — the behaviour every caller had
+        before, and still correct for any ability with no weapon term),
+        `"weapon"` (the weapon-percent components) or `"bonus"` (flats and
+        stat coefficients). Only modifiers in `BONUS_TERM_ONLY_TALENT_IDS`
+        distinguish the two; everything else applies to both, so for the vast
+        majority of abilities `weapon` and `bonus` return the same number as
+        `all` and the split costs nothing.
+
+        🛑 Calling this with `component="all"` on an ability that HAS a weapon
+        term and a bonus-only modifier silently restores the pre-fix behaviour.
+        `_damage_buckets` is the only production caller and asks for the split.
 
         2e T10 (D3): exclusivity buckets are scored **as the game scores them**
         — when several applicable modifiers share a bucket, only the HIGHEST
@@ -180,6 +227,10 @@ class TalentEffects:
         candidates = []          # (modifier, pct_value, label)
         for m in self.modifiers:
             if m.value is None:
+                continue
+            # 3m B — a bonus-only modifier does not reach the weapon component.
+            if (component == "weapon"
+                    and m.talent_spell_id in BONUS_TERM_ONLY_TALENT_IDS):
                 continue
             if m.kind == "damage_pct_school":
                 if mask and (m.scope.get("school_mask", 0) & mask):
