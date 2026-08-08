@@ -182,8 +182,7 @@ figure was measuring a defect.
 | ≥10% | 27 | 32.7% | **no** — below the floor |
 | ≥20% | **24** | **30.1%** | yes |
 | ≥30% | 20 | 24.4% | yes |
-| ≥50% | 10 | 10.2% | yes |
-⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
+| ≥50% | 10 | 10.2% | yes |⚠ **Table PASTED FROM THE TOOL, never retyped (`3f` F8).** 🆕 **`3j` C3 — it is now
 GENERATED AND ASSERTED, because the warning alone failed twice.**
 `py tools/audit/render_band_table.py` renders it from
 `predictions/gate_manifest_3e.json`'s `result.slice_accuracy_by_coverage_band_pct`, and
@@ -215,7 +214,7 @@ reality"* is the sentence that used to live here in words:
 | …paired over the SAME members (no selection bias) | **30.15% headline / 36.27% producing-only (n=24)** | `paired_medians_same_members_at_headline_floor` |
 | …admissible-only slice median (≥20%) | **27.62% (n=21)** | `median_slice_accuracy_pct_admissible_only` |
 
-*(from `gate_manifest_3e.json`, generated 2026-08-08T16:41:32+00:00, git `8d9f591`.)*
+*(from `gate_manifest_3e.json`, generated 2026-08-08T17:08:58+00:00, git `b0c118b`.)*
 
 <!-- /GENERATED derived-figures -->
 

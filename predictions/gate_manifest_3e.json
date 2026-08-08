@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-08-08T16:41:32+00:00",
- "git_sha": "8d9f591f769e182be3aa264b8f50c495b1b39b17",
+ "generated_at": "2026-08-08T17:08:58+00:00",
+ "git_sha": "b0c118b69144e3107327e287b3cf587f88529364",
  "git_working_tree_dirty": false,
  "dirty_tree_write_allowed_by_flag": false,
  "dirty_tree_write_allowed_reason": null,
@@ -62,8 +62,8 @@
   "slice_accuracy_coverage_floor_pct": 20.0,
   "slice_delta_vs_previous_run": {
    "previous_run": {
-    "git_sha": "8a75a2e86bac0d4e41edfa44bc849fb7f24046f8",
-    "generated_at": "2026-08-08T15:24:44+00:00",
+    "git_sha": "8d9f591f769e182be3aa264b8f50c495b1b39b17",
+    "generated_at": "2026-08-08T16:41:32+00:00",
     "median_pct": 30.15,
     "n": 24
    },
