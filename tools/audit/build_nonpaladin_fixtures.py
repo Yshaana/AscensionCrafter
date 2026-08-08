@@ -28,6 +28,20 @@ Regenerating: `builds.db` is gitignored and its bulk needs tier-2 crawl data, so
 this script cannot run on a clean clone. That is exactly why its OUTPUT is
 committed JSON — the fixtures must be reproducible for anyone running the
 harness, independent of whether they can rebuild the corpus.
+
+🛑 **THIS SCRIPT DESTROYS HAND-ADDED BLOCKS, AND `3o` FOUND OUT BY RE-RUNNING
+IT.** It emits a fixture from scratch, so any key added to a committed fixture
+AFTER generation is silently dropped on the next run. Measured: re-running it to
+add one new target rewrote `build_crawled_cp_melee.json` and
+`build_crawled_dot_caster.json` and removed their **`ground_truth_absent`**
+blocks — the `3f` F9 record of *why* those fixtures carry no measured
+magnitude, i.e. exactly the kind of "the absence is deliberate" note that exists
+to stop a later session mistaking it for an oversight. Nothing failed; the
+harness stayed green, because no check reads that block.
+
+**If you re-run this, `git diff fixtures/` before committing** and restore any
+key you did not mean to touch. The safer pattern, when adding a target, is to
+generate, then revert every fixture you were not adding.
 """
 import json
 import sqlite3
@@ -84,6 +98,43 @@ TARGETS = [
             "first-filler-eats-the-budget bug (tiers.py:137-141), and the "
             "absent pet model against a corpus dps that INCLUDES pet damage "
             "(corpus.py:614)."
+        ),
+    },
+    {
+        "snapshot_id": 76,
+        "out": "build_crawled_multi_next_swing.json",
+        "name": "crawled_multi_next_swing",
+        "path": "Strength",
+        "why": (
+            "MULTIPLE ON-NEXT-SWING ABILITIES, DUAL-WIELDING — added `3o` "
+            "Block D to close `AUDIT_3N` F5. `3n` Block B is the arc's biggest "
+            "modelling fix (next-swing abilities ride the swing clock and "
+            "REPLACE the swing they ride), and it shipped with two behaviours "
+            "no fixture could test, because EVERY committed fixture holds "
+            "exactly ONE next-swing ability: `build_elric_paladin` has "
+            "Lightbound Cleave alone and `build_crawled_cp_melee` has Heroic "
+            "Strike alone. The auditor ran both natural mutants — deleting the "
+            "shared-budget decrement (so two Cleaves ride ONE white swing) and "
+            "making leg 2 reduce the OFF hand as well — and BOTH STAYED GREEN "
+            "across the whole harness. This board carries TWO next-swing "
+            "abilities on TWO weapons — Stormbound Cleave (907364) and Heroic "
+            "Strike (25286) — which is what makes those two mutants visible: "
+            "budget SHARING needs >=2 competitors, and main-hand-ONLY "
+            "replacement needs an off hand to leave alone. Exercises: joint "
+            "consumption bounded by one swing budget, highest-damage-first "
+            "allocation order, and `auto_oh` untouched by replacement. "
+            "⚠ WHY THIS BOARD AND NOT A THREE-ABILITY ONE: the first candidate "
+            "carried THREE next-swing Cleaves, which is a stronger sharing "
+            "test — but all three resolve to the SAME 283 damage per swing, so "
+            "the ORDERING arm could not discriminate any order from any other "
+            "and would have passed vacuously on a tie. Here the two differ "
+            "genuinely (Stormbound 268/swing against Heroic Strike 121/swing), "
+            "so allocating in the wrong order gives the budget to the weaker "
+            "ability and the arm fires. `AUDIT_3N` F5 asked for two abilities "
+            "of DISTINCT per-swing damage and the distinctness is the whole "
+            "point. 🛑 Chosen on MECHANICS (two ids carrying Attributes & 0x4 "
+            "on one dual-wield board), never on the character's name — and it "
+            "is a real cohort member the gate already sims through this code."
         ),
     },
 ]

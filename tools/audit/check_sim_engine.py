@@ -100,6 +100,18 @@ EXPECTED_FAILURES = {
     # revealing a pre-existing state. 🛑 CONSEQUENCE: E7 affects ALL THREE
     # fixtures, not two, and `3e`'s "after B1 and B3 this PASSES on cp_melee
     # (1 of 7 -> 2 of 7)" was computed over the drifted set and is withdrawn.
+    # 🆕 3o Block D — the same E7 shape on the new multi-next-swing fixture,
+    # and it is SHARPER here than anywhere else: BOTH on-GCD fillers get zero,
+    # because the three next-swing Cleaves consume the entire swing budget and
+    # the one surviving GCD filler takes the rest. Registered as the known
+    # defect it is, not silenced: nine abilities still do damage, which is why
+    # the pre-3f form of this check passed on boards in exactly this state.
+    "[multi_next_swing] fast_sim allocates GCDs to more than one filler":
+        "ENGINE_BUGS.md E7 — 0 of 2 unbounded on-GCD fillers cast (275054, "
+        "954456). Same first-filler-eats-the-budget shape as the other three "
+        "fixtures; this board reaches 0-of-2 rather than 1-of-N because its "
+        "swing clock is fully subscribed by three next-swing abilities",
+
     "[cp_melee] fast_sim allocates GCDs to more than one filler":
         "ENGINE_BUGS.md E7 — 1 of 5 unbounded fillers casts. Registered in 3f "
         "F3 when the drifted _filler_ids classifier was corrected; the sim was "
@@ -1574,6 +1586,73 @@ def check_next_swing_clocks(conn, kind, spec, f, cs, ct):
           f"expected {expected:.3f} = {swings:.3f} swings - {ns_casts:.3f} "
           "replaced")
 
+    # ------------------------------------------------------------------ 3o D
+    # 🚨 AUDIT_3N F5. Everything above this line was already here, and TWO of
+    # the behaviours it describes could not be tested, because every fixture
+    # held exactly ONE next-swing ability. The auditor ran both natural mutants
+    # — delete the shared-budget decrement, and make leg 2 reduce the OFF hand
+    # too — and BOTH STAYED GREEN across the whole harness.
+    #
+    # The arms below need >= 2 next-swing abilities to say anything, so they
+    # state that requirement and skip loudly rather than passing vacuously on
+    # the single-ability fixtures. `build_crawled_multi_next_swing` (three
+    # Cleaves, two weapons) is the board that makes them fire.
+    if len(ns_rows) < 2:
+        return
+
+    # M73 — the shared budget. With the decrement deleted, EVERY next-swing
+    # ability sees the full budget, so the total exceeds the swings available.
+    # The `ns_casts <= swings` arm above is the one that catches it, and on
+    # this fixture it finally has competitors to catch it with; assert the
+    # stronger form too, because "each got its own full budget" has a specific
+    # signature: the sum lands at N x swings.
+    check(f"[{kind}] [3o-D] the {len(ns_rows)} next-swing abilities SHARE one "
+          f"budget — their {ns_casts:.1f} joint casts are bounded by the "
+          f"{swings:.1f} swings in the window, NOT by "
+          f"{len(ns_rows)} x {swings:.1f} = {len(ns_rows) * swings:.1f}. "
+          "Deleting the `swing_budget -= casts` decrement is invisible on a "
+          "one-ability fixture and this is the board where it is not",
+          ns_casts <= swings + 1e-6,
+          f"joint casts={ns_casts:.3f}, swings={swings:.3f}, per-ability="
+          + str({r["name"]: round(r.get("casts", 0.0), 2)
+                 for r in ns_rows.values()}))
+
+    # Allocation ORDER: highest damage per swing first. Each next-swing ability
+    # occupies one swing, so damage-per-cast IS damage-per-swing and the
+    # ranking is unambiguous. Recomputed from the sim's own per-cast means.
+    ranked = sorted(ns_rows.values(),
+                    key=lambda r: r.get("mean_per_cast", 0.0), reverse=True)
+    starved_above = [r["name"] for i, r in enumerate(ranked[:-1])
+                     if r.get("casts", 0.0) <= 1e-9
+                     and any(x.get("casts", 0.0) > 1e-9 for x in ranked[i + 1:])]
+    check(f"[{kind}] [3o-D] the swing budget goes to the HIGHEST damage per "
+          f"swing first — no ability is starved while a weaker one below it in "
+          f"the ranking casts. Ranking: "
+          + ", ".join(f"{r['name']} {r.get('mean_per_cast', 0.0):.0f}/swing "
+                      f"-> {r.get('casts', 0.0):.1f}" for r in ranked),
+          not starved_above,
+          f"starved while a weaker ability cast: {starved_above}")
+
+    # M74 — leg 2 reduces the MAIN HAND ONLY. An on-next-swing ability replaces
+    # the main-hand swing it rides; the off hand keeps swinging. The code's own
+    # comment calls reducing both "a different, invented mechanic", and nothing
+    # read `auto_oh` until now.
+    if cs.off_hand:
+        oh_int = swing_interval(cs.off_hand, cs.melee_haste_pct)
+        if oh_int:
+            oh_expected = available / oh_int
+            oh = f.per_ability.get("auto_oh")
+            oh_got = oh["casts"] if oh is not None else 0.0
+            check(f"[{kind}] [3o-D] leg 2 touches the MAIN HAND ONLY — the off "
+                  f"hand still swings its full {oh_expected:.1f} times despite "
+                  f"{ns_casts:.1f} main-hand swings being replaced. Reducing "
+                  "the off hand too is a different, invented mechanic, and no "
+                  "arm read auto_oh before this one",
+                  oh is not None and abs(oh_got - oh_expected) < 0.15,
+                  f"auto_oh casts={oh_got} (row "
+                  f"{'present' if oh else 'ABSENT'}) vs {oh_expected:.3f} "
+                  f"expected from the off-hand's own {oh_int:.3f}s interval")
+
 
 def _resolve_for_check(conn, spell_id, spec):
     """Resolve through the SAME resolver the sim used, so a check cannot drift
@@ -1700,7 +1779,13 @@ def check_nonpaladin_fixtures(conn, ct, conv):
     # stat block (parsed, not transcribed) with a paired log.
     for filename, kind in (("build_crawled_cp_melee.json", "cp_melee"),
                            ("build_crawled_dot_caster.json", "dot_caster"),
-                           ("build_elric_frost_mage.json", "frost_mage")):
+                           ("build_elric_frost_mage.json", "frost_mage"),
+                           # 🆕 3o Block D (AUDIT_3N F5) — three next-swing
+                           # abilities on two weapons. The only fixture on which
+                           # budget SHARING and main-hand-ONLY replacement are
+                           # observable at all.
+                           ("build_crawled_multi_next_swing.json",
+                            "multi_next_swing")):
         try:
             bd, spec, cs = _load_fixture(conn, ct, conv, filename)
         except Exception as e:                      # noqa: BLE001
@@ -1974,8 +2059,18 @@ def check_nonpaladin_fixtures(conn, ct, conv):
             #   954611 Hand of Gul'dan  -> creature 855350  (dot_caster)
             #   31687  Summon Water Elemental -> creature 510 (frost_mage,
             #          and the pet whose 5.0% damage share the capture measures)
+            #   280310 Build: Noise Box -> creature 280311 (multi_next_swing;
+            #          read from spell_effect_values at 3o Block D, effect
+            #          type 28 = SPELL_EFFECT_SUMMON, NOT copied from what the
+            #          detector returned — the distinction this block exists
+            #          for. Verified a second time after the fixture's source
+            #          snapshot changed: the first candidate board summoned
+            #          954514 Skull Banner, and pinning THAT id while the
+            #          fixture moved would have made this arm assert a fact
+            #          about a board no longer in the tree)
             known = {"cp_melee": 282977, "dot_caster": 954611,
-                     "frost_mage": 31687}.get(kind)
+                     "frost_mage": 31687,
+                     "multi_next_swing": 280310}.get(kind)
             found_ids = {s.get("spell_id") for s in summons}
             pet_warned = any("pet" in (w or "").lower()
                              for w in (f.warnings or []) + (m.warnings or []))
